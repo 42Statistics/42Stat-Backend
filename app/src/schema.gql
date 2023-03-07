@@ -1,0 +1,45 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserProject {
+  id: Int!
+  occurrence: Int!
+  markedAt: String
+  createdAt: String!
+  finalMark: Int
+  validated: Boolean
+  status: String!
+  currentTeamId: Int!
+  marked: Boolean!
+  projectId: Int!
+  projectName: String!
+  cursusId: Int!
+}
+
+type UserTitle {
+  id: Int!
+  name: String!
+  createdAt: String!
+  updatedAt: String!
+  selected: Boolean!
+}
+
+"""single User model"""
+type User {
+  id: Int!
+  login: String!
+  imageUrl: String
+  grade: String!
+  level: Float!
+  beginAt: String!
+  blackholedAt: String
+  wallet: Int!
+  correctionPoint: Int!
+  titles: [UserTitle]!
+  projects: [UserProject]!
+}
+
+type Query {
+  user(id: Int!): User!
+}
