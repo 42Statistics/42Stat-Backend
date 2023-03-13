@@ -3165,6 +3165,37 @@ export class UsersService {
     ];
   }
 
+  async findAllByIds(ids: number[]) {
+    const dbUser = this.users[0];
+
+    const cursusUser = dbUser.cursus_users.find(
+      (curr) => curr.cursus_id === 21,
+    );
+
+    if (cursusUser === undefined || cursusUser.grade === null) {
+      return null;
+    }
+
+    const user: TempUser = {
+      id: dbUser.id,
+      login: dbUser.login,
+      imageUrl: dbUser.image.link,
+      grade: cursusUser.grade,
+      level: cursusUser.level,
+      beginAt: cursusUser.begin_at,
+      blackholedAt: cursusUser.blackholed_at,
+      wallet: dbUser.wallet,
+      correctionPoint: dbUser.correction_point,
+      titles: getTitles(dbUser),
+      projects: getProjects(dbUser),
+    };
+
+    const ret: TempUser[] = [];
+    ret.push(user);
+    ret.push(user);
+    return ret;
+  }
+
   async findOneById(id: number) {
     // todo: mongoose 연결해서 찾아오는 로직
     const dbUser = this.users.find((curr) => curr.id === id);

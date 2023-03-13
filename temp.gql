@@ -1,0 +1,80 @@
+# query {
+#   levels {
+#     userRank (uid: number);
+#     totalLevelRank (range // n등 ~ n + m등 까지, pagenation) => [];
+#     totalExpRank
+#   }
+# }
+
+# level_users {
+#   created_at: someday
+#   value: 1234
+# }
+
+  # String, Int, Boolean, Float
+
+############ 만들어져있던거 ############
+
+type ExamProject {
+  id: Int!
+  rank: Int!
+  totalTeamCount: Int!
+  passTeamCount: Int!
+}
+
+type Exam {
+  id: Int!
+  beginAt: String!
+  endAt: String!
+  nbrSubscribers: Int!
+  name: String!
+  projects: [ExamProject!]!
+  examUser (id: Int, rank: Int): [Team]! # 이거 그냥 embeded로 때려박기
+}
+
+type Eval {
+
+}
+
+type UserProject {
+  id: Int!
+  occurrence: Int!
+  markedAt: String
+  createdAt: String!
+  finalMark: Int
+  validated: Boolean
+  status: String!
+  currentTeamId: Int!
+  marked: Boolean!
+  projectId: Int!
+  projectName: String!
+  cursusId: Int!
+}
+
+type UserTitle {
+  id: Int!
+  name: String!
+  createdAt: String!
+  updatedAt: String!
+  selected: Boolean!
+}
+
+"""single User model"""
+type User {
+  id: Int!
+  login: String!
+  imageUrl: String
+  grade: String!
+  level: Float!
+  beginAt: String!
+  blackholedAt: String
+  wallet: Int!
+  correctionPoint: Int!
+  titles: [UserTitle]!
+  projects: [UserProject]!
+}
+
+type Query {
+  exam(): [Exam]!
+  user(id: Int!): User!
+}

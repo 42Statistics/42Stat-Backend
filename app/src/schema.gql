@@ -2,6 +2,30 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Project {
+  id: Int!
+  name: String!
+  isExam: Boolean!
+  skills: String!
+  currentUsers: String!
+  graph: String!
+}
+
+type Exam {
+  id: Int!
+  beginAt: DateTime!
+  endAt: DateTime!
+  nbrSubscribers: Int!
+  name: String!
+  projects: [Project!]!
+  examUser: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type UserProject {
   id: Int!
   occurrence: Int!
@@ -40,6 +64,45 @@ type User {
   projects: [UserProject]!
 }
 
+type TeamUser {
+  id: Int!
+  login: String!
+  isLeader: Boolean!
+  occurrence: Int!
+  projectUserId: Int!
+}
+
+type Team {
+  id: Int!
+  name: String!
+  finalMark: Int
+  lockedAt: DateTime
+  closedAt: DateTime
+  status: String!
+  isValidated: Boolean
+  users: [TeamUser!]!
+  _users: [User!]!
+  projectId: Int!
+  _project: Project!
+  projectSessionId: Int!
+  evals: String!
+}
+
+type ScaleTeam {
+  id: Int!
+  finalMark: Int!
+  beginAt: DateTime!
+  filledAt: DateTime!
+  flag: String!
+  corrector: User!
+  corrected: [User!]!
+  team: Team!
+}
+
 type Query {
   user(id: Int!): User!
+  exam(id: Int!): Exam!
+  project(id: Int!): Project!
+  team(id: Int!): Team!
+  getScaleTeam(id: Int!): ScaleTeam!
 }
