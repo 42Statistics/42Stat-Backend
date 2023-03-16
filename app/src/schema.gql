@@ -40,6 +40,53 @@ type User {
   projects: [UserProject]!
 }
 
+type TeamScaleTeam {
+  id: ID!
+  scaleId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  feedback: String
+  finalMark: Int
+  flag: String!
+  beginAt: DateTime!
+  correcteds: String!
+  corrector: String!
+  filledAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type TeamUser {
+  id: ID!
+  login: String!
+  leader: Boolean!
+  occurrence: Int!
+  projectUserId: ID!
+}
+
+type Team {
+  id: ID!
+  name: String!
+  finalMark: Int
+  projectId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: String!
+  terminatingAt: DateTime
+  teamUsers: [TeamUser!]!
+  isLocked: Boolean!
+  isValidated: Boolean
+  isClosed: Boolean!
+  lockedAt: DateTime
+  closedAt: DateTime
+  projectSessionId: ID!
+  teamScaleTeams: [TeamScaleTeam]!
+}
+
 type Query {
   user(id: Int!): User!
+  getTeamById(id: ID!): Team!
 }
