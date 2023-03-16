@@ -3,9 +3,9 @@ import { ArgsType, Field } from '@nestjs/graphql';
 // todo: module 만들어야하나?
 @ArgsType()
 export class PaginationArgs {
-  @Field()
-  offset: number = 0;
+  @Field({ defaultValue: 0 })
+  offset: number;
 
-  @Field()
-  limit: number = 10;
+  @Field({ defaultValue: 10 })
+  limit: number;
 }

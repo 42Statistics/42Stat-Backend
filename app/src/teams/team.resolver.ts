@@ -5,6 +5,8 @@ import { Team } from './models/team.model';
 @Resolver((_of: unknown) => Team)
 export class TeamResolver {
   @Query((_returns) => Team)
+  // todo
+  // eslint-disable-next-line
   async getTeamById(@Args('id', { type: () => ID }) id: string) {
     return {
       id: 1,
