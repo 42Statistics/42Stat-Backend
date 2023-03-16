@@ -46,6 +46,8 @@ type Team {
   closedAt: DateTime
   projectSessionId: ID!
   teamScaleTeams: [TeamScaleTeam]!
+  usersPopulated: String!
+  projectPopulated: String!
 }
 
 type UserProject {
@@ -88,7 +90,7 @@ type User {
 
 type Query {
   user(id: Int!): User!
-  getTeamById(id: ID!): Team!
+  getTeamById(id: ID!): Team
   getTeams(offset: Int! = 0, limit: Int! = 10, filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): [Team]!
 }
 

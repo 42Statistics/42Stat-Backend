@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TeamResolver } from './team.resolver';
+import { TeamsResolver } from './teams.resolver';
+import { TeamsService } from './teams.service';
 
 @Module({
   imports: [],
-  providers: [TeamResolver],
+  providers: [TeamsResolver, TeamsService],
 })
 export class TeamsModule {}
