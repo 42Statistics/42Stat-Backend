@@ -89,4 +89,40 @@ type Team {
 type Query {
   user(id: Int!): User!
   getTeamById(id: ID!): Team!
+  getTeams(offset: Int! = 0, limit: Int! = 10, filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): [Team]!
+}
+
+input GetTeamsFilter {
+  isLocked: Boolean
+  isValidated: Boolean
+  isMarked: Boolean
+}
+
+input GetTeamsRange {
+  beginAtRange: DateRangeInput
+  finalMarkRange: NumericInput
+}
+
+input DateRangeInput {
+  start: DateTime
+  end: DateTime
+}
+
+input NumericInput {
+  start: Int
+  end: Int
+}
+
+input GetTeamsSort {
+  order: SortOrder!
+  key: GetTeamsSortKey!
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum GetTeamsSortKey {
+  FINAL_MARK
 }

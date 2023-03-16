@@ -1,4 +1,5 @@
 import { Args, ID, Query, Resolver } from '@nestjs/graphql';
+import { GetTeamsArgs } from './dto/getTeams.args';
 import { Team } from './models/team.model';
 
 @Resolver((_of: unknown) => Team)
@@ -44,5 +45,12 @@ export class TeamResolver {
         },
       ],
     };
+  }
+
+  // todo: pagenated type 설정
+  @Query((_returns) => [Team], { nullable: 'items' })
+  async getTeams(@Args() args: GetTeamsArgs) {
+    console.log(args);
+    return [];
   }
 }
