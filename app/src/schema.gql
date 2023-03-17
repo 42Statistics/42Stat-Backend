@@ -2,6 +2,25 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type TeamScaleTeam {
+  id: ID!
+  scaleId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  feedback: String
+  finalMark: Int
+  flag: String!
+  beginAt: DateTime!
+  correcteds: String!
+  corrector: String!
+  filledAt: DateTime
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
 type UserProject {
   id: Int!
   occurrence: Int!
@@ -38,8 +57,107 @@ type User {
   correctionPoint: Int!
   titles: [UserTitle]!
   projects: [UserProject]!
+  teams: [Team]!
+}
+
+type TeamUser {
+  id: ID!
+  login: String!
+  isLeader: Boolean!
+  occurrence: Int!
+  projectUserId: ID!
+}
+
+type TeamUserPopulated {
+  id: Int!
+  login: String!
+  imageUrl: String
+  grade: String!
+  level: Float!
+  beginAt: String!
+  blackholedAt: String
+  wallet: Int!
+  correctionPoint: Int!
+  titles: [UserTitle]!
+  projects: [UserProject]!
+  isLeader: Boolean!
+  occurrence: Int!
+  projectUserId: ID!
+}
+
+type Team {
+  id: ID!
+  name: String!
+  finalMark: Int
+  projectId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: String!
+  terminatingAt: DateTime
+  teamUsers: [TeamUser!]!
+  isLocked: Boolean!
+  isValidated: Boolean
+  isClosed: Boolean!
+  lockedAt: DateTime
+  closedAt: DateTime
+  projectSessionId: ID!
+  teamScaleTeams: [TeamScaleTeam]!
+  teamUserPopulated: [TeamUserPopulated!]!
+}
+
+type TeamEdge {
+  cursor: String!
+  node: Team!
+}
+
+type TeamPageInfo {
+  hasNextPage: Boolean!
+  endCursor: String!
+}
+
+type TeamPaginated {
+  edges: [TeamEdge!]
+  totalCount: Int!
+  pageInfo: TeamPageInfo!
 }
 
 type Query {
   user(id: Int!): User!
+  getTeamById(id: ID!): Team
+  getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): TeamPaginated!
+}
+
+input GetTeamsFilter {
+  isLocked: Boolean
+  isValidated: Boolean
+  isMarked: Boolean
+}
+
+input GetTeamsRange {
+  beginAtRange: DateRangeInput
+  finalMarkRange: NumericInput
+}
+
+input DateRangeInput {
+  start: DateTime
+  end: DateTime
+}
+
+input NumericInput {
+  start: Int
+  end: Int
+}
+
+input GetTeamsSort {
+  order: SortOrder!
+  key: GetTeamsSortKey!
+}
+
+enum SortOrder {
+  ASC
+  DESC
+}
+
+enum GetTeamsSortKey {
+  FINAL_MARK
 }
