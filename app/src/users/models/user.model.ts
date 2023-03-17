@@ -1,4 +1,5 @@
 import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Team } from 'src/teams/models/team.model';
 import { UserProject } from './user.project.model';
 import { UserTitle } from './user.title.model';
 

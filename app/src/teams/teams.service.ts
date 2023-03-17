@@ -19,7 +19,7 @@ export class TeamsService {
         {
           id: '99947',
           login: 'jaham',
-          leader: true,
+          isLeader: true,
           occurrence: 0,
           projectUserId: '1',
         },

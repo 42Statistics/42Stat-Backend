@@ -51,10 +51,4 @@ export class Team {
 
   @Field((_type) => [TeamScaleTeam], { nullable: 'items' })
   teamScaleTeams: TeamScaleTeam[];
-
-  @Field()
-  usersPopulated: string; // todo: user
-
-  @Field()
-  projectPopulated: string; // todo: project
 }

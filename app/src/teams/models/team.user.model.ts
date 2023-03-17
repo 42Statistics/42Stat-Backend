@@ -1,4 +1,11 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
+import {
+  Field,
+  ID,
+  IntersectionType,
+  ObjectType,
+  OmitType,
+} from '@nestjs/graphql';
+import { User } from 'src/users/models/user.model';
 
 @ObjectType()
 export class TeamUser {
@@ -9,7 +16,7 @@ export class TeamUser {
   login: string;
 
   @Field()
-  leader: boolean;
+  isLeader: boolean;
 
   @Field()
   occurrence: number;
@@ -18,16 +25,9 @@ export class TeamUser {
   projectUserId: string;
 }
 
-/*
-  "users": [
-      {
-          "id": 104059,
-          "login": "joonhan",
-          "url": "https://api.intra.42.fr/v2/users/joonhan",
-          "leader": true,
-          "occurrence": 1,
-          "validated": true,
-          "projects_user_id": 3026181
-      }
-  ],
-*/
+// User와는 다른 타입을 제공함으로써 순환참조 제거
+@ObjectType()
+export class TeamUserPopulated extends IntersectionType(
+  User,
+  OmitType(TeamUser, ['id', 'login'] as const),
+) {}
