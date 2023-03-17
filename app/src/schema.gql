@@ -102,7 +102,7 @@ type Team {
   closedAt: DateTime
   projectSessionId: ID!
   teamScaleTeams: [TeamScaleTeam]!
-  teamUserPopulated(id: Int!): [TeamUserPopulated!]!
+  teamUserPopulated: [TeamUserPopulated!]!
 }
 
 type TeamEdge {

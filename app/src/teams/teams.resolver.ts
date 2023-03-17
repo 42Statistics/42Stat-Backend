@@ -1,8 +1,4 @@
-import {
-  forwardRef,
-  Inject,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { InternalServerErrorException } from '@nestjs/common';
 import {
   Args,
   ID,
@@ -21,7 +17,6 @@ import { TeamsService } from './teams.service';
 @Resolver((_of: unknown) => Team)
 export class TeamsResolver {
   constructor(
-    @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private teamsService: TeamsService,
     private paginationService: PaginationService,
