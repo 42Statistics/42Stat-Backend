@@ -105,10 +105,26 @@ type Team {
   teamUserPopulated(id: Int!): [TeamUserPopulated!]!
 }
 
+type TeamEdge {
+  cursor: String!
+  node: Team!
+}
+
+type TeamPageInfo {
+  hasNextPage: Boolean!
+  endCursor: String!
+}
+
+type TeamPaginated {
+  edges: [TeamEdge!]
+  totalCount: Int!
+  pageInfo: TeamPageInfo!
+}
+
 type Query {
   user(id: Int!): User!
   getTeamById(id: ID!): Team
-  getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): [Team]!
+  getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): TeamPaginated!
 }
 
 input GetTeamsFilter {

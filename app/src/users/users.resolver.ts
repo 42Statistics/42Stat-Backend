@@ -32,6 +32,8 @@ export class UserResolver {
   }
 
   @ResolveField(() => [Team], { nullable: 'items' })
+  // todo
+  // eslint-disable-next-line
   async teams(@Parent() user: User) {
     const teams = await this.teamsService.getTeamById('1');
     return [teams];

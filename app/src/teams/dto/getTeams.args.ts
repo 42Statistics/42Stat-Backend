@@ -1,8 +1,8 @@
 import { ArgsType, Field, InputType, registerEnumType } from '@nestjs/graphql';
 import { DateRangeInput } from 'src/baseArgs/dateRangeInput';
 import { NumericInput } from 'src/baseArgs/numericInput';
-import { PaginationArgs } from 'src/baseArgs/pagenation.args';
 import { SortOrderInput } from 'src/baseArgs/sortInput';
+import { PaginationArgs } from 'src/pagination/pagination.args';
 
 export enum GetTeamsSortKey {
   FINAL_MARK = 'finalMark',

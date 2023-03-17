@@ -1,4 +1,5 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { Paginated } from 'src/pagination/pagination.type';
 import { TeamScaleTeam } from './team.scaleTeam.model';
 import { TeamUser } from './team.user.model';
 
@@ -52,3 +53,6 @@ export class Team {
   @Field((_type) => [TeamScaleTeam], { nullable: 'items' })
   teamScaleTeams: TeamScaleTeam[];
 }
+
+@ObjectType()
+export class TeamPaginated extends Paginated(Team) {}

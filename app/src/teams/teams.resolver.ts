@@ -11,10 +11,10 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { PaginationArgs } from 'src/pagination/pagination.args';
+import { PaginationService } from 'src/pagination/pagination.service';
 import { UsersService } from 'src/users/users.service';
 import { GetTeamsArgs } from './dto/getTeams.args';
-import { Team } from './models/team.model';
+import { Team, TeamPaginated } from './models/team.model';
 import { TeamUserPopulated } from './models/team.user.model';
 import { TeamsService } from './teams.service';
 
@@ -24,6 +24,7 @@ export class TeamsResolver {
     @Inject(forwardRef(() => UsersService))
     private usersService: UsersService,
     private teamsService: TeamsService,
+    private paginationService: PaginationService,
   ) {}
 
   @Query((_returns) => Team, { nullable: true })
@@ -31,16 +32,17 @@ export class TeamsResolver {
     this.teamsService.getTeamById(id);
   }
 
-  // todo: pagenated type 설정
-  @Query((_returns) => [Team], { nullable: 'items' })
+  @Query((_returns) => TeamPaginated)
   // todo
   // eslint-disable-next-line
   async getTeams(@Args() args: GetTeamsArgs) {
-    return [this.teamsService.getTeamById('1')];
+    const tempData = [await this.teamsService.getTeamById('1')];
+
+    return this.paginationService.generatePage(tempData, args.first);
   }
 
   @ResolveField(() => [TeamUserPopulated])
-  async teamUserPopulated(@Parent() team: Team, @Args('id') id: number) {
+  async teamUserPopulated(@Parent() team: Team) {
     const user = await this.usersService.findOneById(99947);
     if (!user) {
       throw new InternalServerErrorException();
