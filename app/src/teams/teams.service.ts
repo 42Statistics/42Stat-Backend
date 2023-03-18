@@ -30,18 +30,19 @@ export class TeamsService {
       closedAt: new Date(),
       isValidated: null,
       projectSessionId: '1',
-      teamScaleTeams: [
+      teamScaleTeamsPartial: [
         {
           id: '1',
           scaleId: '1',
           createdAt: new Date(),
           updatedAt: new Date(),
           feedback: 'zz',
+          comment: 'asdf',
           finalMark: 123,
           flag: 'testFlag',
           beginAt: new Date(),
-          correcteds: 'testUser',
-          corrector: 'testUser',
+          correcteds: null,
+          corrector: null,
           filledAt: new Date(),
         },
       ],
