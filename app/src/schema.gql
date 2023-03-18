@@ -2,25 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type TeamScaleTeam {
-  id: ID!
-  scaleId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  feedback: String
-  finalMark: Int
-  flag: String!
-  beginAt: DateTime!
-  correcteds: String!
-  corrector: String!
-  filledAt: DateTime
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type UserProject {
   id: Int!
   occurrence: Int!
@@ -60,7 +41,7 @@ type User {
   teams: [Team]!
 }
 
-type TeamUser {
+type TeamUserSpecific {
   id: ID!
   login: String!
   isLeader: Boolean!
@@ -85,6 +66,59 @@ type TeamUserPopulated {
   projectUserId: ID!
 }
 
+type ScaleTeamTeamPartial {
+  id: ID!
+  name: String!
+  finalMark: Int
+  projectId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: String!
+  terminatingAt: DateTime
+  teamUsers: [TeamUserSpecific!]!
+  isLocked: Boolean!
+  isClosed: Boolean!
+  isValidated: Boolean
+  lockedAt: DateTime
+  closedAt: DateTime
+  projectSessionId: ID!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type ScaleTeamUserPartial {
+  id: Int!
+  login: String!
+}
+
+type TeamScaleTeamPartial {
+  id: ID!
+  scaleId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """평가 슬롯의 시작 시간 입니다. 실제 시작 시간은 다를 수 있습니다."""
+  beginAt: DateTime!
+  filledAt: DateTime
+  finalMark: Int
+  flag: String!
+
+  """평가 시간 전에는 null이 반환됩니다."""
+  correcteds: [ScaleTeamUserPartial!]
+
+  """피평가자들의 feedback 입니다."""
+  feedback: String
+
+  """평가 시간 전에는 null이 반환됩니다."""
+  corrector: ScaleTeamUserPartial
+
+  """평가자의 comment 입니다."""
+  comment: String
+}
+
 type Team {
   id: ID!
   name: String!
@@ -94,14 +128,14 @@ type Team {
   updatedAt: DateTime!
   status: String!
   terminatingAt: DateTime
-  teamUsers: [TeamUser!]!
+  teamUsers: [TeamUserSpecific!]!
   isLocked: Boolean!
-  isValidated: Boolean
   isClosed: Boolean!
+  isValidated: Boolean
   lockedAt: DateTime
   closedAt: DateTime
   projectSessionId: ID!
-  teamScaleTeams: [TeamScaleTeam]!
+  teamScaleTeamsPartial: [TeamScaleTeamPartial]!
   teamUserPopulated: [TeamUserPopulated!]!
 }
 
@@ -121,10 +155,58 @@ type TeamPaginated {
   pageInfo: TeamPageInfo!
 }
 
+type TeamPopulated {
+  id: ID!
+  name: String!
+  finalMark: Int
+  projectId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  status: String!
+  terminatingAt: DateTime
+  teamUsers: [TeamUserSpecific!]!
+  isLocked: Boolean!
+  isClosed: Boolean!
+  isValidated: Boolean
+  lockedAt: DateTime
+  closedAt: DateTime
+  projectSessionId: ID!
+  teamScaleTeamsPartial: [TeamScaleTeamPartial]!
+}
+
+type ScaleTeam {
+  id: ID!
+  scaleId: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  """평가 슬롯의 시작 시간 입니다. 실제 시작 시간은 다를 수 있습니다."""
+  beginAt: DateTime!
+  filledAt: DateTime
+  finalMark: Int
+  flag: String!
+
+  """평가 시간 전에는 null이 반환됩니다."""
+  correcteds: [ScaleTeamUserPartial!]
+
+  """피평가자들의 feedback 입니다."""
+  feedback: String
+
+  """평가 시간 전에는 null이 반환됩니다."""
+  corrector: ScaleTeamUserPartial
+
+  """평가자의 comment 입니다."""
+  comment: String
+  scales: String!
+  scaleTeamTeamPartial: ScaleTeamTeamPartial!
+  teamPopulated: TeamPopulated!
+}
+
 type Query {
   user(id: Int!): User!
   getTeamById(id: ID!): Team
   getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): TeamPaginated!
+  getScaleTeamById(id: ID!): ScaleTeam
 }
 
 input GetTeamsFilter {
