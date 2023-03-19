@@ -57,7 +57,7 @@ export class ScaleTeamsService {
   }
 
   // todo
-  // eslint-disalbe-next-line
+  // eslint-disable-next-line
   async findById(id: string) {
     return this.testScaleTeam;
   }

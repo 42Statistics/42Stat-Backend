@@ -174,6 +174,12 @@ type TeamPopulated {
   teamScaleTeamsPartial: [TeamScaleTeamPartial]!
 }
 
+type GraphResultPeriodic {
+  first: Int!
+  after: DateTime!
+  value: [Int]!
+}
+
 type ScaleTeam {
   id: ID!
   scaleId: ID!
@@ -202,11 +208,24 @@ type ScaleTeam {
   teamPopulated: TeamPopulated!
 }
 
+type ScaleTeamsGraph {
+  """인자에 맞는 평가의 총 개수를 반환합니다."""
+  totalCount: Int!
+
+  """평가자의 comment, 피평가자의 feedback을 모두 포함합니다."""
+  averageFeedbackLength: Int!
+
+  """기간 별 평가의 개수를 배열로 반환합니다."""
+  periodicCount: GraphResultPeriodic!
+}
+
 type Query {
   user(id: Int!): User!
   getTeamById(id: ID!): Team
   getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): TeamPaginated!
   getScaleTeamById(id: ID!): ScaleTeam
+  getScaleTeams(first: Int! = 10, after: String! = "0", filter: GetScaleTeamsFilter, range: GetScaleTeamsRange, sort: GetScaleTeamsSort): [ScaleTeam]!
+  getScaleTeamsGraph(filter: GetScaleTeamsFilter, range: GetScaleTeamsRange, period: GraphArgsPeriodic! = {}): ScaleTeamsGraph!
 }
 
 input GetTeamsFilter {
@@ -242,4 +261,48 @@ enum SortOrder {
 
 enum GetTeamsSortKey {
   FINAL_MARK
+}
+
+input GetScaleTeamsFilter {
+  userId: Int
+  createdAt: DateTime
+  beginAt: DateTime
+  finalMark: Int
+  isFilled: Boolean
+}
+
+input GetScaleTeamsRange {
+  createdAtRange: DateRangeInput
+  beginAtRange: DateRangeInput
+  finalMarkRange: NumericInput
+}
+
+input GetScaleTeamsSort {
+  order: SortOrder!
+  key: GetScaleTeamsSortKey!
+}
+
+enum GetScaleTeamsSortKey {
+  FINAL_MARK
+  CORRECTOR_ID
+  CORRECTEDS_LEADER_ID
+  CREATED_AT
+  BEGIN_AT
+  TEAM_ID
+}
+
+input GraphArgsPeriodic {
+  """graph의 결과를 해당 값 만큼 반환합니다."""
+  first: Int
+
+  """graph의 결과를 해당 날짜의 값을 배열의 시작점으로 반환합니다."""
+  after: DateTime
+  interval: GraphInterval! = MONTH
+}
+
+enum GraphInterval {
+  DAY
+  WEEK
+  MONTH
+  YEAR
 }
