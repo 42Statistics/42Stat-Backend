@@ -11,7 +11,7 @@ import { PaginationService } from 'src/pagination/pagination.service';
 import { UsersService } from 'src/users/users.service';
 import { GetTeamsArgs } from './dto/getTeams.args';
 import { Team, TeamPaginated } from './models/team.model';
-import { TeamUserPopulated } from './models/team.user.model';
+import { TeamUserPopulated } from './models/team.specific.model';
 import { TeamsService } from './teams.service';
 
 @Resolver((_of: unknown) => Team)

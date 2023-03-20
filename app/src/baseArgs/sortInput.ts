@@ -9,6 +9,7 @@ registerEnumType(SortOrder, {
   name: 'SortOrder',
 });
 
+// Key generics?
 @InputType()
 export abstract class SortOrderInput {
   @Field((_type) => SortOrder)

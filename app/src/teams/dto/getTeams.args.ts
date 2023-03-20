@@ -4,8 +4,29 @@ import { NumericInput } from 'src/baseArgs/numericInput';
 import { SortOrderInput } from 'src/baseArgs/sortInput';
 import { PaginationArgs } from 'src/pagination/pagination.args';
 
+@InputType()
+export class GetTeamsFilter {
+  @Field((_type) => Boolean, { nullable: true })
+  isLocked: boolean | null;
+
+  @Field((_type) => Boolean, { nullable: true })
+  isValidated: boolean | null;
+
+  @Field((_type) => Boolean, { nullable: true })
+  isMarked: boolean | null;
+}
+
+@InputType()
+export class GetTeamsRange {
+  @Field((_type) => DateRangeInput, { nullable: true })
+  beginAtRange: DateRangeInput | null;
+
+  @Field((_type) => NumericInput, { nullable: true })
+  finalMarkRange: NumericInput | null;
+}
+
 export enum GetTeamsSortKey {
-  FINAL_MARK = 'finalMark',
+  FINAL_MARK,
 }
 
 registerEnumType(GetTeamsSortKey, {
@@ -18,37 +39,14 @@ export class GetTeamsSort extends SortOrderInput {
   key: GetTeamsSortKey;
 }
 
-// todo: InputType을 이용하면 filter: { ... } 형태로 보낼 수 있지만, filter의 종류가 많지 않다면 오히려 타입만 늘어나는 결과일지도.
-// 그냥 ArgsType의 Field로 넣는게 filter의 종류가 적은 경우엔 더 효율적인 듯 하다.
-@InputType()
-class GetTeamsFilter {
-  @Field({ nullable: true })
-  isLocked?: boolean;
-
-  @Field({ nullable: true })
-  isValidated?: boolean;
-
-  @Field({ nullable: true })
-  isMarked?: boolean;
-}
-
-@InputType()
-class GetTeamsRange {
-  @Field((_type) => DateRangeInput, { nullable: true })
-  beginAtRange?: DateRangeInput;
-
-  @Field((_type) => NumericInput, { nullable: true })
-  finalMarkRange?: NumericInput;
-}
-
 @ArgsType()
 export class GetTeamsArgs extends PaginationArgs {
   @Field((_type) => GetTeamsFilter, { nullable: true })
-  filter?: GetTeamsFilter;
+  filter: GetTeamsFilter | null;
 
   @Field((_type) => GetTeamsRange, { nullable: true })
-  range?: GetTeamsRange;
+  range: GetTeamsRange | null;
 
   @Field((_type) => GetTeamsSort, { nullable: true })
-  sort?: GetTeamsSort;
+  sort: GetTeamsSort | null;
 }
