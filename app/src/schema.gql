@@ -1,0 +1,102 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ProjectPreview {
+  id: ID!
+  name: String!
+  url: URL!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+type TeamPreview {
+  id: ID!
+  name: String!
+  url: URL!
+}
+
+type Corrector {
+  id: ID!
+  login: String!
+  imgUrl: URL
+  comment: String!
+
+  """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
+  correctorRate: Int!
+}
+
+type Corrected {
+  id: ID!
+  login: String!
+  imgUrl: URL
+  isLeader: Boolean!
+  feedback: String!
+}
+
+type Flag {
+  id: ID!
+  name: String!
+  isPositive: Boolean!
+}
+
+type EvalInfo {
+  corrector: Corrector!
+  correcteds: [Corrected!]!
+  beginAt: DateTime!
+  finalMark: Int!
+  flag: Flag!
+  projectPreview: ProjectPreview!
+  teamPreview: TeamPreview!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type EvalInfoEdge {
+  cursor: String!
+  node: EvalInfo!
+}
+
+type EvalInfoPageInfo {
+  hasNextPage: Boolean!
+  endCursor: String!
+}
+
+type EvalInfoPaginated {
+  edges: [EvalInfoEdge!]
+  totalCount: Int!
+  pageInfo: EvalInfoPageInfo!
+}
+
+type EvalStatSummary {
+  currMonthEvalCnt: Int!
+  lastMonthEvalCnt: Int!
+  averageEvalDuration: Int!
+
+  """평가자 기준으로 준 평균 점수 입니다."""
+  averageFinalMark: Float!
+
+  """평가자, 피평가자 모두 포함해서 계산된 값 입니다."""
+  averageFeedbackLength: Int!
+}
+
+type PersonEvalPage {
+  evalStatSummary: EvalStatSummary!
+  evalInfos(evalUserType: EvalUserEnum!, subjectName: String, targetUserName: String, outstandingOnly: Boolean): [EvalInfoPaginated!]!
+}
+
+enum EvalUserEnum {
+  ANY
+  CORRECTOR
+  CORRECTED
+}
+
+type Query {
+  getPersonEvalPage: PersonEvalPage!
+}
