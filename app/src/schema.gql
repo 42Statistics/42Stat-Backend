@@ -88,7 +88,7 @@ type EvalStatSummary {
 
 type PersonEvalPage {
   evalStatSummary: EvalStatSummary!
-  evalInfos(evalUserType: EvalUserEnum!, subjectName: String, targetUserName: String, outstandingOnly: Boolean): [EvalInfoPaginated!]!
+  evalInfos(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): EvalInfoPaginated!
 }
 
 enum EvalUserEnum {

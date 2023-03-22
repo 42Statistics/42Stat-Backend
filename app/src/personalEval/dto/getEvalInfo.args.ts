@@ -12,7 +12,7 @@ registerEnumType(EvalUserEnum, {
 
 @ArgsType()
 export class GetEvalInfoArgs {
-  @Field((_type) => EvalUserEnum)
+  @Field((_type) => EvalUserEnum, { defaultValue: EvalUserEnum.ANY })
   evalUserType: EvalUserEnum;
 
   @Field({ nullable: true })
