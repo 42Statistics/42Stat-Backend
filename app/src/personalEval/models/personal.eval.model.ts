@@ -21,7 +21,7 @@ export class EvalStatSummary {
 }
 
 @ObjectType()
-export class PersonEvalPage {
+export class PersonalEval {
   @Field((_type) => EvalStatSummary)
   evalStatSummary: EvalStatSummary;
 }

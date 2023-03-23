@@ -56,9 +56,6 @@ export class Corrector extends UserPreview {
 export class Corrected extends UserPreview {
   @Field()
   isLeader: boolean;
-
-  @Field()
-  feedback: string;
 }
 
 @ObjectType()
@@ -74,12 +71,15 @@ export class Flag {
 }
 
 @ObjectType()
-export class EvalInfo {
+export class PersonalEvalInfo {
   @Field((_type) => Corrector)
   corrector: Corrector;
 
   @Field((_type) => [Corrected])
   correcteds: Corrected[];
+
+  @Field({ description: '피평가자의 피드백 입니다.' })
+  feedback: string;
 
   @Field()
   beginAt: Date;
@@ -98,4 +98,4 @@ export class EvalInfo {
 }
 
 @ObjectType()
-export class EvalInfoPaginated extends Paginated(EvalInfo) {}
+export class PersonalEvalInfoPaginated extends Paginated(PersonalEvalInfo) {}

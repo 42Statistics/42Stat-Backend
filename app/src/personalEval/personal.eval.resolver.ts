@@ -1,21 +1,21 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { GetEvalInfoArgs } from './dto/getEvalInfo.args';
-import { EvalInfoPaginated } from './models/person.eval.info.model';
-import { EvalStatSummary, PersonEvalPage } from './models/person.eval.model';
+import { PersonalEvalInfoPaginated } from './models/personal.eval.info.model';
+import { PersonalEval } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
-@Resolver((_of: unknown) => PersonEvalPage)
+@Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
   constructor(private personalEvalService: PersonalEvalService) {}
 
-  @Query((_returns) => PersonEvalPage)
-  async getPersonEvalPage() {
+  @Query((_returns) => PersonalEval)
+  async getPersonalEvalPage() {
     return {
       evalStatSummary: await this.personalEvalService.getSummaryByUid('99947'),
     };
   }
 
-  @ResolveField('evalInfos', (_returns) => EvalInfoPaginated)
+  @ResolveField('evalInfos', (_returns) => PersonalEvalInfoPaginated)
   async getEvalInfos(@Args() args: GetEvalInfoArgs) {
     const result = await this.personalEvalService.getEvalInfos(args);
 
