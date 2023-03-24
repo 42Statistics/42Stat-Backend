@@ -6,12 +6,14 @@ import { join } from 'path';
 import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
 import { HomeModule } from './home/home.module';
+import { TotalModule } from './total/total.module';
 
 @Module({
   imports: [
     PersonalEvalModule,
     PersonalGeneralModule,
     HomeModule,
+    TotalModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       resolvers: { URL: URLResolver },
