@@ -156,6 +156,7 @@ type ScoreInfo {
 type UserInfo {
   id: ID!
   login: String!
+  name: String!
   imgUrl: String!
   userTitles: [UserTitle]!
   level: Float!
@@ -190,7 +191,134 @@ enum EvalUserEnum {
   CORRECTED
 }
 
+type RankingType {
+  rank: Int!
+  user: String!
+  profileUrl: URL!
+  value: Int!
+}
+
+type ProjectRankingType {
+  rank: Int!
+  subject: String!
+  count: Int!
+}
+
+type examInfoType {
+  rank: Int!
+  passed: Int!
+  total: Int!
+  percentage: Float!
+}
+
+type LastExamInfoType {
+  info: [examInfoType!]!
+}
+
+type Home {
+  currWeekEvalCnt: Int!
+  lastWeekEvalCnt: Int!
+  lastMonthBlackholedCnt: Int!
+  currMonthBlackholedCnt: Int!
+  projectTeamCnt: [ProjectRankingType!]!
+  monthlyExpIncrement: [RankingType!]!
+  monthlyAccessTime: [RankingType!]!
+  totalEvalCnt: [RankingType!]!
+  level: [RankingType!]!
+  lastExamPassRate: LastExamInfoType!
+}
+
+type dateType {
+  At: DateTime!
+  value: Int!
+}
+
+type blackholedCircleType {
+  circle: Int!
+  value: Int!
+}
+
+type totalCoalitionScoreType {
+  coalition: coaliltionEnum!
+  score: Int!
+}
+
+enum coaliltionEnum {
+  GUN
+  GON
+  GAM
+  LEE
+}
+
+type subjectBaseType {
+  name: String!
+  url: URL!
+}
+
+type subjectDetailType {
+  skills: [Int!]!
+  averagePassScore: Int!
+  averageDurationTime: Int!
+  totalSubmissionsCnt: Int!
+  currTeamCount: Int!
+}
+
+type subjectPassType {
+  passPercentage: Int!
+  totalEvalCnt: Int!
+}
+
+type subjectInfoType {
+  subjectBase: subjectBaseType!
+  subjectDetail: subjectDetailType!
+  subjectPass: subjectPassType!
+}
+
+type durationDaybyCircleType {
+  circle: Int!
+  durationDay: Int!
+}
+
+type coalitionScoreChangeType {
+  coalition: coaliltionEnum!
+  info: [dateType!]!
+}
+
+type userCntByPointType {
+  userCnt: Int!
+  point: Int!
+}
+
+type evalCntByPointType {
+  evalCnt: Int!
+  point: Int!
+}
+
+type userCntByLevelType {
+  userCnt: Int!
+  level: Int!
+}
+
+type Total {
+  activeUserCnt: [dateType!]!
+  blackholedCircle: [blackholedCircleType!]!
+  totalCoalitionScore: [totalCoalitionScoreType!]!
+  evalPoint: [RankingType!]!
+  wallet: [RankingType!]!
+  monthlyCoalitionScore: [RankingType!]!
+  totalEvalCnt: Int!
+  averageAllFeedbackLength: Int!
+  durationDaybyCircle: [durationDaybyCircleType!]!
+  coalitionScoreChange: [coalitionScoreChangeType!]!
+  userCntByPoint: [userCntByPointType!]!
+  evalCntByPoint: [evalCntByPointType!]!
+  userCntByLevel: [userCntByLevelType!]!
+  subjectName(subjectName: String! = "libft"): [subjectInfoType!]!
+}
+
 type Query {
   getPersonalEvalPage: PersonalEval!
   getPersonGeneralPage: PersonalGeneral!
+  getHomePage: Home!
+  getTotalPage: Total!
 }
