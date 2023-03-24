@@ -5,11 +5,13 @@ import { URLResolver } from 'graphql-scalars';
 import { join } from 'path';
 import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
+import { HomeModule } from './home/home.module';
 
 @Module({
   imports: [
     PersonalEvalModule,
     PersonalGeneralModule,
+    HomeModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       resolvers: { URL: URLResolver },
