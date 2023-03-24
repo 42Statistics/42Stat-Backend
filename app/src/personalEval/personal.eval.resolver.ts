@@ -11,7 +11,7 @@ export class PersonalEvalResolver {
   @Query((_returns) => PersonalEval)
   async getPersonalEvalPage() {
     return {
-      evalStatSummary: await this.personalEvalService.getSummaryByUid('99947'),
+      evalStat: await this.personalEvalService.getSummaryByUid('99947'),
     };
   }
 

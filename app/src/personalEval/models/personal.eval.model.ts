@@ -1,7 +1,7 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class EvalStatSummary {
+export class EvalStat {
   @Field()
   currMonthEvalCnt: number;
 
@@ -22,6 +22,6 @@ export class EvalStatSummary {
 
 @ObjectType()
 export class PersonalEval {
-  @Field((_type) => EvalStatSummary)
-  evalStatSummary: EvalStatSummary;
+  @Field((_type) => EvalStat)
+  evalStat: EvalStat;
 }
