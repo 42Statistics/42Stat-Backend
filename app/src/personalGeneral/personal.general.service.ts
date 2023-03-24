@@ -198,16 +198,17 @@ export class PersonalGeneralService {
     return {
       id: '99947',
       login: 'jaham',
+      name: 'jaewon Ham',
       imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
       userTitles: [
         {
           id: '1',
-          name: 'this is test title',
+          name: '%login, this is test title',
           isSelected: true,
         },
         {
           id: '2',
-          name: 'this is test title 2',
+          name: 'this is test title 2, %login',
           isSelected: false,
         },
       ],

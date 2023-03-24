@@ -33,6 +33,9 @@ export class UserInfo {
   login: string;
 
   @Field()
+  name: string;
+
+  @Field()
   imgUrl: string;
 
   @Field((_type) => [UserTitle], { nullable: 'items' })
