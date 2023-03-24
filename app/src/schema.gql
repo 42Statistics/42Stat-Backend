@@ -34,7 +34,6 @@ type Corrected {
   login: String!
   imgUrl: URL
   isLeader: Boolean!
-  feedback: String!
 }
 
 type Flag {
@@ -43,9 +42,12 @@ type Flag {
   isPositive: Boolean!
 }
 
-type EvalInfo {
+type PersonalEvalInfo {
   corrector: Corrector!
   correcteds: [Corrected!]!
+
+  """피평가자의 피드백 입니다."""
+  feedback: String!
   beginAt: DateTime!
   finalMark: Int!
   flag: Flag!
@@ -58,23 +60,113 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type EvalInfoEdge {
+type PersonalEvalInfoEdge {
   cursor: String!
-  node: EvalInfo!
+  node: PersonalEvalInfo!
 }
 
-type EvalInfoPageInfo {
+type PersonalEvalInfoPageInfo {
   hasNextPage: Boolean!
   endCursor: String!
 }
 
-type EvalInfoPaginated {
-  edges: [EvalInfoEdge!]
+type PersonalEvalInfoPaginated {
+  edges: [PersonalEvalInfoEdge!]
   totalCount: Int!
-  pageInfo: EvalInfoPageInfo!
+  pageInfo: PersonalEvalInfoPageInfo!
 }
 
-type EvalStatSummary {
+type TempTeam {
+  id: ID!
+  name: String!
+  occurrence: Int!
+  closedAt: DateTime
+  firstCreatedAt: DateTime!
+  finalMark: Int
+
+  """true면 통과, false면 fail, null이면 미평가 입니다."""
+  isValidated: Boolean
+}
+
+type PreferredTime {
+  morning: Int!
+  daytime: Int!
+  evening: Int!
+  night: Int!
+}
+
+type LogtimeInfo {
+  currMonthLogtime: Int!
+  lastMonthLogtime: Int!
+  preferredTime: PreferredTime!
+  preferredCluster: String!
+}
+
+type TeamInfo {
+  lastRegistered: String
+  lastPassed: String
+  teams: [TempTeam]!
+}
+
+type DestinyUser {
+  id: ID!
+  login: String!
+  imgUrl: URL
+  score: Int!
+}
+
+type EvalUserInfo {
+  totalEvalCnt: Int!
+  difficulty: EvalUserDifficulty!
+  destinyUsers: [DestinyUser]!
+}
+
+enum EvalUserDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  HELL
+}
+
+type LevelHistory {
+  date: DateTime!
+  level: Float!
+}
+
+type PersonalGeneral {
+  evalUserInfo: EvalUserInfo!
+  logtimeInfo: LogtimeInfo!
+  teamInfo: TeamInfo!
+  levelHistory: LevelHistory!
+  userInfo: UserInfo!
+}
+
+type UserTitle {
+  id: ID!
+  name: String!
+  isSelected: Boolean!
+}
+
+type ScoreInfo {
+  current: Int!
+  rankInCoalition: Int!
+  rankInTotal: Int!
+}
+
+type UserInfo {
+  id: ID!
+  login: String!
+  imgUrl: String!
+  userTitles: [UserTitle]!
+  level: Float!
+  pooledAt: DateTime!
+  blackholedAt: DateTime
+  wallet: Int!
+  correctionPoint: Int!
+  scoreInfo: ScoreInfo!
+}
+
+type EvalStat {
   currMonthEvalCnt: Int!
   lastMonthEvalCnt: Int!
   averageEvalDuration: Int!
@@ -86,9 +178,10 @@ type EvalStatSummary {
   averageFeedbackLength: Int!
 }
 
-type PersonEvalPage {
-  evalStatSummary: EvalStatSummary!
-  evalInfos(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): EvalInfoPaginated!
+type PersonalEval {
+  evalStat: EvalStat!
+  evalInfos(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalEvalInfoPaginated!
+  userInfo: UserInfo!
 }
 
 enum EvalUserEnum {
@@ -98,5 +191,6 @@ enum EvalUserEnum {
 }
 
 type Query {
-  getPersonEvalPage: PersonEvalPage!
+  getPersonalEvalPage: PersonalEval!
+  getPersonGeneralPage: PersonalGeneral!
 }

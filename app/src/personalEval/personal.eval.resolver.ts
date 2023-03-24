@@ -1,4 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { UserInfo } from 'src/personalGeneral/models/personal.general.userInfo.model';
+import { PersonalGeneralService } from 'src/personalGeneral/personal.general.service';
 import { GetEvalInfoArgs } from './dto/getEvalInfo.args';
 import { PersonalEvalInfoPaginated } from './models/personal.eval.info.model';
 import { PersonalEval } from './models/personal.eval.model';
@@ -6,7 +8,10 @@ import { PersonalEvalService } from './personal.eval.service';
 
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
-  constructor(private personalEvalService: PersonalEvalService) {}
+  constructor(
+    private personalEvalService: PersonalEvalService,
+    private personalGeneralService: PersonalGeneralService,
+  ) {}
 
   @Query((_returns) => PersonalEval)
   async getPersonalEvalPage() {
@@ -26,14 +31,14 @@ export class PersonalEvalResolver {
           corrector: {
             id: curr.corrector.id,
             login: curr.corrector.login,
-            imgUri: null,
+            imgUrl: null,
             comment: curr.comment,
             correctorRate: 5,
           },
           correcteds: curr.correcteds.map((cur: any) => ({
             id: cur.id,
             login: cur.login,
-            imgUri: null,
+            imgUrl: null,
             isLeader: true,
             feedback: curr.feedback,
           })),
@@ -68,5 +73,10 @@ export class PersonalEvalResolver {
         endCursor: 'this is end cursor',
       },
     };
+  }
+
+  @ResolveField('userInfo', (_returns) => UserInfo)
+  async getUserInfo() {
+    return await this.personalGeneralService.getUserInfo('99947');
   }
 }

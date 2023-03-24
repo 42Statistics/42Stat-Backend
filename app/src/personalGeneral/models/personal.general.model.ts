@@ -1,4 +1,4 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { UserPreview } from 'src/personalEval/models/personal.eval.info.model';
 
 // todo: erase this
@@ -19,10 +19,10 @@ export class TempTeam {
   @Field()
   firstCreatedAt: Date;
 
-  @Field({ nullable: true })
-  finalMark: number;
+  @Field((_type) => Int, { nullable: true })
+  finalMark: number | null;
 
-  @Field({
+  @Field((_type) => Boolean, {
     nullable: true,
     description: 'true면 통과, false면 fail, null이면 미평가 입니다.',
   })
@@ -31,15 +31,19 @@ export class TempTeam {
 
 @ObjectType()
 export class PreferredTime {
+  // 06 ~ 12
   @Field()
   morning: number;
 
+  // 12 ~ 18
   @Field()
-  dayTime: number;
+  daytime: number;
 
+  // 18 ~ 24
   @Field()
   evening: number;
 
+  // 24 ~ 06
   @Field()
   night: number;
 }
@@ -62,7 +66,7 @@ export class LogtimeInfo {
 @ObjectType()
 export class TeamInfo {
   @Field((_type) => String, { nullable: true })
-  lastRegisterd: string | null;
+  lastRegistered: string | null;
 
   @Field((_type) => String, { nullable: true })
   lastPassed: string | null;
@@ -71,8 +75,16 @@ export class TeamInfo {
   teams: TempTeam[];
 }
 
-// @ObjectType()
-// export class  {}
+export enum EvalUserDifficulty {
+  EASY,
+  MEDIUM,
+  HARD,
+  HELL,
+}
+
+registerEnumType(EvalUserDifficulty, {
+  name: 'EvalUserDifficulty',
+});
 
 @ObjectType()
 export class DestinyUser extends UserPreview {
@@ -81,7 +93,19 @@ export class DestinyUser extends UserPreview {
 }
 
 @ObjectType()
-export class LevelHisotry {
+export class EvalUserInfo {
+  @Field()
+  totalEvalCnt: number;
+
+  @Field((_type) => EvalUserDifficulty)
+  difficulty: EvalUserDifficulty;
+
+  @Field((_types) => [DestinyUser], { nullable: 'items' })
+  destinyUsers: DestinyUser[];
+}
+
+@ObjectType()
+export class LevelHistory {
   @Field()
   date: Date;
 
@@ -92,13 +116,7 @@ export class LevelHisotry {
 @ObjectType()
 export class PersonalGeneral {
   @Field()
-  totalEvalCnt: number;
-
-  @Field()
-  evalDifficulty: number; // todo
-
-  @Field((_type) => [DestinyUser])
-  destinyUsers: DestinyUser[];
+  evalUserInfo: EvalUserInfo;
 
   @Field()
   logtimeInfo: LogtimeInfo;
@@ -106,6 +124,6 @@ export class PersonalGeneral {
   @Field()
   teamInfo: TeamInfo;
 
-  @Field((_type) => [LevelHisotry])
-  levelHistory: LevelHisotry[];
+  @Field((_type) => [LevelHistory])
+  levelHistory: LevelHistory[];
 }
