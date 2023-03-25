@@ -1,6 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { FloatRankingType, ProjectRankingType, RankingType } from './ranking.type';
-import { LastExamInfoType } from './examInfo.type';
+import { ProjectRanking, Ranking } from './ranking.type';
+import { LastExamInfo } from './examInfo.type';
 
 @ObjectType()
 export class Home {
@@ -16,21 +16,21 @@ export class Home {
   @Field((_type) => Int)
   currMonthBlackholedCnt: number;
 
-  @Field((_type) => [ProjectRankingType])
-  projectTeamCnt: [ProjectRankingType];
+  @Field((_type) => [ProjectRanking])
+  currRegisteredCntRank: [ProjectRanking];
 
-  @Field((_type) => [RankingType])
-  monthlyExpIncrement: [RankingType];
+  @Field((_type) => [Ranking])
+  monthlyExpIncrementRank: [Ranking];
 
-  @Field((_type) => [RankingType])
-  monthlyAccessTime: [RankingType];
+  @Field((_type) => [Ranking])
+  monthlyAccessTimeRank: [Ranking];
 
-  @Field((_type) => [RankingType])
-  totalEvalCnt: [RankingType];
+  @Field((_type) => [Ranking])
+  totalEvalCntRank: [Ranking];
 
-  @Field((_type) => [RankingType])
-  level: [FloatRankingType];
+  @Field((_type) => [Ranking])
+  levelRank: [Ranking];
 
-  @Field((_type) => LastExamInfoType)
-  lastExamPassRate: LastExamInfoType;
+  @Field((_type) => [LastExamInfo])
+  lastExamPassRate: [LastExamInfo];
 }

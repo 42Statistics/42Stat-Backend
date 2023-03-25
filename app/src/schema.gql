@@ -191,28 +191,23 @@ enum EvalUserEnum {
   CORRECTED
 }
 
-type RankingType {
+type Ranking {
   rank: Int!
-  user: String!
+  value: Float!
+  userName: String!
   profileUrl: URL!
-  value: Int!
 }
 
-type ProjectRankingType {
+type ProjectRanking {
   rank: Int!
-  subject: String!
-  count: Int!
+  value: Float!
+  projectName: String!
 }
 
-type examInfoType {
+type LastExamInfo {
   rank: Int!
-  passed: Int!
+  passCnt: Int!
   total: Int!
-  percentage: Float!
-}
-
-type LastExamInfoType {
-  info: [examInfoType!]!
 }
 
 type Home {
@@ -220,12 +215,12 @@ type Home {
   lastWeekEvalCnt: Int!
   lastMonthBlackholedCnt: Int!
   currMonthBlackholedCnt: Int!
-  projectTeamCnt: [ProjectRankingType!]!
-  monthlyExpIncrement: [RankingType!]!
-  monthlyAccessTime: [RankingType!]!
-  totalEvalCnt: [RankingType!]!
-  level: [RankingType!]!
-  lastExamPassRate: LastExamInfoType!
+  currRegisteredCntRank: [ProjectRanking!]!
+  monthlyExpIncrementRank: [Ranking!]!
+  monthlyAccessTimeRank: [Ranking!]!
+  totalEvalCntRank: [Ranking!]!
+  levelRank: [Ranking!]!
+  lastExamPassRate: [LastExamInfo!]!
 }
 
 type Record {
@@ -233,24 +228,24 @@ type Record {
   value: Int!
 }
 
-type blackholeCircle {
+type BlackholeCircle {
   circle: Int!
   value: Int!
 }
 
-type totalScore {
-  coalitionName: coaliltionName!
+type TotalScore {
+  coalitionName: CoaliltionName!
   score: Int!
 }
 
-enum coaliltionName {
+enum CoaliltionName {
   GUN
   GON
   GAM
   LEE
 }
 
-type projectInfo {
+type ProjectInfo {
   name: String!
   url: URL!
   skills: [Int!]!
@@ -262,46 +257,46 @@ type projectInfo {
   totalEvalCnt: Int!
 }
 
-type durationDayPerCircle {
+type DurationDayPerCircle {
   circle: Int!
   durationDay: Int!
 }
 
 type ScoreRecords {
-  coalitionName: coaliltionName!
+  coalitionName: CoaliltionName!
   records: [Record!]!
 }
 
-type userCntPerPoint {
+type UserCntPerPoint {
   userCnt: Int!
   point: Int!
 }
 
-type evalCntPerPoint {
+type EvalCntPerPoint {
   evalCnt: Int!
   point: Int!
 }
 
-type userCntPerLevel {
+type UserCntPerLevel {
   userCnt: Int!
   level: Int!
 }
 
 type Total {
   activeUserCnt: [Record!]!
-  blackholeCircle: [blackholeCircle!]!
-  totalScore: [totalScore!]!
-  evalPointRank: [RankingType!]!
-  walletRank: [RankingType!]!
-  monthlyScoreRank: [RankingType!]!
+  blackholeCircle: [BlackholeCircle!]!
+  totalScore: [TotalScore!]!
+  evalPointRank: [Ranking!]!
+  walletRank: [Ranking!]!
+  monthlyScoreRank: [Ranking!]!
   totalEvalCnt: Int!
   averageFeedbackLength: Int!
-  durationDayPerCircle: [durationDayPerCircle!]!
-  ScoreRecords: [ScoreRecords!]!
-  userCntPerPoint: [userCntPerPoint!]!
-  evalCntPerPoint: [evalCntPerPoint!]!
-  userCntPerLevel: [userCntPerLevel!]!
-  projectInfo(projectName: String! = "libft"): [projectInfo!]!
+  durationDayPerCircle: [DurationDayPerCircle!]!
+  scoreRecords: [ScoreRecords!]!
+  userCntPerPoint: [UserCntPerPoint!]!
+  evalCntPerPoint: [EvalCntPerPoint!]!
+  userCntPerLevel: [UserCntPerLevel!]!
+  ProjectInfo(projectName: String! = "libft"): [ProjectInfo!]!
 }
 
 type Query {

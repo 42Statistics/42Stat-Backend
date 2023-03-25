@@ -9,7 +9,7 @@ import {
   EvalCntPerPoint,
   Record,
 } from './total.type';
-import { RankingType } from 'src/home/models/ranking.type';
+import { Ranking } from 'src/home/models/ranking.type';
 
 @ObjectType()
 export class Total {
@@ -22,14 +22,14 @@ export class Total {
   @Field((_type) => [TotalScore])
   totalScore: [TotalScore];
 
-  @Field((_type) => [RankingType])
-  evalPointRank: [RankingType];
+  @Field((_type) => [Ranking])
+  evalPointRank: [Ranking];
 
-  @Field((_type) => [RankingType])
-  walletRank: [RankingType];
+  @Field((_type) => [Ranking])
+  walletRank: [Ranking];
 
-  @Field((_type) => [RankingType])
-  monthlyScoreRank: [RankingType];
+  @Field((_type) => [Ranking])
+  monthlyScoreRank: [Ranking];
 
   @Field((_type) => Int)
   totalEvalCnt: number;
