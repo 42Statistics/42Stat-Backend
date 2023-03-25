@@ -1,6 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { Total } from './models/total.model';
-import { coaliltionEnum, subjectInfoType } from './models/total.type';
+import { CoaliltionName, ProjectInfo } from './models/total.type';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
@@ -55,19 +55,19 @@ export class TotalResolver {
       ],
       totalCoalitionScore: [
         {
-          coalition: coaliltionEnum.GUN,
+          coalition: CoaliltionName.GUN,
           score: 18000000,
         },
         {
-          coalition: coaliltionEnum.GON,
+          coalition: CoaliltionName.GON,
           score: 5000000,
         },
         {
-          coalition: coaliltionEnum.GAM,
+          coalition: CoaliltionName.GAM,
           score: 19000000,
         },
         {
-          coalition: coaliltionEnum.LEE,
+          coalition: CoaliltionName.LEE,
           score: 10000000,
         },
       ],
@@ -165,7 +165,7 @@ export class TotalResolver {
       ],
       coalitionScoreChange: [
         {
-          coalition: coaliltionEnum.GUN,
+          coalition: CoaliltionName.GUN,
           info: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
@@ -190,7 +190,7 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: coaliltionEnum.GON,
+          coalition: CoaliltionName.GON,
           info: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
@@ -215,7 +215,7 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: coaliltionEnum.GAM,
+          coalition: CoaliltionName.GAM,
           info: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
@@ -240,7 +240,7 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: coaliltionEnum.LEE,
+          coalition: CoaliltionName.LEE,
           info: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
@@ -335,48 +335,34 @@ export class TotalResolver {
     };
   }
 
-  @ResolveField('subjectName', (_returns) => [subjectInfoType])
-  async getSubjectInfo(
-    @Args('subjectName', { defaultValue: 'libft' }) subjectName: string,
-  ) {
-    if (subjectName === 'ft_printf') {
+  @ResolveField('ProjectInfo', (_returns) => [ProjectInfo])
+  async getProjectInfo(@Args('projectName', { defaultValue: 'libft' }) projectName: string) {
+    if (projectName === 'ft_printf') {
       return [
         {
-          subjectBase: {
-            name: 'ft_printf',
-            url: 'http://www.naver.com',
-          },
-          subjectDetail: {
-            skills: [3, 4], //todo
-            averagePassScore: 115,
-            averageDurationTime: 17,
-            totalSubmissionsCnt: 2000,
-            currTeamCount: 40,
-          },
-          subjectPass: {
-            passPercentage: 30,
-            totalEvalCnt: 2200,
-          },
+          name: 'ft_printf',
+          url: 'http://www.naver.com',
+          skills: [3, 4], //todo
+          averagePassFinalmark: 115,
+          averageDurationTime: 17,
+          totalSubmissionsCnt: 2000,
+          currRegisteredCnt: 40,
+          passPercentage: 30,
+          totalEvalCnt: 2200,
         },
       ];
     }
     return [
       {
-        subjectBase: {
-          name: 'libft',
-          url: 'http://www.naver.com',
-        },
-        subjectDetail: {
-          skills: [1, 2], //todo
-          averagePassScore: 109,
-          averageDurationTime: 17,
-          totalSubmissionsCnt: 1801,
-          currTeamCount: 80,
-        },
-        subjectPass: {
-          passPercentage: 50,
-          totalEvalCnt: 3392,
-        },
+        name: 'libft',
+        url: 'http://www.naver.com',
+        skills: [1, 2], //todo
+        averagePassFinalmark: 109,
+        averageDurationTime: 17,
+        totalSubmissionsCnt: 1801,
+        currRegisteredCnt: 80,
+        passPercentage: 50,
+        totalEvalCnt: 3392,
       },
     ];
   }

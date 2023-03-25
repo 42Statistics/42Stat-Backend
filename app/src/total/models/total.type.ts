@@ -2,7 +2,7 @@ import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
 
 @ObjectType()
-export class dateType {
+export class Record {
   @Field((_type) => Date)
   At: string;
 
@@ -11,7 +11,7 @@ export class dateType {
 }
 
 @ObjectType()
-export class blackholedCircleType {
+export class BlackholeCircle {
   @Field((_type) => Int)
   circle: number;
 
@@ -21,55 +21,49 @@ export class blackholedCircleType {
   //todo: percentage?
 }
 
-export enum coaliltionEnum {
+export enum CoaliltionName {
   GUN,
   GON,
   GAM,
   LEE,
 }
 
-registerEnumType(coaliltionEnum, {
-  name: 'coaliltionEnum',
+registerEnumType(CoaliltionName, {
+  name: 'CoaliltionName',
 });
 
 @ObjectType()
-export class totalCoalitionScoreType {
-  @Field((_type) => coaliltionEnum)
-  coalition: coaliltionEnum;
+export class TotalScore {
+  @Field((_type) => CoaliltionName)
+  coalitionName: CoaliltionName;
 
   @Field((_type) => Int)
   score: number;
 }
 
 @ObjectType()
-export class subjectBaseType {
+export class ProjectInfo {
   @Field()
   name: string;
 
   @Field((_type) => URLResolver)
   url: string;
-}
 
-@ObjectType()
-export class subjectDetailType {
   @Field((_type) => [Int])
   skills: number[];
 
   @Field((_type) => Int)
-  averagePassScore: number;
+  averagePassFinalmark: number;
 
   @Field((_type) => Int)
   averageDurationTime: number;
 
   @Field((_type) => Int)
-  totalSubmissionsCnt: number;
+  totalSubmissionsCnt: number; //총 제출 횟수
 
   @Field((_type) => Int)
-  currTeamCount: number;
-}
+  currRegisteredCnt: number;
 
-@ObjectType()
-export class subjectPassType {
   @Field((_type) => Int)
   passPercentage: number;
 
@@ -78,17 +72,7 @@ export class subjectPassType {
 }
 
 @ObjectType()
-export class subjectInfoType {
-  @Field((_type) => subjectBaseType)
-  subjectBase: subjectBaseType;
-  @Field((_type) => subjectDetailType)
-  subjectDetail: subjectDetailType;
-  @Field((_type) => subjectPassType)
-  subjectPass: subjectPassType;
-}
-
-@ObjectType()
-export class durationDaybyCircleType {
+export class DurationDayPerCircle {
   @Field((_type) => Int)
   circle: number;
 
@@ -97,16 +81,16 @@ export class durationDaybyCircleType {
 }
 
 @ObjectType()
-export class coalitionScoreChangeType {
-  @Field((_type) => coaliltionEnum)
-  coalition: coaliltionEnum;
+export class ScoreRecords {
+  @Field((_type) => CoaliltionName)
+  coalitionName: CoaliltionName;
 
-  @Field((_type) => [dateType])
-  info: [dateType];
+  @Field((_type) => [Record])
+  records: [Record];
 }
 
 @ObjectType()
-export class userCntByPointType {
+export class UserCntPerPoint {
   //todo: total user count?
 
   @Field((_type) => Int)
@@ -117,7 +101,7 @@ export class userCntByPointType {
 }
 
 @ObjectType()
-export class evalCntByPointType {
+export class EvalCntPerPoint {
   @Field((_type) => Int)
   evalCnt: number;
 
@@ -126,7 +110,7 @@ export class evalCntByPointType {
 }
 
 @ObjectType()
-export class userCntByLevelType {
+export class UserCntPerLevel {
   @Field((_type) => Int)
   userCnt: number;
 

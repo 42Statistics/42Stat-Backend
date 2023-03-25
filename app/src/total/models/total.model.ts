@@ -1,54 +1,54 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
-  blackholedCircleType,
-  durationDaybyCircleType,
-  totalCoalitionScoreType,
-  coalitionScoreChangeType,
-  userCntByPointType,
-  userCntByLevelType,
-  evalCntByPointType,
-  dateType,
+  BlackholeCircle,
+  DurationDayPerCircle,
+  TotalScore,
+  ScoreRecords,
+  UserCntPerPoint,
+  UserCntPerLevel,
+  EvalCntPerPoint,
+  Record,
 } from './total.type';
 import { RankingType } from 'src/home/models/ranking.type';
 
 @ObjectType()
 export class Total {
-  @Field((_type) => [dateType])
-  activeUserCnt: [dateType];
+  @Field((_type) => [Record])
+  activeUserCnt: [Record];
 
-  @Field((_type) => [blackholedCircleType])
-  blackholedCircle: [blackholedCircleType];
+  @Field((_type) => [BlackholeCircle])
+  blackholeCircle: [BlackholeCircle];
 
-  @Field((_type) => [totalCoalitionScoreType])
-  totalCoalitionScore: [totalCoalitionScoreType];
-
-  @Field((_type) => [RankingType])
-  evalPoint: [RankingType];
+  @Field((_type) => [TotalScore])
+  totalScore: [TotalScore];
 
   @Field((_type) => [RankingType])
-  wallet: [RankingType];
+  evalPointRank: [RankingType];
 
   @Field((_type) => [RankingType])
-  monthlyCoalitionScore: [RankingType];
+  walletRank: [RankingType];
+
+  @Field((_type) => [RankingType])
+  monthlyScoreRank: [RankingType];
 
   @Field((_type) => Int)
   totalEvalCnt: number;
 
   @Field((_type) => Int)
-  averageAllFeedbackLength: number;
+  averageFeedbackLength: number;
 
-  @Field((_type) => [durationDaybyCircleType])
-  durationDaybyCircle: [durationDaybyCircleType];
+  @Field((_type) => [DurationDayPerCircle])
+  durationDayPerCircle: [DurationDayPerCircle];
 
-  @Field((_type) => [coalitionScoreChangeType])
-  coalitionScoreChange: [coalitionScoreChangeType];
+  @Field((_type) => [ScoreRecords])
+  scoreRecords: [ScoreRecords];
 
-  @Field((_type) => [userCntByPointType])
-  userCntByPoint: [userCntByPointType];
+  @Field((_type) => [UserCntPerPoint])
+  userCntPerPoint: [UserCntPerPoint];
 
-  @Field((_type) => [evalCntByPointType])
-  evalCntByPoint: [evalCntByPointType];
+  @Field((_type) => [EvalCntPerPoint])
+  evalCntPerPoint: [EvalCntPerPoint];
 
-  @Field((_type) => [userCntByLevelType])
-  userCntByLevel: [userCntByLevelType];
+  @Field((_type) => [UserCntPerLevel])
+  userCntPerLevel: [UserCntPerLevel];
 }

@@ -1,5 +1,5 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { LevelRankingType, ProjectRankingType, RankingType } from './ranking.type';
+import { FloatRankingType, ProjectRankingType, RankingType } from './ranking.type';
 import { LastExamInfoType } from './examInfo.type';
 
 @ObjectType()
@@ -29,7 +29,7 @@ export class Home {
   totalEvalCnt: [RankingType];
 
   @Field((_type) => [RankingType])
-  level: [LevelRankingType];
+  level: [FloatRankingType];
 
   @Field((_type) => LastExamInfoType)
   lastExamPassRate: LastExamInfoType;

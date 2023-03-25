@@ -20,7 +20,7 @@ export class RankingType extends BaseRankingType {
 }
 
 @ObjectType()
-export class LevelRankingType extends BaseRankingType {
+export class FloatRankingType extends BaseRankingType {
   @Field((_type) => Float)
   value: number;
 }

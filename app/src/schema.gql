@@ -228,92 +228,80 @@ type Home {
   lastExamPassRate: LastExamInfoType!
 }
 
-type dateType {
+type Record {
   At: DateTime!
   value: Int!
 }
 
-type blackholedCircleType {
+type blackholeCircle {
   circle: Int!
   value: Int!
 }
 
-type totalCoalitionScoreType {
-  coalition: coaliltionEnum!
+type totalScore {
+  coalitionName: coaliltionName!
   score: Int!
 }
 
-enum coaliltionEnum {
+enum coaliltionName {
   GUN
   GON
   GAM
   LEE
 }
 
-type subjectBaseType {
+type projectInfo {
   name: String!
   url: URL!
-}
-
-type subjectDetailType {
   skills: [Int!]!
-  averagePassScore: Int!
+  averagePassFinalmark: Int!
   averageDurationTime: Int!
   totalSubmissionsCnt: Int!
-  currTeamCount: Int!
-}
-
-type subjectPassType {
+  currRegisteredCnt: Int!
   passPercentage: Int!
   totalEvalCnt: Int!
 }
 
-type subjectInfoType {
-  subjectBase: subjectBaseType!
-  subjectDetail: subjectDetailType!
-  subjectPass: subjectPassType!
-}
-
-type durationDaybyCircleType {
+type durationDayPerCircle {
   circle: Int!
   durationDay: Int!
 }
 
-type coalitionScoreChangeType {
-  coalition: coaliltionEnum!
-  info: [dateType!]!
+type ScoreRecords {
+  coalitionName: coaliltionName!
+  records: [Record!]!
 }
 
-type userCntByPointType {
+type userCntPerPoint {
   userCnt: Int!
   point: Int!
 }
 
-type evalCntByPointType {
+type evalCntPerPoint {
   evalCnt: Int!
   point: Int!
 }
 
-type userCntByLevelType {
+type userCntPerLevel {
   userCnt: Int!
   level: Int!
 }
 
 type Total {
-  activeUserCnt: [dateType!]!
-  blackholedCircle: [blackholedCircleType!]!
-  totalCoalitionScore: [totalCoalitionScoreType!]!
-  evalPoint: [RankingType!]!
-  wallet: [RankingType!]!
-  monthlyCoalitionScore: [RankingType!]!
+  activeUserCnt: [Record!]!
+  blackholeCircle: [blackholeCircle!]!
+  totalScore: [totalScore!]!
+  evalPointRank: [RankingType!]!
+  walletRank: [RankingType!]!
+  monthlyScoreRank: [RankingType!]!
   totalEvalCnt: Int!
-  averageAllFeedbackLength: Int!
-  durationDaybyCircle: [durationDaybyCircleType!]!
-  coalitionScoreChange: [coalitionScoreChangeType!]!
-  userCntByPoint: [userCntByPointType!]!
-  evalCntByPoint: [evalCntByPointType!]!
-  userCntByLevel: [userCntByLevelType!]!
-  subjectName(subjectName: String! = "libft"): [subjectInfoType!]!
+  averageFeedbackLength: Int!
+  durationDayPerCircle: [durationDayPerCircle!]!
+  ScoreRecords: [ScoreRecords!]!
+  userCntPerPoint: [userCntPerPoint!]!
+  evalCntPerPoint: [evalCntPerPoint!]!
+  userCntPerLevel: [userCntPerLevel!]!
+  projectInfo(projectName: String! = "libft"): [projectInfo!]!
 }
 
 type Query {
