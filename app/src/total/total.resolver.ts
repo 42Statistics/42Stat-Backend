@@ -31,7 +31,11 @@ export class TotalResolver {
           value: 750,
         },
       ],
-      blackholedCircle: [
+      blackholedUser: [
+        {
+          circle: 0,
+          value: 150,
+        },
         {
           circle: 1,
           value: 50,
@@ -53,120 +57,120 @@ export class TotalResolver {
           value: 5,
         },
       ],
-      totalCoalitionScore: [
+      totalScore: [
         {
-          coalition: CoaliltionName.GUN,
+          coalitionName: CoaliltionName.GUN,
           score: 18000000,
         },
         {
-          coalition: CoaliltionName.GON,
+          coalitionName: CoaliltionName.GON,
           score: 5000000,
         },
         {
-          coalition: CoaliltionName.GAM,
+          coalitionName: CoaliltionName.GAM,
           score: 19000000,
         },
         {
-          coalition: CoaliltionName.LEE,
+          coalitionName: CoaliltionName.LEE,
           score: 10000000,
         },
       ],
-      evalPoint: [
+      evalPointRank: [
         {
           rank: 1,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 240,
         },
         {
           rank: 2,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 209,
         },
         {
           rank: 3,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 180,
         },
       ],
-      wallet: [
+      walletRank: [
         {
           rank: 1,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 4242,
         },
         {
           rank: 2,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 3010,
         },
         {
           rank: 3,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 1880,
         },
       ],
-      monthlyCoalitionScore: [
+      monthlyScoreRank: [
         {
           rank: 1,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 8500,
         },
         {
           rank: 2,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 7800,
         },
         {
           rank: 3,
-          user: 'yopark',
+          userName: 'yopark',
           profileUrl: 'http://www.naver.com',
           value: 7250,
         },
       ],
       totalEvalCnt: 87102,
-      averageAllFeedbackLength: 88,
-      durationDaybyCircle: [
+      averageFeedbackLength: 88,
+      averageCircleDuration: [
         {
           circle: 0,
-          durationDay: 7,
+          value: 7,
         },
         {
           circle: 1,
-          durationDay: 10,
+          value: 10,
         },
         {
           circle: 2,
-          durationDay: 55,
+          value: 55,
         },
         {
           circle: 3,
-          durationDay: 107,
+          value: 107,
         },
         {
           circle: 4,
-          durationDay: 204,
+          value: 204,
         },
         {
           circle: 5,
-          durationDay: 307,
+          value: 307,
         },
         {
           circle: 6,
-          durationDay: 390,
+          value: 390,
         },
       ],
-      coalitionScoreChange: [
+      scoreRecords: [
         {
-          coalition: CoaliltionName.GUN,
-          info: [
+          coalitionName: CoaliltionName.GUN,
+          records: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
               value: 1000,
@@ -190,8 +194,8 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: CoaliltionName.GON,
-          info: [
+          coalitionName: CoaliltionName.GON,
+          records: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
               value: 2250,
@@ -215,8 +219,8 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: CoaliltionName.GAM,
-          info: [
+          coalitionName: CoaliltionName.GAM,
+          records: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
               value: 1500,
@@ -240,8 +244,8 @@ export class TotalResolver {
           ],
         },
         {
-          coalition: CoaliltionName.LEE,
-          info: [
+          coalitionName: CoaliltionName.LEE,
+          records: [
             {
               At: new Date('2022-11-01T00:00:00.405Z'),
               value: 1800,
@@ -265,7 +269,7 @@ export class TotalResolver {
           ],
         },
       ],
-      userCntByPoint: [
+      userCntPerPoint: [
         {
           userCnt: 100,
           point: 0, //todo: 음수 포함
@@ -288,7 +292,7 @@ export class TotalResolver {
         },
         //todo: 피그마처럼 3씩 나눠서 하기
       ],
-      evalCntByPoint: [
+      evalCntPerPoint: [
         {
           evalCnt: 20,
           point: 0,
@@ -310,7 +314,7 @@ export class TotalResolver {
           point: 4,
         },
       ],
-      userCntByLevel: [
+      userCntPerLevel: [
         {
           userCnt: 25,
           level: 1,

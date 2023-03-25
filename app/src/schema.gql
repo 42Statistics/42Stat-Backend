@@ -228,7 +228,7 @@ type Record {
   value: Int!
 }
 
-type BlackholeCircle {
+type CircleInfo {
   circle: Int!
   value: Int!
 }
@@ -257,11 +257,6 @@ type ProjectInfo {
   totalEvalCnt: Int!
 }
 
-type DurationDayPerCircle {
-  circle: Int!
-  durationDay: Int!
-}
-
 type ScoreRecords {
   coalitionName: CoaliltionName!
   records: [Record!]!
@@ -284,14 +279,14 @@ type UserCntPerLevel {
 
 type Total {
   activeUserCnt: [Record!]!
-  blackholeCircle: [BlackholeCircle!]!
+  blackholedUser: [CircleInfo!]!
   totalScore: [TotalScore!]!
   evalPointRank: [Ranking!]!
   walletRank: [Ranking!]!
   monthlyScoreRank: [Ranking!]!
   totalEvalCnt: Int!
   averageFeedbackLength: Int!
-  durationDayPerCircle: [DurationDayPerCircle!]!
+  averageCircleDuration: [CircleInfo!]!
   scoreRecords: [ScoreRecords!]!
   userCntPerPoint: [UserCntPerPoint!]!
   evalCntPerPoint: [EvalCntPerPoint!]!

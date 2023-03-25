@@ -11,7 +11,7 @@ export class Record {
 }
 
 @ObjectType()
-export class BlackholeCircle {
+export class CircleInfo {
   @Field((_type) => Int)
   circle: number;
 
@@ -69,15 +69,6 @@ export class ProjectInfo {
 
   @Field((_type) => Int)
   totalEvalCnt: number;
-}
-
-@ObjectType()
-export class DurationDayPerCircle {
-  @Field((_type) => Int)
-  circle: number;
-
-  @Field((_type) => Int)
-  durationDay: number;
 }
 
 @ObjectType()

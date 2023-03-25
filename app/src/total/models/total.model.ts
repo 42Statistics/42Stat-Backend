@@ -1,13 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import {
-  BlackholeCircle,
-  DurationDayPerCircle,
+  Record,
+  CircleInfo,
   TotalScore,
   ScoreRecords,
   UserCntPerPoint,
   UserCntPerLevel,
   EvalCntPerPoint,
-  Record,
 } from './total.type';
 import { Ranking } from 'src/home/models/ranking.type';
 
@@ -16,8 +15,8 @@ export class Total {
   @Field((_type) => [Record])
   activeUserCnt: [Record];
 
-  @Field((_type) => [BlackholeCircle])
-  blackholeCircle: [BlackholeCircle];
+  @Field((_type) => [CircleInfo])
+  blackholedUser: [CircleInfo];
 
   @Field((_type) => [TotalScore])
   totalScore: [TotalScore];
@@ -37,8 +36,8 @@ export class Total {
   @Field((_type) => Int)
   averageFeedbackLength: number;
 
-  @Field((_type) => [DurationDayPerCircle])
-  durationDayPerCircle: [DurationDayPerCircle];
+  @Field((_type) => [CircleInfo])
+  averageCircleDuration: [CircleInfo];
 
   @Field((_type) => [ScoreRecords])
   scoreRecords: [ScoreRecords];
