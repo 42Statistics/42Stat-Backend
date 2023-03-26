@@ -30,25 +30,18 @@ export class PersonalEvalService {
     const filtered = tempData.filter(
       (curr: any) =>
         curr.corrector.id === tempUid ||
-        curr.correcteds.find((corrected: any) => corrected.id === tempUid) !==
-          undefined,
+        curr.correcteds.find((corrected: any) => corrected.id === tempUid) !== undefined,
     );
 
     const currMonth = new Date('2023-02-01T00:00:00.000Z').getTime();
     const lastMonth = new Date('2023-01-01T00:00:00.000Z').getTime();
 
-    const totalEval = filtered.filter(
-      (curr: any) => curr.corrector.id === tempUid,
-    );
+    const totalEval = filtered.filter((curr: any) => curr.corrector.id === tempUid);
 
     const result = totalEval.reduce(
       (acc: [number, number], curr: any) => {
         if (curr.filled_at && curr.begin_at) {
-          acc[0] +=
-            (new Date(curr.filled_at).getTime() -
-              new Date(curr.begin_at).getTime()) /
-            1000 /
-            60;
+          acc[0] += (new Date(curr.filled_at).getTime() - new Date(curr.begin_at).getTime()) / 1000 / 60;
           acc[1] += curr.final_mark;
         }
 
@@ -66,15 +59,13 @@ export class PersonalEvalService {
     });
 
     const evaluateThis = tempData.filter(
-      (curr: any) =>
-        curr.corrector.id === tempUid &&
-        new Date(curr.begin_at).getTime() >= currMonth,
+      (curr: any) => curr.corrector.id === tempUid && new Date(curr.begin_at).getTime() >= currMonth,
     );
 
     return {
-      currMonthEvalCnt: evaluateThis.length,
-      lastMonthEvalCnt: evaluateLast.length,
-      averageEvalDuration: Math.floor(result[0] / totalEval.length),
+      currMonthCnt: evaluateThis.length,
+      lastMonthCnt: evaluateLast.length,
+      averageDuration: Math.floor(result[0] / totalEval.length),
       averageFinalMark: Math.floor(result[1] / totalEval.length),
       averageFeedbackLength: Math.floor(
         filtered.reduce((acc: number, curr: any) => {
@@ -96,27 +87,20 @@ export class PersonalEvalService {
 
     let filtered = tempData;
     if (args.evalUserType === EvalUserEnum.CORRECTED) {
-      filtered = tempData.filter(
-        (curr: any) =>
-          curr.correcteds.find((cur: any) => cur.id !== uid) !== undefined,
-      );
+      filtered = tempData.filter((curr: any) => curr.correcteds.find((cur: any) => cur.id !== uid) !== undefined);
     } else if (args.evalUserType === EvalUserEnum.CORRECTOR) {
       filtered = tempData.filter((curr: any) => curr.corrector.id === uid);
     }
 
     if (args.subjectName) {
       filtered = filtered.filter((curr: any) =>
-        curr.team.project_gitlab_path
-          .toUpperCase()
-          .includes(args.subjectName?.toUpperCase()),
+        curr.team.project_gitlab_path.toUpperCase().includes(args.subjectName?.toUpperCase()),
       );
     }
 
     if (args.targetUserName) {
       if (args.evalUserType === EvalUserEnum.CORRECTED) {
-        filtered = filtered.filter(
-          (curr: any) => curr.corrector.login === args.targetUserName,
-        );
+        filtered = filtered.filter((curr: any) => curr.corrector.login === args.targetUserName);
       } else if (args.evalUserType === EvalUserEnum.CORRECTOR) {
         filtered = filtered.filter((curr: any) =>
           curr.correcteds.find((cur: any) => cur.login === args.targetUserName),
@@ -125,9 +109,7 @@ export class PersonalEvalService {
         filtered = filtered.filter(
           (curr: any) =>
             curr.corrector.login === args.targetUserName ||
-            curr.correcteds.find(
-              (cur: any) => cur.login === args.targetUserName,
-            ),
+            curr.correcteds.find((cur: any) => cur.login === args.targetUserName),
         );
       }
     }

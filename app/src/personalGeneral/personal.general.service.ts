@@ -128,7 +128,7 @@ export class PersonalGeneralService {
 
     return {
       lastRegistered: 'avaj-launcher',
-      lastPassed: 'avaj-launcher',
+      lastPass: 'avaj-launcher',
       teams: projectUsers.map((curr: any) => ({
         id: curr.id,
         name: curr.project.name,

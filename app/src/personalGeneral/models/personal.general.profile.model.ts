@@ -25,7 +25,7 @@ export class ScoreInfo {
 }
 
 @ObjectType()
-export class UserInfo {
+export class UserProfile {
   @Field((_type) => ID)
   id: string;
 

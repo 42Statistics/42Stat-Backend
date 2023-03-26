@@ -1,15 +1,15 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class EvalStat {
+export class EvalProfile {
   @Field()
-  currMonthEvalCnt: number;
+  currMonthCnt: number;
 
   @Field()
-  lastMonthEvalCnt: number;
+  lastMonthCnt: number;
 
   @Field()
-  averageEvalDuration: number;
+  averageDuration: number;
 
   @Field((_type) => Float, {
     description: '평가자 기준으로 준 평균 점수 입니다.',
@@ -22,6 +22,6 @@ export class EvalStat {
 
 @ObjectType()
 export class PersonalEval {
-  @Field((_type) => EvalStat)
-  evalStat: EvalStat;
+  @Field((_type) => EvalProfile)
+  evalProfile: EvalProfile;
 }

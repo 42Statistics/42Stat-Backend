@@ -1,6 +1,6 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { EvalUserInfo, LevelHistory, LogtimeInfo, PersonalGeneral, TeamInfo } from './models/personal.general.model';
-import { UserInfo } from './models/personal.general.userInfo.model';
+import { EvalUserInfo, LevelRecord, LogtimeInfo, PersonalGeneral, TeamInfo } from './models/personal.general.model';
+import { UserProfile } from './models/personal.general.profile.model';
 import { PersonalGeneralService } from './personal.general.service';
 
 @Resolver((_of: unknown) => PersonalGeneral)
@@ -28,12 +28,12 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.getTeamInfoByUid('99947');
   }
 
-  @ResolveField('levelHistory', (_returns) => LevelHistory)
+  @ResolveField('levelRecords', (_returns) => LevelRecord)
   async getLevelHistory() {
     return await this.personalGeneralService.getLevelHistroyByUid('99947');
   }
 
-  @ResolveField('userInfo', (_returns) => UserInfo)
+  @ResolveField('personalProfile', (_returns) => UserProfile)
   async getUserInfo() {
     return await this.personalGeneralService.getUserInfo('99947');
   }

@@ -2,16 +2,31 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ProjectPreview {
+type UserPreview {
   id: ID!
-  name: String!
-  url: URL!
+  login: String!
+  imgUrl: URL!
 }
 
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
 """
 scalar URL
+
+type ProjectPreview {
+  id: ID!
+  name: String!
+}
+
+type UserRanking {
+  userPreview: UserPreview!
+  value: Float!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
 
 type TeamPreview {
   id: ID!
@@ -42,7 +57,7 @@ type Flag {
   isPositive: Boolean!
 }
 
-type PersonalEvalInfo {
+type PersonalScaleTeam {
   corrector: Corrector!
   correcteds: [Corrected!]!
 
@@ -60,20 +75,20 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type PersonalEvalInfoEdge {
+type PersonalScaleTeamEdge {
   cursor: String!
-  node: PersonalEvalInfo!
+  node: PersonalScaleTeam!
 }
 
-type PersonalEvalInfoPageInfo {
+type PersonalScaleTeamPageInfo {
   hasNextPage: Boolean!
   endCursor: String!
 }
 
-type PersonalEvalInfoPaginated {
-  edges: [PersonalEvalInfoEdge!]
+type PersonalScaleTeamsPaginated {
+  edges: [PersonalScaleTeamEdge!]
   totalCount: Int!
-  pageInfo: PersonalEvalInfoPageInfo!
+  pageInfo: PersonalScaleTeamPageInfo!
 }
 
 type TempTeam {
@@ -104,7 +119,7 @@ type LogtimeInfo {
 
 type TeamInfo {
   lastRegistered: String
-  lastPassed: String
+  lastPass: String
   teams: [TempTeam]!
 }
 
@@ -128,7 +143,7 @@ enum EvalUserDifficulty {
   HELL
 }
 
-type LevelHistory {
+type LevelRecord {
   date: DateTime!
   level: Float!
 }
@@ -137,8 +152,8 @@ type PersonalGeneral {
   evalUserInfo: EvalUserInfo!
   logtimeInfo: LogtimeInfo!
   teamInfo: TeamInfo!
-  levelHistory: LevelHistory!
-  userInfo: UserInfo!
+  levelRecords: LevelRecord!
+  personalProfile: UserProfile!
 }
 
 type UserTitle {
@@ -153,7 +168,7 @@ type ScoreInfo {
   rankInTotal: Int!
 }
 
-type UserInfo {
+type UserProfile {
   id: ID!
   login: String!
   name: String!
@@ -167,10 +182,10 @@ type UserInfo {
   scoreInfo: ScoreInfo!
 }
 
-type EvalStat {
-  currMonthEvalCnt: Int!
-  lastMonthEvalCnt: Int!
-  averageEvalDuration: Int!
+type EvalProfile {
+  currMonthCnt: Int!
+  lastMonthCnt: Int!
+  averageDuration: Int!
 
   """평가자 기준으로 준 평균 점수 입니다."""
   averageFinalMark: Float!
@@ -180,9 +195,9 @@ type EvalStat {
 }
 
 type PersonalEval {
-  evalStat: EvalStat!
-  evalInfos(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalEvalInfoPaginated!
-  userInfo: UserInfo!
+  evalProfile: EvalProfile!
+  scaleTeams(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
+  personalProfile: UserProfile!
 }
 
 enum EvalUserEnum {
@@ -191,20 +206,7 @@ enum EvalUserEnum {
   CORRECTED
 }
 
-type Ranking {
-  rank: Int!
-  value: Float!
-  userName: String!
-  profileUrl: URL!
-}
-
-type ProjectRanking {
-  rank: Int!
-  value: Float!
-  projectName: String!
-}
-
-type LastExamInfo {
+type ExamResult {
   rank: Int!
   passCnt: Int!
   total: Int!
@@ -213,52 +215,47 @@ type LastExamInfo {
 type Home {
   currWeekEvalCnt: Int!
   lastWeekEvalCnt: Int!
-  lastMonthBlackholedCnt: Int!
   currMonthBlackholedCnt: Int!
+  lastMonthBlackholedCnt: Int!
   currRegisteredCntRank: [ProjectRanking!]!
-  monthlyExpIncrementRank: [Ranking!]!
-  monthlyAccessTimeRank: [Ranking!]!
-  totalEvalCntRank: [Ranking!]!
-  levelRank: [Ranking!]!
-  lastExamPassRate: [LastExamInfo!]!
+  monthlyExpIncrementRank: [UserRanking!]!
+  monthlyAccessTimeRank: [UserRanking!]!
+  totalEvalCntRank: [UserRanking!]!
+  levelRank: [UserRanking!]!
+  lastExamResult: [ExamResult!]!
 }
 
 type Record {
-  At: DateTime!
+  at: DateTime!
   value: Int!
 }
 
-type CircleInfo {
+type ValuePerCircle {
   circle: Int!
   value: Int!
 }
 
 type TotalScore {
-  coalitionName: CoaliltionName!
+  coalitionName: Int!
   score: Int!
 }
 
-enum CoaliltionName {
-  GUN
-  GON
-  GAM
-  LEE
-}
-
 type ProjectInfo {
+  id: ID!
   name: String!
-  url: URL!
-  skills: [Int!]!
+  skills: [String]!
   averagePassFinalmark: Int!
   averageDurationTime: Int!
-  totalSubmissionsCnt: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCnt: Int!
   currRegisteredCnt: Int!
   passPercentage: Int!
   totalEvalCnt: Int!
 }
 
 type ScoreRecords {
-  coalitionName: CoaliltionName!
+  coalitionName: Int!
   records: [Record!]!
 }
 
@@ -278,20 +275,20 @@ type UserCntPerLevel {
 }
 
 type Total {
-  activeUserCnt: [Record!]!
-  blackholedUser: [CircleInfo!]!
-  totalScore: [TotalScore!]!
-  evalPointRank: [Ranking!]!
-  walletRank: [Ranking!]!
-  monthlyScoreRank: [Ranking!]!
+  activeUserCntRecords: [Record!]!
+  blackholedCntPerCircles: [ValuePerCircle!]!
+  totalScores: [TotalScore!]!
+  evalPointRanks: [UserRanking!]!
+  walletRanks: [UserRanking!]!
+  monthlyScoreRanks: [UserRanking!]!
   totalEvalCnt: Int!
   averageFeedbackLength: Int!
-  averageCircleDuration: [CircleInfo!]!
+  averageCircleDurations: [ValuePerCircle!]!
   scoreRecords: [ScoreRecords!]!
-  userCntPerPoint: [UserCntPerPoint!]!
-  evalCntPerPoint: [EvalCntPerPoint!]!
-  userCntPerLevel: [UserCntPerLevel!]!
-  ProjectInfo(projectName: String! = "libft"): [ProjectInfo!]!
+  userCntPerPoints: [UserCntPerPoint!]!
+  evalCntPerPoints: [EvalCntPerPoint!]!
+  userCntPerLevels: [UserCntPerLevel!]!
+  projectInfo(projectName: String! = "libft"): ProjectInfo!
 }
 
 type Query {

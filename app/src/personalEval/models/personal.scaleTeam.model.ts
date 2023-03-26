@@ -1,5 +1,6 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
+import { ProjectPreview } from 'src/home/models/ranking.type';
 import { Paginated } from 'src/pagination/pagination.type';
 
 // todo remove this
@@ -13,18 +14,6 @@ export class UserPreview {
 
   @Field((_type) => URLResolver, { nullable: true })
   imgUrl: string | null;
-}
-
-@ObjectType()
-export class ProjectPreview {
-  @Field((_type) => ID)
-  id: string;
-
-  @Field()
-  name: string;
-
-  @Field((_type) => URLResolver)
-  url: string;
 }
 
 @ObjectType()
@@ -71,7 +60,7 @@ export class Flag {
 }
 
 @ObjectType()
-export class PersonalEvalInfo {
+export class PersonalScaleTeam {
   @Field((_type) => Corrector)
   corrector: Corrector;
 
@@ -91,11 +80,11 @@ export class PersonalEvalInfo {
   flag: Flag;
 
   @Field()
-  projectPreview: ProjectPreview; // todo subject
+  projectPreview: ProjectPreview;
 
   @Field()
   teamPreview: TeamPreview; // todo team
 }
 
 @ObjectType()
-export class PersonalEvalInfoPaginated extends Paginated(PersonalEvalInfo) {}
+export class PersonalScaleTeamsPaginated extends Paginated(PersonalScaleTeam) {}
