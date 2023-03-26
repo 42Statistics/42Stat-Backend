@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class LastExamInfo {
+export class ExamResult {
   @Field((_type) => Int)
   rank: number;
 

@@ -14,72 +14,92 @@ export class HomeResolver {
       currMonthBlackholedCnt: 31,
       currRegisteredCntRank: [
         {
-          rank: 1,
-          projectName: 'libft',
+          projectPreview: {
+            id: '1',
+            name: 'ft_ping',
+          },
           value: 320,
         },
         {
-          rank: 2,
-          projectName: 'cub3d',
+          projectPreview: {
+            id: '1',
+            name: 'libft',
+          },
           value: 280,
         },
         {
-          rank: 3,
-          projectName: 'ft_printf',
+          projectPreview: {
+            id: '1',
+            name: 'get_next_line',
+          },
           value: 220,
         },
       ],
       monthlyExpIncrementRank: [
         {
-          rank: 1,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 8500,
-          userName: 'yopark',
-          profileUrl: 'https://www.naver.com',
         },
         {
-          rank: 2,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 7800,
-          userName: 'jaham',
-          profileUrl: 'https://www.naver.com',
         },
       ],
       monthlyAccessTimeRank: [
         {
-          rank: 1,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 220,
-          userName: 'jaham',
-          profileUrl: 'https://www.naver.com',
         },
         {
-          rank: 2,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 208,
-          userName: 'yopark',
-          profileUrl: 'https://www.naver.com',
         },
       ],
       totalEvalCntRank: [
         {
-          rank: 1,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 501,
-          userName: 'yopark',
-          profileUrl: 'https://www.naver.com',
         },
         {
-          rank: 2,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 408,
-          userName: 'jaham',
-          profileUrl: 'https://www.naver.com',
         },
       ],
       levelRank: [
         {
-          rank: 1,
+          userPreview: {
+            id: '1',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 14.05,
-          userName: 'yopark',
-          profileUrl: 'https://www.naver.com',
         },
       ],
-      lastExamPassRate: [
+      lastExamResult: [
         { rank: 2, passCnt: 9, total: 20 },
         { rank: 3, passCnt: 3, total: 20 },
         { rank: 4, passCnt: 4, total: 12 },
