@@ -1,53 +1,53 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { UserRanking } from 'src/home/models/ranking.type';
 import {
   Record,
-  CircleInfo,
+  ValuePerCircle,
   TotalScore,
   ScoreRecords,
   UserCntPerPoint,
   UserCntPerLevel,
   EvalCntPerPoint,
 } from './total.type';
-import { Ranking } from 'src/home/models/ranking.type';
 
 @ObjectType()
 export class Total {
   @Field((_type) => [Record])
-  activeUserCnt: [Record];
+  activeUserCntRecords: [Record];
 
-  @Field((_type) => [CircleInfo])
-  blackholedUser: [CircleInfo];
+  @Field((_type) => [ValuePerCircle])
+  blackholedCntPerCircles: [ValuePerCircle];
 
   @Field((_type) => [TotalScore])
-  totalScore: [TotalScore];
+  totalScores: [TotalScore];
 
-  @Field((_type) => [Ranking])
-  evalPointRank: [Ranking];
+  @Field((_type) => [UserRanking])
+  evalPointRanks: [UserRanking];
 
-  @Field((_type) => [Ranking])
-  walletRank: [Ranking];
+  @Field((_type) => [UserRanking])
+  walletRanks: [UserRanking];
 
-  @Field((_type) => [Ranking])
-  monthlyScoreRank: [Ranking];
+  @Field((_type) => [UserRanking])
+  monthlyScoreRanks: [UserRanking];
 
-  @Field((_type) => Int)
+  @Field()
   totalEvalCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   averageFeedbackLength: number;
 
-  @Field((_type) => [CircleInfo])
-  averageCircleDuration: [CircleInfo];
+  @Field((_type) => [ValuePerCircle])
+  averageCircleDurations: [ValuePerCircle];
 
   @Field((_type) => [ScoreRecords])
   scoreRecords: [ScoreRecords];
 
   @Field((_type) => [UserCntPerPoint])
-  userCntPerPoint: [UserCntPerPoint];
+  userCntPerPoints: [UserCntPerPoint];
 
   @Field((_type) => [EvalCntPerPoint])
-  evalCntPerPoint: [EvalCntPerPoint];
+  evalCntPerPoints: [EvalCntPerPoint];
 
   @Field((_type) => [UserCntPerLevel])
-  userCntPerLevel: [UserCntPerLevel];
+  userCntPerLevels: [UserCntPerLevel];
 }

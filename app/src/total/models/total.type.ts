@@ -1,24 +1,22 @@
-import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
 
 @ObjectType()
 export class Record {
-  @Field((_type) => Date)
-  At: string;
+  @Field()
+  at: Date;
 
-  @Field((_type) => Int)
+  @Field()
   value: number;
 }
 
 @ObjectType()
-export class CircleInfo {
-  @Field((_type) => Int)
+export class ValuePerCircle {
+  @Field()
   circle: number;
 
-  @Field((_type) => Int)
+  @Field()
   value: number;
-
-  //todo: percentage?
 }
 
 export enum CoaliltionName {
@@ -34,46 +32,46 @@ registerEnumType(CoaliltionName, {
 
 @ObjectType()
 export class TotalScore {
-  @Field((_type) => CoaliltionName)
+  @Field()
   coalitionName: CoaliltionName;
 
-  @Field((_type) => Int)
+  @Field()
   score: number;
 }
 
 @ObjectType()
 export class ProjectInfo {
+  @Field((_type) => ID)
+  id: string;
+
   @Field()
   name: string;
 
-  @Field((_type) => URLResolver)
-  url: string;
+  @Field((_type) => [String], { nullable: 'items' })
+  skills: string[];
 
-  @Field((_type) => [Int])
-  skills: number[];
-
-  @Field((_type) => Int)
+  @Field()
   averagePassFinalmark: number;
 
-  @Field((_type) => Int)
+  @Field()
   averageDurationTime: number;
 
-  @Field((_type) => Int)
-  totalSubmissionsCnt: number; //총 제출 횟수
+  @Field({ description: '총 제출 횟수 입니다.' })
+  totalCloseCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   currRegisteredCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   passPercentage: number;
 
-  @Field((_type) => Int)
+  @Field()
   totalEvalCnt: number;
 }
 
 @ObjectType()
 export class ScoreRecords {
-  @Field((_type) => CoaliltionName)
+  @Field()
   coalitionName: CoaliltionName;
 
   @Field((_type) => [Record])
@@ -82,29 +80,27 @@ export class ScoreRecords {
 
 @ObjectType()
 export class UserCntPerPoint {
-  //todo: total user count?
-
-  @Field((_type) => Int)
+  @Field()
   userCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   point: number;
 }
 
 @ObjectType()
 export class EvalCntPerPoint {
-  @Field((_type) => Int)
+  @Field()
   evalCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   point: number;
 }
 
 @ObjectType()
 export class UserCntPerLevel {
-  @Field((_type) => Int)
+  @Field()
   userCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   level: number;
 }

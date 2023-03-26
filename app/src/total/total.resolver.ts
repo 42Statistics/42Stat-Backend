@@ -9,29 +9,29 @@ export class TotalResolver {
   @Query((_returns) => Total)
   async getTotalPage() {
     return {
-      activeUserCnt: [
+      activeUserCntRecords: [
         {
-          At: new Date('2022-11-01T00:00:00.405Z'),
+          at: new Date('2022-11-01T00:00:00.405Z'),
           value: 1000,
         },
         {
-          At: new Date('2022-12-01T00:00:00.405Z'),
+          at: new Date('2022-12-01T00:00:00.405Z'),
           value: 2250,
         },
         {
-          At: new Date('2023-01-01T00:00:00.405Z'),
+          at: new Date('2023-01-01T00:00:00.405Z'),
           value: 1500,
         },
         {
-          At: new Date('2023-02-01T00:00:00.405Z'),
+          at: new Date('2023-02-01T00:00:00.405Z'),
           value: 3000,
         },
         {
-          At: new Date('2023-03-01T00:00:00.405Z'),
+          at: new Date('2023-03-01T00:00:00.405Z'),
           value: 750,
         },
       ],
-      blackholedUser: [
+      blackholedCntPerCircles: [
         {
           circle: 0,
           value: 150,
@@ -57,7 +57,7 @@ export class TotalResolver {
           value: 5,
         },
       ],
-      totalScore: [
+      totalScores: [
         {
           coalitionName: CoaliltionName.GUN,
           score: 18000000,
@@ -75,69 +75,87 @@ export class TotalResolver {
           score: 10000000,
         },
       ],
-      evalPointRank: [
+      evalPointRanks: [
         {
-          rank: 1,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 240,
         },
         {
-          rank: 2,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 209,
         },
         {
-          rank: 3,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 180,
         },
       ],
-      walletRank: [
+      walletRanks: [
         {
-          rank: 1,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 4242,
         },
         {
-          rank: 2,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 3010,
         },
         {
-          rank: 3,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 1880,
         },
       ],
-      monthlyScoreRank: [
+      monthlyScoreRanks: [
         {
-          rank: 1,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 8500,
         },
         {
-          rank: 2,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 7800,
         },
         {
-          rank: 3,
-          userName: 'yopark',
-          profileUrl: 'http://www.naver.com',
+          userPreview: {
+            id: '99947',
+            login: 'jaham',
+            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+          },
           value: 7250,
         },
       ],
       totalEvalCnt: 87102,
       averageFeedbackLength: 88,
-      averageCircleDuration: [
+      averageCircleDurations: [
         {
           circle: 0,
           value: 7,
@@ -172,23 +190,23 @@ export class TotalResolver {
           coalitionName: CoaliltionName.GUN,
           records: [
             {
-              At: new Date('2022-11-01T00:00:00.405Z'),
+              at: new Date('2022-11-01T00:00:00.405Z'),
               value: 1000,
             },
             {
-              At: new Date('2022-12-01T00:00:00.405Z'),
+              at: new Date('2022-12-01T00:00:00.405Z'),
               value: 2250,
             },
             {
-              At: new Date('2023-01-01T00:00:00.405Z'),
+              at: new Date('2023-01-01T00:00:00.405Z'),
               value: 1500,
             },
             {
-              At: new Date('2023-02-01T00:00:00.405Z'),
+              at: new Date('2023-02-01T00:00:00.405Z'),
               value: 3000,
             },
             {
-              At: new Date('2023-03-01T00:00:00.405Z'),
+              at: new Date('2023-03-01T00:00:00.405Z'),
               value: 750,
             },
           ],
@@ -197,23 +215,23 @@ export class TotalResolver {
           coalitionName: CoaliltionName.GON,
           records: [
             {
-              At: new Date('2022-11-01T00:00:00.405Z'),
+              at: new Date('2022-11-01T00:00:00.405Z'),
               value: 2250,
             },
             {
-              At: new Date('2022-12-01T00:00:00.405Z'),
+              at: new Date('2022-12-01T00:00:00.405Z'),
               value: 1000,
             },
             {
-              At: new Date('2023-01-01T00:00:00.405Z'),
+              at: new Date('2023-01-01T00:00:00.405Z'),
               value: 750,
             },
             {
-              At: new Date('2023-02-01T00:00:00.405Z'),
+              at: new Date('2023-02-01T00:00:00.405Z'),
               value: 3000,
             },
             {
-              At: new Date('2023-03-01T00:00:00.405Z'),
+              at: new Date('2023-03-01T00:00:00.405Z'),
               value: 1500,
             },
           ],
@@ -222,23 +240,23 @@ export class TotalResolver {
           coalitionName: CoaliltionName.GAM,
           records: [
             {
-              At: new Date('2022-11-01T00:00:00.405Z'),
+              at: new Date('2022-11-01T00:00:00.405Z'),
               value: 1500,
             },
             {
-              At: new Date('2022-12-01T00:00:00.405Z'),
+              at: new Date('2022-12-01T00:00:00.405Z'),
               value: 2750,
             },
             {
-              At: new Date('2023-01-01T00:00:00.405Z'),
+              at: new Date('2023-01-01T00:00:00.405Z'),
               value: 1000,
             },
             {
-              At: new Date('2023-02-01T00:00:00.405Z'),
+              at: new Date('2023-02-01T00:00:00.405Z'),
               value: 3900,
             },
             {
-              At: new Date('2023-03-01T00:00:00.405Z'),
+              at: new Date('2023-03-01T00:00:00.405Z'),
               value: 4750,
             },
           ],
@@ -247,29 +265,29 @@ export class TotalResolver {
           coalitionName: CoaliltionName.LEE,
           records: [
             {
-              At: new Date('2022-11-01T00:00:00.405Z'),
+              at: new Date('2022-11-01T00:00:00.405Z'),
               value: 1800,
             },
             {
-              At: new Date('2022-12-01T00:00:00.405Z'),
+              at: new Date('2022-12-01T00:00:00.405Z'),
               value: 1550,
             },
             {
-              At: new Date('2023-01-01T00:00:00.405Z'),
+              at: new Date('2023-01-01T00:00:00.405Z'),
               value: 1550,
             },
             {
-              At: new Date('2023-02-01T00:00:00.405Z'),
+              at: new Date('2023-02-01T00:00:00.405Z'),
               value: 3000,
             },
             {
-              At: new Date('2023-03-01T00:00:00.405Z'),
+              at: new Date('2023-03-01T00:00:00.405Z'),
               value: 1750,
             },
           ],
         },
       ],
-      userCntPerPoint: [
+      userCntPerPoints: [
         {
           userCnt: 100,
           point: 0, //todo: 음수 포함
@@ -292,7 +310,7 @@ export class TotalResolver {
         },
         //todo: 피그마처럼 3씩 나눠서 하기
       ],
-      evalCntPerPoint: [
+      evalCntPerPoints: [
         {
           evalCnt: 20,
           point: 0,
@@ -314,7 +332,7 @@ export class TotalResolver {
           point: 4,
         },
       ],
-      userCntPerLevel: [
+      userCntPerLevels: [
         {
           userCnt: 25,
           level: 1,
@@ -339,35 +357,31 @@ export class TotalResolver {
     };
   }
 
-  @ResolveField('ProjectInfo', (_returns) => [ProjectInfo])
+  @ResolveField('projectInfo', (_returns) => ProjectInfo)
   async getProjectInfo(@Args('projectName', { defaultValue: 'libft' }) projectName: string) {
     if (projectName === 'ft_printf') {
-      return [
-        {
-          name: 'ft_printf',
-          url: 'http://www.naver.com',
-          skills: [3, 4], //todo
-          averagePassFinalmark: 115,
-          averageDurationTime: 17,
-          totalSubmissionsCnt: 2000,
-          currRegisteredCnt: 40,
-          passPercentage: 30,
-          totalEvalCnt: 2200,
-        },
-      ];
-    }
-    return [
-      {
-        name: 'libft',
-        url: 'http://www.naver.com',
-        skills: [1, 2], //todo
-        averagePassFinalmark: 109,
+      return {
+        id: '1',
+        name: 'ft_printf',
+        skills: ['c', 'makefile'], //todo
+        averagePassFinalmark: 115,
         averageDurationTime: 17,
-        totalSubmissionsCnt: 1801,
-        currRegisteredCnt: 80,
-        passPercentage: 50,
-        totalEvalCnt: 3392,
-      },
-    ];
+        totalCloseCnt: 2000,
+        currRegisteredCnt: 40,
+        passPercentage: 30,
+        totalEvalCnt: 2200,
+      };
+    }
+    return {
+      id: '1',
+      name: 'libft',
+      skills: ['c', 'makefile'], //todo
+      averagePassFinalmark: 109,
+      averageDurationTime: 17,
+      totalCloseCnt: 1801,
+      currRegisteredCnt: 80,
+      passPercentage: 50,
+      totalEvalCnt: 3392,
+    };
   }
 }
