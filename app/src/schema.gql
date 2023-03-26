@@ -5,7 +5,7 @@
 type UserPreview {
   id: ID!
   login: String!
-  imgUrl: URL!
+  imgUrl: URL
 }
 
 """
@@ -28,46 +28,9 @@ type ProjectRanking {
   value: Int!
 }
 
-type TeamPreview {
-  id: ID!
-  name: String!
-  url: URL!
-}
-
-type Corrector {
-  id: ID!
-  login: String!
-  imgUrl: URL
-  comment: String!
-
-  """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
-  correctorRate: Int!
-}
-
-type Corrected {
-  id: ID!
-  login: String!
-  imgUrl: URL
-  isLeader: Boolean!
-}
-
-type Flag {
-  id: ID!
-  name: String!
-  isPositive: Boolean!
-}
-
-type PersonalScaleTeam {
-  corrector: Corrector!
-  correcteds: [Corrected!]!
-
-  """피평가자의 피드백 입니다."""
-  feedback: String!
-  beginAt: DateTime!
-  finalMark: Int!
-  flag: Flag!
-  projectPreview: ProjectPreview!
-  teamPreview: TeamPreview!
+type Record {
+  at: DateTime!
+  value: Int!
 }
 
 """
@@ -75,20 +38,88 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type PersonalScaleTeamEdge {
-  cursor: String!
-  node: PersonalScaleTeam!
+type ValuePerCircle {
+  circle: Int!
+  value: Int!
 }
 
-type PersonalScaleTeamPageInfo {
-  hasNextPage: Boolean!
-  endCursor: String!
+type TotalScore {
+  coalitionName: Int!
+  score: Int!
 }
 
-type PersonalScaleTeamsPaginated {
-  edges: [PersonalScaleTeamEdge!]
-  totalCount: Int!
-  pageInfo: PersonalScaleTeamPageInfo!
+type ProjectInfo {
+  id: ID!
+  name: String!
+  skills: [String]!
+  averagePassFinalmark: Int!
+  averageDurationTime: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCnt: Int!
+  currRegisteredCnt: Int!
+  passPercentage: Int!
+  totalEvalCnt: Int!
+}
+
+type ScoreRecords {
+  coalitionName: Int!
+  records: [Record!]!
+}
+
+type UserCntPerPoint {
+  userCnt: Int!
+  point: Int!
+}
+
+type EvalCntPerPoint {
+  evalCnt: Int!
+  point: Int!
+}
+
+type UserCntPerLevel {
+  userCnt: Int!
+  level: Int!
+}
+
+type UserTitle {
+  id: ID!
+  name: String!
+  isSelected: Boolean!
+}
+
+type Coalition {
+  id: ID!
+  name: Int!
+}
+
+type ScoreInfo {
+  current: Int!
+  rankInCoalition: Int!
+  rankInTotal: Int!
+}
+
+type UserProfile {
+  id: ID!
+  login: String!
+  grade: UserGrade
+  name: String!
+  coalition: Coalition
+  imgUrl: String!
+  titles: [UserTitle]!
+  level: Float!
+  pooledAt: DateTime!
+  blackholedAt: DateTime
+  wallet: Int!
+  correctionPoint: Int!
+  scoreInfo: ScoreInfo!
+  personalProfile: UserProfile!
+  levelRank: Int!
+}
+
+enum UserGrade {
+  LEARNER
+  MEMBER
 }
 
 type TempTeam {
@@ -143,43 +174,68 @@ enum EvalUserDifficulty {
   HELL
 }
 
-type LevelRecord {
+type LevelGraph {
   date: DateTime!
-  level: Float!
+  userLevel: Float!
+  averageLevel: Float!
 }
 
 type PersonalGeneral {
   evalUserInfo: EvalUserInfo!
   logtimeInfo: LogtimeInfo!
   teamInfo: TeamInfo!
-  levelRecords: LevelRecord!
+  levelGraphs: LevelGraph!
   personalProfile: UserProfile!
 }
 
-type UserTitle {
+type TeamPreview {
   id: ID!
   name: String!
-  isSelected: Boolean!
+  url: URL!
 }
 
-type ScoreInfo {
-  current: Int!
-  rankInCoalition: Int!
-  rankInTotal: Int!
-}
-
-type UserProfile {
+type Corrector {
   id: ID!
   login: String!
+  imgUrl: URL
+  comment: String!
+
+  """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
+  correctorRate: Int!
+}
+
+type Flag {
+  id: ID!
   name: String!
-  imgUrl: String!
-  userTitles: [UserTitle]!
-  level: Float!
-  pooledAt: DateTime!
-  blackholedAt: DateTime
-  wallet: Int!
-  correctionPoint: Int!
-  scoreInfo: ScoreInfo!
+  isPositive: Boolean!
+}
+
+type PersonalScaleTeam {
+  corrector: Corrector!
+
+  """피평가자의 피드백 입니다."""
+  feedback: String!
+  beginAt: DateTime!
+  finalMark: Int!
+  flag: Flag!
+  projectPreview: ProjectPreview!
+  teamPreview: TeamPreview!
+}
+
+type PersonalScaleTeamEdge {
+  cursor: String!
+  node: PersonalScaleTeam!
+}
+
+type PersonalScaleTeamPageInfo {
+  hasNextPage: Boolean!
+  endCursor: String!
+}
+
+type PersonalScaleTeamsPaginated {
+  edges: [PersonalScaleTeamEdge!]
+  totalCount: Int!
+  pageInfo: PersonalScaleTeamPageInfo!
 }
 
 type EvalProfile {
@@ -225,60 +281,11 @@ type Home {
   lastExamResult: [ExamResult!]!
 }
 
-type Record {
-  at: DateTime!
-  value: Int!
-}
-
-type ValuePerCircle {
-  circle: Int!
-  value: Int!
-}
-
-type TotalScore {
-  coalitionName: Int!
-  score: Int!
-}
-
-type ProjectInfo {
-  id: ID!
-  name: String!
-  skills: [String]!
-  averagePassFinalmark: Int!
-  averageDurationTime: Int!
-
-  """총 제출 횟수 입니다."""
-  totalCloseCnt: Int!
-  currRegisteredCnt: Int!
-  passPercentage: Int!
-  totalEvalCnt: Int!
-}
-
-type ScoreRecords {
-  coalitionName: Int!
-  records: [Record!]!
-}
-
-type UserCntPerPoint {
-  userCnt: Int!
-  point: Int!
-}
-
-type EvalCntPerPoint {
-  evalCnt: Int!
-  point: Int!
-}
-
-type UserCntPerLevel {
-  userCnt: Int!
-  level: Int!
-}
-
 type Total {
   activeUserCntRecords: [Record!]!
   blackholedCntPerCircles: [ValuePerCircle!]!
   totalScores: [TotalScore!]!
-  evalPointRanks: [UserRanking!]!
+  correctionPointRanks: [UserRanking!]!
   walletRanks: [UserRanking!]!
   monthlyScoreRanks: [UserRanking!]!
   totalEvalCnt: Int!

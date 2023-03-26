@@ -1,20 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
-import { ProjectPreview } from 'src/home/models/ranking.type';
+import { ProjectPreview, UserPreview } from 'src/home/models/ranking.type';
 import { Paginated } from 'src/pagination/pagination.type';
-
-// todo remove this
-@ObjectType()
-export class UserPreview {
-  @Field((_type) => ID)
-  id: string;
-
-  @Field()
-  login: string;
-
-  @Field((_type) => URLResolver, { nullable: true })
-  imgUrl: string | null;
-}
 
 @ObjectType()
 export class TeamPreview {
@@ -61,11 +48,11 @@ export class Flag {
 
 @ObjectType()
 export class PersonalScaleTeam {
-  @Field((_type) => Corrector)
+  @Field()
   corrector: Corrector;
 
-  @Field((_type) => [Corrected])
-  correcteds: Corrected[];
+  // @Field((_type) => [Corrected])
+  // correcteds: Corrected[];
 
   @Field({ description: '피평가자의 피드백 입니다.' })
   feedback: string;

@@ -1,5 +1,6 @@
 import { Field, Float, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { UserPreview } from 'src/personalEval/models/personal.scaleTeam.model';
+import { UserPreview } from 'src/home/models/ranking.type';
+import { UserProfile } from './personal.general.profile.model';
 
 // todo: erase this
 @ObjectType()
@@ -105,12 +106,15 @@ export class EvalUserInfo {
 }
 
 @ObjectType()
-export class LevelRecord {
+export class LevelGraph {
   @Field()
   date: Date;
 
   @Field((_type) => Float)
-  level: number;
+  userLevel: number;
+
+  @Field((_type) => Float)
+  averageLevel: number;
 }
 
 @ObjectType()
@@ -124,6 +128,9 @@ export class PersonalGeneral {
   @Field()
   teamInfo: TeamInfo;
 
-  @Field((_type) => [LevelRecord])
-  levelRecords: LevelRecord[];
+  @Field((_type) => [LevelGraph])
+  levelGraphs: LevelGraph[];
+
+  @Field()
+  personalProfile: UserProfile;
 }

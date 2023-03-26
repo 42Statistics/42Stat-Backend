@@ -22,6 +22,6 @@ export class EvalProfile {
 
 @ObjectType()
 export class PersonalEval {
-  @Field((_type) => EvalProfile)
+  @Field()
   evalProfile: EvalProfile;
 }

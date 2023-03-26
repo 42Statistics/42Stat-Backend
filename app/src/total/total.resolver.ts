@@ -75,7 +75,7 @@ export class TotalResolver {
           score: 10000000,
         },
       ],
-      evalPointRanks: [
+      correctionPointRanks: [
         {
           userPreview: {
             id: '99947',

@@ -66,7 +66,7 @@ export class PersonalEvalService {
       currMonthCnt: evaluateThis.length,
       lastMonthCnt: evaluateLast.length,
       averageDuration: Math.floor(result[0] / totalEval.length),
-      averageFinalMark: Math.floor(result[1] / totalEval.length),
+      averageFinalMark: result[1] / totalEval.length,
       averageFeedbackLength: Math.floor(
         filtered.reduce((acc: number, curr: any) => {
           if (curr.corrector.id === tempUid) {

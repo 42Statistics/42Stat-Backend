@@ -40,8 +40,8 @@ export class PersonalEvalResolver {
             login: cur.login,
             imgUrl: null,
             isLeader: true,
-            feedback: curr.feedback,
           })),
+          feedback: curr.feedback,
           beginAt: new Date(curr.begin_at),
           finalMark: curr.final_mark,
           flag: {

@@ -9,8 +9,8 @@ export class UserPreview {
   @Field()
   login: string;
 
-  @Field((_type) => URLResolver)
-  imgUrl: string;
+  @Field((_type) => URLResolver, { nullable: true })
+  imgUrl: string | null;
 }
 
 @ObjectType()

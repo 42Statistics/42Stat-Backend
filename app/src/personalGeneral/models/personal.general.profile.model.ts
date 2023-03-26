@@ -1,4 +1,5 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { CoaliltionName } from 'src/total/models/total.type';
 
 @ObjectType()
 export class UserTitle {
@@ -13,6 +14,15 @@ export class UserTitle {
 }
 
 @ObjectType()
+export class Coalition {
+  @Field((_type) => ID)
+  id: string;
+
+  @Field()
+  name: CoaliltionName;
+}
+
+@ObjectType()
 export class ScoreInfo {
   @Field()
   current: number;
@@ -24,6 +34,15 @@ export class ScoreInfo {
   rankInTotal: number;
 }
 
+export enum UserGrade {
+  LEARNER = 'learner',
+  MEMBER = 'member',
+}
+
+registerEnumType(UserGrade, {
+  name: 'UserGrade',
+});
+
 @ObjectType()
 export class UserProfile {
   @Field((_type) => ID)
@@ -32,14 +51,20 @@ export class UserProfile {
   @Field()
   login: string;
 
+  @Field((_type) => UserGrade, { nullable: true })
+  grade: UserGrade | null;
+
   @Field()
   name: string;
+
+  @Field((_type) => Coalition, { nullable: true })
+  coalition: Coalition | null;
 
   @Field()
   imgUrl: string;
 
   @Field((_type) => [UserTitle], { nullable: 'items' })
-  userTitles: UserTitle[];
+  titles: UserTitle[];
 
   @Field((_type) => Float)
   level: number;
