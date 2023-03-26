@@ -13,22 +13,22 @@ import {
 @ObjectType()
 export class Total {
   @Field((_type) => [Record])
-  activeUserCntRecords: [Record];
+  activeUserCntRecords: Record[];
 
   @Field((_type) => [ValuePerCircle])
-  blackholedCntPerCircles: [ValuePerCircle];
+  blackholedCntPerCircles: ValuePerCircle[];
 
   @Field((_type) => [TotalScore])
-  totalScores: [TotalScore];
+  totalScores: TotalScore[];
 
   @Field((_type) => [UserRanking])
-  evalPointRanks: [UserRanking];
+  correctionPointRanks: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  walletRanks: [UserRanking];
+  walletRanks: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  monthlyScoreRanks: [UserRanking];
+  monthlyScoreRanks: UserRanking[];
 
   @Field()
   totalEvalCnt: number;
@@ -37,17 +37,17 @@ export class Total {
   averageFeedbackLength: number;
 
   @Field((_type) => [ValuePerCircle])
-  averageCircleDurations: [ValuePerCircle];
+  averageCircleDurations: ValuePerCircle[];
 
   @Field((_type) => [ScoreRecords])
-  scoreRecords: [ScoreRecords];
+  scoreRecords: ScoreRecords[];
 
   @Field((_type) => [UserCntPerPoint])
-  userCntPerPoints: [UserCntPerPoint];
+  userCntPerPoints: UserCntPerPoint[];
 
   @Field((_type) => [EvalCntPerPoint])
-  evalCntPerPoints: [EvalCntPerPoint];
+  evalCntPerPoints: EvalCntPerPoint[];
 
   @Field((_type) => [UserCntPerLevel])
-  userCntPerLevels: [UserCntPerLevel];
+  userCntPerLevels: UserCntPerLevel[];
 }

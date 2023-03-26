@@ -17,20 +17,20 @@ export class Home {
   lastMonthBlackholedCnt: number; //todo: 기획에는 없지만 만들어둠
 
   @Field((_type) => [ProjectRanking])
-  currRegisteredCntRank: [ProjectRanking];
+  currRegisteredCntRank: ProjectRanking[];
 
   @Field((_type) => [UserRanking])
-  monthlyExpIncrementRank: [UserRanking];
+  monthlyExpIncrementRank: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  monthlyAccessTimeRank: [UserRanking];
+  monthlyAccessTimeRank: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  totalEvalCntRank: [UserRanking];
+  totalEvalCntRank: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  levelRank: [UserRanking];
+  levelRank: UserRanking[];
 
   @Field((_type) => [ExamResult])
-  lastExamResult: [ExamResult];
+  lastExamResult: ExamResult[];
 }

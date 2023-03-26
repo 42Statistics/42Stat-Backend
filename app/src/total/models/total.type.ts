@@ -75,7 +75,7 @@ export class ScoreRecords {
   coalitionName: CoaliltionName;
 
   @Field((_type) => [Record])
-  records: [Record];
+  records: Record[];
 }
 
 @ObjectType()
