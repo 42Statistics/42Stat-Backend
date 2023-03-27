@@ -2,86 +2,35 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type UserProject {
-  id: Int!
-  occurrence: Int!
-  markedAt: String
-  createdAt: String!
-  finalMark: Int
-  validated: Boolean
-  status: String!
-  currentTeamId: Int!
-  marked: Boolean!
-  projectId: Int!
-  projectName: String!
-  cursusId: Int!
-}
-
-type UserTitle {
-  id: Int!
-  name: String!
-  createdAt: String!
-  updatedAt: String!
-  selected: Boolean!
-}
-
-"""single User model"""
-type User {
-  id: Int!
-  login: String!
-  imageUrl: String
-  grade: String!
-  level: Float!
-  beginAt: String!
-  blackholedAt: String
-  wallet: Int!
-  correctionPoint: Int!
-  titles: [UserTitle]!
-  projects: [UserProject]!
-  teams: [Team]!
-}
-
-type TeamUserSpecific {
+type UserPreview {
   id: ID!
   login: String!
-  isLeader: Boolean!
-  occurrence: Int!
-  projectUserId: ID!
+  imgUrl: URL
 }
 
-type TeamUserPopulated {
-  id: Int!
-  login: String!
-  imageUrl: String
-  grade: String!
-  level: Float!
-  beginAt: String!
-  blackholedAt: String
-  wallet: Int!
-  correctionPoint: Int!
-  titles: [UserTitle]!
-  projects: [UserProject]!
-  isLeader: Boolean!
-  occurrence: Int!
-  projectUserId: ID!
-}
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
 
-type ScaleTeamTeamPartial {
+type ProjectPreview {
   id: ID!
   name: String!
-  finalMark: Int
-  projectId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  status: String!
-  terminatingAt: DateTime
-  teamUsers: [TeamUserSpecific!]!
-  isLocked: Boolean!
-  isClosed: Boolean!
-  isValidated: Boolean
-  lockedAt: DateTime
-  closedAt: DateTime
-  projectSessionId: ID!
+}
+
+type UserRanking {
+  userPreview: UserPreview!
+  value: Float!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
+
+type Record {
+  at: DateTime!
+  value: Int!
 }
 
 """
@@ -89,220 +38,269 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type ScaleTeamUserPartial {
-  id: Int!
-  login: String!
+type ValuePerCircle {
+  circle: Int!
+  value: Int!
 }
 
-type TeamScaleTeamPartial {
-  id: ID!
-  scaleId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-
-  """평가 슬롯의 시작 시간 입니다. 실제 시작 시간은 다를 수 있습니다."""
-  beginAt: DateTime!
-  filledAt: DateTime
-  finalMark: Int
-  flag: String!
-
-  """평가 시간 전에는 null이 반환됩니다."""
-  correcteds: [ScaleTeamUserPartial!]
-
-  """피평가자들의 feedback 입니다."""
-  feedback: String
-
-  """평가 시간 전에는 null이 반환됩니다."""
-  corrector: ScaleTeamUserPartial
-
-  """평가자의 comment 입니다."""
-  comment: String
+type TotalScore {
+  coalitionName: Int!
+  score: Int!
 }
 
-type Team {
+type ProjectInfo {
   id: ID!
   name: String!
-  finalMark: Int
-  projectId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  status: String!
-  terminatingAt: DateTime
-  teamUsers: [TeamUserSpecific!]!
-  isLocked: Boolean!
-  isClosed: Boolean!
-  isValidated: Boolean
-  lockedAt: DateTime
+  skills: [String]!
+  averagePassFinalmark: Int!
+  averageDurationTime: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCnt: Int!
+  currRegisteredCnt: Int!
+  passPercentage: Int!
+  totalEvalCnt: Int!
+}
+
+type ScoreRecords {
+  coalitionName: Int!
+  records: [Record!]!
+}
+
+type UserCntPerPoint {
+  userCnt: Int!
+  point: Int!
+}
+
+type EvalCntPerPoint {
+  evalCnt: Int!
+  point: Int!
+}
+
+type UserCntPerLevel {
+  userCnt: Int!
+  level: Int!
+}
+
+type UserTitle {
+  id: ID!
+  name: String!
+  isSelected: Boolean!
+}
+
+type Coalition {
+  id: ID!
+  name: Int!
+}
+
+type ScoreInfo {
+  current: Int!
+  rankInCoalition: Int!
+  rankInTotal: Int!
+}
+
+type UserProfile {
+  id: ID!
+  login: String!
+  grade: UserGrade
+  name: String!
+  coalition: Coalition
+  imgUrl: String!
+  titles: [UserTitle]!
+  level: Float!
+  pooledAt: DateTime!
+  blackholedAt: DateTime
+  wallet: Int!
+  correctionPoint: Int!
+  scoreInfo: ScoreInfo!
+  personalProfile: UserProfile!
+  levelRank: Int!
+}
+
+enum UserGrade {
+  LEARNER
+  MEMBER
+}
+
+type TempTeam {
+  id: ID!
+  name: String!
+  occurrence: Int!
   closedAt: DateTime
-  projectSessionId: ID!
-  teamScaleTeamsPartial: [TeamScaleTeamPartial]!
-  teamUserPopulated: [TeamUserPopulated!]!
+  firstCreatedAt: DateTime!
+  finalMark: Int
+
+  """true면 통과, false면 fail, null이면 미평가 입니다."""
+  isValidated: Boolean
 }
 
-type TeamEdge {
+type PreferredTime {
+  morning: Int!
+  daytime: Int!
+  evening: Int!
+  night: Int!
+}
+
+type LogtimeInfo {
+  currMonthLogtime: Int!
+  lastMonthLogtime: Int!
+  preferredTime: PreferredTime!
+  preferredCluster: String!
+}
+
+type TeamInfo {
+  lastRegistered: String
+  lastPass: String
+  teams: [TempTeam]!
+}
+
+type DestinyUser {
+  id: ID!
+  login: String!
+  imgUrl: URL
+  score: Int!
+}
+
+type EvalUserInfo {
+  totalEvalCnt: Int!
+  difficulty: EvalUserDifficulty!
+  destinyUsers: [DestinyUser]!
+}
+
+enum EvalUserDifficulty {
+  EASY
+  MEDIUM
+  HARD
+  HELL
+}
+
+type LevelGraph {
+  date: DateTime!
+  userLevel: Float!
+  averageLevel: Float!
+}
+
+type PersonalGeneral {
+  evalUserInfo: EvalUserInfo!
+  logtimeInfo: LogtimeInfo!
+  teamInfo: TeamInfo!
+  levelGraphs: LevelGraph!
+  personalProfile: UserProfile!
+}
+
+type TeamPreview {
+  id: ID!
+  name: String!
+  url: URL!
+}
+
+type Corrector {
+  id: ID!
+  login: String!
+  imgUrl: URL
+  comment: String!
+
+  """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
+  correctorRate: Int!
+}
+
+type Flag {
+  id: ID!
+  name: String!
+  isPositive: Boolean!
+}
+
+type PersonalScaleTeam {
+  corrector: Corrector!
+
+  """피평가자의 피드백 입니다."""
+  feedback: String!
+  beginAt: DateTime!
+  finalMark: Int!
+  flag: Flag!
+  projectPreview: ProjectPreview!
+  teamPreview: TeamPreview!
+}
+
+type PersonalScaleTeamEdge {
   cursor: String!
-  node: Team!
+  node: PersonalScaleTeam!
 }
 
-type TeamPageInfo {
+type PageInfo {
   hasNextPage: Boolean!
   endCursor: String!
 }
 
-type TeamPaginated {
-  edges: [TeamEdge!]
+type PersonalScaleTeamsPaginated {
+  edges: [PersonalScaleTeamEdge!]
   totalCount: Int!
-  pageInfo: TeamPageInfo!
+  pageInfo: PageInfo!
 }
 
-type TeamPopulated {
-  id: ID!
-  name: String!
-  finalMark: Int
-  projectId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  status: String!
-  terminatingAt: DateTime
-  teamUsers: [TeamUserSpecific!]!
-  isLocked: Boolean!
-  isClosed: Boolean!
-  isValidated: Boolean
-  lockedAt: DateTime
-  closedAt: DateTime
-  projectSessionId: ID!
-  teamScaleTeamsPartial: [TeamScaleTeamPartial]!
-}
+type EvalProfile {
+  currMonthCnt: Int!
+  lastMonthCnt: Int!
+  averageDuration: Int!
 
-type GraphResultPeriodic {
-  first: Int!
-  after: DateTime!
-  value: [Int]!
-}
+  """평가자 기준으로 준 평균 점수 입니다."""
+  averageFinalMark: Float!
 
-type ScaleTeam {
-  id: ID!
-  scaleId: ID!
-  createdAt: DateTime!
-  updatedAt: DateTime!
-
-  """평가 슬롯의 시작 시간 입니다. 실제 시작 시간은 다를 수 있습니다."""
-  beginAt: DateTime!
-  filledAt: DateTime
-  finalMark: Int
-  flag: String!
-
-  """평가 시간 전에는 null이 반환됩니다."""
-  correcteds: [ScaleTeamUserPartial!]
-
-  """피평가자들의 feedback 입니다."""
-  feedback: String
-
-  """평가 시간 전에는 null이 반환됩니다."""
-  corrector: ScaleTeamUserPartial
-
-  """평가자의 comment 입니다."""
-  comment: String
-  scales: String!
-  scaleTeamTeamPartial: ScaleTeamTeamPartial!
-  teamPopulated: TeamPopulated!
-}
-
-type ScaleTeamsGraph {
-  """인자에 맞는 평가의 총 개수를 반환합니다."""
-  totalCount: Int!
-
-  """평가자의 comment, 피평가자의 feedback을 모두 포함합니다."""
+  """평가자, 피평가자 모두 포함해서 계산된 값 입니다."""
   averageFeedbackLength: Int!
+}
 
-  """기간 별 평가의 개수를 배열로 반환합니다."""
-  periodicCount: GraphResultPeriodic!
+type PersonalEval {
+  evalProfile: EvalProfile!
+  scaleTeams(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
+  personalProfile: UserProfile!
+}
+
+enum EvalUserEnum {
+  ANY
+  CORRECTOR
+  CORRECTED
+}
+
+type ExamResult {
+  rank: Int!
+  passCnt: Int!
+  total: Int!
+}
+
+type Home {
+  currWeekEvalCnt: Int!
+  lastWeekEvalCnt: Int!
+  currMonthBlackholedCnt: Int!
+  lastMonthBlackholedCnt: Int!
+  currRegisteredCntRank: [ProjectRanking!]!
+  monthlyExpIncrementRank: [UserRanking!]!
+  monthlyAccessTimeRank: [UserRanking!]!
+  totalEvalCntRank: [UserRanking!]!
+  levelRank: [UserRanking!]!
+  lastExamResult: [ExamResult!]!
+}
+
+type Total {
+  activeUserCntRecords: [Record!]!
+  blackholedCntPerCircles: [ValuePerCircle!]!
+  totalScores: [TotalScore!]!
+  correctionPointRanks: [UserRanking!]!
+  walletRanks: [UserRanking!]!
+  monthlyScoreRanks: [UserRanking!]!
+  totalEvalCnt: Int!
+  averageFeedbackLength: Int!
+  averageCircleDurations: [ValuePerCircle!]!
+  scoreRecords: [ScoreRecords!]!
+  userCntPerPoints: [UserCntPerPoint!]!
+  evalCntPerPoints: [EvalCntPerPoint!]!
+  userCntPerLevels: [UserCntPerLevel!]!
+  projectInfo(projectName: String! = "libft"): ProjectInfo!
 }
 
 type Query {
-  user(id: Int!): User!
-  getTeamById(id: ID!): Team
-  getTeams(first: Int! = 10, after: String! = "0", filter: GetTeamsFilter, range: GetTeamsRange, sort: GetTeamsSort): TeamPaginated!
-  getScaleTeamById(id: ID!): ScaleTeam
-  getScaleTeams(first: Int! = 10, after: String! = "0", filter: GetScaleTeamsFilter, range: GetScaleTeamsRange, sort: GetScaleTeamsSort): [ScaleTeam]!
-  getScaleTeamsGraph(filter: GetScaleTeamsFilter, range: GetScaleTeamsRange, period: GraphArgsPeriodic! = {}): ScaleTeamsGraph!
-}
-
-input GetTeamsFilter {
-  isLocked: Boolean
-  isValidated: Boolean
-  isMarked: Boolean
-}
-
-input GetTeamsRange {
-  beginAtRange: DateRangeInput
-  finalMarkRange: NumericInput
-}
-
-input DateRangeInput {
-  start: DateTime
-  end: DateTime
-}
-
-input NumericInput {
-  start: Int
-  end: Int
-}
-
-input GetTeamsSort {
-  order: SortOrder!
-  key: GetTeamsSortKey!
-}
-
-enum SortOrder {
-  ASC
-  DESC
-}
-
-enum GetTeamsSortKey {
-  FINAL_MARK
-}
-
-input GetScaleTeamsFilter {
-  userId: Int
-  createdAt: DateTime
-  beginAt: DateTime
-  finalMark: Int
-  isFilled: Boolean
-}
-
-input GetScaleTeamsRange {
-  createdAtRange: DateRangeInput
-  beginAtRange: DateRangeInput
-  finalMarkRange: NumericInput
-}
-
-input GetScaleTeamsSort {
-  order: SortOrder!
-  key: GetScaleTeamsSortKey!
-}
-
-enum GetScaleTeamsSortKey {
-  FINAL_MARK
-  CORRECTOR_ID
-  CORRECTEDS_LEADER_ID
-  CREATED_AT
-  BEGIN_AT
-  TEAM_ID
-}
-
-input GraphArgsPeriodic {
-  """graph의 결과를 해당 값 만큼 반환합니다."""
-  first: Int
-
-  """graph의 결과를 해당 날짜의 값을 배열의 시작점으로 반환합니다."""
-  after: DateTime
-  interval: GraphInterval! = MONTH
-}
-
-enum GraphInterval {
-  DAY
-  WEEK
-  MONTH
-  YEAR
+  getPersonalEvalPage: PersonalEval!
+  getPersonGeneralPage: PersonalGeneral!
+  getHomePage: Home!
+  getTotalPage: Total!
 }
