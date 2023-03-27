@@ -25,7 +25,7 @@ export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
     node: T;
   }
 
-  @ObjectType(`${classRef.name}PageInfo`)
+  @ObjectType(`PageInfo`)
   abstract class PageInfo {
     @Field()
     hasNextPage: boolean;
