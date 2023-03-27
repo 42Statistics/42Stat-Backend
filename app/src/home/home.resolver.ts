@@ -100,11 +100,11 @@ export class HomeResolver {
         },
       ],
       lastExamResult: [
-        { rank: 2, passCnt: 9, total: 20 },
-        { rank: 3, passCnt: 3, total: 20 },
-        { rank: 4, passCnt: 4, total: 12 },
-        { rank: 5, passCnt: 8, total: 18 },
-        { rank: 6, passCnt: 1, total: 10 },
+        { rank: 2, passCnt: 9, totalCnt: 20 },
+        { rank: 3, passCnt: 3, totalCnt: 20 },
+        { rank: 4, passCnt: 4, totalCnt: 12 },
+        { rank: 5, passCnt: 8, totalCnt: 18 },
+        { rank: 6, passCnt: 1, totalCnt: 10 },
       ],
     };
   }

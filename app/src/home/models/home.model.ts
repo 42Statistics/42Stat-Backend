@@ -1,6 +1,18 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { ProjectRanking, UserRanking } from './ranking.type';
-import { ExamResult } from './examInfo.type';
+import { ProjectRanking } from 'src/common/models/common.project.model';
+import { UserRanking } from 'src/common/models/common.user.model';
+
+@ObjectType()
+export class ExamResult {
+  @Field((_type) => Int)
+  rank: number;
+
+  @Field((_type) => Int)
+  passCnt: number;
+
+  @Field((_type) => Int)
+  totalCnt: number;
+}
 
 @ObjectType()
 export class Home {

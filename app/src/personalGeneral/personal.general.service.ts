@@ -145,51 +145,63 @@ export class PersonalGeneralService {
     return [
       {
         date: new Date('2022-01-01'),
-        level: 2,
+        userLevel: 2,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-02-01'),
-        level: 3,
+        userLevel: 3,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-03-01'),
-        level: 3.34,
+        userLevel: 3.34,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-04-01'),
-        level: 3.34,
+        userLevel: 3.34,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-05-01'),
-        level: 4.1,
+        userLevel: 4.1,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-06-01'),
-        level: 5,
+        userLevel: 5,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-07-01'),
-        level: 6.3,
+        userLevel: 6.3,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-08-01'),
-        level: 7,
+        userLevel: 7,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-09-01'),
-        level: 7,
+        userLevel: 7,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-10-01'),
-        level: 8,
+        userLevel: 8,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-11-01'),
-        level: 8.8,
+        userLevel: 8.8,
+        averageLevel: 3,
       },
       {
         date: new Date('2022-12-01'),
-        level: 11.38,
+        userLevel: 11.38,
+        averageLevel: 3,
       },
     ];
   }
