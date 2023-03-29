@@ -67,21 +67,21 @@ export class TotalResolver {
         },
         {
           coalition: {
-            id: '1',
+            id: '2',
             name: CoaliltionName.GUN,
           },
           score: 5000000,
         },
         {
           coalition: {
-            id: '1',
+            id: '3',
             name: CoaliltionName.GUN,
           },
           score: 19000000,
         },
         {
           coalition: {
-            id: '1',
+            id: '4',
             name: CoaliltionName.GUN,
           },
           score: 10000000,
@@ -91,23 +91,23 @@ export class TotalResolver {
         {
           userPreview: {
             id: '99947',
-            login: 'jaham',
+            login: 'jaham1',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 240,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99948',
+            login: 'jaham2',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 209,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99949',
+            login: 'jaham3',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 180,
@@ -117,23 +117,23 @@ export class TotalResolver {
         {
           userPreview: {
             id: '99947',
-            login: 'jaham',
+            login: 'jaham1',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 4242,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99948',
+            login: 'jaham2',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 3010,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99949',
+            login: 'jaham3',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 1880,
@@ -143,23 +143,23 @@ export class TotalResolver {
         {
           userPreview: {
             id: '99947',
-            login: 'jaham',
+            login: 'jaham1',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 8500,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99948',
+            login: 'jaham2',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 7800,
         },
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham',
+            id: '99949',
+            login: 'jaham3',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 7250,
@@ -228,7 +228,7 @@ export class TotalResolver {
         },
         {
           coalition: {
-            id: '1',
+            id: '2',
             name: CoaliltionName.GUN,
           },
           records: [
@@ -256,7 +256,7 @@ export class TotalResolver {
         },
         {
           coalition: {
-            id: '1',
+            id: '3',
             name: CoaliltionName.GUN,
           },
           records: [
@@ -284,7 +284,7 @@ export class TotalResolver {
         },
         {
           coalition: {
-            id: '1',
+            id: '4',
             name: CoaliltionName.GUN,
           },
           records: [
@@ -397,7 +397,7 @@ export class TotalResolver {
       };
     }
     return {
-      id: '1',
+      id: '2',
       name: 'libft',
       skills: ['c', 'makefile'], //todo
       averagePassFinalmark: 109,
