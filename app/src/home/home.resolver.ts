@@ -22,14 +22,14 @@ export class HomeResolver {
         },
         {
           projectPreview: {
-            id: '1',
+            id: '2',
             name: 'libft',
           },
           value: 280,
         },
         {
           projectPreview: {
-            id: '1',
+            id: '3',
             name: 'get_next_line',
           },
           value: 220,
@@ -46,7 +46,7 @@ export class HomeResolver {
         },
         {
           userPreview: {
-            id: '1',
+            id: '2',
             login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
@@ -64,7 +64,7 @@ export class HomeResolver {
         },
         {
           userPreview: {
-            id: '1',
+            id: '2',
             login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
@@ -82,7 +82,7 @@ export class HomeResolver {
         },
         {
           userPreview: {
-            id: '1',
+            id: '2',
             login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
