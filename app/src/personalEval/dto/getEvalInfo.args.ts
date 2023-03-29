@@ -1,4 +1,5 @@
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
+import { PaginationArgs } from 'src/pagination/pagination.args';
 
 export enum EvalUserEnum {
   ANY,
@@ -11,16 +12,16 @@ registerEnumType(EvalUserEnum, {
 });
 
 @ArgsType()
-export class GetEvalInfoArgs {
-  @Field((_type) => EvalUserEnum, { defaultValue: EvalUserEnum.ANY })
+export class GetEvalInfoArgs extends PaginationArgs {
+  @Field({ defaultValue: EvalUserEnum.ANY })
   evalUserType: EvalUserEnum;
 
-  @Field({ nullable: true })
-  subjectName?: string;
+  @Field((_type) => String, { nullable: true })
+  subjectName: string | null;
 
-  @Field({ nullable: true })
-  targetUserName?: string;
+  @Field((_type) => String, { nullable: true })
+  targetUserName: string | null;
 
-  @Field({ nullable: true })
-  outstandingOnly?: boolean;
+  @Field((_type) => Boolean, { nullable: true })
+  outstandingOnly: boolean | null;
 }

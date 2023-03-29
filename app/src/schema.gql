@@ -2,95 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type UserPreview {
+type Coalition {
   id: ID!
-  login: String!
-  imgUrl: URL
-}
-
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
-
-type ProjectPreview {
-  id: ID!
-  name: String!
-}
-
-type UserRanking {
-  userPreview: UserPreview!
-  value: Float!
-}
-
-type ProjectRanking {
-  projectPreview: ProjectPreview!
-  value: Int!
-}
-
-type Record {
-  at: DateTime!
-  value: Int!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type ValuePerCircle {
-  circle: Int!
-  value: Int!
-}
-
-type TotalScore {
-  coalitionName: Int!
-  score: Int!
-}
-
-type ProjectInfo {
-  id: ID!
-  name: String!
-  skills: [String]!
-  averagePassFinalmark: Int!
-  averageDurationTime: Int!
-
-  """총 제출 횟수 입니다."""
-  totalCloseCnt: Int!
-  currRegisteredCnt: Int!
-  passPercentage: Int!
-  totalEvalCnt: Int!
-}
-
-type ScoreRecords {
-  coalitionName: Int!
-  records: [Record!]!
-}
-
-type UserCntPerPoint {
-  userCnt: Int!
-  point: Int!
-}
-
-type EvalCntPerPoint {
-  evalCnt: Int!
-  point: Int!
-}
-
-type UserCntPerLevel {
-  userCnt: Int!
-  level: Int!
+  name: Int!
 }
 
 type UserTitle {
   id: ID!
   name: String!
   isSelected: Boolean!
-}
-
-type Coalition {
-  id: ID!
-  name: Int!
 }
 
 type ScoreInfo {
@@ -105,7 +25,7 @@ type UserProfile {
   grade: UserGrade
   name: String!
   coalition: Coalition
-  imgUrl: String!
+  imgUrl: URL
   titles: [UserTitle]!
   level: Float!
   pooledAt: DateTime!
@@ -113,13 +33,33 @@ type UserProfile {
   wallet: Int!
   correctionPoint: Int!
   scoreInfo: ScoreInfo!
-  personalProfile: UserProfile!
   levelRank: Int!
 }
 
 enum UserGrade {
   LEARNER
   MEMBER
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type UserPreview {
+  id: ID!
+  login: String!
+  imgUrl: URL
+}
+
+type UserRanking {
+  userPreview: UserPreview!
+  value: Float!
 }
 
 type TempTeam {
@@ -135,9 +75,16 @@ type TempTeam {
 }
 
 type PreferredTime {
+  """06 ~ 12"""
   morning: Int!
+
+  """12 ~ 18"""
   daytime: Int!
+
+  """18 ~ 24"""
   evening: Int!
+
+  """24 ~ 06"""
   night: Int!
 }
 
@@ -184,8 +131,18 @@ type PersonalGeneral {
   evalUserInfo: EvalUserInfo!
   logtimeInfo: LogtimeInfo!
   teamInfo: TeamInfo!
-  levelGraphs: LevelGraph!
-  personalProfile: UserProfile!
+  levelGraphs: [LevelGraph!]!
+  userProfile: UserProfile!
+}
+
+type ProjectPreview {
+  id: ID!
+  name: String!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
 }
 
 type TeamPreview {
@@ -252,20 +209,14 @@ type EvalProfile {
 
 type PersonalEval {
   evalProfile: EvalProfile!
-  scaleTeams(evalUserType: EvalUserEnum! = ANY, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
-  personalProfile: UserProfile!
-}
-
-enum EvalUserEnum {
-  ANY
-  CORRECTOR
-  CORRECTED
+  userProfile: UserProfile!
+  scaleTeams(first: Int! = 10, after: String! = "0", evalUserType: Int! = 0, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
 }
 
 type ExamResult {
   rank: Int!
   passCnt: Int!
-  total: Int!
+  totalCnt: Int!
 }
 
 type Home {
@@ -281,8 +232,57 @@ type Home {
   lastExamResult: [ExamResult!]!
 }
 
+type ProjectInfo {
+  id: ID!
+  name: String!
+  skills: [String]!
+  averagePassFinalmark: Int!
+  averageDurationTime: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCnt: Int!
+  currRegisteredCnt: Int!
+  passPercentage: Int!
+  totalEvalCnt: Int!
+}
+
+type ValueRecord {
+  at: DateTime!
+  value: Int!
+}
+
+type ValuePerCircle {
+  circle: Int!
+  value: Int!
+}
+
+type TotalScore {
+  coalition: Coalition!
+  score: Int!
+}
+
+type ScoreRecords {
+  coalition: Coalition!
+  records: [ValueRecord!]!
+}
+
+type UserCntPerPoint {
+  userCnt: Int!
+  point: Int!
+}
+
+type EvalCntPerPoint {
+  evalCnt: Int!
+  point: Int!
+}
+
+type UserCntPerLevel {
+  userCnt: Int!
+  level: Int!
+}
+
 type Total {
-  activeUserCntRecords: [Record!]!
+  activeUserCntRecords: [ValueRecord!]!
   blackholedCntPerCircles: [ValuePerCircle!]!
   totalScores: [TotalScore!]!
   correctionPointRanks: [UserRanking!]!

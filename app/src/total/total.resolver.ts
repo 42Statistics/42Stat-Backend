@@ -1,6 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { Total } from './models/total.model';
-import { CoaliltionName, ProjectInfo } from './models/total.type';
+import { CoaliltionName } from 'src/common/models/common.coalition.model';
+import { ProjectInfo, Total } from './models/total.model';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
@@ -59,19 +59,31 @@ export class TotalResolver {
       ],
       totalScores: [
         {
-          coalitionName: CoaliltionName.GUN,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           score: 18000000,
         },
         {
-          coalitionName: CoaliltionName.GON,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           score: 5000000,
         },
         {
-          coalitionName: CoaliltionName.GAM,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           score: 19000000,
         },
         {
-          coalitionName: CoaliltionName.LEE,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           score: 10000000,
         },
       ],
@@ -187,7 +199,10 @@ export class TotalResolver {
       ],
       scoreRecords: [
         {
-          coalitionName: CoaliltionName.GUN,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           records: [
             {
               at: new Date('2022-11-01T00:00:00.405Z'),
@@ -212,7 +227,10 @@ export class TotalResolver {
           ],
         },
         {
-          coalitionName: CoaliltionName.GON,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           records: [
             {
               at: new Date('2022-11-01T00:00:00.405Z'),
@@ -237,7 +255,10 @@ export class TotalResolver {
           ],
         },
         {
-          coalitionName: CoaliltionName.GAM,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           records: [
             {
               at: new Date('2022-11-01T00:00:00.405Z'),
@@ -262,7 +283,10 @@ export class TotalResolver {
           ],
         },
         {
-          coalitionName: CoaliltionName.LEE,
+          coalition: {
+            id: '1',
+            name: CoaliltionName.GUN,
+          },
           records: [
             {
               at: new Date('2022-11-01T00:00:00.405Z'),

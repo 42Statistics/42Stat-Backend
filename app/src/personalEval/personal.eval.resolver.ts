@@ -1,8 +1,8 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserProfile } from 'src/personalGeneral/models/personal.general.profile.model';
+import { UserProfile } from 'src/personalGeneral/models/personal.general.userProfile.model';
 import { PersonalGeneralService } from 'src/personalGeneral/personal.general.service';
 import { GetEvalInfoArgs } from './dto/getEvalInfo.args';
-import { PersonalScaleTeamsPaginated } from './models/personal.scaleTeam.model';
+import { PersonalScaleTeamsPaginated } from './models/personal.eval.scaleTeam.model';
 import { PersonalEval } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
@@ -73,7 +73,7 @@ export class PersonalEvalResolver {
     };
   }
 
-  @ResolveField('personalProfile', (_returns) => UserProfile)
+  @ResolveField('userProfile', (_returns) => UserProfile)
   async getUserInfo() {
     return await this.personalGeneralService.getUserInfo('99947');
   }

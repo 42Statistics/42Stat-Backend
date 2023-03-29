@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
-import { ProjectPreview, UserPreview } from 'src/home/models/ranking.type';
+import { ProjectPreview } from 'src/common/models/common.project.model';
+import { UserPreview } from 'src/common/models/common.user.model';
 import { Paginated } from 'src/pagination/pagination.type';
 
 @ObjectType()
@@ -14,8 +15,6 @@ export class TeamPreview {
   @Field((_type) => URLResolver)
   url: string;
 }
-
-// till here
 
 @ObjectType()
 export class Corrector extends UserPreview {
@@ -63,7 +62,7 @@ export class PersonalScaleTeam {
   @Field()
   finalMark: number;
 
-  @Field((_type) => Flag)
+  @Field()
   flag: Flag;
 
   @Field()

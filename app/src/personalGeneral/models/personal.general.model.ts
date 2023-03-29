@@ -1,6 +1,6 @@
 import { Field, Float, ID, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { UserPreview } from 'src/home/models/ranking.type';
-import { UserProfile } from './personal.general.profile.model';
+import { UserPreview } from 'src/common/models/common.user.model';
+import { UserProfile } from './personal.general.userProfile.model';
 
 // todo: erase this
 @ObjectType()
@@ -32,20 +32,16 @@ export class TempTeam {
 
 @ObjectType()
 export class PreferredTime {
-  // 06 ~ 12
-  @Field()
+  @Field({ description: '06 ~ 12' })
   morning: number;
 
-  // 12 ~ 18
-  @Field()
+  @Field({ description: '12 ~ 18' })
   daytime: number;
 
-  // 18 ~ 24
-  @Field()
+  @Field({ description: '18 ~ 24' })
   evening: number;
 
-  // 24 ~ 06
-  @Field()
+  @Field({ description: '24 ~ 06' })
   night: number;
 }
 
@@ -132,5 +128,5 @@ export class PersonalGeneral {
   levelGraphs: LevelGraph[];
 
   @Field()
-  personalProfile: UserProfile;
+  userProfile: UserProfile;
 }

@@ -1,4 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { UserProfile } from 'src/personalGeneral/models/personal.general.userProfile.model';
 
 @ObjectType()
 export class EvalProfile {
@@ -24,4 +25,7 @@ export class EvalProfile {
 export class PersonalEval {
   @Field()
   evalProfile: EvalProfile;
+
+  @Field()
+  userProfile: UserProfile;
 }

@@ -1,5 +1,6 @@
 import { Field, Float, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { CoaliltionName } from 'src/total/models/total.type';
+import { URLResolver } from 'graphql-scalars';
+import { Coalition } from 'src/common/models/common.coalition.model';
 
 @ObjectType()
 export class UserTitle {
@@ -11,15 +12,6 @@ export class UserTitle {
 
   @Field()
   isSelected: boolean;
-}
-
-@ObjectType()
-export class Coalition {
-  @Field((_type) => ID)
-  id: string;
-
-  @Field()
-  name: CoaliltionName;
 }
 
 @ObjectType()
@@ -60,8 +52,8 @@ export class UserProfile {
   @Field((_type) => Coalition, { nullable: true })
   coalition: Coalition | null;
 
-  @Field()
-  imgUrl: string;
+  @Field((_type) => URLResolver, { nullable: true })
+  imgUrl: string | null;
 
   @Field((_type) => [UserTitle], { nullable: 'items' })
   titles: UserTitle[];
