@@ -344,7 +344,6 @@ export class TotalResolver {
           userCnt: 20,
           point: 3,
         },
-        //todo: 피그마처럼 3씩 나눠서 하기
       ],
       evalCntPerPoints: [
         {
