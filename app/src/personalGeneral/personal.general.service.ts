@@ -215,12 +215,17 @@ export class PersonalGeneralService {
       titles: [
         {
           id: '1',
-          name: '%login, this is test title',
+          name: "%login Officially Developer of 24HANE(42Seoul's attendance managing system)",
           isSelected: true,
         },
         {
           id: '2',
-          name: 'this is test title 2, %login',
+          name: '%login Librarian of Jiphyeonjeon :books:',
+          isSelected: false,
+        },
+        {
+          id: '3',
+          name: 'Philanthropist %login',
           isSelected: false,
         },
       ],
