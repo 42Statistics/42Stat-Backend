@@ -30,6 +30,10 @@ export class TotalResolver {
           at: new Date('2023-03-01T00:00:00.405Z'),
           value: 750,
         },
+        {
+          at: new Date('2023-04-01T00:00:00.405Z'),
+          value: 1000,
+        },
       ],
       blackholedCntPerCircles: [
         {
@@ -55,6 +59,10 @@ export class TotalResolver {
         {
           circle: 5,
           value: 5,
+        },
+        {
+          circle: 6,
+          value: 15,
         },
       ],
       totalScores: [
@@ -90,25 +98,25 @@ export class TotalResolver {
       correctionPointRanks: [
         {
           userPreview: {
-            id: '99947',
-            login: 'jaham1',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            id: '99756',
+            login: 'yuhwang',
+            imgUrl: 'https://cdn.intra.42.fr/users/229c609882b1f47557bad820b39cd65a/yuhwang.jpeg',
           },
           value: 240,
         },
         {
           userPreview: {
-            id: '99948',
-            login: 'jaham2',
+            id: '99947',
+            login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 209,
         },
         {
           userPreview: {
-            id: '99949',
-            login: 'jaham3',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            id: '106823',
+            login: 'yotak',
+            imgUrl: 'https://cdn.intra.42.fr/users/a7a8b01cdd6e43d8b355cd64b3bdd841/yotak.jpg',
           },
           value: 180,
         },
@@ -117,49 +125,49 @@ export class TotalResolver {
         {
           userPreview: {
             id: '99947',
-            login: 'jaham1',
+            login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
-          value: 4242,
+          value: 2022,
         },
         {
           userPreview: {
-            id: '99948',
-            login: 'jaham2',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            id: '112230',
+            login: 'jeongble',
+            imgUrl: 'https://cdn.intra.42.fr/users/68000c4741c4493b400c15554c0170ea/jeongble.jpeg',
           },
-          value: 3010,
+          value: 1000,
         },
         {
           userPreview: {
-            id: '99949',
-            login: 'jaham3',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            id: '85166',
+            login: 'seunpark',
+            imgUrl: 'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
           },
-          value: 1880,
+          value: 995,
         },
       ],
       monthlyScoreRanks: [
         {
           userPreview: {
             id: '99947',
-            login: 'jaham1',
+            login: 'jaham',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 8500,
         },
         {
           userPreview: {
-            id: '99948',
-            login: 'jaham2',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            id: '145733',
+            login: 'iam0',
+            imgUrl: 'https://cdn.intra.42.fr/users/af0e421a2d94c02f25ff9aed443f783a/iam0.jpg',
           },
           value: 7800,
         },
         {
           userPreview: {
-            id: '99949',
-            login: 'jaham3',
+            id: '1',
+            login: 'MMMMMMMM',
             imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 7250,
@@ -313,26 +321,29 @@ export class TotalResolver {
       ],
       userCntPerPoints: [
         {
-          userCnt: 100,
-          point: 0, //todo: 음수 포함
+          userCnt: 6,
+          point: -2,
+        },
+        {
+          userCnt: 13,
+          point: -1,
+        },
+        {
+          userCnt: 403,
+          point: 0,
         },
         {
           userCnt: 150,
           point: 1,
         },
         {
-          userCnt: 50,
+          userCnt: 30,
           point: 2,
         },
         {
-          userCnt: 30,
+          userCnt: 20,
           point: 3,
         },
-        {
-          userCnt: 20,
-          point: 4,
-        },
-        //todo: 피그마처럼 3씩 나눠서 하기
       ],
       evalCntPerPoints: [
         {
@@ -376,6 +387,26 @@ export class TotalResolver {
         {
           userCnt: 10,
           level: 5,
+        },
+        {
+          userCnt: 25,
+          level: 6,
+        },
+        {
+          userCnt: 50,
+          level: 7,
+        },
+        {
+          userCnt: 40,
+          level: 8,
+        },
+        {
+          userCnt: 60,
+          level: 9,
+        },
+        {
+          userCnt: 10,
+          level: 10,
         },
       ],
     };
