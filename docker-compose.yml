@@ -1,6 +1,20 @@
 version: '3'
 
 services:
+  db:
+    container_name: db
+    image: mongo:4.4.19-rc2
+    command: '--auth'
+    volumes:
+      - type: volume
+        source: db-volume
+        target: /data/db
+    ports:
+      - '27017:27017'
+    env_file:
+      - env/.env
+    networks:
+      - net
   backend:
     container_name: backend
     build:
@@ -15,8 +29,19 @@ services:
     entrypoint: sh /tmp/entry.sh
     env_file:
       - env/.env
+    networks:
+      - net
+    depends_on:
+      - db
 
 volumes:
+  db-volume:
+    name: db-volume
+    driver: local
+    driver_opts:
+      device: ${PWD}/db
+      type: none
+      o: bind
   backend-app:
     name: backend-app
     driver: local
@@ -24,3 +49,8 @@ volumes:
       device: ./app
       type: none
       o: bind
+
+networks:
+  net:
+    name: internal
+    driver: bridge

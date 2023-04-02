@@ -105,3 +105,6 @@ dist
 
 #pnpm
 .pnpm-store
+
+#db
+db/*
