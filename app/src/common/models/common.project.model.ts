@@ -3,7 +3,7 @@ import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class ProjectPreview {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   name: string;

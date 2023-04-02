@@ -69,6 +69,36 @@ type UserRanking {
   value: Float!
 }
 
+type ProjectPreview {
+  id: ID!
+  name: String!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
+
+type ExamResult {
+  rank: Int!
+  passCnt: Int!
+  totalCnt: Int!
+}
+
+type Home {
+  currWeekEvalCnt: Int!
+  lastWeekEvalCnt: Int!
+  currMonthBlackholedCnt: Int!
+  lastMonthBlackholedCnt: Int!
+  currRegisteredCntRank: [ProjectRanking!]!
+  monthlyExpIncrementRank: [UserRanking!]!
+  monthlyAccessTimeRank: [UserRanking!]!
+  totalEvalCntRank: [UserRanking!]!
+  levelRank: [UserRanking!]!
+  lastExamResult: [ExamResult!]!
+  monthlyEvalCntRank: [UserRanking!]!
+}
+
 type TempTeam {
   id: ID!
   name: String!
@@ -140,16 +170,32 @@ type PersonalGeneral {
   teamInfo: TeamInfo!
   levelGraphs: [LevelGraph!]!
   userProfile: UserProfile!
+  personalTotalEvalCnt(uid: Int!): Int!
+  destinyUsers(uid: Int!): [UserRanking!]!
 }
 
-type ProjectPreview {
-  id: ID!
-  name: String!
+type EvalProfile {
+  currMonthCnt: Int!
+  lastMonthCnt: Int!
+  averageDuration: Int!
+
+  """평가자 기준으로 준 평균 점수 입니다."""
+  averageFinalMark: Float!
+
+  """평가자, 피평가자 모두 포함해서 계산된 값 입니다."""
+  averageFeedbackLength: Int!
 }
 
-type ProjectRanking {
-  projectPreview: ProjectPreview!
-  value: Int!
+type PersonalEval {
+  evalProfile: EvalProfile!
+  userProfile: UserProfile!
+  scaleTeams(first: Int! = 10, after: String! = "0", uid: Int!, evalUserType: Int! = 0, projectName: String = "libft", targetUserName: String = null, outstandingOnly: Boolean = null): PersonalScaleTeamsPaginated!
+  averageFinalMark(uid: Int!): Float!
+  personalAverageFeedbackLength(uid: Int!): Float!
+  currMonthCnt(uid: Int!): Int!
+  lastMonthCnt(uid: Int!): Int!
+  averageDuration(uid: Int!): Int!
+  evalInfos(first: Int! = 10, after: String! = "0", uid: Int!, evalUserType: Int! = 0, projectName: String = "libft", targetUserName: String = null, outstandingOnly: Boolean = null): [PersonalScaleTeam!]!
 }
 
 type TeamPreview {
@@ -162,7 +208,7 @@ type Corrector {
   id: ID!
   login: String!
   imgUrl: URL
-  comment: String!
+  comment: String
 
   """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
   correctorRate: Int!
@@ -178,9 +224,9 @@ type PersonalScaleTeam {
   corrector: Corrector!
 
   """피평가자의 피드백 입니다."""
-  feedback: String!
+  feedback: String
   beginAt: DateTime!
-  finalMark: Int!
+  finalMark: String
   flag: Flag!
   projectPreview: ProjectPreview!
   teamPreview: TeamPreview!
@@ -200,43 +246,6 @@ type PersonalScaleTeamsPaginated {
   edges: [PersonalScaleTeamEdge!]
   totalCount: Int!
   pageInfo: PageInfo!
-}
-
-type EvalProfile {
-  currMonthCnt: Int!
-  lastMonthCnt: Int!
-  averageDuration: Int!
-
-  """평가자 기준으로 준 평균 점수 입니다."""
-  averageFinalMark: Float!
-
-  """평가자, 피평가자 모두 포함해서 계산된 값 입니다."""
-  averageFeedbackLength: Int!
-}
-
-type PersonalEval {
-  evalProfile: EvalProfile!
-  userProfile: UserProfile!
-  scaleTeams(first: Int! = 10, after: String! = "0", evalUserType: Int! = 0, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
-}
-
-type ExamResult {
-  rank: Int!
-  passCnt: Int!
-  totalCnt: Int!
-}
-
-type Home {
-  currWeekEvalCnt: Int!
-  lastWeekEvalCnt: Int!
-  currMonthBlackholedCnt: Int!
-  lastMonthBlackholedCnt: Int!
-  currRegisteredCntRank: [ProjectRanking!]!
-  monthlyExpIncrementRank: [UserRanking!]!
-  monthlyAccessTimeRank: [UserRanking!]!
-  totalEvalCntRank: [UserRanking!]!
-  levelRank: [UserRanking!]!
-  lastExamResult: [ExamResult!]!
 }
 
 type ProjectInfo {
@@ -306,8 +315,8 @@ type Total {
 }
 
 type Query {
-  getPersonalEvalPage: PersonalEval!
-  getPersonGeneralPage: PersonalGeneral!
   getHomePage: Home!
   getTotalPage: Total!
+  getPersonGeneralPage: PersonalGeneral!
+  getPersonalEvalPage: PersonalEval!
 }

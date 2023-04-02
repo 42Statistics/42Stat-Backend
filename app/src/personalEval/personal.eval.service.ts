@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { Args } from '@nestjs/graphql';
 import * as fs from 'fs/promises';
+import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { EvalUserEnum, GetEvalInfoArgs } from './dto/getEvalInfo.args';
+import { PersonalScaleTeam } from './models/personal.eval.scaleTeam.model';
 
 @Injectable()
 export class PersonalEvalService {
+  constructor(private scaleTeamService: ScaleTeamsService) {}
+
   async getTempData() {
     const evals = JSON.parse(
       await fs.readFile('/app/temp-data-store/jaham-as-corrector.json', {
@@ -22,26 +27,33 @@ export class PersonalEvalService {
     return evals;
   }
 
-  async getSummaryByUid(uid: string) {
+  async getSummaryByUid(uid: number) {
     const tempData = await this.getTempData();
 
-    const tempUid = parseInt(uid);
+    const tempUid = uid;
 
     const filtered = tempData.filter(
       (curr: any) =>
         curr.corrector.id === tempUid ||
-        curr.correcteds.find((corrected: any) => corrected.id === tempUid) !== undefined,
+        curr.correcteds.find((corrected: any) => corrected.id === tempUid) !==
+          undefined,
     );
 
     const currMonth = new Date('2023-02-01T00:00:00.000Z').getTime();
     const lastMonth = new Date('2023-01-01T00:00:00.000Z').getTime();
 
-    const totalEval = filtered.filter((curr: any) => curr.corrector.id === tempUid);
+    const totalEval = filtered.filter(
+      (curr: any) => curr.corrector.id === tempUid,
+    );
 
     const result = totalEval.reduce(
       (acc: [number, number], curr: any) => {
-        if (curr.filled_at && curr.begin_at) {
-          acc[0] += (new Date(curr.filled_at).getTime() - new Date(curr.begin_at).getTime()) / 1000 / 60;
+        if (curr.filledAt && curr.beginAt) {
+          acc[0] +=
+            (new Date(curr.filledAt).getTime() -
+              new Date(curr.beginAt).getTime()) /
+            1000 /
+            60;
           acc[1] += curr.final_mark;
         }
 
@@ -53,13 +65,15 @@ export class PersonalEvalService {
     const evaluateLast = tempData.filter((curr: any) => {
       return (
         curr.corrector.id === tempUid &&
-        new Date(curr.begin_at).getTime() >= lastMonth &&
-        new Date(curr.begin_at).getTime() < currMonth
+        new Date(curr.beginAt).getTime() >= lastMonth &&
+        new Date(curr.beginAt).getTime() < currMonth
       );
     });
 
     const evaluateThis = tempData.filter(
-      (curr: any) => curr.corrector.id === tempUid && new Date(curr.begin_at).getTime() >= currMonth,
+      (curr: any) =>
+        curr.corrector.id === tempUid &&
+        new Date(curr.beginAt).getTime() >= currMonth,
     );
 
     return {
@@ -83,24 +97,31 @@ export class PersonalEvalService {
 
   async getEvalInfos(args: GetEvalInfoArgs) {
     const tempData = await this.getTempData();
-    const uid = '99947';
+    const uid = 99947;
 
     let filtered = tempData;
     if (args.evalUserType === EvalUserEnum.CORRECTED) {
-      filtered = tempData.filter((curr: any) => curr.correcteds.find((cur: any) => cur.id !== uid) !== undefined);
+      filtered = tempData.filter(
+        (curr: any) =>
+          curr.correcteds.find((cur: any) => cur.id !== uid) !== undefined,
+      );
     } else if (args.evalUserType === EvalUserEnum.CORRECTOR) {
       filtered = tempData.filter((curr: any) => curr.corrector.id === uid);
     }
 
-    if (args.subjectName) {
+    if (args.projectName) {
       filtered = filtered.filter((curr: any) =>
-        curr.team.project_gitlab_path.toUpperCase().includes(args.subjectName?.toUpperCase()),
+        curr.team.project_gitlab_path
+          .toUpperCase()
+          .includes(args.projectName?.toUpperCase()),
       );
     }
 
     if (args.targetUserName) {
       if (args.evalUserType === EvalUserEnum.CORRECTED) {
-        filtered = filtered.filter((curr: any) => curr.corrector.login === args.targetUserName);
+        filtered = filtered.filter(
+          (curr: any) => curr.corrector.login === args.targetUserName,
+        );
       } else if (args.evalUserType === EvalUserEnum.CORRECTOR) {
         filtered = filtered.filter((curr: any) =>
           curr.correcteds.find((cur: any) => cur.login === args.targetUserName),
@@ -109,7 +130,9 @@ export class PersonalEvalService {
         filtered = filtered.filter(
           (curr: any) =>
             curr.corrector.login === args.targetUserName ||
-            curr.correcteds.find((cur: any) => cur.login === args.targetUserName),
+            curr.correcteds.find(
+              (cur: any) => cur.login === args.targetUserName,
+            ),
         );
       }
     }
@@ -121,5 +144,31 @@ export class PersonalEvalService {
     filtered = filtered.filter((curr: any) => curr.comment != null);
 
     return filtered;
+  }
+
+  async averageFinalMark(@Args('uid') uid: number): Promise<number> {
+    return this.scaleTeamService.averageFinalMark(uid);
+  }
+
+  async personalAverageFeedbackLength(
+    @Args('uid') uid: number,
+  ): Promise<number> {
+    return this.scaleTeamService.personalAverageFeedbackLength(uid);
+  }
+
+  async currMonthCnt(@Args('uid') uid: number): Promise<number> {
+    return this.scaleTeamService.currMonthCnt(uid);
+  }
+
+  async lastMonthCnt(@Args('uid') uid: number): Promise<number> {
+    return this.scaleTeamService.lastMonthCnt(uid);
+  }
+
+  async averageDuration(@Args('uid') uid: number): Promise<number> {
+    return this.scaleTeamService.averageDuration(uid);
+  }
+
+  async evalInfos(@Args() args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
+    return this.scaleTeamService.evalInfos(args);
   }
 }

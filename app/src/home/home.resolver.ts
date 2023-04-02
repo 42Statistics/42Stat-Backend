@@ -1,15 +1,15 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { UserRanking } from 'src/common/models/common.user.model';
+import { HomeService } from './home.service';
 import { Home } from './models/home.model';
 
 @Resolver((_of: unknown) => Home)
 export class HomeResolver {
-  constructor() {}
+  constructor(private homeService: HomeService) {}
 
   @Query((_returns) => Home)
   async getHomePage() {
     return {
-      currWeekEvalCnt: 3330,
-      lastWeekEvalCnt: 320,
       lastMonthBlackholedCnt: 30,
       currMonthBlackholedCnt: 31,
       currRegisteredCntRank: [
@@ -119,32 +119,6 @@ export class HomeResolver {
           value: 179,
         },
       ],
-      totalEvalCntRank: [
-        {
-          userPreview: {
-            id: '1',
-            login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 501,
-        },
-        {
-          userPreview: {
-            id: '2',
-            login: 'yopark',
-            imgUrl: 'https://cdn.intra.42.fr/users/0d34125b0e84b97d0b63dba4a78c094b/yopark.jpg',
-          },
-          value: 480,
-        },
-        {
-          userPreview: {
-            id: '3',
-            login: 'cmoon',
-            imgUrl: 'https://cdn.intra.42.fr/users/86578305fb73ed611eb2fd20b46b2f09/cmoon.jpg',
-          },
-          value: 390,
-        },
-      ],
       levelRank: [
         {
           userPreview: {
@@ -179,5 +153,25 @@ export class HomeResolver {
         { rank: 6, passCnt: 1, totalCnt: 10 },
       ],
     };
+  }
+
+  @ResolveField('currWeekEvalCnt', (_returns) => Number)
+  async currWeekEvalCnt(): Promise<number> {
+    return await this.homeService.currWeekEvalCnt();
+  }
+
+  @ResolveField('lastWeekEvalCnt', (_returns) => Number)
+  async lastWeekEvalCnt(): Promise<number> {
+    return await this.homeService.lastWeekEvalCnt();
+  }
+
+  @ResolveField('totalEvalCntRank', (_returns) => [UserRanking])
+  async totalEvalCntRank(): Promise<UserRanking[]> {
+    return await this.homeService.totalEvalCntRank();
+  }
+
+  @ResolveField('monthlyEvalCntRank', (_returns) => [UserRanking])
+  async monthlyEvalCntRank(): Promise<UserRanking[]> {
+    return await this.homeService.monthlyEvalCntRank();
   }
 }

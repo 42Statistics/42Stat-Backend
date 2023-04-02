@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { Args } from '@nestjs/graphql';
 import * as fs from 'fs/promises';
-import { CoaliltionName } from 'src/common/models/common.coalition.model';
+import { UserRanking } from 'src/common/models/common.user.model';
+import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { EvalUserDifficulty } from './models/personal.general.model';
 
 @Injectable()
 export class PersonalGeneralService {
+  constructor(private scaleTeamService: ScaleTeamsService) {}
+
   async readTempEval() {
     const ret = [];
     const r1 = await fs.readFile('/app/temp-data-store/jaham-as-corrector.json', { encoding: 'utf-8' });
@@ -19,25 +23,37 @@ export class PersonalGeneralService {
   }
 
   async readTempLocation() {
-    const ret = JSON.parse(await fs.readFile('/app/temp-data-store/jaham-location.json', { encoding: 'utf-8' }));
+    const ret = JSON.parse(
+      await fs.readFile('/app/temp-data-store/jaham-location.json', {
+        encoding: 'utf-8',
+      }),
+    );
     return ret;
   }
 
   async readTempTemas() {
-    const ret = JSON.parse(await fs.readFile('/app/temp-data-store/jaham-teams.json', { encoding: 'utf-8' }));
+    const ret = JSON.parse(
+      await fs.readFile('/app/temp-data-store/jaham-teams.json', {
+        encoding: 'utf-8',
+      }),
+    );
     return ret;
   }
 
   async readTempProjectUsers() {
-    const ret = JSON.parse(await fs.readFile('/app/temp-data-store/jaham-projects-users.json', { encoding: 'utf-8' }));
+    const ret = JSON.parse(
+      await fs.readFile('/app/temp-data-store/jaham-projects-users.json', {
+        encoding: 'utf-8',
+      }),
+    );
     return ret;
   }
 
-  async getEvalUserInfoByUid(uid: string) {
+  async getEvalUserInfoByUid(uid: number) {
     const evals = await this.readTempEval();
 
     abstract class DesUser {
-      id: string;
+      id: number;
       login: string;
       imgUrl: string;
       score: number;
@@ -46,7 +62,7 @@ export class PersonalGeneralService {
     const pool: { [key: string]: DesUser } = {};
 
     evals.forEach((curr: any) => {
-      if (curr.corrector.id === parseInt(uid)) {
+      if (curr.corrector.id === uid) {
         curr.correcteds.forEach((cur: any) => {
           if (!pool[cur.login]) {
             pool[cur.login] = {
@@ -81,7 +97,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async getLogtimeInfoByUid(uid: string) {
+  async getLogtimeInfoByUid(uid: number) {
     const locations = await this.readTempLocation();
 
     const monthStart = new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0, 0));
@@ -124,7 +140,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async getTeamInfoByUid(uid: string) {
+  async getTeamInfoByUid(uid: number) {
     const projectUsers = await this.readTempProjectUsers();
 
     return {
@@ -142,7 +158,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async getLevelHistroyByUid(uid: string) {
+  async getLevelHistroyByUid(uid: number) {
     return [
       {
         date: new Date('2022-01-01'),
@@ -207,17 +223,12 @@ export class PersonalGeneralService {
     ];
   }
 
-  async getUserInfo(uid: string) {
+  async getUserInfo(uid: number) {
     return {
-      id: '99947',
+      id: 99947,
       login: 'jaham',
       name: 'jaewon Ham',
       imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-      grade: 'member',
-      coalition: {
-        id: '85',
-        name: CoaliltionName.GUN,
-      },
       titles: [
         {
           id: '1',
@@ -246,5 +257,9 @@ export class PersonalGeneralService {
         rankInTotal: 589,
       },
     };
+  }
+
+  async personalTotalEvalCnt(@Args('uid') uid: number): Promise<number> {
+    return await this.scaleTeamService.personalTotalEvalCnt(uid);
   }
 }

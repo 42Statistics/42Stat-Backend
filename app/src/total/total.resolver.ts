@@ -1,10 +1,18 @@
-import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Float,
+  Int,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { CoaliltionName } from 'src/common/models/common.coalition.model';
 import { ProjectInfo, Total } from './models/total.model';
+import { TotalService } from './total.service';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
-  constructor() {}
+  constructor(private totalService: TotalService) {}
 
   @Query((_returns) => Total)
   async getTotalPage() {
@@ -100,15 +108,17 @@ export class TotalResolver {
           userPreview: {
             id: '99756',
             login: 'yuhwang',
-            imgUrl: 'https://cdn.intra.42.fr/users/229c609882b1f47557bad820b39cd65a/yuhwang.jpeg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/229c609882b1f47557bad820b39cd65a/yuhwang.jpeg',
           },
           value: 240,
         },
         {
           userPreview: {
-            id: '99947',
+            id: 99947,
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 209,
         },
@@ -116,7 +126,8 @@ export class TotalResolver {
           userPreview: {
             id: '106823',
             login: 'yotak',
-            imgUrl: 'https://cdn.intra.42.fr/users/a7a8b01cdd6e43d8b355cd64b3bdd841/yotak.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/a7a8b01cdd6e43d8b355cd64b3bdd841/yotak.jpg',
           },
           value: 180,
         },
@@ -124,9 +135,10 @@ export class TotalResolver {
       walletRanks: [
         {
           userPreview: {
-            id: '99947',
+            id: 99947,
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 2022,
         },
@@ -134,7 +146,8 @@ export class TotalResolver {
           userPreview: {
             id: '112230',
             login: 'jeongble',
-            imgUrl: 'https://cdn.intra.42.fr/users/68000c4741c4493b400c15554c0170ea/jeongble.jpeg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/68000c4741c4493b400c15554c0170ea/jeongble.jpeg',
           },
           value: 1000,
         },
@@ -142,7 +155,8 @@ export class TotalResolver {
           userPreview: {
             id: '85166',
             login: 'seunpark',
-            imgUrl: 'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
           },
           value: 995,
         },
@@ -150,9 +164,10 @@ export class TotalResolver {
       monthlyScoreRanks: [
         {
           userPreview: {
-            id: '99947',
+            id: 99947,
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 8500,
         },
@@ -160,7 +175,8 @@ export class TotalResolver {
           userPreview: {
             id: '145733',
             login: 'iam0',
-            imgUrl: 'https://cdn.intra.42.fr/users/af0e421a2d94c02f25ff9aed443f783a/iam0.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/af0e421a2d94c02f25ff9aed443f783a/iam0.jpg',
           },
           value: 7800,
         },
@@ -168,7 +184,8 @@ export class TotalResolver {
           userPreview: {
             id: '1',
             login: 'MMMMMMMM',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 7250,
         },
@@ -413,7 +430,9 @@ export class TotalResolver {
   }
 
   @ResolveField('projectInfo', (_returns) => ProjectInfo)
-  async getProjectInfo(@Args('projectName', { defaultValue: 'libft' }) projectName: string) {
+  async getProjectInfo(
+    @Args('projectName', { defaultValue: 'libft' }) projectName: string,
+  ) {
     if (projectName === 'ft_printf') {
       return {
         id: '1',
@@ -438,5 +457,15 @@ export class TotalResolver {
       passPercentage: 50,
       totalEvalCnt: 3392,
     };
+  }
+
+  @ResolveField('totalEvalCnt', (_returns) => Int)
+  async totalEvalCnt(): Promise<number> {
+    return await this.totalService.totalEvalCnt();
+  }
+
+  @ResolveField('averageFeedbackLength', (_returns) => Int)
+  async averageFeedbackLength(): Promise<number> {
+    return await this.totalService.averageFeedbackLength();
   }
 }

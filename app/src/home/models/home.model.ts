@@ -4,28 +4,28 @@ import { UserRanking } from 'src/common/models/common.user.model';
 
 @ObjectType()
 export class ExamResult {
-  @Field((_type) => Int)
+  @Field()
   rank: number;
 
-  @Field((_type) => Int)
+  @Field()
   passCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   totalCnt: number;
 }
 
 @ObjectType()
 export class Home {
-  @Field((_type) => Int)
+  @Field()
   currWeekEvalCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   lastWeekEvalCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   currMonthBlackholedCnt: number;
 
-  @Field((_type) => Int)
+  @Field()
   lastMonthBlackholedCnt: number; //todo: 기획에는 없지만 만들어둠
 
   @Field((_type) => [ProjectRanking])
