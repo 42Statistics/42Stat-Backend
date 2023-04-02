@@ -5,7 +5,7 @@ import { Coalition } from 'src/common/models/common.coalition.model';
 @ObjectType()
 export class UserTitle {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   name: string;
@@ -38,7 +38,7 @@ registerEnumType(UserGrade, {
 @ObjectType()
 export class UserProfile {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   login: string;

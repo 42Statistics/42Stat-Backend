@@ -6,7 +6,7 @@ import { UserRanking } from 'src/common/models/common.user.model';
 @ObjectType()
 export class ProjectInfo {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   name: string;

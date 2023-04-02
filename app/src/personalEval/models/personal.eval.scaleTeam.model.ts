@@ -7,7 +7,7 @@ import { Paginated } from 'src/pagination/pagination.type';
 @ObjectType()
 export class TeamPreview {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   name: string;
@@ -18,8 +18,8 @@ export class TeamPreview {
 
 @ObjectType()
 export class Corrector extends UserPreview {
-  @Field()
-  comment: string;
+  @Field((_type) => String, { nullable: true })
+  comment: string | null;
 
   @Field({
     description: '피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다.',
@@ -36,7 +36,7 @@ export class Corrected extends UserPreview {
 @ObjectType()
 export class Flag {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field()
   name: string;
@@ -53,14 +53,14 @@ export class PersonalScaleTeam {
   // @Field((_type) => [Corrected])
   // correcteds: Corrected[];
 
-  @Field({ description: '피평가자의 피드백 입니다.' })
-  feedback: string;
+  @Field((_type) => String, { nullable: true, description: '피평가자의 피드백 입니다.' })
+  feedback: string | null;
 
   @Field()
   beginAt: Date;
 
-  @Field()
-  finalMark: number;
+  @Field((_type) => String, { nullable: true })
+  finalMark: number | null;
 
   @Field()
   flag: Flag;
