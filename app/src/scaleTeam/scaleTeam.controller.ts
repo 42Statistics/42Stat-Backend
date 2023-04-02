@@ -1,15 +1,10 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body } from '@nestjs/common';
 import { ScaleTeam } from './scaleTeam.database.schema';
 import { ScaleTeamService } from './scaleTeam.service';
 
-@Controller('eval-logs')
+@Controller('scaleTeam')
 export class ScaleTeamController {
   constructor(private readonly scaleTeamService: ScaleTeamService) {}
-
-  @Get()
-  async testMethod() {
-    console.log('get');
-  }
 
   @Post()
   async create(@Body() scaleTeamData: ScaleTeam): Promise<ScaleTeam> {
