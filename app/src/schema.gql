@@ -298,9 +298,116 @@ type Total {
   projectInfo(projectName: String! = "libft"): ProjectInfo!
 }
 
+type Languages {
+  id: Int!
+  name: String!
+  identifier: String!
+  created_at: String!
+  updated_at: String!
+}
+
+type Flag1 {
+  id: Int!
+  name: String!
+  positive: Boolean!
+  icon: String!
+  created_at: String!
+  updated_at: String!
+}
+
+type Scale {
+  id: Int!
+  evaluation_id: Int!
+  name: String!
+  is_primary: Boolean!
+  comment: String!
+  introduction_md: String!
+  disclaimer_md: String!
+  guidelines_md: String!
+  created_at: String!
+  correction_number: Int!
+  duration: Int!
+  manual_subscription: Boolean!
+  languages: [Languages!]!
+  flags: [Flag1!]!
+  free: Boolean!
+}
+
+type TeamUser {
+  id: Int!
+  login: String!
+  url: String!
+  leader: Boolean!
+  occurrence: Int!
+  validated: Boolean!
+  projects_user_id: Int!
+}
+
+type Team {
+  id: Int!
+  name: String!
+  url: String!
+  final_mark: Int
+  project_id: Int!
+  created_at: String!
+  updated_at: String!
+  status: String!
+  terminating_at: String
+  users: [TeamUser!]!
+  locked: Boolean!
+  validated: Boolean
+  closed: Boolean!
+  repo_url: String!
+  repo_uuid: String!
+  locked_at: String
+  closed_at: String
+  project_session_id: Int!
+  project_gitlab_path: String!
+}
+
+type User {
+  id: Int!
+  login: String!
+  url: String!
+}
+
+type Feedback {
+  id: Int!
+  user: User!
+  feedbackable_type: String!
+  feedbackable_id: Int!
+  comment: String!
+  rating: Int!
+  created_at: String!
+}
+
+type ScaleTeam {
+  id: Int!
+  scale_id: Int!
+  comment: String
+  created_at: String!
+  updated_at: String!
+  feedback: String
+  final_mark: Int
+  flag: Flag1!
+  begin_at: String!
+  correcteds: [User!]!
+  corrector: User!
+  filled_at: String
+  scale: Scale!
+  team: Team!
+  feedbacks: [Feedback!]!
+}
+
 type Query {
   getHomePage: Home!
   getTotalPage: Total!
   getPersonGeneralPage: PersonalGeneral!
   getPersonalEvalPage: PersonalEval!
+  findOne(_id: String!): ScaleTeam!
+}
+
+type Mutation {
+  create: ScaleTeam!
+  deleteOne(_id: String!): ScaleTeam!
 }
