@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ScaleTeam, ScaleTeamDocument } from './scaleTeam.database.schema';
@@ -7,8 +7,15 @@ import { ScaleTeam, ScaleTeamDocument } from './scaleTeam.database.schema';
 export class ScaleTeamService {
   constructor(@InjectModel(ScaleTeam.name) private scaleTeamModel: Model<ScaleTeamDocument>) {}
 
+  async findOne(id: string): Promise<ScaleTeam> {
+    const foundScaleTeam = await this.scaleTeamModel.findById(id).exec();
+    if (!foundScaleTeam) {
+      throw new NotFoundException(`scaleTeam) ${id} not found`);
+    }
+    return foundScaleTeam;
+  }
+
   async create(): Promise<ScaleTeam> {
-    //todo: return []
     const scaleTeamData: ScaleTeam[] = [
       {
         id: 5229461,
@@ -449,9 +456,18 @@ export class ScaleTeamService {
         ],
       },
     ];
-    const createdScaleTeam = new this.scaleTeamModel(scaleTeamData[1]);
+    const createdScaleTeam = new this.scaleTeamModel(scaleTeamData[0]);
     return await createdScaleTeam.save();
+    //todo: use insertMany
     //const createdScaleTeams = await this.scaleTeamModel.insertMany(scaleTeamData);
     //return createdScaleTeams;
+  }
+
+  async deleteOne(id: string): Promise<ScaleTeam> {
+    const deletedScaleTeam = await this.scaleTeamModel.findByIdAndDelete(id);
+    if (!deletedScaleTeam) {
+      throw new NotFoundException(`scaleTeam) ${id} not found`);
+    }
+    return deletedScaleTeam;
   }
 }
