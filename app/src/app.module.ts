@@ -8,7 +8,7 @@ import { PersonalGeneralModule } from './personalGeneral/personal.general.module
 import { HomeModule } from './home/home.module';
 import { TotalModule } from './total/total.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EvalLogModule } from './evalLog/evalLog.module';
+import { ScaleTeamModule } from './scaleTeam/scaleTeam.module';
 
 @Module({
   imports: [
@@ -17,7 +17,7 @@ import { EvalLogModule } from './evalLog/evalLog.module';
     TotalModule,
     PersonalGeneralModule,
     PersonalEvalModule,
-    EvalLogModule,
+    ScaleTeamModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       resolvers: { URL: URLResolver },

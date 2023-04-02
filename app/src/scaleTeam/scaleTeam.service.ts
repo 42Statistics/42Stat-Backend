@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { EvalLog, EvalLogDocument } from './evalLog.database.schema';
+import { ScaleTeam, ScaleTeamDocument } from './scaleTeam.database.schema';
 
 @Injectable()
-export class EvalLogService {
-  constructor(@InjectModel(EvalLog.name) private evalLogModel: Model<EvalLogDocument>) {}
+export class ScaleTeamService {
+  constructor(@InjectModel(ScaleTeam.name) private scaleTeamModel: Model<ScaleTeamDocument>) {}
 
-  async create(): Promise<EvalLog> {
-    const evalLogData: EvalLog = {
+  async create(): Promise<ScaleTeam> {
+    const scaleTeamData: ScaleTeam = {
       id: 5227193,
       scale_id: 19196,
       comment:
@@ -132,7 +132,7 @@ export class EvalLogService {
       },
       feedbacks: [],
     };
-    const createdEvalLog = new this.evalLogModel(evalLogData);
-    return await createdEvalLog.save();
+    const createdScaleTeam = new this.scaleTeamModel(scaleTeamData);
+    return await createdScaleTeam.save();
   }
 }
