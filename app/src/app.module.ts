@@ -7,13 +7,17 @@ import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
 import { HomeModule } from './home/home.module';
 import { TotalModule } from './total/total.module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { EvalLogModule } from './evalLog/evalLog.module';
 
 @Module({
   imports: [
-    PersonalEvalModule,
-    PersonalGeneralModule,
+    MongooseModule.forRoot('mongodb://user:0214@db:27017/42stat'),
     HomeModule,
     TotalModule,
+    PersonalGeneralModule,
+    PersonalEvalModule,
+    EvalLogModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       resolvers: { URL: URLResolver },

@@ -299,8 +299,8 @@ type Total {
 }
 
 type Query {
-  getPersonalEvalPage: PersonalEval!
-  getPersonGeneralPage: PersonalGeneral!
   getHomePage: Home!
   getTotalPage: Total!
+  getPersonGeneralPage: PersonalGeneral!
+  getPersonalEvalPage: PersonalEval!
 }
