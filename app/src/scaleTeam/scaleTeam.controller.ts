@@ -8,6 +8,7 @@ export class ScaleTeamController {
 
   @Post()
   async create(@Body() scaleTeamData: ScaleTeam): Promise<ScaleTeam> {
+    //todo: return []
     //return await this.scaleTeamService.create(scaleTeamData);
     return await this.scaleTeamService.create();
   }

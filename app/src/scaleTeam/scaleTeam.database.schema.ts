@@ -3,37 +3,37 @@ import { HydratedDocument } from 'mongoose';
 
 export type ScaleTeamDocument = HydratedDocument<ScaleTeam>;
 
-//export interface Languages {
-//  id: number;
-//  name: string;
-//  identifier: string;
-//  created_at: string;
-//  updated_at: string;
-//}
+export interface Languages {
+  id: number;
+  name: string;
+  identifier: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Flag {
   id: number;
   name: string;
   positive: boolean;
-  //icon: string;
-  //created_at: string;
-  //updated_at: string;
+  icon: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Scale {
   id: number;
   evaluation_id: number;
-  //name: string;
+  name: string;
   is_primary: boolean;
   comment: string;
-  //introduction_md: string;
-  //disclaimer_md: string;
-  //guidelines_md: string;
+  introduction_md: string;
+  disclaimer_md: string;
+  guidelines_md: string;
   created_at: string;
   correction_number: number;
   duration: number;
   manual_subscription: boolean;
-  //languages: Languages[];
+  languages: Languages[];
   flags: Flag[];
   free: boolean;
 }
@@ -58,20 +58,20 @@ export interface Team {
     projects_user_id: number;
   }[];
   locked: boolean;
-  validate: boolean | null;
-  close: boolean;
-  //repo_url: string;
-  //repo_uuid: string;
+  validated: boolean | null;
+  closed: boolean;
+  repo_url: string;
+  repo_uuid: string;
   locked_at: string | null;
   closed_at: string | null;
   project_session_id: number;
-  //project_gitlab_path: string;
+  project_gitlab_path: string;
 }
 
 export interface User {
   id: number;
   login: string;
-  //url: string;
+  url: string;
 }
 
 export interface Feedback {
@@ -95,16 +95,16 @@ export class ScaleTeam {
   @Prop({ required: true, type: String })
   comment: string | null;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true })
   created_at: string;
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true })
   updated_at: string;
 
   @Prop({ required: true, type: String })
   feedback: string | null;
 
-  @Prop({ required: true })
+  @Prop({ required: true, type: Number })
   final_mark: number | null;
 
   @Prop({ required: true, type: Object })
@@ -115,18 +115,18 @@ export class ScaleTeam {
 
   @Prop({ required: true, type: [Object] })
   correcteds: User[];
-  
+
   @Prop({ required: true, type: Object })
   corrector: User;
 
-  //@Prop({ required: false, type: Object })
-  //truant: Object;
+  @Prop({ required: false, type: Object })
+  truant: Object;
 
   @Prop({ required: true, type: String })
   filled_at: string | null;
-  
-  //@Prop({ required: false, type: [Object] })
-  //questions_with_answers: Object[];
+
+  @Prop({ required: false, type: [Object] })
+  questions_with_answers: Object[];
 
   @Prop({ required: true, type: Object })
   scale: Scale;
