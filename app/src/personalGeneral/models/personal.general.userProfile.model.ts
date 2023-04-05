@@ -43,8 +43,8 @@ export class UserProfile {
   @Field()
   login: string;
 
-  @Field((_type) => UserGrade, { nullable: true })
-  grade: UserGrade | null;
+  @Field((_type) => UserGrade)
+  grade: UserGrade;
 
   @Field()
   name: string;

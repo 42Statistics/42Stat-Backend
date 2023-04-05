@@ -16,6 +16,6 @@ export class Coalition {
   @Field((_type) => ID)
   id: string;
 
-  @Field()
+  @Field((_type) => CoaliltionName)
   name: CoaliltionName;
 }
