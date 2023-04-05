@@ -4,7 +4,14 @@
 
 type Coalition {
   id: ID!
-  name: Int!
+  name: CoaliltionName!
+}
+
+enum CoaliltionName {
+  GUN
+  GON
+  GAM
+  LEE
 }
 
 type UserTitle {
@@ -22,7 +29,7 @@ type ScoreInfo {
 type UserProfile {
   id: ID!
   login: String!
-  grade: UserGrade
+  grade: UserGrade!
   name: String!
   coalition: Coalition
   imgUrl: URL

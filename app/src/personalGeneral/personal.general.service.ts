@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
+import { CoaliltionName } from 'src/common/models/common.coalition.model';
 import { EvalUserDifficulty } from './models/personal.general.model';
 
 @Injectable()
@@ -212,6 +213,11 @@ export class PersonalGeneralService {
       login: 'jaham',
       name: 'jaewon Ham',
       imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+      grade: 'member',
+      coalition: {
+        id: '85',
+        name: CoaliltionName.GUN,
+      },
       titles: [
         {
           id: '1',
