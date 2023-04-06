@@ -1,14 +1,14 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+import { MongooseModule } from '@nestjs/mongoose';
 import { URLResolver } from 'graphql-scalars';
 import { join } from 'path';
+import { HomeModule } from './home/home.module';
 import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
-import { HomeModule } from './home/home.module';
-import { TotalModule } from './total/total.module';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ScaleTeamModule } from './scaleTeam/scaleTeam.module';
+import { TotalModule } from './total/total.module';
 
 @Module({
   imports: [

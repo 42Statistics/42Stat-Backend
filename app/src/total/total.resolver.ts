@@ -422,13 +422,17 @@ export class TotalResolver {
 
   @ResolveField('getAverageFeedbackLength', (_returns) => Number)
   async getAverageFeedbackLength(): Promise<number> {
-    let totalFeedbackLength = 0;
-    const scaleTeams = await this.scaleTeamService.findAll();
-    scaleTeams.forEach((scaleTeam) => {
-      totalFeedbackLength += scaleTeam.feedback?.length ?? 0;
-    });
-    const evalCnt = await this.getTotalEvalCnt();
-    return Math.floor(totalFeedbackLength / evalCnt);
+    try{
+      const scaleTeams = await this.scaleTeamService.findAll();
+      const totalFeedbackLength = scaleTeams.reduce((acc, scaleTeam) => acc + (scaleTeam.feedback?.length ?? 0), 0);
+      const evalCnt = scaleTeams.length;
+      if (!evalCnt)
+        throw new Error('Cannot divide by zero');
+      return Math.floor(totalFeedbackLength / evalCnt);
+    } catch (e) {
+      console.log(e);
+      return 0;
+    }
   }
 
   @ResolveField('projectInfo', (_returns) => ProjectInfo)

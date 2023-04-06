@@ -2,6 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ProjectPreview {
+  id: ID!
+  name: String!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
+
 type Coalition {
   id: ID!
   name: Int!
@@ -60,6 +70,25 @@ type UserPreview {
 type UserRanking {
   userPreview: UserPreview!
   value: Float!
+}
+
+type ExamResult {
+  rank: Int!
+  passCnt: Int!
+  totalCnt: Int!
+}
+
+type Home {
+  currWeekEvalCnt: Int!
+  lastWeekEvalCnt: Int!
+  currMonthBlackholedCnt: Int!
+  lastMonthBlackholedCnt: Int!
+  currRegisteredCntRank: [ProjectRanking!]!
+  monthlyExpIncrementRank: [UserRanking!]!
+  monthlyAccessTimeRank: [UserRanking!]!
+  totalEvalCntRank: [UserRanking!]!
+  levelRank: [UserRanking!]!
+  lastExamResult: [ExamResult!]!
 }
 
 type TempTeam {
@@ -135,16 +164,6 @@ type PersonalGeneral {
   userProfile: UserProfile!
 }
 
-type ProjectPreview {
-  id: ID!
-  name: String!
-}
-
-type ProjectRanking {
-  projectPreview: ProjectPreview!
-  value: Int!
-}
-
 type TeamPreview {
   id: ID!
   name: String!
@@ -211,25 +230,6 @@ type PersonalEval {
   evalProfile: EvalProfile!
   userProfile: UserProfile!
   scaleTeams(first: Int! = 10, after: String! = "0", evalUserType: Int! = 0, subjectName: String, targetUserName: String, outstandingOnly: Boolean): PersonalScaleTeamsPaginated!
-}
-
-type ExamResult {
-  rank: Int!
-  passCnt: Int!
-  totalCnt: Int!
-}
-
-type Home {
-  currWeekEvalCnt: Int!
-  lastWeekEvalCnt: Int!
-  currMonthBlackholedCnt: Int!
-  lastMonthBlackholedCnt: Int!
-  currRegisteredCntRank: [ProjectRanking!]!
-  monthlyExpIncrementRank: [UserRanking!]!
-  monthlyAccessTimeRank: [UserRanking!]!
-  totalEvalCntRank: [UserRanking!]!
-  levelRank: [UserRanking!]!
-  lastExamResult: [ExamResult!]!
 }
 
 type Languages {
