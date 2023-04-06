@@ -232,72 +232,6 @@ type Home {
   lastExamResult: [ExamResult!]!
 }
 
-type ProjectInfo {
-  id: ID!
-  name: String!
-  skills: [String]!
-  averagePassFinalmark: Int!
-  averageDurationTime: Int!
-
-  """총 제출 횟수 입니다."""
-  totalCloseCnt: Int!
-  currRegisteredCnt: Int!
-  passPercentage: Int!
-  totalEvalCnt: Int!
-}
-
-type ValueRecord {
-  at: DateTime!
-  value: Int!
-}
-
-type ValuePerCircle {
-  circle: Int!
-  value: Int!
-}
-
-type TotalScore {
-  coalition: Coalition!
-  score: Int!
-}
-
-type ScoreRecords {
-  coalition: Coalition!
-  records: [ValueRecord!]!
-}
-
-type UserCntPerPoint {
-  userCnt: Int!
-  point: Int!
-}
-
-type EvalCntPerPoint {
-  evalCnt: Int!
-  point: Int!
-}
-
-type UserCntPerLevel {
-  userCnt: Int!
-  level: Int!
-}
-
-type Total {
-  activeUserCntRecords: [ValueRecord!]!
-  blackholedCntPerCircles: [ValuePerCircle!]!
-  totalScores: [TotalScore!]!
-  correctionPointRanks: [UserRanking!]!
-  walletRanks: [UserRanking!]!
-  monthlyScoreRanks: [UserRanking!]!
-  totalEvalCnt: Int!
-  averageFeedbackLength: Int!
-  averageCircleDurations: [ValuePerCircle!]!
-  scoreRecords: [ScoreRecords!]!
-  userCntPerPoints: [UserCntPerPoint!]!
-  evalCntPerPoints: [EvalCntPerPoint!]!
-  userCntPerLevels: [UserCntPerLevel!]!
-  projectInfo(projectName: String! = "libft"): ProjectInfo!
-}
-
 type Languages {
   id: Int!
   name: String!
@@ -399,15 +333,84 @@ type ScaleTeam {
   feedbacks: [Feedback!]!
 }
 
+type ProjectInfo {
+  id: ID!
+  name: String!
+  skills: [String]!
+  averagePassFinalmark: Int!
+  averageDurationTime: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCnt: Int!
+  currRegisteredCnt: Int!
+  passPercentage: Int!
+  totalEvalCnt: Int!
+}
+
+type ValueRecord {
+  at: DateTime!
+  value: Int!
+}
+
+type ValuePerCircle {
+  circle: Int!
+  value: Int!
+}
+
+type TotalScore {
+  coalition: Coalition!
+  score: Int!
+}
+
+type ScoreRecords {
+  coalition: Coalition!
+  records: [ValueRecord!]!
+}
+
+type UserCntPerPoint {
+  userCnt: Int!
+  point: Int!
+}
+
+type EvalCntPerPoint {
+  evalCnt: Int!
+  point: Int!
+}
+
+type UserCntPerLevel {
+  userCnt: Int!
+  level: Int!
+}
+
+type Total {
+  activeUserCntRecords: [ValueRecord!]!
+  blackholedCntPerCircles: [ValuePerCircle!]!
+  totalScores: [TotalScore!]!
+  correctionPointRanks: [UserRanking!]!
+  walletRanks: [UserRanking!]!
+  monthlyScoreRanks: [UserRanking!]!
+  totalEvalCnt: Int!
+  averageFeedbackLength: Int!
+  averageCircleDurations: [ValuePerCircle!]!
+  scoreRecords: [ScoreRecords!]!
+  userCntPerPoints: [UserCntPerPoint!]!
+  evalCntPerPoints: [EvalCntPerPoint!]!
+  userCntPerLevels: [UserCntPerLevel!]!
+  getTotalEvalCnt: Int!
+  getAverageFeedbackLength: Int!
+  projectInfo(projectName: String! = "libft"): ProjectInfo!
+}
+
 type Query {
   getHomePage: Home!
   getTotalPage: Total!
+  findAll: [ScaleTeam!]!
+  findOneById(_id: String!): ScaleTeam!
   getPersonGeneralPage: PersonalGeneral!
   getPersonalEvalPage: PersonalEval!
-  findOne(_id: String!): ScaleTeam!
 }
 
 type Mutation {
   create: ScaleTeam!
-  deleteOne(_id: String!): ScaleTeam!
+  deleteOneById(_id: String!): ScaleTeam!
 }

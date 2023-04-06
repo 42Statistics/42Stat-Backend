@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TotalService } from './total.service';
+import { ScaleTeamModule } from 'src/scaleTeam/scaleTeam.module';
+import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { TotalResolver } from './total.resolver';
+import { TotalService } from './total.service';
 
 @Module({
-  imports: [],
-  providers: [TotalResolver, TotalService],
+  imports: [ScaleTeamModule],
+  providers: [TotalResolver, TotalService, ScaleTeamService],
 })
 export class TotalModule {}

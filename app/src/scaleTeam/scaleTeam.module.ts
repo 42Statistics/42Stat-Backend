@@ -9,6 +9,6 @@ import { ScaleTeamService } from './scaleTeam.service';
   imports: [MongooseModule.forFeature([{ name: ScaleTeam.name, schema: ScaleTeamSchema }])],
   providers: [ScaleTeamService, ScaleTeamResolver],
   controllers: [ScaleTeamController],
-  exports: [MongooseModule.forFeature([{ name: ScaleTeam.name, schema: ScaleTeamSchema }])],
+  exports: [MongooseModule.forFeature([{ name: ScaleTeam.name, schema: ScaleTeamSchema }]), ScaleTeamService],
 })
 export class ScaleTeamModule {}

@@ -1,10 +1,11 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { CoaliltionName } from 'src/common/models/common.coalition.model';
+import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { ProjectInfo, Total } from './models/total.model';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
-  constructor() {}
+  constructor(private scaleTeamService: ScaleTeamService) {}
 
   @Query((_returns) => Total)
   async getTotalPage() {
@@ -410,6 +411,24 @@ export class TotalResolver {
         },
       ],
     };
+  }
+
+  @ResolveField('getTotalEvalCnt', (_returns) => Number)
+  async getTotalEvalCnt(): Promise<number> {
+    const scaleTeams = await this.scaleTeamService.findAll();
+    if (scaleTeams.length) return scaleTeams.length;
+    return 0;
+  }
+
+  @ResolveField('getAverageFeedbackLength', (_returns) => Number)
+  async getAverageFeedbackLength(): Promise<number> {
+    let totalFeedbackLength = 0;
+    const scaleTeams = await this.scaleTeamService.findAll();
+    scaleTeams.forEach((scaleTeam) => {
+      totalFeedbackLength += scaleTeam.feedback?.length ?? 0;
+    });
+    const evalCnt = await this.getTotalEvalCnt();
+    return Math.floor(totalFeedbackLength / evalCnt);
   }
 
   @ResolveField('projectInfo', (_returns) => ProjectInfo)
