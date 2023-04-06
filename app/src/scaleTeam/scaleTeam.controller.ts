@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Delete, InternalServerErrorException } from '@nestjs/common';
+import { Body, Controller, Delete, Get, InternalServerErrorException, Param, Post } from '@nestjs/common';
 import { ScaleTeam } from './scaleTeam.database.schema';
 import { ScaleTeamService } from './scaleTeam.service';
 
@@ -7,9 +7,9 @@ export class ScaleTeamController {
   constructor(private readonly scaleTeamService: ScaleTeamService) {}
 
   @Get(':_id')
-  async findOne(@Param('_id') _id: string): Promise<ScaleTeam> {
+  async findOneById(@Param('_id') _id: string): Promise<ScaleTeam> {
     try {
-      const scaleTeam = await this.scaleTeamService.findOne(_id);
+      const scaleTeam = await this.scaleTeamService.findOneById(_id);
       return scaleTeam;
     } catch (e) {
       console.error(e);
@@ -24,9 +24,9 @@ export class ScaleTeamController {
   }
 
   @Delete(':_id')
-  async deleteOne(@Param('_id') _id: string): Promise<ScaleTeam> {
+  async deleteOneById(@Param('_id') _id: string): Promise<ScaleTeam> {
     try {
-      const scaleTeam = await this.scaleTeamService.deleteOne(_id);
+      const scaleTeam = await this.scaleTeamService.deleteOneById(_id);
       return scaleTeam;
     } catch (e) {
       console.error(e);

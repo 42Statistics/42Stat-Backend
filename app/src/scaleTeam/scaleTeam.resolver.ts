@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import { Resolver, Query, Mutation, Args, ResolveReference, ResolveField } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ScaleTeam } from './scaleTeam.model';
 import { ScaleTeamService } from './scaleTeam.service';
 
@@ -14,17 +14,15 @@ import { ScaleTeamService } from './scaleTeam.service';
 export class ScaleTeamResolver {
   constructor(private readonly scaleTeamService: ScaleTeamService) {}
 
-  @Mutation((_returns) => ScaleTeam)
-  async create(): Promise<ScaleTeam> {
-    return await this.scaleTeamService.create();
-    //async create(@Args('createScaleTeam') scaleTeam: ScaleTeamInput): Promise<ScaleTeam> {
-    //  return await this.scaleTeamService.create(scaleTeam);
+  @Query((_returns) => [ScaleTeam])
+  async findAll(): Promise<ScaleTeam[]> {
+    return await this.scaleTeamService.findAll();
   }
 
   @Query((_returns) => ScaleTeam)
-  async findOne(@Args('_id') _id: string): Promise<ScaleTeam> {
+  async findOneById(@Args('_id') _id: string): Promise<ScaleTeam> {
     try {
-      const scaleTeam = await this.scaleTeamService.findOne(_id);
+      const scaleTeam = await this.scaleTeamService.findOneById(_id);
       return scaleTeam;
     } catch (e) {
       console.error(e);
@@ -33,9 +31,16 @@ export class ScaleTeamResolver {
   }
 
   @Mutation((_returns) => ScaleTeam)
-  async deleteOne(@Args('_id') _id: string): Promise<ScaleTeam> {
+  async create(): Promise<ScaleTeam> {
+    return await this.scaleTeamService.create();
+    //async create(@Args('createScaleTeam') scaleTeam: ScaleTeamInput): Promise<ScaleTeam> {
+    //  return await this.scaleTeamService.create(scaleTeam);
+  }
+
+  @Mutation((_returns) => ScaleTeam)
+  async deleteOneById(@Args('_id') _id: string): Promise<ScaleTeam> {
     try {
-      const scaleTeam = await this.scaleTeamService.deleteOne(_id);
+      const scaleTeam = await this.scaleTeamService.deleteOneById(_id);
       return scaleTeam;
     } catch (e) {
       console.error(e);
