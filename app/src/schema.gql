@@ -396,8 +396,6 @@ type Total {
   userCntPerPoints: [UserCntPerPoint!]!
   evalCntPerPoints: [EvalCntPerPoint!]!
   userCntPerLevels: [UserCntPerLevel!]!
-  getTotalEvalCnt: Int!
-  getAverageFeedbackLength: Int!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
 }
 

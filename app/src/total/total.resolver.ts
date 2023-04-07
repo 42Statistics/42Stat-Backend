@@ -1,11 +1,10 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { CoaliltionName } from 'src/common/models/common.coalition.model';
-import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { ProjectInfo, Total } from './models/total.model';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
-  constructor(private scaleTeamService: ScaleTeamService) {}
+  constructor() {}
 
   @Query((_returns) => Total)
   async getTotalPage() {
@@ -411,28 +410,6 @@ export class TotalResolver {
         },
       ],
     };
-  }
-
-  @ResolveField('getTotalEvalCnt', (_returns) => Number)
-  async getTotalEvalCnt(): Promise<number> {
-    const scaleTeams = await this.scaleTeamService.findAll();
-    if (scaleTeams.length) return scaleTeams.length;
-    return 0;
-  }
-
-  @ResolveField('getAverageFeedbackLength', (_returns) => Number)
-  async getAverageFeedbackLength(): Promise<number> {
-    try{
-      const scaleTeams = await this.scaleTeamService.findAll();
-      const totalFeedbackLength = scaleTeams.reduce((acc, scaleTeam) => acc + (scaleTeam.feedback?.length ?? 0), 0);
-      const evalCnt = scaleTeams.length;
-      if (!evalCnt)
-        throw new Error('Cannot divide by zero');
-      return Math.floor(totalFeedbackLength / evalCnt);
-    } catch (e) {
-      console.log(e);
-      return 0;
-    }
   }
 
   @ResolveField('projectInfo', (_returns) => ProjectInfo)
