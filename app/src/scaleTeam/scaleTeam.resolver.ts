@@ -29,7 +29,7 @@ export class ScaleTeamResolver {
       throw new InternalServerErrorException();
     }
   }
-
+// todo: test controller 지울 때 같이 지우도록 합시다.
   @Mutation((_returns) => ScaleTeam)
   async create(): Promise<ScaleTeam> {
     return await this.scaleTeamService.create();
