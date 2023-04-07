@@ -22,8 +22,7 @@ export class ScaleTeamResolver {
   @Query((_returns) => ScaleTeam)
   async findOneById(@Args('_id') _id: string): Promise<ScaleTeam> {
     try {
-      const scaleTeam = await this.scaleTeamService.findOneById(_id);
-      return scaleTeam;
+      return await this.scaleTeamService.findOneById(_id);
     } catch (e) {
       console.error(e);
       throw new InternalServerErrorException();
