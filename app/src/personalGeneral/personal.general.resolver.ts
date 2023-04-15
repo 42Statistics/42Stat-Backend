@@ -1,5 +1,4 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserRanking } from 'src/common/models/common.user.model';
 import {
   EvalUserInfo,
   LevelGraph,

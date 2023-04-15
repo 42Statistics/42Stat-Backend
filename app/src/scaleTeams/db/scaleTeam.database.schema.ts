@@ -117,13 +117,13 @@ export class scale_teams {
   corrector: User;
 
   @Prop({ required: false, type: Object })
-  truant: Object;
+  truant: object;
 
   @Prop({ required: true, type: String })
   filledAt: string | null;
 
   @Prop({ required: false, type: [Object] })
-  questions_withAnswers: Object[];
+  questions_withAnswers: object[];
 
   @Prop({ required: true, type: Object })
   scale: Scale;

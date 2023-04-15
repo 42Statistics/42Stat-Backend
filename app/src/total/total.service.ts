@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 
 @Injectable()
