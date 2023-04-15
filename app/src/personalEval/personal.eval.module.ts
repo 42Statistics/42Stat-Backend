@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TimeService } from 'src/common/time.calculate';
 import { PersonalGeneralModule } from 'src/personalGeneral/personal.general.module';
 import { PersonalGeneralService } from 'src/personalGeneral/personal.general.service';
 import { ScaleTeamsModule } from 'src/scaleTeams/scaleTeams.module';
@@ -14,7 +13,6 @@ import { PersonalEvalService } from './personal.eval.service';
     PersonalEvalService,
     PersonalGeneralService,
     ScaleTeamsService,
-    TimeService,
   ],
 })
 export class PersonalEvalModule {}

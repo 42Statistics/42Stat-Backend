@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TimeService } from 'src/common/time.calculate';
 import { ScaleTeamsModule } from 'src/scaleTeams/scaleTeams.module';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { PersonalGeneralResolver } from './personal.general.resolver';
@@ -13,7 +12,6 @@ import { UserProfileResolver } from './personal.general.userProfile.resolver';
     PersonalGeneralService,
     UserProfileResolver,
     ScaleTeamsService,
-    TimeService,
   ],
 })
 export class PersonalGeneralModule {}
