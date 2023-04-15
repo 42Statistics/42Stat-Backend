@@ -40,7 +40,8 @@ export class HomeResolver {
           userPreview: {
             id: '1',
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 8500,
         },
@@ -48,7 +49,8 @@ export class HomeResolver {
           userPreview: {
             id: '2',
             login: 'yeju',
-            imgUrl: 'https://cdn.intra.42.fr/users/c0f2c1d395758195af43b4301b66d99d/yeju.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/c0f2c1d395758195af43b4301b66d99d/yeju.jpg',
           },
           value: 7800,
         },
@@ -56,7 +58,8 @@ export class HomeResolver {
           userPreview: {
             id: '3',
             login: 'seunpark',
-            imgUrl: 'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
           },
           value: 7250,
         },
@@ -64,7 +67,8 @@ export class HomeResolver {
           userPreview: {
             id: '4',
             login: 'jayoon',
-            imgUrl: 'https://cdn.intra.42.fr/users/11edf4a6fddf61d0cb5588cb9cdb2a08/jayoon.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/11edf4a6fddf61d0cb5588cb9cdb2a08/jayoon.jpg',
           },
           value: 7180,
         },
@@ -72,7 +76,8 @@ export class HomeResolver {
           userPreview: {
             id: '5',
             login: 'seseo',
-            imgUrl: 'https://cdn.intra.42.fr/users/0936cfb132fd89dfb0aa4c99aca584b7/seseo.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/0936cfb132fd89dfb0aa4c99aca584b7/seseo.jpg',
           },
           value: 7011,
         },
@@ -82,7 +87,8 @@ export class HomeResolver {
           userPreview: {
             id: '1',
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 220,
         },
@@ -90,7 +96,8 @@ export class HomeResolver {
           userPreview: {
             id: '2',
             login: 'yeju',
-            imgUrl: 'https://cdn.intra.42.fr/users/c0f2c1d395758195af43b4301b66d99d/yeju.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/c0f2c1d395758195af43b4301b66d99d/yeju.jpg',
           },
           value: 208,
         },
@@ -98,7 +105,8 @@ export class HomeResolver {
           userPreview: {
             id: '3',
             login: 'hyko',
-            imgUrl: 'https://cdn.intra.42.fr/users/815da09d079333a9bbe06d1a69ecbaa9/hyko.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/815da09d079333a9bbe06d1a69ecbaa9/hyko.jpg',
           },
           value: 196,
         },
@@ -106,7 +114,8 @@ export class HomeResolver {
           userPreview: {
             id: '4',
             login: 'mikim3',
-            imgUrl: 'https://cdn.intra.42.fr/users/fc2fef7bd868d0d7a4cc170da7342d5a/mikim3.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/fc2fef7bd868d0d7a4cc170da7342d5a/mikim3.jpg',
           },
           value: 180,
         },
@@ -114,7 +123,8 @@ export class HomeResolver {
           userPreview: {
             id: '5',
             login: 'junmoon',
-            imgUrl: 'https://cdn.intra.42.fr/users/42901c590a20d5796ade2e2c963bd7ec/junmoon.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/42901c590a20d5796ade2e2c963bd7ec/junmoon.jpg',
           },
           value: 179,
         },
@@ -124,7 +134,8 @@ export class HomeResolver {
           userPreview: {
             id: '1',
             login: 'jaham',
-            imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
           },
           value: 14.05,
         },
@@ -132,7 +143,8 @@ export class HomeResolver {
           userPreview: {
             id: '2',
             login: 'hyulim',
-            imgUrl: 'https://cdn.intra.42.fr/users/a7d0022dd8ba3c74f20cb83ceaac0c88/hyulim.jpg',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/a7d0022dd8ba3c74f20cb83ceaac0c88/hyulim.jpg',
           },
           value: 13.88,
         },
@@ -140,7 +152,8 @@ export class HomeResolver {
           userPreview: {
             id: '3',
             login: 'yongmkim',
-            imgUrl: 'https://cdn.intra.42.fr/users/60f2b806f6ee8a76585ef22a666474d5/yongmkim.JPG',
+            imgUrl:
+              'https://cdn.intra.42.fr/users/60f2b806f6ee8a76585ef22a666474d5/yongmkim.JPG',
           },
           value: 13.76,
         },

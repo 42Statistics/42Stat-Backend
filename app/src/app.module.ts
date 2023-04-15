@@ -4,7 +4,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { URLResolver } from 'graphql-scalars';
 import { join } from 'path';
-import { CommonModule } from './common/common.module';
 import { HomeModule } from './home/home.module';
 import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
@@ -21,7 +20,6 @@ import { TotalModule } from './total/total.module';
     PersonalGeneralModule,
     PersonalEvalModule,
     ScaleTeamsModule,
-    CommonModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       resolvers: { URL: URLResolver },

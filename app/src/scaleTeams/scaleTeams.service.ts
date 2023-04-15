@@ -3,12 +3,12 @@ import { Args } from '@nestjs/graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
-import { TimeService } from 'src/common/time.calculate';
 import {
   EvalUserEnum,
   GetEvalInfoArgs,
 } from 'src/personalEval/dto/getEvalInfo.args';
 import { PersonalScaleTeam } from 'src/personalEval/models/personal.eval.scaleTeam.model';
+import { Util } from 'src/util';
 import { scale_teams } from './db/scaleTeam.database.schema';
 import * as ScaleTeamsPipeline from './db/scaleTeams.database.pipeline';
 
@@ -17,7 +17,6 @@ export class ScaleTeamsService {
   constructor(
     @InjectModel(scale_teams.name)
     private scaleTeamModel: Model<scale_teams>,
-    private timeService: TimeService,
   ) {}
 
   //todo: findAll사용하는 서비스 로직 모두 aggreage로 변경 후 삭제
@@ -28,8 +27,8 @@ export class ScaleTeamsService {
   /* Home Page */
 
   async currWeekEvalCnt(): Promise<number> {
-    const currDate = this.timeService.currDate();
-    const startOfWeek = this.timeService.startOfWeek(currDate);
+    const currDate = Util.Time.currDate();
+    const startOfWeek = Util.Time.startOfWeek(currDate);
     const [currWeekEvalCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([
@@ -48,10 +47,9 @@ export class ScaleTeamsService {
   }
 
   async lastWeekEvalCnt(): Promise<number> {
-    const currDate = this.timeService.currDate();
-    const lastWeek = this.timeService.lastWeek(currDate);
-    const startOfCurrWeek = this.timeService.startOfWeek(currDate);
-    const startOfLastWeek = this.timeService.startOfWeek(lastWeek);
+    const currDate = Util.Time.currDate();
+    const startOfCurrWeek = Util.Time.startOfWeek(currDate);
+    const startOfLastWeek = Util.Time.startOfLastWeek(currDate);
     const [lastWeekEvalCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([
@@ -101,8 +99,8 @@ export class ScaleTeamsService {
   }
 
   async monthlyEvalCntRank(): Promise<UserRanking[]> {
-    const currDate = this.timeService.currDate();
-    const startOfMonth = this.timeService.startOfMonth(currDate);
+    const currDate = Util.Time.currDate();
+    const startOfMonth = Util.Time.startOfMonth(currDate);
     return await this.scaleTeamModel.aggregate([
       {
         $match: {
@@ -243,8 +241,8 @@ export class ScaleTeamsService {
   }
 
   async currMonthCnt(@Args('uid') uid: number): Promise<number> {
-    const currDate = this.timeService.currDate();
-    const startOfMonth = this.timeService.startOfMonth(currDate);
+    const currDate = Util.Time.currDate();
+    const startOfMonth = Util.Time.startOfMonth(currDate);
     const [currMonthCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([
@@ -264,11 +262,9 @@ export class ScaleTeamsService {
   }
 
   async lastMonthCnt(@Args('uid') uid: number): Promise<number> {
-    const currDate = this.timeService.currDate();
-    const startOfMonth = this.timeService.startOfMonth(currDate);
-    const startOfLastMonth = this.timeService
-      .startOfMonth(currDate)
-      .setMonth(-1);
+    const currDate = Util.Time.currDate();
+    const startOfMonth = Util.Time.startOfMonth(currDate);
+    const startOfLastMonth = Util.Time.startOfLastMonth(currDate);
     const [lastMonthCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TimeService } from 'src/common/time.calculate';
 import { scale_teams, ScaleTeamSchema } from './db/scaleTeam.database.schema';
 import { ScaleTeamsService } from './scaleTeams.service';
 
@@ -10,9 +9,10 @@ import { ScaleTeamsService } from './scaleTeams.service';
       { name: scale_teams.name, schema: ScaleTeamSchema },
     ]),
   ],
-  providers: [ScaleTeamsService, TimeService],
+  providers: [ScaleTeamsService],
   controllers: [],
   exports: [
+    // todo
     MongooseModule.forFeature([
       { name: scale_teams.name, schema: ScaleTeamSchema },
     ]),

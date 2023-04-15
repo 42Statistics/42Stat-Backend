@@ -1,11 +1,4 @@
-import {
-  Args,
-  Float,
-  Int,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { CoaliltionName } from 'src/common/models/common.coalition.model';
 import { ProjectInfo, Total } from './models/total.model';
 import { TotalService } from './total.service';

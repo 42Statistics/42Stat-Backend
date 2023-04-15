@@ -53,7 +53,10 @@ export class PersonalScaleTeam {
   // @Field((_type) => [Corrected])
   // correcteds: Corrected[];
 
-  @Field((_type) => String, { nullable: true, description: '피평가자의 피드백 입니다.' })
+  @Field((_type) => String, {
+    nullable: true,
+    description: '피평가자의 피드백 입니다.',
+  })
   feedback: string | null;
 
   @Field()

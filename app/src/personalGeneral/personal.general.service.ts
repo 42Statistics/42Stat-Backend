@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Args } from '@nestjs/graphql';
 import * as fs from 'fs/promises';
-import { UserRanking } from 'src/common/models/common.user.model';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { EvalUserDifficulty } from './models/personal.general.model';
 import { UserGrade } from './models/personal.general.userProfile.model';
