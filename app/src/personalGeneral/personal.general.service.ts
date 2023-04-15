@@ -4,6 +4,7 @@ import * as fs from 'fs/promises';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { EvalUserDifficulty } from './models/personal.general.model';
+import { UserGrade } from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
@@ -11,11 +12,17 @@ export class PersonalGeneralService {
 
   async readTempEval() {
     const ret = [];
-    const r1 = await fs.readFile('/app/temp-data-store/jaham-as-corrector.json', { encoding: 'utf-8' });
+    const r1 = await fs.readFile(
+      '/app/temp-data-store/jaham-as-corrector.json',
+      { encoding: 'utf-8' },
+    );
     const d1 = JSON.parse(r1);
     ret.push(...d1);
 
-    const r2 = await fs.readFile('/app/temp-data-store/jaham-as-corrected.json', { encoding: 'utf-8' });
+    const r2 = await fs.readFile(
+      '/app/temp-data-store/jaham-as-corrected.json',
+      { encoding: 'utf-8' },
+    );
     const d2 = JSON.parse(r2);
     ret.push(...d2);
 
@@ -100,11 +107,17 @@ export class PersonalGeneralService {
   async getLogtimeInfoByUid(uid: number) {
     const locations = await this.readTempLocation();
 
-    const monthStart = new Date(new Date(new Date().setDate(1)).setHours(0, 0, 0, 0));
-    const lastMonthStart = new Date(new Date(monthStart).setMonth(monthStart.getMonth() - 1));
+    const monthStart = new Date(
+      new Date(new Date().setDate(1)).setHours(0, 0, 0, 0),
+    );
+    const lastMonthStart = new Date(
+      new Date(monthStart).setMonth(monthStart.getMonth() - 1),
+    );
 
     const currMonth = locations.filter(
-      (curr: any) => new Date(curr.begin_at).getTime() > monthStart.getTime() && new Date(curr.end_at).getTime(),
+      (curr: any) =>
+        new Date(curr.begin_at).getTime() > monthStart.getTime() &&
+        new Date(curr.end_at).getTime(),
     );
     const lastMonth = locations.filter(
       (curr: any) =>
@@ -116,7 +129,11 @@ export class PersonalGeneralService {
     return {
       currMonthLogtime: Math.floor(
         currMonth.reduce((acc: number, curr: any) => {
-          return acc + (new Date(curr.end_at).getTime() - new Date(curr.begin_at).getTime());
+          return (
+            acc +
+            (new Date(curr.end_at).getTime() -
+              new Date(curr.begin_at).getTime())
+          );
         }, 0) /
           1000 /
           60 /
@@ -124,7 +141,11 @@ export class PersonalGeneralService {
       ),
       lastMonthLogtime: Math.floor(
         lastMonth.reduce((acc: number, curr: any) => {
-          return acc + (new Date(curr.end_at).getTime() - new Date(curr.begin_at).getTime());
+          return (
+            acc +
+            (new Date(curr.end_at).getTime() -
+              new Date(curr.begin_at).getTime())
+          );
         }, 0) /
           1000 /
           60 /
@@ -228,7 +249,9 @@ export class PersonalGeneralService {
       id: 99947,
       login: 'jaham',
       name: 'jaewon Ham',
-      imgUrl: 'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
+      grade: UserGrade.MEMBER,
+      imgUrl:
+        'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
       titles: [
         {
           id: '1',

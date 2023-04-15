@@ -171,7 +171,6 @@ type PersonalGeneral {
   levelGraphs: [LevelGraph!]!
   userProfile: UserProfile!
   personalTotalEvalCnt(uid: Int!): Int!
-  destinyUsers(uid: Int!): [UserRanking!]!
 }
 
 type EvalProfile {

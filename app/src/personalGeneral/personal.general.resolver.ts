@@ -52,9 +52,4 @@ export class PersonalGeneralResolver {
   async personalTotalEvalCnt(@Args('uid') uid: number): Promise<number> {
     return await this.personalGeneralService.personalTotalEvalCnt(uid);
   }
-
-  @ResolveField('destinyUsers', (_returns) => [UserRanking])
-  async destinyUsers(@Args('uid') uid: number): Promise<UserRanking[]> {
-    return await this.personalGeneralService.destinyUsers(uid);
-  }
 }
