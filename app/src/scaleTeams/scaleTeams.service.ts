@@ -48,9 +48,8 @@ export class ScaleTeamsService {
 
   async lastWeekEvalCnt(): Promise<number> {
     const currDate = Util.Time.currDate();
-    const lastWeek = Util.Time.lastWeek(currDate);
     const startOfCurrWeek = Util.Time.startOfWeek(currDate);
-    const startOfLastWeek = Util.Time.startOfWeek(lastWeek);
+    const startOfLastWeek = Util.Time.startOfLastWeek(currDate);
     const [lastWeekEvalCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([
@@ -265,7 +264,7 @@ export class ScaleTeamsService {
   async lastMonthCnt(@Args('uid') uid: number): Promise<number> {
     const currDate = Util.Time.currDate();
     const startOfMonth = Util.Time.startOfMonth(currDate);
-    const startOfLastMonth = Util.Time.startOfMonth(currDate).setMonth(-1);
+    const startOfLastMonth = Util.Time.startOfLastMonth(currDate);
     const [lastMonthCnt] = await this.scaleTeamModel.aggregate<{
       count: number;
     }>([
