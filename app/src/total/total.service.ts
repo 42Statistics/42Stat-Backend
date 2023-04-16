@@ -5,10 +5,10 @@ import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 export class TotalService {
   constructor(private scaleTeamService: ScaleTeamsService) {}
   async totalEvalCnt(): Promise<number> {
-    return this.scaleTeamService.totalEvalCnt();
+    return await this.scaleTeamService.getEvalCnt();
   }
 
   async averageFeedbackLength(): Promise<number> {
-    return this.scaleTeamService.averageFeedbackLength();
+    return await this.scaleTeamService.getAverageReviewLength('feedback');
   }
 }

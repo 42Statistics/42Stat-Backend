@@ -4,8 +4,8 @@ export interface Languages {
   id: number;
   name: string;
   identifier: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Flag {
@@ -13,8 +13,8 @@ export interface Flag {
   name: string;
   positive: boolean;
   icon: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Scale {
@@ -26,7 +26,7 @@ export interface Scale {
   introductionMd: string;
   disclaimerMd: string;
   guidelinesMd: string;
-  createdAt: string;
+  createdAt: Date;
   correction_number: number;
   duration: number;
   manual_subscription: boolean;
@@ -41,10 +41,10 @@ export interface Team {
   url: string;
   finalMark: number | null;
   projectId: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   status: string;
-  terminatingAt: string | null;
+  terminatingAt: Date | null;
   users: {
     id: number;
     login: string;
@@ -59,8 +59,8 @@ export interface Team {
   closed: boolean;
   repo_url: string;
   repo_uuid: number;
-  lockedAt: string | null;
-  closedAt: string | null;
+  lockedAt: Date | null;
+  closedAt: Date | null;
   project_sessionId: number;
   project_gitlab_path: string;
 }
@@ -78,7 +78,7 @@ export interface Feedback {
   feedbackableId: number;
   comment: string;
   rating: number;
-  createdAt: string;
+  createdAt: Date;
 }
 
 @Schema()
@@ -93,10 +93,10 @@ export class scale_teams {
   comment: string | null;
 
   @Prop({ required: true })
-  createdAt: string;
+  createdAt: Date;
 
   @Prop({ required: true })
-  updatedAt: string;
+  updatedAt: Date;
 
   @Prop({ required: true, type: String })
   feedback: string | null;
@@ -108,7 +108,7 @@ export class scale_teams {
   flag: Flag;
 
   @Prop({ required: true })
-  beginAt: string;
+  beginAt: Date;
 
   @Prop({ required: true, type: [Object] })
   correcteds: User[];
