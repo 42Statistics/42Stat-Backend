@@ -23,6 +23,12 @@ const getStartOfMonth = (date: Date): Date =>
 
 //todo: timezone setting
 export const Time = {
+  SEC,
+  MIN,
+  HOUR,
+  DAY,
+  WEEK,
+
   currDate: (): Date => new Date(),
 
   /**

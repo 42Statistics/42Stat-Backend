@@ -115,6 +115,7 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.averageDuration(uid);
   }
 
+  // todo: deprecate this
   @ResolveField('evalInfos', (_returns) => [PersonalScaleTeam])
   async evalInfos(@Args() args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
     return await this.personalEvalService.evalInfos(args);

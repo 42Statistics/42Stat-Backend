@@ -1,24 +1,47 @@
 import { Injectable } from '@nestjs/common';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
+import { Util } from 'src/util';
 
 @Injectable()
 export class HomeService {
   constructor(private scaleTeamService: ScaleTeamsService) {}
 
   async currWeekEvalCnt(): Promise<number> {
-    return this.scaleTeamService.currWeekEvalCnt();
+    const currDate = Util.Time.currDate();
+    // todo: test 용도
+    currDate.setDate(-7);
+    const startOfWeek = Util.Time.startOfWeek(currDate);
+
+    return await this.scaleTeamService.getEvalCnt({
+      beginAt: { $gte: startOfWeek },
+    });
   }
 
   async lastWeekEvalCnt(): Promise<number> {
-    return this.scaleTeamService.lastWeekEvalCnt();
+    const currDate = Util.Time.currDate();
+
+    const startOfCurrWeek = Util.Time.startOfWeek(currDate);
+    const startOfLastWeek = Util.Time.startOfLastWeek(currDate);
+
+    return await this.scaleTeamService.getEvalCnt({
+      beginAt: {
+        $gte: startOfLastWeek,
+        $lt: startOfCurrWeek,
+      },
+    });
   }
 
   async totalEvalCntRank(): Promise<UserRanking[]> {
-    return this.scaleTeamService.totalEvalCntRank();
+    return this.scaleTeamService.getEvalCntRank();
   }
 
   async monthlyEvalCntRank(): Promise<UserRanking[]> {
-    return this.scaleTeamService.monthlyEvalCntRank();
+    const currDate = Util.Time.currDate();
+    const startOfMonth = Util.Time.startOfMonth(currDate);
+
+    return this.scaleTeamService.getEvalCntRank({
+      beginAt: { $gte: startOfMonth },
+    });
   }
 }

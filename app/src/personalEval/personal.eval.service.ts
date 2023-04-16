@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
 import * as fs from 'fs/promises';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
+import { Util } from 'src/util';
 import { EvalUserEnum, GetEvalInfoArgs } from './dto/getEvalInfo.args';
 import { PersonalScaleTeam } from './models/personal.eval.scaleTeam.model';
 
@@ -146,29 +146,48 @@ export class PersonalEvalService {
     return filtered;
   }
 
-  async averageFinalMark(@Args('uid') uid: number): Promise<number> {
-    return this.scaleTeamService.averageFinalMark(uid);
+  async averageFinalMark(uid: number): Promise<number> {
+    return this.scaleTeamService.getAverageFinalMark(uid);
   }
 
-  async personalAverageFeedbackLength(
-    @Args('uid') uid: number,
-  ): Promise<number> {
-    return this.scaleTeamService.personalAverageFeedbackLength(uid);
+  async personalAverageFeedbackLength(uid: number): Promise<number> {
+    return this.scaleTeamService.getAverageReviewLength('feedback', {
+      'correcteds.id': uid,
+    });
   }
 
-  async currMonthCnt(@Args('uid') uid: number): Promise<number> {
-    return this.scaleTeamService.currMonthCnt(uid);
+  async currMonthCnt(uid: number): Promise<number> {
+    const currDate = Util.Time.currDate();
+    const startOfMonth = Util.Time.startOfMonth(currDate);
+
+    return this.scaleTeamService.getEvalCnt({
+      'corrector.id': uid,
+      beginAt: { $gte: startOfMonth },
+    });
   }
 
-  async lastMonthCnt(@Args('uid') uid: number): Promise<number> {
-    return this.scaleTeamService.lastMonthCnt(uid);
+  async lastMonthCnt(uid: number): Promise<number> {
+    const currDate = Util.Time.currDate();
+
+    const startOfMonth = Util.Time.startOfMonth(currDate);
+    const startOfLastMonth = Util.Time.startOfLastMonth(currDate);
+
+    return this.scaleTeamService.getEvalCnt({
+      'corrector.id': uid,
+      beginAt: {
+        $gte: startOfLastMonth,
+        $lt: startOfMonth,
+      },
+    });
   }
 
-  async averageDuration(@Args('uid') uid: number): Promise<number> {
-    return this.scaleTeamService.averageDuration(uid);
+  async averageDuration(uid: number): Promise<number> {
+    return this.scaleTeamService.getAverageDurationMinute({
+      'corrector.id': uid,
+    });
   }
 
-  async evalInfos(@Args() args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
+  async evalInfos(args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
     return this.scaleTeamService.evalInfos(args);
   }
 }
