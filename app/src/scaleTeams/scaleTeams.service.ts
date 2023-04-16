@@ -3,14 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
 import { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
-import {
-  EvalUserEnum,
-  GetEvalInfoArgs,
-} from 'src/personalEval/dto/getEvalInfo.args';
-import { PersonalScaleTeam } from 'src/personalEval/models/personal.eval.scaleTeam.model';
-import * as ScaleTeamsPipeline from './db/scaleTeams.database.pipeline';
-import { scale_teams } from './db/scaleTeams.database.schema';
 import { Util } from 'src/util';
+import { scale_teams } from './db/scaleTeams.database.schema';
 
 @Injectable()
 export class ScaleTeamsService {
@@ -128,7 +122,7 @@ export class ScaleTeamsService {
       })
       .group({
         _id: 'result',
-        value: { $sum: { $subtract: ['$filledAt', '$beginAt'] } },
+        value: { $avg: { $subtract: ['$filledAt', '$beginAt'] } },
       })
       .exec();
 
@@ -137,90 +131,91 @@ export class ScaleTeamsService {
       : 0;
   }
 
-  async evalInfos(args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
-    const matchPipline = () => {
-      switch (args.evalUserType) {
-        case EvalUserEnum.ANY:
-          return ScaleTeamsPipeline.evalInfo.any(args);
-        case EvalUserEnum.CORRECTOR:
-          return ScaleTeamsPipeline.evalInfo.corrector(args);
-        case EvalUserEnum.CORRECTED:
-          return ScaleTeamsPipeline.evalInfo.corrected(args);
-      }
-    };
+  // todo: erase
+  // async evalInfos(args: GetEvalInfoArgs): Promise<PersonalScaleTeam[]> {
+  //   const matchPipline = () => {
+  //     switch (args.evalUserType) {
+  //       case EvalUserEnum.ANY:
+  //         return ScaleTeamsPipeline.evalInfo.any(args);
+  //       case EvalUserEnum.CORRECTOR:
+  //         return ScaleTeamsPipeline.evalInfo.corrector(args);
+  //       case EvalUserEnum.CORRECTED:
+  //         return ScaleTeamsPipeline.evalInfo.corrected(args);
+  //     }
+  //   };
 
-    const evalInfos = await this.scaleTeamModel.aggregate([
-      matchPipline(),
-      {
-        $match: {
-          $expr: {
-            $cond: {
-              if: {
-                $eq: [args.outstandingOnly, true],
-              },
-              then: {
-                $eq: ['$flag.id', 9],
-              },
-              else: {},
-            },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 'result',
-          corrector: {
-            id: '$corrector.id',
-            login: '$corrector.login',
-            imgUrl: '$corrector.url',
-            comment: '$comment',
-            correctorRate: {
-              $ifNull: [
-                {
-                  $arrayElemAt: ['$feedbacks.rating', 0],
-                },
-                0,
-              ],
-            },
-          },
-          feedback: '$feedback',
-          beginAt: 1,
-          finalMark: 1,
-          flag: {
-            id: '$flag.id',
-            name: '$flag.name',
-            isPositive: '$flag.positive',
-          },
-          projectPreview: {
-            id: '$team.projectId',
-          },
-          teamPreview: {
-            id: '$team.id',
-            name: '$team.name',
-            url: '$team.url',
-          },
-        },
-      },
-      {
-        $limit: 5, //: page
-      },
-      {
-        $lookup: {
-          from: 'projects',
-          localField: 'projectPreview.id',
-          foreignField: 'id',
-          as: 'projectPreview',
-        },
-      },
-      {
-        $addFields: {
-          projectPreview: {
-            $first: '$projectPreview',
-          },
-        },
-      },
-    ]);
+  //   const evalInfos = await this.scaleTeamModel.aggregate([
+  //     matchPipline(),
+  //     {
+  //       $match: {
+  //         $expr: {
+  //           $cond: {
+  //             if: {
+  //               $eq: [args.outstandingOnly, true],
+  //             },
+  //             then: {
+  //               $eq: ['$flag.id', 9],
+  //             },
+  //             else: {},
+  //           },
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 'result',
+  //         corrector: {
+  //           id: '$corrector.id',
+  //           login: '$corrector.login',
+  //           imgUrl: '$corrector.url',
+  //           comment: '$comment',
+  //           correctorRate: {
+  //             $ifNull: [
+  //               {
+  //                 $arrayElemAt: ['$feedbacks.rating', 0],
+  //               },
+  //               0,
+  //             ],
+  //           },
+  //         },
+  //         feedback: '$feedback',
+  //         beginAt: 1,
+  //         finalMark: 1,
+  //         flag: {
+  //           id: '$flag.id',
+  //           name: '$flag.name',
+  //           isPositive: '$flag.positive',
+  //         },
+  //         projectPreview: {
+  //           id: '$team.projectId',
+  //         },
+  //         teamPreview: {
+  //           id: '$team.id',
+  //           name: '$team.name',
+  //           url: '$team.url',
+  //         },
+  //       },
+  //     },
+  //     {
+  //       $limit: 5, //: page
+  //     },
+  //     {
+  //       $lookup: {
+  //         from: 'projects',
+  //         localField: 'projectPreview.id',
+  //         foreignField: 'id',
+  //         as: 'projectPreview',
+  //       },
+  //     },
+  //     {
+  //       $addFields: {
+  //         projectPreview: {
+  //           $first: '$projectPreview',
+  //         },
+  //       },
+  //     },
+  //   ]);
 
-    return evalInfos ?? [];
-  }
+  //   return evalInfos ?? [];
+  // }
 }

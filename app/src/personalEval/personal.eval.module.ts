@@ -15,4 +15,5 @@ import { PersonalEvalService } from './personal.eval.service';
     ScaleTeamsService,
   ],
 })
+// eslint-disable-next-line
 export class PersonalEvalModule {}

@@ -1,13 +1,15 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { UserProfile } from 'src/personalGeneral/models/personal.general.userProfile.model';
 
 @ObjectType()
-export class EvalProfile {
+export class PersonalEval {
   @Field()
-  currMonthCnt: number;
+  currMonthCount: number;
 
   @Field()
-  lastMonthCnt: number;
+  lastMonthCount: number;
+
+  @Field()
+  totalCount: number;
 
   @Field()
   averageDuration: number;
@@ -17,15 +19,9 @@ export class EvalProfile {
   })
   averageFinalMark: number;
 
-  @Field({ description: '평가자, 피평가자 모두 포함해서 계산된 값 입니다.' })
+  @Field({ description: '피평가자가 작성한 리뷰의 평균 길이 입니다.' })
   averageFeedbackLength: number;
-}
 
-@ObjectType()
-export class PersonalEval {
-  @Field()
-  evalProfile: EvalProfile;
-
-  @Field()
-  userProfile: UserProfile;
+  @Field({ description: '평가자가 작성한 리뷰의 평균 길이 입니다.' })
+  averageCommentLength: number;
 }
