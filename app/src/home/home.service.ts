@@ -13,7 +13,7 @@ export class HomeService {
     currDate.setDate(-7);
     const startOfWeek = Util.Time.startOfWeek(currDate);
 
-    return await this.scaleTeamService.getEvalCnt({
+    return await this.scaleTeamService.getEvalCount({
       beginAt: { $gte: startOfWeek },
     });
   }
@@ -24,7 +24,7 @@ export class HomeService {
     const startOfCurrWeek = Util.Time.startOfWeek(currDate);
     const startOfLastWeek = Util.Time.startOfLastWeek(currDate);
 
-    return await this.scaleTeamService.getEvalCnt({
+    return await this.scaleTeamService.getEvalCount({
       beginAt: {
         $gte: startOfLastWeek,
         $lt: startOfCurrWeek,
@@ -33,14 +33,14 @@ export class HomeService {
   }
 
   async totalEvalCntRank(): Promise<UserRanking[]> {
-    return this.scaleTeamService.getEvalCntRank();
+    return this.scaleTeamService.getEvalCountRank();
   }
 
   async monthlyEvalCntRank(): Promise<UserRanking[]> {
     const currDate = Util.Time.currDate();
     const startOfMonth = Util.Time.startOfMonth(currDate);
 
-    return this.scaleTeamService.getEvalCntRank({
+    return this.scaleTeamService.getEvalCountRank({
       beginAt: { $gte: startOfMonth },
     });
   }

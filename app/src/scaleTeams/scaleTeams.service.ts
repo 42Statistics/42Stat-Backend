@@ -27,7 +27,7 @@ export class ScaleTeamsService {
     return await this.scaleTeamModel.find(filter ?? {});
   }
 
-  async getEvalCnt(filter?: FilterQuery<scale_teams>): Promise<number> {
+  async getEvalCount(filter?: FilterQuery<scale_teams>): Promise<number> {
     if (!filter) {
       return await this.scaleTeamModel.estimatedDocumentCount();
     }
@@ -35,7 +35,7 @@ export class ScaleTeamsService {
     return await this.scaleTeamModel.countDocuments(filter);
   }
 
-  async getEvalCntRank(
+  async getEvalCountRank(
     filter?: FilterQuery<scale_teams>,
   ): Promise<UserRanking[]> {
     const aggregate = this.scaleTeamModel.aggregate<UserRanking>();
