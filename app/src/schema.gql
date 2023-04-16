@@ -254,6 +254,8 @@ type Total {
   evalCntPerPoints: [EvalCntPerPoint!]!
   userCntPerLevels: [UserCntPerLevel!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
+  totalEvalCount: Int!
+  averageCommentLength: Int!
 }
 
 type Query {

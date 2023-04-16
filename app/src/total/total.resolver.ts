@@ -452,13 +452,18 @@ export class TotalResolver {
     };
   }
 
-  @ResolveField('totalEvalCnt', (_returns) => Int)
-  async totalEvalCnt(): Promise<number> {
-    return await this.totalService.totalEvalCnt();
+  @ResolveField('totalEvalCount', (_returns) => Int)
+  async totalEvalCount(): Promise<number> {
+    return await this.totalService.totalEvalCount();
   }
 
   @ResolveField('averageFeedbackLength', (_returns) => Int)
   async averageFeedbackLength(): Promise<number> {
     return await this.totalService.averageFeedbackLength();
+  }
+
+  @ResolveField('averageCommentLength', (_returns) => Int)
+  async averageCommentLength(): Promise<number> {
+    return await this.totalService.averageCommentLength();
   }
 }

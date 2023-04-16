@@ -282,7 +282,7 @@ export class PersonalGeneralService {
   }
 
   async personalTotalEvalCnt(@Args('uid') uid: number): Promise<number> {
-    return await this.scaleTeamService.getEvalCnt({
+    return await this.scaleTeamService.getEvalCount({
       'corrector.id': uid,
     });
   }
