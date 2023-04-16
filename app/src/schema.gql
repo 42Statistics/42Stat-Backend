@@ -173,78 +173,21 @@ type PersonalGeneral {
   personalTotalEvalCnt(uid: Int!): Int!
 }
 
-type EvalProfile {
-  currMonthCnt: Int!
-  lastMonthCnt: Int!
+type PersonalEval {
+  currMonthCount: Int!
+  lastMonthCount: Int!
+  totalCount: Int!
   averageDuration: Int!
 
   """평가자 기준으로 준 평균 점수 입니다."""
   averageFinalMark: Float!
 
-  """평가자, 피평가자 모두 포함해서 계산된 값 입니다."""
+  """피평가자가 작성한 리뷰의 평균 길이 입니다."""
   averageFeedbackLength: Int!
-}
 
-type PersonalEval {
-  evalProfile: EvalProfile!
+  """평가자가 작성한 리뷰의 평균 길이 입니다."""
+  averageCommentLength: Int!
   userProfile: UserProfile!
-  scaleTeams(first: Int! = 10, after: String! = "0", uid: Int!, evalUserType: Int! = 0, projectName: String = "libft", targetUserName: String = null, outstandingOnly: Boolean = null): PersonalScaleTeamsPaginated!
-  averageFinalMark(uid: Int!): Float!
-  personalAverageFeedbackLength(uid: Int!): Float!
-  currMonthCnt(uid: Int!): Int!
-  lastMonthCnt(uid: Int!): Int!
-  averageDuration(uid: Int!): Int!
-  evalInfos(first: Int! = 10, after: String! = "0", uid: Int!, evalUserType: Int! = 0, projectName: String = "libft", targetUserName: String = null, outstandingOnly: Boolean = null): [PersonalScaleTeam!]!
-}
-
-type TeamPreview {
-  id: ID!
-  name: String!
-  url: URL!
-}
-
-type Corrector {
-  id: ID!
-  login: String!
-  imgUrl: URL
-  comment: String
-
-  """피평가자가 평가자에게 5점 만점 중 몇 점을 주었는가 입니다."""
-  correctorRate: Int!
-}
-
-type Flag {
-  id: ID!
-  name: String!
-  isPositive: Boolean!
-}
-
-type PersonalScaleTeam {
-  corrector: Corrector!
-
-  """피평가자의 피드백 입니다."""
-  feedback: String
-  beginAt: DateTime!
-  finalMark: String
-  flag: Flag!
-  projectPreview: ProjectPreview!
-  teamPreview: TeamPreview!
-}
-
-type PersonalScaleTeamEdge {
-  cursor: String!
-  node: PersonalScaleTeam!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  endCursor: String!
-}
-
-type PersonalScaleTeamsPaginated {
-  edges: [PersonalScaleTeamEdge!]
-  totalCount: Int!
-  pageInfo: PageInfo!
 }
 
 type ProjectInfo {
@@ -317,5 +260,5 @@ type Query {
   getHomePage: Home!
   getTotalPage: Total!
   getPersonGeneralPage: PersonalGeneral!
-  getPersonalEvalPage: PersonalEval!
+  getPersonalEvalPage(uid: Int!): PersonalEval!
 }

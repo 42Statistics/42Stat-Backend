@@ -56,7 +56,7 @@ export const Time = {
    */
   startOfLastMonth: (date: Date): Date => {
     const copy = new Date(date);
-    copy.setMonth(-1);
+    copy.setMonth(copy.getMonth() - 1);
 
     return getStartOfMonth(copy);
   },
