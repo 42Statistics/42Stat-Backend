@@ -1,10 +1,10 @@
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 export enum CoaliltionName {
-  GUN,
-  GON,
-  GAM,
-  LEE,
+  GUN = 85,
+  GON = 86,
+  GAM = 87,
+  LEE = 88,
 }
 
 registerEnumType(CoaliltionName, {
@@ -14,7 +14,7 @@ registerEnumType(CoaliltionName, {
 @ObjectType()
 export class Coalition {
   @Field((_type) => ID)
-  id: string;
+  id: number;
 
   @Field((_type) => CoaliltionName)
   name: CoaliltionName;

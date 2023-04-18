@@ -20,8 +20,8 @@ type UserTitle {
   isSelected: Boolean!
 }
 
-type ScoreInfo {
-  current: Int!
+type UserScoreInfo {
+  value: Int!
   rankInCoalition: Int!
   rankInTotal: Int!
 }
@@ -39,7 +39,7 @@ type UserProfile {
   blackholedAt: DateTime
   wallet: Int!
   correctionPoint: Int!
-  scoreInfo: ScoreInfo!
+  scoreInfo: UserScoreInfo!
   levelRank: Int!
 }
 
@@ -238,16 +238,6 @@ type ScoreRecords {
   records: [ValueRecord!]!
 }
 
-type UserCntPerPoint {
-  userCnt: Int!
-  point: Int!
-}
-
-type EvalCntPerPoint {
-  evalCnt: Int!
-  point: Int!
-}
-
 type UserCntPerLevel {
   userCnt: Int!
   level: Int!
@@ -256,19 +246,16 @@ type UserCntPerLevel {
 type Total {
   activeUserCntRecords: [ValueRecord!]!
   blackholedCntPerCircles: [ValuePerCircle!]!
-  totalScores: [TotalScore!]!
   correctionPointRanks: [UserRanking!]!
   walletRanks: [UserRanking!]!
-  monthlyScoreRanks: [UserRanking!]!
-  totalEvalCnt: Int!
-  averageFeedbackLength: Int!
   averageCircleDurations: [ValuePerCircle!]!
-  scoreRecords: [ScoreRecords!]!
-  userCntPerPoints: [UserCntPerPoint!]!
-  evalCntPerPoints: [EvalCntPerPoint!]!
   userCntPerLevels: [UserCntPerLevel!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
+  totalScores: [TotalScore!]!
+  scoreRecords: [ScoreRecords!]!
+  monthlyScoreRanks: [UserRanking!]!
   totalEvalCount: Int!
+  averageFeedbackLength: Int!
   averageCommentLength: Int!
 }
 
