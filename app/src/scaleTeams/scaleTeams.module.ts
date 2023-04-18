@@ -1,22 +1,15 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { scale_teams, ScaleTeamSchema } from './db/scaleTeams.database.schema';
+import { scale_team, ScaleTeamSchema } from './db/scaleTeams.database.schema';
 import { ScaleTeamsService } from './scaleTeams.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: scale_teams.name, schema: ScaleTeamSchema },
+      { name: scale_team.name, schema: ScaleTeamSchema },
     ]),
   ],
   providers: [ScaleTeamsService],
-  controllers: [],
-  exports: [
-    // todo
-    MongooseModule.forFeature([
-      { name: scale_teams.name, schema: ScaleTeamSchema },
-    ]),
-    ScaleTeamsService,
-  ],
+  exports: [MongooseModule, ScaleTeamsService],
 })
 export class ScaleTeamsModule {}

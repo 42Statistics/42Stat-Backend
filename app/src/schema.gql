@@ -2,6 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ProjectPreview {
+  id: ID!
+  name: String!
+  url: URL!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
+
 type Coalition {
   id: ID!
   name: CoaliltionName!
@@ -49,11 +65,6 @@ enum UserGrade {
 }
 
 """
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
-
-"""
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
@@ -69,14 +80,39 @@ type UserRanking {
   value: Float!
 }
 
-type ProjectPreview {
+type TeamPreview {
   id: ID!
   name: String!
+  url: URL!
 }
 
-type ProjectRanking {
+type Flag {
+  id: ID!
+  name: String!
+  isPositive: Boolean!
+}
+
+type EvalLogHeader {
+  corrector: UserPreview!
+  teamPreview: TeamPreview!
+  beginAt: DateTime!
   projectPreview: ProjectPreview!
-  value: Int!
+  flag: Flag!
+}
+
+type EvalReview {
+  mark: Int!
+  review: String!
+}
+
+type EvalLogs {
+  header: EvalLogHeader!
+
+  """평가자가 부여한 점수와 리뷰 입니다."""
+  correctorReview: EvalReview!
+
+  """피평가자가 부여한 점수와 리뷰 입니다."""
+  correctedsReview: EvalReview!
 }
 
 type ExamResult {
@@ -138,26 +174,6 @@ type TeamInfo {
   teams: [TempTeam]!
 }
 
-type DestinyUser {
-  id: ID!
-  login: String!
-  imgUrl: URL
-  score: Int!
-}
-
-type EvalUserInfo {
-  totalEvalCnt: Int!
-  difficulty: EvalUserDifficulty!
-  destinyUsers: [DestinyUser]!
-}
-
-enum EvalUserDifficulty {
-  EASY
-  MEDIUM
-  HARD
-  HELL
-}
-
 type LevelGraph {
   date: DateTime!
   userLevel: Float!
@@ -165,12 +181,10 @@ type LevelGraph {
 }
 
 type PersonalGeneral {
-  evalUserInfo: EvalUserInfo!
   logtimeInfo: LogtimeInfo!
   teamInfo: TeamInfo!
   levelGraphs: [LevelGraph!]!
   userProfile: UserProfile!
-  personalTotalEvalCnt(uid: Int!): Int!
 }
 
 type PersonalEval {
@@ -263,4 +277,5 @@ type Query {
   getTotalPage: Total!
   getPersonGeneralPage: PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
+  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String! = "libft", outstandingOnly: Boolean! = false): [EvalLogs!]!
 }

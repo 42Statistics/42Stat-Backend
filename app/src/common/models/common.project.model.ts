@@ -1,4 +1,5 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import { URLResolver } from 'graphql-scalars';
 
 @ObjectType()
 export class ProjectPreview {
@@ -7,6 +8,9 @@ export class ProjectPreview {
 
   @Field()
   name: string;
+
+  @Field((_type) => URLResolver)
+  url: string;
 }
 
 @ObjectType()
