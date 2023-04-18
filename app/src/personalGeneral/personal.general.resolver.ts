@@ -1,6 +1,5 @@
-import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
-  EvalUserInfo,
   LevelGraph,
   LogtimeInfo,
   PersonalGeneral,
@@ -16,14 +15,6 @@ export class PersonalGeneralResolver {
   @Query((_returns) => PersonalGeneral)
   async getPersonGeneralPage() {
     return {};
-  }
-
-  @ResolveField('evalUserInfo', (_returns) => EvalUserInfo)
-  async getEvalUserInfo() {
-    const evalUserInfo = await this.personalGeneralService.getEvalUserInfoByUid(
-      99947,
-    );
-    return evalUserInfo;
   }
 
   @ResolveField('logtimeInfo', (_returns) => LogtimeInfo)
@@ -44,11 +35,5 @@ export class PersonalGeneralResolver {
   @ResolveField('userProfile', (_returns) => UserProfile)
   async getUserInfo() {
     return await this.personalGeneralService.getUserInfo(99947);
-  }
-
-  //유저가 한 평가 횟수
-  @ResolveField('personalTotalEvalCnt', (_returns) => Int)
-  async personalTotalEvalCnt(@Args('uid') uid: number): Promise<number> {
-    return await this.personalGeneralService.personalTotalEvalCnt(uid);
   }
 }

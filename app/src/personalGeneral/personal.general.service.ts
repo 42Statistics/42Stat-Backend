@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
 import * as fs from 'fs/promises';
-import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
-import { EvalUserDifficulty } from './models/personal.general.model';
 import { UserGrade } from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
-  constructor(private scaleTeamService: ScaleTeamsService) {}
-
   async readTempEval() {
     const ret = [];
     const r1 = await fs.readFile(
@@ -53,54 +48,6 @@ export class PersonalGeneralService {
       }),
     );
     return ret;
-  }
-
-  async getEvalUserInfoByUid(uid: number) {
-    const evals = await this.readTempEval();
-
-    abstract class DesUser {
-      id: number;
-      login: string;
-      imgUrl: string;
-      score: number;
-    }
-
-    const pool: { [key: string]: DesUser } = {};
-
-    evals.forEach((curr: any) => {
-      if (curr.corrector.id === uid) {
-        curr.correcteds.forEach((cur: any) => {
-          if (!pool[cur.login]) {
-            pool[cur.login] = {
-              id: cur.id,
-              login: cur.login,
-              imgUrl: 'https://www.google.com',
-              score: 0,
-            };
-          }
-          pool[cur.login].score++;
-        });
-      } else {
-        if (!pool[curr.corrector.login]) {
-          pool[curr.corrector.login] = {
-            id: curr.corrector.id,
-            login: curr.corrector.login,
-            imgUrl: 'https://www.google.com',
-            score: 0,
-          };
-        }
-
-        pool[curr.corrector.login].score++;
-      }
-    });
-
-    return {
-      totalEvalCnt: evals.length,
-      difficulty: EvalUserDifficulty.MEDIUM,
-      destinyUsers: Object.values(pool)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, 3),
-    };
   }
 
   async getLogtimeInfoByUid(uid: number) {
@@ -279,11 +226,5 @@ export class PersonalGeneralService {
         rankInTotal: 589,
       },
     };
-  }
-
-  async personalTotalEvalCnt(@Args('uid') uid: number): Promise<number> {
-    return await this.scaleTeamService.getEvalCount({
-      'corrector.id': uid,
-    });
   }
 }

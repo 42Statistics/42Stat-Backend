@@ -13,12 +13,12 @@ export class PersonalEvalService {
     return await this.scaleTeamService.getEvalCount({
       'corrector.id': uid,
       beginAt: { $gte: startOfMonth },
+      filledAt: { $ne: null },
     });
   }
 
   async lastMonthCount(uid: number): Promise<number> {
     const currDate = Util.Time.currDate();
-
     const startOfMonth = Util.Time.startOfMonth(currDate);
     const startOfLastMonth = Util.Time.startOfLastMonth(currDate);
 
@@ -28,12 +28,14 @@ export class PersonalEvalService {
         $gte: startOfLastMonth,
         $lt: startOfMonth,
       },
+      filledAt: { $ne: null },
     });
   }
 
   async totalCount(uid: number): Promise<number> {
     return await this.scaleTeamService.getEvalCount({
       'corrector.id': uid,
+      filledAt: { $ne: null },
     });
   }
 

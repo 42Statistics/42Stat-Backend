@@ -1,13 +1,4 @@
-import {
-  Field,
-  Float,
-  ID,
-  Int,
-  ObjectType,
-  registerEnumType,
-} from '@nestjs/graphql';
-import { UserPreview } from 'src/common/models/common.user.model';
-import { UserProfile } from './personal.general.userProfile.model';
+import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
 
 // todo: erase this
 @ObjectType()
@@ -79,35 +70,6 @@ export class TeamInfo {
   teams: TempTeam[];
 }
 
-export enum EvalUserDifficulty {
-  EASY,
-  MEDIUM,
-  HARD,
-  HELL,
-}
-
-registerEnumType(EvalUserDifficulty, {
-  name: 'EvalUserDifficulty',
-});
-
-@ObjectType()
-export class DestinyUser extends UserPreview {
-  @Field()
-  score: number;
-}
-
-@ObjectType()
-export class EvalUserInfo {
-  @Field()
-  totalEvalCnt: number;
-
-  @Field((_type) => EvalUserDifficulty)
-  difficulty: EvalUserDifficulty;
-
-  @Field((_types) => [DestinyUser], { nullable: 'items' })
-  destinyUsers: DestinyUser[];
-}
-
 @ObjectType()
 export class LevelGraph {
   @Field()
@@ -121,19 +83,5 @@ export class LevelGraph {
 }
 
 @ObjectType()
-export class PersonalGeneral {
-  @Field()
-  evalUserInfo: EvalUserInfo;
-
-  @Field()
-  logtimeInfo: LogtimeInfo;
-
-  @Field()
-  teamInfo: TeamInfo;
-
-  @Field((_type) => [LevelGraph])
-  levelGraphs: LevelGraph[];
-
-  @Field()
-  userProfile: UserProfile;
-}
+// eslint-disable-next-line
+export class PersonalGeneral {}

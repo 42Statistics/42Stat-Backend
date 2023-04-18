@@ -1,5 +1,22 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 
+// export enum EvalUserDifficulty {
+//   EASY,
+//   MEDIUM,
+//   HARD,
+//   HELL,
+// }
+
+// registerEnumType(EvalUserDifficulty, {
+//   name: 'EvalUserDifficulty',
+// });
+
+// @ObjectType()
+// export class DestinyUser extends UserPreview {
+//   @Field()
+//   score: number;
+// }
+
 @ObjectType()
 export class PersonalEval {
   @Field()
@@ -24,4 +41,10 @@ export class PersonalEval {
 
   @Field({ description: '평가자가 작성한 리뷰의 평균 길이 입니다.' })
   averageCommentLength: number;
+
+  //   @Field((_type) => EvalUserDifficulty)
+  // difficulty: EvalUserDifficulty;
+
+  // @Field((_types) => [DestinyUser], { nullable: 'items' })
+  // destinyUsers: DestinyUser[];
 }

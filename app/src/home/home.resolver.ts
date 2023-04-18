@@ -17,6 +17,7 @@ export class HomeResolver {
           projectPreview: {
             id: '1',
             name: 'ft_ping',
+            url: 'https://projects.intra.42.fr/projects/1',
           },
           value: 320,
         },
@@ -24,6 +25,7 @@ export class HomeResolver {
           projectPreview: {
             id: '2',
             name: 'libft',
+            url: 'https://projects.intra.42.fr/projects/1',
           },
           value: 280,
         },
@@ -31,6 +33,7 @@ export class HomeResolver {
           projectPreview: {
             id: '3',
             name: 'get_next_line',
+            url: 'https://projects.intra.42.fr/projects/1',
           },
           value: 220,
         },
