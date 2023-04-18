@@ -1,4 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type ScaleTeamDocument = HydratedDocument<scale_team>;
 
 export interface Languages {
   id: number;
@@ -82,7 +85,7 @@ export interface Feedback {
 }
 
 @Schema()
-export class scale_teams {
+export class scale_team {
   @Prop({ required: true })
   id: number;
 
@@ -135,4 +138,4 @@ export class scale_teams {
   feedbacks: Feedback[];
 }
 
-export const ScaleTeamSchema = SchemaFactory.createForClass(scale_teams);
+export const ScaleTeamSchema = SchemaFactory.createForClass(scale_team);
