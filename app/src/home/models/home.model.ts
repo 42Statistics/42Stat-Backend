@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ProjectRanking } from 'src/common/models/common.project.model';
+import { ProjectRanking } from 'src/project/models/project.ranking.model';
 import { UserRanking } from 'src/common/models/common.user.model';
 
 @ObjectType()

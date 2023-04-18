@@ -138,7 +138,6 @@ export class ScaleTeamsService {
 
   async getEvalLogs(
     filter: FilterQuery<scale_team>,
-    projectName: string, // todo: ...
     pageSize: number,
     pageNumber: number,
   ): Promise<EvalLogs[]> {
