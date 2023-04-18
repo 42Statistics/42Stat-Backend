@@ -104,35 +104,14 @@ export class Total {
   @Field((_type) => [ValuePerCircle])
   blackholedCntPerCircles: ValuePerCircle[];
 
-  @Field((_type) => [TotalScore])
-  totalScores: TotalScore[];
-
   @Field((_type) => [UserRanking])
   correctionPointRanks: UserRanking[];
 
   @Field((_type) => [UserRanking])
   walletRanks: UserRanking[];
 
-  @Field((_type) => [UserRanking])
-  monthlyScoreRanks: UserRanking[];
-
-  @Field()
-  totalEvalCnt: number;
-
-  @Field()
-  averageFeedbackLength: number;
-
   @Field((_type) => [ValuePerCircle])
   averageCircleDurations: ValuePerCircle[];
-
-  @Field((_type) => [ScoreRecords])
-  scoreRecords: ScoreRecords[];
-
-  @Field((_type) => [UserCntPerPoint])
-  userCntPerPoints: UserCntPerPoint[];
-
-  @Field((_type) => [EvalCntPerPoint])
-  evalCntPerPoints: EvalCntPerPoint[];
 
   @Field((_type) => [UserCntPerLevel])
   userCntPerLevels: UserCntPerLevel[];

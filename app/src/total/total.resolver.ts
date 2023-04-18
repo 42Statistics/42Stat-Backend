@@ -1,6 +1,12 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { CoaliltionName } from 'src/common/models/common.coalition.model';
-import { ProjectInfo, Total } from './models/total.model';
+import { UserRanking } from 'src/common/models/common.user.model';
+import {
+  ProjectInfo,
+  ScoreRecords,
+  Total,
+  TotalScore,
+} from './models/total.model';
 import { TotalService } from './total.service';
 
 @Resolver((_of: unknown) => Total)
@@ -66,36 +72,6 @@ export class TotalResolver {
           value: 15,
         },
       ],
-      totalScores: [
-        {
-          coalition: {
-            id: '1',
-            name: CoaliltionName.GUN,
-          },
-          score: 18000000,
-        },
-        {
-          coalition: {
-            id: '2',
-            name: CoaliltionName.GUN,
-          },
-          score: 5000000,
-        },
-        {
-          coalition: {
-            id: '3',
-            name: CoaliltionName.GUN,
-          },
-          score: 19000000,
-        },
-        {
-          coalition: {
-            id: '4',
-            name: CoaliltionName.GUN,
-          },
-          score: 10000000,
-        },
-      ],
       correctionPointRanks: [
         {
           userPreview: {
@@ -154,37 +130,6 @@ export class TotalResolver {
           value: 995,
         },
       ],
-      monthlyScoreRanks: [
-        {
-          userPreview: {
-            id: 99947,
-            login: 'jaham',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 8500,
-        },
-        {
-          userPreview: {
-            id: '145733',
-            login: 'iam0',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/af0e421a2d94c02f25ff9aed443f783a/iam0.jpg',
-          },
-          value: 7800,
-        },
-        {
-          userPreview: {
-            id: '1',
-            login: 'MMMMMMMM',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 7250,
-        },
-      ],
-      totalEvalCnt: 87102,
-      averageFeedbackLength: 88,
       averageCircleDurations: [
         {
           circle: 0,
@@ -213,168 +158,6 @@ export class TotalResolver {
         {
           circle: 6,
           value: 390,
-        },
-      ],
-      scoreRecords: [
-        {
-          coalition: {
-            id: '1',
-            name: CoaliltionName.GUN,
-          },
-          records: [
-            {
-              at: new Date('2022-11-01T00:00:00.405Z'),
-              value: 1000,
-            },
-            {
-              at: new Date('2022-12-01T00:00:00.405Z'),
-              value: 2250,
-            },
-            {
-              at: new Date('2023-01-01T00:00:00.405Z'),
-              value: 1500,
-            },
-            {
-              at: new Date('2023-02-01T00:00:00.405Z'),
-              value: 3000,
-            },
-            {
-              at: new Date('2023-03-01T00:00:00.405Z'),
-              value: 750,
-            },
-          ],
-        },
-        {
-          coalition: {
-            id: '2',
-            name: CoaliltionName.GUN,
-          },
-          records: [
-            {
-              at: new Date('2022-11-01T00:00:00.405Z'),
-              value: 2250,
-            },
-            {
-              at: new Date('2022-12-01T00:00:00.405Z'),
-              value: 1000,
-            },
-            {
-              at: new Date('2023-01-01T00:00:00.405Z'),
-              value: 750,
-            },
-            {
-              at: new Date('2023-02-01T00:00:00.405Z'),
-              value: 3000,
-            },
-            {
-              at: new Date('2023-03-01T00:00:00.405Z'),
-              value: 1500,
-            },
-          ],
-        },
-        {
-          coalition: {
-            id: '3',
-            name: CoaliltionName.GUN,
-          },
-          records: [
-            {
-              at: new Date('2022-11-01T00:00:00.405Z'),
-              value: 1500,
-            },
-            {
-              at: new Date('2022-12-01T00:00:00.405Z'),
-              value: 2750,
-            },
-            {
-              at: new Date('2023-01-01T00:00:00.405Z'),
-              value: 1000,
-            },
-            {
-              at: new Date('2023-02-01T00:00:00.405Z'),
-              value: 3900,
-            },
-            {
-              at: new Date('2023-03-01T00:00:00.405Z'),
-              value: 4750,
-            },
-          ],
-        },
-        {
-          coalition: {
-            id: '4',
-            name: CoaliltionName.GUN,
-          },
-          records: [
-            {
-              at: new Date('2022-11-01T00:00:00.405Z'),
-              value: 1800,
-            },
-            {
-              at: new Date('2022-12-01T00:00:00.405Z'),
-              value: 1550,
-            },
-            {
-              at: new Date('2023-01-01T00:00:00.405Z'),
-              value: 1550,
-            },
-            {
-              at: new Date('2023-02-01T00:00:00.405Z'),
-              value: 3000,
-            },
-            {
-              at: new Date('2023-03-01T00:00:00.405Z'),
-              value: 1750,
-            },
-          ],
-        },
-      ],
-      userCntPerPoints: [
-        {
-          userCnt: 6,
-          point: -2,
-        },
-        {
-          userCnt: 13,
-          point: -1,
-        },
-        {
-          userCnt: 403,
-          point: 0,
-        },
-        {
-          userCnt: 150,
-          point: 1,
-        },
-        {
-          userCnt: 30,
-          point: 2,
-        },
-        {
-          userCnt: 20,
-          point: 3,
-        },
-      ],
-      evalCntPerPoints: [
-        {
-          evalCnt: 20,
-          point: 0,
-        },
-        {
-          evalCnt: 40,
-          point: 1,
-        },
-        {
-          evalCnt: 10,
-          point: 2,
-        },
-        {
-          evalCnt: 3,
-          point: 3,
-        },
-        {
-          evalCnt: 1,
-          point: 4,
         },
       ],
       userCntPerLevels: [
@@ -450,6 +233,22 @@ export class TotalResolver {
       passPercentage: 50,
       totalEvalCnt: 3392,
     };
+  }
+
+  @ResolveField('totalScores', (_returns) => [TotalScore])
+  // todo: naming
+  async totalScores(): Promise<TotalScore[]> {
+    return await this.totalService.totalScores();
+  }
+
+  @ResolveField('scoreRecords', (_returns) => [ScoreRecords])
+  async scoreRecords(): Promise<ScoreRecords[]> {
+    return this.totalService.scoreRecords();
+  }
+
+  @ResolveField('monthlyScoreRanks', (_returns) => [UserRanking])
+  async monthlyScoreRanks(): Promise<UserRanking[]> {
+    return await this.totalService.monthlyScoreRanks();
   }
 
   @ResolveField('totalEvalCount', (_returns) => Int)
