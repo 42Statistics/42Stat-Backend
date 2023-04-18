@@ -1,7 +1,7 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
-import { ProjectPreview } from 'src/common/models/common.project.model';
 import { UserPreview } from 'src/common/models/common.user.model';
+import { ProjectPreview } from 'src/project/models/project.preview';
 
 @ObjectType()
 export class TeamPreview {

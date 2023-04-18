@@ -10,12 +10,14 @@ import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
 import { ScaleTeamsModule } from './scaleTeams/scaleTeams.module';
 import { TotalModule } from './total/total.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(
       'mongodb://42statuser:0214@host.docker.internal:27017/42stat',
     ),
+    ProjectModule,
     HomeModule,
     TotalModule,
     PersonalGeneralModule,
