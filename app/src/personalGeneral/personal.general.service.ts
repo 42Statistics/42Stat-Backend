@@ -4,46 +4,9 @@ import { UserGrade } from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
-  async readTempEval() {
-    const ret = [];
-    const r1 = await fs.readFile(
-      '/app/temp-data-store/jaham-as-corrector.json',
-      { encoding: 'utf-8' },
-    );
-    const d1 = JSON.parse(r1);
-    ret.push(...d1);
-
-    const r2 = await fs.readFile(
-      '/app/temp-data-store/jaham-as-corrected.json',
-      { encoding: 'utf-8' },
-    );
-    const d2 = JSON.parse(r2);
-    ret.push(...d2);
-
-    return ret;
-  }
-
   async readTempLocation() {
     const ret = JSON.parse(
       await fs.readFile('/app/temp-data-store/jaham-location.json', {
-        encoding: 'utf-8',
-      }),
-    );
-    return ret;
-  }
-
-  async readTempTemas() {
-    const ret = JSON.parse(
-      await fs.readFile('/app/temp-data-store/jaham-teams.json', {
-        encoding: 'utf-8',
-      }),
-    );
-    return ret;
-  }
-
-  async readTempProjectUsers() {
-    const ret = JSON.parse(
-      await fs.readFile('/app/temp-data-store/jaham-projects-users.json', {
         encoding: 'utf-8',
       }),
     );
@@ -108,20 +71,20 @@ export class PersonalGeneralService {
   }
 
   async getTeamInfoByUid(uid: number) {
-    const projectUsers = await this.readTempProjectUsers();
-
     return {
       lastRegistered: 'avaj-launcher',
       lastPass: 'avaj-launcher',
-      teams: projectUsers.map((curr: any) => ({
-        id: curr.id,
-        name: curr.project.name,
-        occurrence: curr.occurrence,
-        closedAt: curr.marked_at ? new Date(curr.marked_at) : null,
-        firstCreatedAt: new Date(curr.created_at),
-        finalMark: curr.final_mark || null,
-        isValidated: curr['validated?'],
-      })),
+      teams: [
+        {
+          id: 2966047,
+          name: 'avaj-launcher',
+          occurrence: 0,
+          closedAt: new Date('2022-10-20T16:26:30.317Z'),
+          firstCreatedAt: new Date('2022-10-20T04:06:32.437Z'),
+          finalMark: 125,
+          isValidated: true,
+        },
+      ],
     };
   }
 
