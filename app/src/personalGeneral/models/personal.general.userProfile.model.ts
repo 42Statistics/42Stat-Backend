@@ -21,9 +21,9 @@ export class UserTitle {
 }
 
 @ObjectType()
-export class ScoreInfo {
+export class UserScoreInfo {
   @Field()
-  current: number;
+  value: number;
 
   @Field()
   rankInCoalition: number;
@@ -80,5 +80,5 @@ export class UserProfile {
   correctionPoint: number;
 
   @Field()
-  scoreInfo: ScoreInfo;
+  scoreInfo: UserScoreInfo;
 }

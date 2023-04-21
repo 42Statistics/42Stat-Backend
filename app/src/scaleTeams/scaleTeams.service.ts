@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
-import { AggrNumeric } from 'src/common/db/common.db.aggregation';
+import type { FilterQuery, Model } from 'mongoose';
+import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { EvalLogs } from 'src/evalLogs/models/evalLogs.model';
 import { Util } from 'src/util';

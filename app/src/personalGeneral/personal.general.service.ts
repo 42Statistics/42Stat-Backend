@@ -184,7 +184,7 @@ export class PersonalGeneralService {
       wallet: 2022,
       correctionPoint: 42,
       scoreInfo: {
-        current: 84,
+        value: 84,
         rankInCoalition: 91,
         rankInTotal: 589,
       },
