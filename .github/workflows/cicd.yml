@@ -43,16 +43,3 @@ jobs:
       - name: Build and start backend
         run: |
           docker-compose up --build -d
-
-      - name: Copy built files to ./dist
-        run: |
-          mkdir -p ./dist
-          cp -r ./app/dist/* ./dist/
-
-#todo: setting AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY
-#- name: Deploy
-#  env:
-#    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#  run: |
-#    aws s3 sync ./dist s3://42stat-s3-bucket
