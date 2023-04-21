@@ -1,0 +1,44 @@
+name: CICD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 타임존 설정
+        uses: szenius/set-timezone@v1.2
+        with:
+          timezoneLinux: 'Asia/Seoul'
+  CD:
+    runs-on: ubuntu-latest
+    needs: CI
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@master
+        with:
+          path: /home/ubuntu/42Stat-Backend
+
+      - name: Install Docker, Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io
+          sudo curl -L "https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Pull latest changes
+        run: |
+          git fetch --all
+          git pull
+
+      - name: Initialize and update Git submodule
+        run: |
+          git submodule init
+          git submodule update
+
+      - name: Build and start backend
+        run: |
+          docker-compose up --build -d
