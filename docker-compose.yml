@@ -11,7 +11,7 @@ services:
         source: backend-app
         target: /app
     ports:
-      - '3000:3000'
+      - 3000:3000
     entrypoint: sh /tmp/entry.sh
     env_file:
       - env/.env
