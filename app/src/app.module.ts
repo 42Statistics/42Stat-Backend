@@ -15,19 +15,8 @@ import { ProjectModule } from './project/project.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb://rootstat:ValidPassw0rd6373@stat-mongodb-cluster.cluster-ci2xhynknqpo.ap-northeast-2.docdb.amazonaws.com:27017',
-      {
-        tlsCAFile: '/tmp/rds-combined-ca-bundle.pem',
-        tls: true,
-        replicaSet: 'rs0',
-        readPreference: 'secondaryPreferred',
-        retryWrites: false,
-      },
+      'mongodb://42statuser:0214@host.docker.internal:27017/42stat',
     ),
-    //todo: for local
-    //MongooseModule.forRoot(
-    //  'mongodb://42statuser:0214@host.docker.internal:27017/42stat',
-    //),
     ProjectModule,
     HomeModule,
     TotalModule,
