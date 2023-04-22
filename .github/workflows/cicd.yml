@@ -9,7 +9,7 @@ jobs:
   CI:
     runs-on: ubuntu-latest
     steps:
-      - name: Setting timezone
+      - name: 타임존 설정
         uses: szenius/set-timezone@v1.2
         with:
           timezoneLinux: 'Asia/Seoul'
@@ -31,11 +31,13 @@ jobs:
 
       - name: Pull latest changes
         run: |
+          git fetch --all
           git pull
 
       - name: Initialize and update Git submodule
         run: |
-          git submodule update --remote --merge
+          git submodule init
+          git submodule update
 
       - name: Build and start backend
         run: |
