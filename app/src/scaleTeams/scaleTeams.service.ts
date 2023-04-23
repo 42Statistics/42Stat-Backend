@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
@@ -16,12 +16,17 @@ export class ScaleTeamsService {
 
   async find(
     filter: FilterQuery<scale_team> = {},
-    pageSize: number,
-    pageNumber: number,
+    pageSize: number = 10,
+    pageNumber: number = 10,
   ): Promise<scale_team[]> {
+    if (pageSize < 1 || pageNumber < 1) {
+      throw new InternalServerErrorException();
+    }
+
     return await this.scaleTeamModel
       .find(filter)
-      .skip(pageNumber - 1)
+      .sort({ beginAt: -1 })
+      .skip((pageNumber - 1) * pageSize)
       .limit(pageSize);
   }
 
@@ -64,8 +69,7 @@ export class ScaleTeamsService {
           imgUrl: '$user.image.link',
         },
         value: '$value',
-      })
-      .exec();
+      });
   }
 
   async getAverageFinalMark(uid: number): Promise<number> {
@@ -83,8 +87,7 @@ export class ScaleTeamsService {
       .project({
         _id: 0,
         value: { $divide: ['$sum', '$count'] },
-      })
-      .exec();
+      });
 
     return finalMarkAggr.length ? Math.round(finalMarkAggr[0].value) : 0;
   }
@@ -107,8 +110,7 @@ export class ScaleTeamsService {
       .project({
         _id: 0,
         value: { $divide: ['$sum', '$count'] },
-      })
-      .exec();
+      });
 
     return reviewAggr.length ? Math.round(reviewAggr[0].value) : 0;
   }
@@ -130,8 +132,7 @@ export class ScaleTeamsService {
       .project({
         _id: 0,
         value: { $divide: ['$value', Time.MIN] },
-      })
-      .exec();
+      });
 
     return sumOfDuration.length ? Math.round(sumOfDuration[0].value) : 0;
   }

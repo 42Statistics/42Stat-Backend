@@ -265,5 +265,5 @@ type Query {
   getTotalPage: Total!
   getPersonGeneralPage: PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
-  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String! = "libft", outstandingOnly: Boolean! = false): [EvalLogs]!
+  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): [EvalLogs]!
 }
