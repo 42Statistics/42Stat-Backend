@@ -122,7 +122,7 @@ export class scale_team {
   @Prop({ required: false, type: Object })
   truant: object;
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   filledAt?: Date;
 
   @Prop({ required: false, type: [Object] })
