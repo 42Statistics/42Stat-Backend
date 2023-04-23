@@ -3,14 +3,14 @@ import { PaginationArgs } from 'src/common/dto/common.dto.pagination';
 
 @ArgsType()
 export class GetEvalLogsArgs extends PaginationArgs {
-  @Field((_type) => String, { nullable: true })
-  corrector: string | null;
+  @Field({ nullable: true })
+  corrector?: string;
 
-  @Field((_type) => String, { nullable: true })
-  corrected: string | null;
+  @Field({ nullable: true })
+  corrected?: string;
 
-  @Field({ defaultValue: 'libft' })
-  projectName: string;
+  @Field({ nullable: true })
+  projectName?: string;
 
   @Field({ defaultValue: false })
   outstandingOnly: boolean;

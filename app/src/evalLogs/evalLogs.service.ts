@@ -30,9 +30,15 @@ export class EvalLogsService {
         return [];
       }
 
-      filter['team.projectId'] = {
-        $in: projectList.map((project) => project.id),
-      };
+      const exactMatchProject = projectList.find(
+        (project) => project.name === projectName,
+      );
+
+      filter['team.projectId'] = exactMatchProject
+        ? exactMatchProject.id
+        : {
+            $in: projectList.map((project) => project.id),
+          };
     }
 
     if (corrector) {

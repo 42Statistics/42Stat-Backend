@@ -84,6 +84,7 @@ export interface Feedback {
   createdAt: Date;
 }
 
+// todo: schema 로 다 바꾸기
 @Schema()
 export class scale_team {
   @Prop({ required: true })
@@ -92,8 +93,8 @@ export class scale_team {
   @Prop({ required: true })
   scaleId: number;
 
-  @Prop({ required: true, type: String })
-  comment: string | null;
+  @Prop()
+  comment?: string;
 
   @Prop({ required: true })
   createdAt: Date;
@@ -101,11 +102,11 @@ export class scale_team {
   @Prop({ required: true })
   updatedAt: Date;
 
-  @Prop({ required: true, type: String })
-  feedback: string | null;
+  @Prop()
+  feedback?: string;
 
-  @Prop({ required: true, type: Number })
-  finalMark: number | null;
+  @Prop()
+  finalMark?: number;
 
   @Prop({ required: true, type: Object })
   flag: Flag;
@@ -119,10 +120,11 @@ export class scale_team {
   @Prop({ required: true, type: Object })
   corrector: User;
 
+  // todo
   @Prop({ required: false, type: Object })
   truant: object;
 
-  @Prop({ required: false })
+  @Prop()
   filledAt?: Date;
 
   @Prop({ required: false, type: [Object] })
