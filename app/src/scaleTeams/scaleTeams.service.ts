@@ -61,7 +61,7 @@ export class ScaleTeamsService {
         userPreview: {
           id: '$_id',
           login: '$login',
-          imgUrl: { $first: '$user.image.link' },
+          imgUrl: '$user.image.link',
         },
         value: '$value',
       })
@@ -82,11 +82,11 @@ export class ScaleTeamsService {
       })
       .project({
         _id: 0,
-        value: { $round: '$value' },
+        value: { $divide: ['$sum', '$count'] },
       })
       .exec();
 
-    return finalMarkAggr.length ? finalMarkAggr[0].value : 0;
+    return finalMarkAggr.length ? Math.round(finalMarkAggr[0].value) : 0;
   }
 
   async getAverageReviewLength(
@@ -106,11 +106,11 @@ export class ScaleTeamsService {
       })
       .project({
         _id: 0,
-        value: { $round: '$value' },
+        value: { $divide: ['$sum', '$count'] },
       })
       .exec();
 
-    return reviewAggr.length ? reviewAggr[0].value : 0;
+    return reviewAggr.length ? Math.round(reviewAggr[0].value) : 0;
   }
 
   async getAverageDurationMinute(
@@ -129,11 +129,11 @@ export class ScaleTeamsService {
       })
       .project({
         _id: 0,
-        value: { $round: { $divide: ['$value', Time.MIN] } },
+        value: { $divide: ['$value', Time.MIN] },
       })
       .exec();
 
-    return sumOfDuration.length ? sumOfDuration[0].value : 0;
+    return sumOfDuration.length ? Math.round(sumOfDuration[0].value) : 0;
   }
 
   async getEvalLogs(
