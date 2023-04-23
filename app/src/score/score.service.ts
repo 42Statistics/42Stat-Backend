@@ -35,9 +35,7 @@ export class ScoreService {
     const aggregate = this.scoreModel.aggregate<CoalitionScore>();
 
     return await aggregate
-      .match({
-        coalitionsUserId: { $ne: null },
-      })
+      .match({ coalitionsUserId: { $ne: null } })
       .group({ _id: '$coalitionId', value: { $sum: '$value' } })
       // todo: 이거 해야하나?
       .project({ _id: 0, coalitionId: '$_id', value: 1 })
