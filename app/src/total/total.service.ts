@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { ScoreService } from 'src/score/score.service';
 import { ScoreRecords, TotalScore } from './models/total.model';
-import { Util } from 'src/util';
+import { Time } from 'src/util';
 import { UserRanking } from 'src/common/models/common.user.model';
 
 @Injectable()
@@ -18,10 +18,7 @@ export class TotalService {
 
     return coalitionScores.map(
       ({ coalitionId, value }): TotalScore => ({
-        coalition: {
-          id: coalitionId,
-          name: coalitionId,
-        },
+        coalition: { id: coalitionId, name: coalitionId },
         score: value,
       }),
     );
@@ -31,34 +28,27 @@ export class TotalService {
     // todo
     const coalitionIds = [85, 86, 87, 88];
 
-    // todo: time
-    const currDate = Util.Time.currDate();
-    const beforeOneYear = Util.Time.startOfMonth(currDate);
-    beforeOneYear.setMonth(currDate.getMonth() - 12);
+    const currDate = Time.curr();
+    const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -11));
 
     const scores = await this.scoreService.getScoreRecords(
-      beforeOneYear,
+      lastYear,
       currDate,
       coalitionIds,
     );
 
     return scores.map(({ coalitionId, records }) => ({
-      coalition: {
-        id: coalitionId,
-        name: coalitionId,
-      },
+      coalition: { id: coalitionId, name: coalitionId },
       records: records,
     }));
   }
 
   async monthlyScoreRanks(): Promise<UserRanking[]> {
-    const currDate = Util.Time.currDate();
-    const startOfMonth = Util.Time.startOfMonth(currDate);
-    // todo: time
-    const lastOfMonth = new Date(startOfMonth);
-    lastOfMonth.setMonth(1 + startOfMonth.getMonth());
+    const currDate = Time.curr();
+    const currMonth = Time.startOfMonth(currDate);
+    const nextMonth = Time.moveMonth(currMonth, 1);
 
-    return await this.scoreService.getScoreRanks(startOfMonth, lastOfMonth, 3);
+    return await this.scoreService.getScoreRanks(currMonth, nextMonth, 3);
   }
 
   async totalEvalCount(): Promise<number> {

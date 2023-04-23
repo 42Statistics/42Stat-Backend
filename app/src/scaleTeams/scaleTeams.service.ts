@@ -4,7 +4,7 @@ import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { EvalLogs } from 'src/evalLogs/models/evalLogs.model';
-import { Util } from 'src/util';
+import { Time } from 'src/util';
 import { scale_team } from './db/scaleTeams.database.schema';
 
 @Injectable()
@@ -129,7 +129,7 @@ export class ScaleTeamsService {
       })
       .project({
         _id: 0,
-        value: { $round: { $divide: ['$value', Util.Time.MIN] } },
+        value: { $round: { $divide: ['$value', Time.MIN] } },
       })
       .exec();
 

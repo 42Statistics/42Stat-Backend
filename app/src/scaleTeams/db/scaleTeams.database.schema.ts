@@ -122,8 +122,8 @@ export class scale_team {
   @Prop({ required: false, type: Object })
   truant: object;
 
-  @Prop({ required: true, type: String })
-  filledAt: string | null;
+  @Prop({ required: true })
+  filledAt?: Date;
 
   @Prop({ required: false, type: [Object] })
   questions_withAnswers: object[];
