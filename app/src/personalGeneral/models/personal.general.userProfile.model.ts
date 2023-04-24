@@ -5,7 +5,7 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { URLResolver } from 'graphql-scalars';
+import { GraphQLURL } from 'graphql-scalars';
 import { Coalition } from 'src/common/models/common.coalition.model';
 
 @ObjectType()
@@ -49,17 +49,17 @@ export class UserProfile {
   @Field()
   login: string;
 
-  @Field((_type) => UserGrade)
+  @Field()
   grade: UserGrade;
 
   @Field()
   name: string;
 
-  @Field((_type) => Coalition, { nullable: true })
-  coalition: Coalition | null;
+  @Field({ nullable: true })
+  coalition?: Coalition;
 
-  @Field((_type) => URLResolver, { nullable: true })
-  imgUrl: string | null;
+  @Field((_type) => GraphQLURL, { nullable: true })
+  imgUrl?: URL;
 
   @Field((_type) => [UserTitle], { nullable: 'items' })
   titles: UserTitle[];
@@ -70,8 +70,8 @@ export class UserProfile {
   @Field()
   pooledAt: Date;
 
-  @Field((_type) => Date, { nullable: true })
-  blackholedAt: Date | null;
+  @Field({ nullable: true })
+  blackholedAt?: Date;
 
   @Field()
   wallet: number;
