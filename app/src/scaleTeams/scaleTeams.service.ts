@@ -103,12 +103,7 @@ export class ScaleTeamsService {
       .group({
         _id: 'result',
         value: { $avg: { $strLenCP: `$${field}` } },
-      })
-      .project({
-        _id: 0,
-        value: { $divide: ['$sum', '$count'] },
-      })
-      .exec();
+      });
 
     return reviewAggr.length ? Math.round(reviewAggr[0].value) : 0;
   }
