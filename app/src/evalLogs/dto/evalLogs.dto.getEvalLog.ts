@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { PaginationArgs } from 'src/common/dto/common.dto.pagination';
+import { PaginationArgs } from 'src/pagination/dto/pagination.dto.args';
 
 @ArgsType()
 export class GetEvalLogsArgs extends PaginationArgs {
