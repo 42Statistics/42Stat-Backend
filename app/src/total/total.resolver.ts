@@ -5,6 +5,7 @@ import {
   ScoreRecords,
   Total,
   TotalScore,
+  ValuePerCircle,
 } from './models/total.model';
 import { TotalService } from './total.service';
 
@@ -129,36 +130,6 @@ export class TotalResolver {
           value: 995,
         },
       ],
-      averageCircleDurations: [
-        {
-          circle: 0,
-          value: 7,
-        },
-        {
-          circle: 1,
-          value: 10,
-        },
-        {
-          circle: 2,
-          value: 55,
-        },
-        {
-          circle: 3,
-          value: 107,
-        },
-        {
-          circle: 4,
-          value: 204,
-        },
-        {
-          circle: 5,
-          value: 307,
-        },
-        {
-          circle: 6,
-          value: 390,
-        },
-      ],
       userCntPerLevels: [
         {
           userCnt: 25,
@@ -263,5 +234,10 @@ export class TotalResolver {
   @ResolveField('averageCommentLength', (_returns) => Int)
   async averageCommentLength(): Promise<number> {
     return await this.totalService.averageCommentLength();
+  }
+
+  @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
+  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+    return await this.totalService.averageCircleDurations();
   }
 }
