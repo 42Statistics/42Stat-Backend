@@ -11,26 +11,12 @@ export class ProjectService {
     private projectModel: Model<project>,
   ) {}
 
-  async find(
-    filter: FilterQuery<project> = {},
-    pageSize: number = -1,
-    pageNumber: number = -1,
-  ): Promise<project[]> {
-    const query = this.projectModel.find(filter);
-
-    if (pageNumber > 0) {
-      query.skip(pageNumber);
-    }
-
-    if (pageSize > 0) {
-      query.limit(pageSize);
-    }
-
-    return await query;
+  async findAll(filter: FilterQuery<project> = {}): Promise<project[]> {
+    return await this.projectModel.find(filter);
   }
 
   async findByName(name: string): Promise<project[]> {
-    return await this.find({
+    return await this.findAll({
       slug: { $regex: name, $options: 'i' },
     });
   }

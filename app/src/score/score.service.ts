@@ -1,6 +1,6 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model } from 'mongoose';
+import type { Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
 import {
   CoalitionScore,
@@ -15,21 +15,21 @@ export class ScoreService {
     private scoreModel: Model<score>,
   ) {}
 
-  async find(
-    filter: FilterQuery<score>,
-    pageSize: number = 10,
-    pageNumber: number = 1,
-  ): Promise<score[]> {
-    if (pageSize < 1 || pageNumber < 1) {
-      throw new InternalServerErrorException();
-    }
+  // async find(
+  //   filter: FilterQuery<score> = {},
+  //   pageSize: number,
+  //   pageNumber: number,
+  // ): Promise<score[]> {
+  //   if (pageSize < 1 || pageNumber < 1) {
+  //     throw new InternalServerErrorException();
+  //   }
 
-    return await this.scoreModel
-      .find(filter)
-      .sort({ createdAt: -1 })
-      .limit(pageSize)
-      .skip(pageNumber);
-  }
+  //   return await this.scoreModel
+  //     .find(filter)
+  //     .sort({ createdAt: -1 })
+  //     .limit(pageSize)
+  //     .skip(pageNumber);
+  // }
 
   async getScoresByCoalition(): Promise<CoalitionScore[]> {
     const aggregate = this.scoreModel.aggregate<CoalitionScore>();
@@ -77,11 +77,7 @@ export class ScoreService {
         _id: '$_id.coalitionId',
         records: {
           $push: {
-            at: {
-              $dateFromString: {
-                dateString: '$_id.at',
-              },
-            },
+            at: { $dateFromString: { dateString: '$_id.at' } },
             value: '$value',
           },
         },

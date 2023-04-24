@@ -1,9 +1,13 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
-import { EvalLogs } from 'src/evalLogs/models/evalLogs.model';
+import {
+  EvalLogs,
+  EvalLogsPaginated,
+} from 'src/evalLogs/models/evalLogs.model';
+import { generatePage } from 'src/pagination/pagination.service';
 import { Time } from 'src/util';
 import { scale_team } from './db/scaleTeams.database.schema';
 
@@ -14,21 +18,21 @@ export class ScaleTeamsService {
     private scaleTeamModel: Model<scale_team>,
   ) {}
 
-  async find(
-    filter: FilterQuery<scale_team> = {},
-    pageSize: number = 10,
-    pageNumber: number = 10,
-  ): Promise<scale_team[]> {
-    if (pageSize < 1 || pageNumber < 1) {
-      throw new InternalServerErrorException();
-    }
+  // async find(
+  //   filter: FilterQuery<scale_team> = {},
+  //   pageSize: number = 10,
+  //   pageNumber: number = 10,
+  // ): Promise<scale_team[]> {
+  //   if (pageSize < 1 || pageNumber < 1) {
+  //     throw new InternalServerErrorException();
+  //   }
 
-    return await this.scaleTeamModel
-      .find(filter)
-      .sort({ beginAt: -1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize);
-  }
+  //   return await this.scaleTeamModel
+  //     .find(filter)
+  //     .sort({ beginAt: -1 })
+  //     .skip((pageNumber - 1) * pageSize)
+  //     .limit(pageSize);
+  // }
 
   async getEvalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     if (!filter) {
@@ -137,18 +141,14 @@ export class ScaleTeamsService {
     filter: FilterQuery<scale_team>,
     pageSize: number,
     pageNumber: number,
-  ): Promise<EvalLogs[]> {
+  ): Promise<EvalLogsPaginated> {
     const aggregate = this.scaleTeamModel.aggregate<EvalLogs>();
 
-    return await aggregate
-      .match({
-        ...filter,
-        // todo: 평가 취소인 경우에 대한 처리를 할 수 있음
-        feedback: { $ne: null },
-        comment: { $ne: null },
-      })
+    const evalLogsAggr = await aggregate
+      // todo: 평가 취소인 경우에 대한 처리를 할 수 있음
+      .match({ ...filter, feedback: { $ne: null }, comment: { $ne: null } })
       .sort({ beginAt: -1 })
-      .skip(pageNumber - 1)
+      .skip((pageNumber - 1) * pageSize)
       .limit(pageSize)
       .lookup({
         from: 'projects',
@@ -156,11 +156,7 @@ export class ScaleTeamsService {
         foreignField: 'id',
         as: 'projectPreview',
       })
-      .addFields({
-        projectPreview: {
-          $first: '$projectPreview',
-        },
-      })
+      .addFields({ projectPreview: { $first: '$projectPreview' } })
       .lookup({
         from: 'users',
         localField: 'corrector.id',
@@ -173,7 +169,7 @@ export class ScaleTeamsService {
           corrector: {
             id: '$corrector.id',
             login: '$corrector.login',
-            imgUrl: '$joinedCorrector.image.link',
+            imgUrl: { $first: '$joinedCorrector.image.link' },
           },
           teamPreview: {
             id: '$team.id',
@@ -181,15 +177,9 @@ export class ScaleTeamsService {
             url: {
               $concat: [
                 'https://projects.intra.42.fr/projects/',
-                {
-                  $toString: '$projectPreview.id',
-                },
+                { $toString: '$projectPreview.id' },
                 '/projects_users/',
-                {
-                  $toString: {
-                    $first: '$team.users.projectsUserId',
-                  },
-                },
+                { $toString: { $first: '$team.users.projectsUserId' } },
               ],
             },
           },
@@ -210,16 +200,19 @@ export class ScaleTeamsService {
             isPositive: '$flag.positive',
           },
         },
-        correctorReview: {
-          mark: '$finalMark',
-          review: '$comment',
-        },
+        correctorReview: { mark: '$finalMark', review: '$comment' },
         correctedsReview: {
-          mark: {
-            $max: '$feedbacks.rating',
-          },
+          mark: { $max: '$feedbacks.rating' },
           review: '$feedback',
         },
       });
+
+    const totalCount = await this.scaleTeamModel.count({
+      ...filter,
+      feedback: { $ne: null },
+      comment: { $ne: null },
+    });
+
+    return generatePage(evalLogsAggr, totalCount, { pageSize, pageNumber });
   }
 }

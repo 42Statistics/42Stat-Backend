@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
+import { generatePage } from 'src/pagination/pagination.service';
 import { ProjectService } from 'src/project/project.service';
 import { scale_team } from 'src/scaleTeams/db/scaleTeams.database.schema';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { GetEvalLogsArgs } from './dto/evalLogs.dto.getEvalLog';
-import { EvalLogs } from './models/evalLogs.model';
+import { EvalLogsPaginated } from './models/evalLogs.model';
 
 @Injectable()
 export class EvalLogsService {
@@ -20,14 +21,14 @@ export class EvalLogsService {
     outstandingOnly,
     pageSize,
     pageNumber,
-  }: GetEvalLogsArgs): Promise<EvalLogs[]> {
+  }: GetEvalLogsArgs): Promise<EvalLogsPaginated> {
     const filter: FilterQuery<scale_team> = {};
 
     if (projectName) {
       const projectList = await this.projectService.findByName(projectName);
 
       if (projectList.length === 0) {
-        return [];
+        return generatePage([], 0, { pageSize, pageNumber });
       }
 
       const exactMatchProject = projectList.find(

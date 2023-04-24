@@ -29,7 +29,7 @@ type UserScoreInfo {
 type UserProfile {
   id: ID!
   login: String!
-  grade: UserGrade!
+  grade: String!
   name: String!
   coalition: Coalition
   imgUrl: URL
@@ -41,11 +41,6 @@ type UserProfile {
   correctionPoint: Int!
   scoreInfo: UserScoreInfo!
   levelRank: Int!
-}
-
-enum UserGrade {
-  LEARNER
-  MEMBER
 }
 
 """
@@ -108,6 +103,13 @@ type EvalLogs {
 
   """피평가자가 부여한 점수와 리뷰 입니다."""
   correctedsReview: EvalReview!
+}
+
+type EvalLogsPaginated {
+  nodes: [EvalLogs]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
 }
 
 type ProjectRanking {
@@ -265,5 +267,5 @@ type Query {
   getTotalPage: Total!
   getPersonGeneralPage: PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
-  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): [EvalLogs]!
+  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
