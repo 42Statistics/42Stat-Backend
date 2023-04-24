@@ -173,7 +173,7 @@ export class ScaleTeamsService {
           corrector: {
             id: '$corrector.id',
             login: '$corrector.login',
-            imgUrl: { $first: '$joinedCorrector.image.link' },
+            imgUrl: '$joinedCorrector.image.link',
           },
           teamPreview: {
             id: '$team.id',
