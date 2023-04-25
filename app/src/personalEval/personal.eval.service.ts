@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { Time } from 'src/util';
 
@@ -6,27 +8,39 @@ import { Time } from 'src/util';
 export class PersonalEvalService {
   constructor(private scaleTeamService: ScaleTeamsService) {}
 
-  async currMonthCount(uid: number): Promise<number> {
+  async currMonthCount(uid: number): Promise<NumberDateRanged> {
     const currDate = Time.curr();
     const currMonth = Time.startOfMonth(currDate);
 
-    return await this.scaleTeamService.getEvalCount({
+    const evalCount = await this.scaleTeamService.getEvalCount({
       'corrector.id': uid,
       beginAt: { $gte: currMonth },
       filledAt: { $ne: null },
     });
+
+    return generateDateRanged(
+      evalCount,
+      currMonth,
+      Time.moveDate(Time.moveMonth(currMonth, 1), -1),
+    );
   }
 
-  async lastMonthCount(uid: number): Promise<number> {
+  async lastMonthCount(uid: number): Promise<NumberDateRanged> {
     const currDate = Time.curr();
     const currMonth = Time.startOfMonth(currDate);
     const lastMonth = Time.moveMonth(currMonth, -1);
 
-    return await this.scaleTeamService.getEvalCount({
+    const evalCount = await this.scaleTeamService.getEvalCount({
       'corrector.id': uid,
       beginAt: { $gte: lastMonth, $lt: currMonth },
       filledAt: { $ne: null },
     });
+
+    return generateDateRanged(
+      evalCount,
+      lastMonth,
+      Time.moveDate(currMonth, -1),
+    );
   }
 
   async totalCount(uid: number): Promise<number> {

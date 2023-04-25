@@ -1,5 +1,5 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { UserRankingDateRanged } from 'src/common/models/common.user.model';
 import {
   ProjectInfo,
   ScoreRecords,
@@ -245,8 +245,8 @@ export class TotalResolver {
     return this.totalService.scoreRecords();
   }
 
-  @ResolveField('monthlyScoreRanks', (_returns) => [UserRanking])
-  async monthlyScoreRanks(): Promise<UserRanking[]> {
+  @ResolveField('monthlyScoreRanks', (_returns) => UserRankingDateRanged)
+  async monthlyScoreRanks(): Promise<UserRankingDateRanged> {
     return await this.totalService.monthlyScoreRanks();
   }
 
