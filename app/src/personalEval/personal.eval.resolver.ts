@@ -13,7 +13,7 @@ export class PersonalEvalResolver {
 
   // todo: 이 페이지 이름 바꿉시다
   @Query((_returns) => PersonalEval)
-  async getPersonalEvalPage(@Args('uid') uid: number): Promise<object> {
+  async getPersonalEvalPage(@Args('uid') uid: number): Promise<PersonalEval> {
     return {
       currMonthCount: await this.personalEvalService.currMonthCount(uid),
       lastMonthCount: await this.personalEvalService.lastMonthCount(uid),

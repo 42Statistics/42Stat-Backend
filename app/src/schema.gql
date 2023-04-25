@@ -64,6 +64,12 @@ type UserRanking {
   value: Float!
 }
 
+type UserRankingDateRanged {
+  data: [UserRanking!]!
+  from: DateTime!
+  to: DateTime!
+}
+
 type ProjectPreview {
   id: ID!
   name: String!
@@ -112,6 +118,12 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
+type NumberDateRanged {
+  data: Int!
+  from: DateTime!
+  to: DateTime!
+}
+
 type ProjectRanking {
   projectPreview: ProjectPreview!
   value: Int!
@@ -123,18 +135,24 @@ type ExamResult {
   totalCnt: Int!
 }
 
+type ExamResultDateRanged {
+  data: [ExamResult!]!
+  from: DateTime!
+  to: DateTime!
+}
+
 type Home {
-  currWeekEvalCnt: Int!
-  lastWeekEvalCnt: Int!
-  currMonthBlackholedCnt: Int!
-  lastMonthBlackholedCnt: Int!
+  currMonthBlackholedCnt: NumberDateRanged!
+  lastMonthBlackholedCnt: NumberDateRanged!
   currRegisteredCntRank: [ProjectRanking!]!
   monthlyExpIncrementRank: [UserRanking!]!
   monthlyAccessTimeRank: [UserRanking!]!
   totalEvalCntRank: [UserRanking!]!
   levelRank: [UserRanking!]!
-  lastExamResult: [ExamResult!]!
-  monthlyEvalCntRank: [UserRanking!]!
+  lastExamResult: ExamResultDateRanged!
+  currWeekEvalCnt: NumberDateRanged!
+  lastWeekEvalCnt: NumberDateRanged!
+  monthlyEvalCntRank: UserRankingDateRanged!
 }
 
 type TempTeam {
@@ -170,6 +188,12 @@ type LogtimeInfo {
   preferredCluster: String!
 }
 
+type LogtimeInfoDateRanged {
+  data: LogtimeInfo!
+  from: DateTime!
+  to: DateTime!
+}
+
 type TeamInfo {
   lastRegistered: String
   lastPass: String
@@ -182,16 +206,22 @@ type LevelGraph {
   averageLevel: Float!
 }
 
+type LevelGraphDateRanged {
+  data: [LevelGraph!]!
+  from: DateTime!
+  to: DateTime!
+}
+
 type PersonalGeneral {
-  logtimeInfo: LogtimeInfo!
+  logtimeInfo: LogtimeInfoDateRanged!
   teamInfo: TeamInfo!
-  levelGraphs: [LevelGraph!]!
+  levelGraphs: LevelGraphDateRanged!
   userProfile: UserProfile!
 }
 
 type PersonalEval {
-  currMonthCount: Int!
-  lastMonthCount: Int!
+  currMonthCount: NumberDateRanged!
+  lastMonthCount: NumberDateRanged!
   totalCount: Int!
   averageDuration: Int!
 
@@ -255,7 +285,7 @@ type Total {
   projectInfo(projectName: String! = "libft"): ProjectInfo!
   totalScores: [TotalScore!]!
   scoreRecords: [ScoreRecords!]!
-  monthlyScoreRanks: [UserRanking!]!
+  monthlyScoreRanks: UserRankingDateRanged!
   totalEvalCount: Int!
   averageFeedbackLength: Int!
   averageCommentLength: Int!

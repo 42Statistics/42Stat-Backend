@@ -1,7 +1,7 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
-  LevelGraph,
-  LogtimeInfo,
+  LevelGraphDateRanged,
+  LogtimeInfoDateRanged,
   PersonalGeneral,
   TeamInfo,
 } from './models/personal.general.model';
@@ -17,8 +17,8 @@ export class PersonalGeneralResolver {
     return {};
   }
 
-  @ResolveField('logtimeInfo', (_returns) => LogtimeInfo)
-  async getLogtimeInfo() {
+  @ResolveField('logtimeInfo', (_returns) => LogtimeInfoDateRanged)
+  async getLogtimeInfo(): Promise<LogtimeInfoDateRanged> {
     return await this.personalGeneralService.getLogtimeInfoByUid(99947);
   }
 
@@ -27,8 +27,8 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.getTeamInfoByUid(99947);
   }
 
-  @ResolveField('levelGraphs', (_returns) => [LevelGraph])
-  async getLevelHistory() {
+  @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
+  async getLevelHistory(): Promise<LevelGraphDateRanged> {
     return await this.personalGeneralService.getLevelHistroyByUid(99947);
   }
 

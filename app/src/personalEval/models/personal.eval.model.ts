@@ -1,4 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
 
 // export enum EvalUserDifficulty {
 //   EASY,
@@ -20,10 +21,10 @@ import { Field, Float, ObjectType } from '@nestjs/graphql';
 @ObjectType()
 export class PersonalEval {
   @Field()
-  currMonthCount: number;
+  currMonthCount: NumberDateRanged;
 
   @Field()
-  lastMonthCount: number;
+  lastMonthCount: NumberDateRanged;
 
   @Field()
   totalCount: number;

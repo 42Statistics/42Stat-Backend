@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { UserRankingDateRanged } from 'src/common/models/common.user.model';
+import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
 import { ScoreService } from 'src/score/score.service';
-import { ScoreRecords, TotalScore } from './models/total.model';
 import { Time } from 'src/util';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { ScoreRecords, TotalScore } from './models/total.model';
 
 @Injectable()
 export class TotalService {
@@ -43,12 +44,22 @@ export class TotalService {
     }));
   }
 
-  async monthlyScoreRanks(): Promise<UserRanking[]> {
+  async monthlyScoreRanks(): Promise<UserRankingDateRanged> {
     const currDate = Time.curr();
     const currMonth = Time.startOfMonth(currDate);
     const nextMonth = Time.moveMonth(currMonth, 1);
 
-    return await this.scoreService.getScoreRanks(currMonth, nextMonth, 3);
+    const scoreRanks = await this.scoreService.getScoreRanks(
+      currMonth,
+      nextMonth,
+      3,
+    );
+
+    return generateDateRanged(
+      scoreRanks,
+      currMonth,
+      Time.moveDate(nextMonth, -1),
+    );
   }
 
   async totalEvalCount(): Promise<number> {
