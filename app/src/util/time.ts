@@ -19,7 +19,11 @@ export const Time = {
   // todo: 개발 용도. 완료 후 인자 제거 필요합니다.
   curr: (): Date => new Date('2023-04-10T00:00:00.000Z'),
 
-  addMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
+  moveMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
+
+  moveDate: (date: Date, count: number): Date => {
+    return new Date(date.getTime() + count * DAY);
+  },
 
   moveWeek: (date: Date, count: number): Date => {
     return new Date(date.getTime() + count * WEEK);

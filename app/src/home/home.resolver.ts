@@ -1,5 +1,9 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import {
+  UserRanking,
+  UserRankingDateRanged,
+} from 'src/common/models/common.user.model';
 import { HomeService } from './home.service';
 import { Home } from './models/home.model';
 
@@ -10,8 +14,8 @@ export class HomeResolver {
   @Query((_returns) => Home)
   async getHomePage() {
     return {
-      lastMonthBlackholedCnt: 30,
-      currMonthBlackholedCnt: 31,
+      lastMonthBlackholedCnt: { data: 30, from: new Date(), to: new Date() },
+      currMonthBlackholedCnt: { data: 31, from: new Date(), to: new Date() },
       currRegisteredCntRank: [
         {
           projectPreview: {
@@ -161,23 +165,27 @@ export class HomeResolver {
           value: 13.76,
         },
       ],
-      lastExamResult: [
-        { rank: 2, passCnt: 9, totalCnt: 20 },
-        { rank: 3, passCnt: 3, totalCnt: 20 },
-        { rank: 4, passCnt: 4, totalCnt: 12 },
-        { rank: 5, passCnt: 8, totalCnt: 18 },
-        { rank: 6, passCnt: 1, totalCnt: 10 },
-      ],
+      lastExamResult: {
+        data: [
+          { rank: 2, passCnt: 9, totalCnt: 20 },
+          { rank: 3, passCnt: 3, totalCnt: 20 },
+          { rank: 4, passCnt: 4, totalCnt: 12 },
+          { rank: 5, passCnt: 8, totalCnt: 18 },
+          { rank: 6, passCnt: 1, totalCnt: 10 },
+        ],
+        from: new Date(),
+        to: new Date(),
+      },
     };
   }
 
-  @ResolveField('currWeekEvalCnt', (_returns) => Number)
-  async currWeekEvalCnt(): Promise<number> {
+  @ResolveField('currWeekEvalCnt', (_returns) => NumberDateRanged)
+  async currWeekEvalCnt(): Promise<NumberDateRanged> {
     return await this.homeService.currWeekEvalCnt();
   }
 
-  @ResolveField('lastWeekEvalCnt', (_returns) => Number)
-  async lastWeekEvalCnt(): Promise<number> {
+  @ResolveField('lastWeekEvalCnt', (_returns) => NumberDateRanged)
+  async lastWeekEvalCnt(): Promise<NumberDateRanged> {
     return await this.homeService.lastWeekEvalCnt();
   }
 
@@ -186,8 +194,8 @@ export class HomeResolver {
     return await this.homeService.totalEvalCntRank();
   }
 
-  @ResolveField('monthlyEvalCntRank', (_returns) => [UserRanking])
-  async monthlyEvalCntRank(): Promise<UserRanking[]> {
+  @ResolveField('monthlyEvalCntRank', (_returns) => UserRankingDateRanged)
+  async monthlyEvalCntRank(): Promise<UserRankingDateRanged> {
     return await this.homeService.monthlyEvalCntRank();
   }
 }

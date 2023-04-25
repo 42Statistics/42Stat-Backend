@@ -1,4 +1,8 @@
 import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
+import {
+  ArrayDateRanged,
+  DateRanged,
+} from 'src/dateRange/models/dateRange.model';
 
 // todo: erase this
 @ObjectType()
@@ -59,6 +63,9 @@ export class LogtimeInfo {
 }
 
 @ObjectType()
+export class LogtimeInfoDateRanged extends DateRanged(LogtimeInfo) {}
+
+@ObjectType()
 export class TeamInfo {
   @Field((_type) => String, { nullable: true })
   lastRegistered: string | null;
@@ -81,6 +88,9 @@ export class LevelGraph {
   @Field((_type) => Float)
   averageLevel: number;
 }
+
+@ObjectType()
+export class LevelGraphDateRanged extends ArrayDateRanged(LevelGraph) {}
 
 @ObjectType()
 // eslint-disable-next-line
