@@ -113,9 +113,9 @@ export class ScoreService {
       .project({
         _id: 0,
         userPreview: {
-          id: '$user.id',
-          login: '$user.login',
-          imgUrl: '$user.image.link',
+          id: { $first: '$user.id' },
+          login: { $first: '$user.login' },
+          imgUrl: { $first: '$user.image.link' },
         },
         value: 1,
       });

@@ -8,7 +8,6 @@ import {
   EvalLogsPaginated,
 } from 'src/evalLogs/models/evalLogs.model';
 import { generatePage } from 'src/pagination/pagination.service';
-import { Time } from 'src/util';
 import { scale_team } from './db/scaleTeams.database.schema';
 
 @Injectable()
@@ -70,7 +69,7 @@ export class ScaleTeamsService {
         userPreview: {
           id: '$_id',
           login: '$login',
-          imgUrl: '$user.image.link',
+          imgUrl: { $first: '$user.image.link' },
         },
         value: '$value',
       });
@@ -90,10 +89,10 @@ export class ScaleTeamsService {
       })
       .project({
         _id: 0,
-        value: { $divide: ['$sum', '$count'] },
+        value: { $round: '$value' },
       });
 
-    return finalMarkAggr.length ? Math.round(finalMarkAggr[0].value) : 0;
+    return finalMarkAggr.length ? finalMarkAggr[0].value : 0;
   }
 
   async getAverageReviewLength(
@@ -110,9 +109,13 @@ export class ScaleTeamsService {
       .group({
         _id: 'result',
         value: { $avg: { $strLenCP: `$${field}` } },
+      })
+      .project({
+        _id: 0,
+        value: { $round: '$value' },
       });
 
-    return reviewAggr.length ? Math.round(reviewAggr[0].value) : 0;
+    return reviewAggr.length ? reviewAggr[0].value : 0;
   }
 
   async getAverageDurationMinute(
@@ -127,14 +130,22 @@ export class ScaleTeamsService {
       })
       .group({
         _id: 'result',
-        value: { $avg: { $subtract: ['$filledAt', '$beginAt'] } },
+        value: {
+          $avg: {
+            $dateDiff: {
+              startDate: '$beginAt',
+              endDate: '$filledAt',
+              unit: 'minute',
+            },
+          },
+        },
       })
       .project({
         _id: 0,
-        value: { $divide: ['$value', Time.MIN] },
+        value: { $round: '$value' },
       });
 
-    return sumOfDuration.length ? Math.round(sumOfDuration[0].value) : 0;
+    return sumOfDuration.length ? sumOfDuration[0].value : 0;
   }
 
   async getEvalLogs(
