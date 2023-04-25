@@ -14,7 +14,7 @@ import { TotalModule } from './total/total.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      `mongodb://42statuser:0214@host.docker.internal:27017/42stat`,
+      `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.TEMP_DB_URL}:27017/42stat`,
     ),
     // MongooseModule.forRoot(
     //   `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
