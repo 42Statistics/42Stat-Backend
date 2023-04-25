@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
+import { generateDateRanged } from 'src/dateRange/dateRange.service';
+import { Time } from 'src/util';
+import {
+  LevelGraphDateRanged,
+  LogtimeInfoDateRanged,
+} from './models/personal.general.model';
 import { UserGrade } from './models/personal.general.userProfile.model';
 
 @Injectable()
@@ -13,7 +19,7 @@ export class PersonalGeneralService {
     return ret;
   }
 
-  async getLogtimeInfoByUid(uid: number) {
+  async getLogtimeInfoByUid(uid: number): Promise<LogtimeInfoDateRanged> {
     const locations = await this.readTempLocation();
 
     const monthStart = new Date(
@@ -35,7 +41,7 @@ export class PersonalGeneralService {
         new Date(curr.end_at).getTime(),
     );
 
-    return {
+    const logtimeInfo = {
       currMonthLogtime: Math.floor(
         currMonth.reduce((acc: number, curr: any) => {
           return (
@@ -66,8 +72,14 @@ export class PersonalGeneralService {
         evening: 123,
         night: 123,
       },
-      preferredCluster: 1,
+      preferredCluster: 'c1',
     };
+
+    return generateDateRanged(
+      logtimeInfo,
+      lastMonthStart,
+      Time.moveDate(monthStart, -1),
+    );
   }
 
   async getTeamInfoByUid(uid: number) {
@@ -88,8 +100,8 @@ export class PersonalGeneralService {
     };
   }
 
-  async getLevelHistroyByUid(uid: number) {
-    return [
+  async getLevelHistroyByUid(uid: number): Promise<LevelGraphDateRanged> {
+    const levelGraph = [
       {
         date: new Date('2022-01-01'),
         userLevel: 2,
@@ -151,6 +163,8 @@ export class PersonalGeneralService {
         averageLevel: 3,
       },
     ];
+
+    return generateDateRanged(levelGraph, new Date('2022'), new Date('2023'));
   }
 
   async getUserInfo(uid: number) {

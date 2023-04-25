@@ -1,4 +1,5 @@
 import { Field, Float, ObjectType, PickType } from '@nestjs/graphql';
+import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from 'src/personalGeneral/models/personal.general.userProfile.model';
 
 @ObjectType()
@@ -16,3 +17,6 @@ export class UserRanking {
   @Field((_type) => Float)
   value: number;
 }
+
+@ObjectType()
+export class UserRankingDateRanged extends ArrayDateRanged(UserRanking) {}
