@@ -16,9 +16,23 @@ export class ProjectService {
   }
 
   async findByName(name: string): Promise<project[]> {
-    return await this.findAll({
-      slug: { $regex: name, $options: 'i' },
+    const result: Map<number, project> = new Map();
+
+    const prefixMatches = await this.findAll({
+      name: { $regex: `^${name}`, $options: 'i' },
     });
+
+    prefixMatches.forEach((prefixMatch) =>
+      result.set(prefixMatch.id, prefixMatch),
+    );
+
+    const matches = await this.findAll({
+      name: { $regex: name, $options: 'i' },
+    });
+
+    matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));
+
+    return [...result.values()];
   }
 
   convertToPreview(project: project): ProjectPreview {
