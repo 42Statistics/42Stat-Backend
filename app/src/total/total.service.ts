@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { UserRankingDateRanged } from 'src/common/models/common.user.model';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
+import {
+  CoalitionScore,
+  CoalitionScoreRecords,
+} from 'src/score/models/score.coalition.model';
 import { ScoreService } from 'src/score/score.service';
 import { Time } from 'src/util';
-import { ScoreRecords, TotalScore } from './models/total.model';
 
 @Injectable()
 export class TotalService {
@@ -13,35 +16,22 @@ export class TotalService {
     private scoreService: ScoreService,
   ) {}
 
-  // todo: coalition module 분리
-  async totalScores(): Promise<TotalScore[]> {
-    const coalitionScores = await this.scoreService.getScoresByCoalition();
-
-    return coalitionScores.map(
-      ({ coalitionId, value }): TotalScore => ({
-        coalition: { id: coalitionId, name: coalitionId },
-        score: value,
-      }),
-    );
+  async totalScores(): Promise<CoalitionScore[]> {
+    return await this.scoreService.getScoresByCoalition();
   }
 
-  async scoreRecords(): Promise<ScoreRecords[]> {
+  async scoreRecords(): Promise<CoalitionScoreRecords[]> {
     // todo
     const coalitionIds = [85, 86, 87, 88];
 
     const currDate = Time.curr();
     const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -11));
 
-    const scores = await this.scoreService.getScoreRecords(
+    return await this.scoreService.getScoreRecords(
       lastYear,
       currDate,
       coalitionIds,
     );
-
-    return scores.map(({ coalitionId, records }) => ({
-      coalition: { id: coalitionId, name: coalitionId },
-      records: records,
-    }));
   }
 
   async monthlyScoreRanks(): Promise<UserRankingDateRanged> {

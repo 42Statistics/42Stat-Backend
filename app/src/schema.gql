@@ -3,15 +3,14 @@
 # ------------------------------------------------------
 
 type Coalition {
-  id: ID!
-  name: CoaliltionName!
-}
-
-enum CoaliltionName {
-  GUN
-  GON
-  GAM
-  LEE
+  id: Int!
+  name: String!
+  slug: String!
+  imageUrl: String
+  coverUrl: String
+  color: String
+  score: Int!
+  userId: Int!
 }
 
 type UserTitle {
@@ -260,16 +259,6 @@ type ValuePerCircle {
   value: Int!
 }
 
-type TotalScore {
-  coalition: Coalition!
-  score: Int!
-}
-
-type ScoreRecords {
-  coalition: Coalition!
-  records: [ValueRecord!]!
-}
-
 type UserCntPerLevel {
   userCnt: Int!
   level: Int!
@@ -283,12 +272,22 @@ type Total {
   averageCircleDurations: [ValuePerCircle!]!
   userCntPerLevels: [UserCntPerLevel!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
-  totalScores: [TotalScore!]!
-  scoreRecords: [ScoreRecords!]!
+  totalScores: [CoalitionScore!]!
+  scoreRecords: [CoalitionScoreRecords!]!
   monthlyScoreRanks: UserRankingDateRanged!
   totalEvalCount: Int!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
+}
+
+type CoalitionScore {
+  coalition: Coalition!
+  value: Int!
+}
+
+type CoalitionScoreRecords {
+  coalition: Coalition!
+  records: [ValueRecord]!
 }
 
 type Query {

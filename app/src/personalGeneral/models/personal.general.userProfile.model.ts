@@ -6,7 +6,7 @@ import {
   registerEnumType,
 } from '@nestjs/graphql';
 import { GraphQLURL } from 'graphql-scalars';
-import { Coalition } from 'src/common/models/common.coalition.model';
+import { Coalition } from 'src/coalition/models/coalition.model';
 
 @ObjectType()
 export class UserTitle {
