@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
+import { score } from './db/score.database.schema';
 import {
   CoalitionScore,
   CoalitionScoreRecords,
-} from './db/score.database.aggregate';
-import { score } from './db/score.database.schema';
+} from './models/score.coalition.model';
 
 @Injectable()
 export class ScoreService {
@@ -37,9 +37,14 @@ export class ScoreService {
     return await aggregate
       .match({ coalitionsUserId: { $ne: null } })
       .group({ _id: '$coalitionId', value: { $sum: '$value' } })
-      // todo: 이거 해야하나?
-      .project({ _id: 0, coalitionId: '$_id', value: 1 })
-      .sort({ coalitionId: 1 });
+      .lookup({
+        from: 'coalitions',
+        localField: '_id',
+        foreignField: 'id',
+        as: 'coalition',
+      })
+      .sort({ _id: 1 })
+      .project({ _id: 0, coalition: { $first: '$coalition' }, value: 1 });
   }
 
   async getScoreRecords(
@@ -82,8 +87,14 @@ export class ScoreService {
           },
         },
       })
-      .project({ _id: 0, coalitionId: '$_id', records: 1 })
-      .sort({ coalitionId: 1 });
+      .sort({ coalitionId: 1 })
+      .lookup({
+        from: 'coalitions',
+        localField: '_id',
+        foreignField: 'id',
+        as: 'coalition',
+      })
+      .project({ _id: 0, coalition: { $first: '$coalition' }, records: 1 });
   }
 
   async getScoreRanks(
