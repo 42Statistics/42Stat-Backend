@@ -11,7 +11,6 @@ export class TotalService {
   constructor(
     private scaleTeamService: ScaleTeamsService,
     private scoreService: ScoreService,
-    private questUserService: QuestsUserService,
   ) {}
 
   // todo: coalition module 분리
@@ -73,9 +72,5 @@ export class TotalService {
 
   async averageCommentLength(): Promise<number> {
     return await this.scaleTeamService.getAverageReviewLength('comment');
-  }
-
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
-    return await this.questUserService.getAverageCircleDurations();
   }
 }

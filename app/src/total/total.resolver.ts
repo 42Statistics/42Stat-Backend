@@ -5,7 +5,6 @@ import {
   ScoreRecords,
   Total,
   TotalScore,
-  ValuePerCircle,
 } from './models/total.model';
 import { TotalService } from './total.service';
 
@@ -234,10 +233,5 @@ export class TotalResolver {
   @ResolveField('averageCommentLength', (_returns) => Int)
   async averageCommentLength(): Promise<number> {
     return await this.totalService.averageCommentLength();
-  }
-
-  @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
-    return await this.totalService.averageCircleDurations();
   }
 }
