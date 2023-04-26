@@ -25,13 +25,14 @@ export class TotalService {
     const coalitionIds = [85, 86, 87, 88];
 
     const currDate = Time.curr();
-    const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -11));
+    const currMonth = Time.startOfMonth(currDate);
+    const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -12));
 
-    return await this.scoreService.getScoreRecords(
-      lastYear,
-      currDate,
-      coalitionIds,
-    );
+    return await this.scoreService.getScoreRecords({
+      createdAt: { $gte: lastYear, $lt: currMonth },
+      coalitionsUserId: { $ne: null },
+      coalitionId: { $in: coalitionIds },
+    });
   }
 
   async monthlyScoreRanks(): Promise<UserRankingDateRanged> {
@@ -39,11 +40,9 @@ export class TotalService {
     const currMonth = Time.startOfMonth(currDate);
     const nextMonth = Time.moveMonth(currMonth, 1);
 
-    const scoreRanks = await this.scoreService.getScoreRanks(
-      currMonth,
-      nextMonth,
-      3,
-    );
+    const scoreRanks = await this.scoreService.getScoreRanks(3, {
+      createdAt: { $gte: currMonth, $lt: nextMonth },
+    });
 
     return generateDateRanged(
       scoreRanks,
