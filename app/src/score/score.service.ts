@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { Model } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { score } from './db/score.database.schema';
 import {
@@ -48,22 +48,15 @@ export class ScoreService {
   }
 
   async getScoreRecords(
-    start: Date,
-    end: Date,
-    coalitionIds: number[],
+    filter?: FilterQuery<score>,
   ): Promise<CoalitionScoreRecords[]> {
-    if (coalitionIds.length === 0) {
-      return [];
-    }
-
     const aggregate = this.scoreModel.aggregate<CoalitionScoreRecords>();
 
+    if (filter) {
+      aggregate.match(filter);
+    }
+
     return await aggregate
-      .match({
-        createdAt: { $gte: start, $lt: end },
-        coalitionsUserId: { $ne: null },
-        coalitionId: { $in: coalitionIds },
-      })
       .group({
         _id: {
           coalitionId: '$coalitionId',
@@ -98,14 +91,16 @@ export class ScoreService {
   }
 
   async getScoreRanks(
-    start: Date,
-    end: Date,
     limit: number,
+    filter?: FilterQuery<score>,
   ): Promise<UserRanking[]> {
     const aggregate = this.scoreModel.aggregate<UserRanking>();
 
+    if (filter) {
+      aggregate.match(filter);
+    }
+
     return await aggregate
-      .match({ createdAt: { $gte: start, $lt: end } })
       .group({ _id: '$coalitionsUserId', value: { $sum: '$value' } })
       .sort({ value: -1 })
       .limit(limit)

@@ -149,9 +149,9 @@ export class ScaleTeamsService {
   }
 
   async getEvalLogs(
-    filter: FilterQuery<scale_team>,
     pageSize: number,
     pageNumber: number,
+    filter?: FilterQuery<scale_team>,
   ): Promise<EvalLogsPaginated> {
     const aggregate = this.scaleTeamModel.aggregate<EvalLogs>();
 

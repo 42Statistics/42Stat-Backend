@@ -56,9 +56,9 @@ export class EvalLogsService {
     }
 
     return await this.scaleTeamsService.getEvalLogs(
-      filter,
       pageSize,
       pageNumber,
+      filter,
     );
   }
 }
