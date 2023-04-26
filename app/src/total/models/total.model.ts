@@ -1,5 +1,4 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { Coalition } from 'src/common/models/common.coalition.model';
 import { UserRanking } from 'src/common/models/common.user.model';
 
 // todo: extends OmitType(project)
@@ -52,36 +51,9 @@ export class ValuePerCircle {
 }
 
 @ObjectType()
-export class TotalScore {
-  @Field()
-  coalition: Coalition;
-
-  @Field()
-  score: number;
-}
-
-@ObjectType()
-export class ScoreRecords {
-  @Field()
-  coalition: Coalition;
-
-  @Field((_type) => [ValueRecord])
-  records: ValueRecord[];
-}
-
-@ObjectType()
 export class UserCntPerPoint {
   @Field()
   userCnt: number;
-
-  @Field()
-  point: number;
-}
-
-@ObjectType()
-export class EvalCntPerPoint {
-  @Field()
-  evalCnt: number;
 
   @Field()
   point: number;

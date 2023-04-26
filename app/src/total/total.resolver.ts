@@ -1,11 +1,10 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { UserRankingDateRanged } from 'src/common/models/common.user.model';
 import {
-  ProjectInfo,
-  ScoreRecords,
-  Total,
-  TotalScore,
-} from './models/total.model';
+  CoalitionScore,
+  CoalitionScoreRecords,
+} from 'src/score/models/score.coalition.model';
+import { ProjectInfo, Total } from './models/total.model';
 import { TotalService } from './total.service';
 
 @Resolver((_of: unknown) => Total)
@@ -234,14 +233,14 @@ export class TotalResolver {
     };
   }
 
-  @ResolveField('totalScores', (_returns) => [TotalScore])
+  @ResolveField('totalScores', (_returns) => [CoalitionScore])
   // todo: naming
-  async totalScores(): Promise<TotalScore[]> {
+  async totalScores(): Promise<CoalitionScore[]> {
     return await this.totalService.totalScores();
   }
 
-  @ResolveField('scoreRecords', (_returns) => [ScoreRecords])
-  async scoreRecords(): Promise<ScoreRecords[]> {
+  @ResolveField('scoreRecords', (_returns) => [CoalitionScoreRecords])
+  async scoreRecords(): Promise<CoalitionScoreRecords[]> {
     return this.totalService.scoreRecords();
   }
 
