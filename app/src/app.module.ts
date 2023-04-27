@@ -3,12 +3,12 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
-import { EvalLogsModule } from './evalLogs/evalLogs.module';
+import { EvalLogModule } from './evalLog/evalLog.module';
 import { HomeModule } from './home/home.module';
 import { PersonalEvalModule } from './personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
 import { ProjectModule } from './project/project.module';
-import { ScaleTeamsModule } from './scaleTeams/scaleTeams.module';
+import { ScaleTeamModule } from './scaleTeam/scaleTeam.module';
 import { TotalModule } from './total/total.module';
 
 @Module({
@@ -31,8 +31,8 @@ import { TotalModule } from './total/total.module';
     TotalModule,
     PersonalGeneralModule,
     PersonalEvalModule,
-    ScaleTeamsModule,
-    EvalLogsModule,
+    ScaleTeamModule,
+    EvalLogModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       buildSchemaOptions: {

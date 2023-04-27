@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserRankingDateRanged } from 'src/common/models/common.user.model';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
+import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import {
   CoalitionScore,
   CoalitionScoreRecords,
@@ -12,7 +12,7 @@ import { Time } from 'src/util';
 @Injectable()
 export class TotalService {
   constructor(
-    private scaleTeamService: ScaleTeamsService,
+    private scaleTeamService: ScaleTeamService,
     private scoreService: ScoreService,
   ) {}
 
