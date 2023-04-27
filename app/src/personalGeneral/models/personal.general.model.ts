@@ -16,20 +16,20 @@ export class TempTeam {
   @Field()
   occurrence: number;
 
-  @Field((_type) => Date, { nullable: true })
-  closedAt: Date | null;
+  @Field({ nullable: true })
+  closedAt?: Date;
 
   @Field()
   firstCreatedAt: Date;
 
-  @Field((_type) => Int, { nullable: true })
-  finalMark: number | null;
+  @Field({ nullable: true })
+  finalMark?: number;
 
-  @Field((_type) => Boolean, {
+  @Field({
     nullable: true,
     description: 'true면 통과, false면 fail, null이면 미평가 입니다.',
   })
-  isValidated: boolean | null;
+  isValidated?: boolean;
 }
 
 @ObjectType()
@@ -67,11 +67,11 @@ export class LogtimeInfoDateRanged extends DateRanged(LogtimeInfo) {}
 
 @ObjectType()
 export class TeamInfo {
-  @Field((_type) => String, { nullable: true })
-  lastRegistered: string | null;
+  @Field({ nullable: true })
+  lastRegistered?: string;
 
-  @Field((_type) => String, { nullable: true })
-  lastPass: string | null;
+  @Field({ nullable: true })
+  lastPass?: string;
 
   @Field((_type) => [TempTeam], { nullable: 'items' })
   teams: TempTeam[];

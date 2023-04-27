@@ -3,9 +3,9 @@ import { ProjectPreview } from 'src/project/models/project.preview';
 
 @ObjectType()
 export class ProjectRanking {
-  @Field((_type) => ProjectPreview)
+  @Field()
   projectPreview: ProjectPreview;
 
-  @Field((_type) => Int)
+  @Field()
   value: number;
 }

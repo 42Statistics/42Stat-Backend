@@ -11,7 +11,7 @@ export class Project {
   @Field()
   slug: string;
 
-  @Field((_type) => Int, { nullable: true })
+  @Field({ nullable: true })
   difficulty?: number;
 
   @Field()

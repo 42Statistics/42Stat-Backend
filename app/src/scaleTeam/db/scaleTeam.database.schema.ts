@@ -42,12 +42,12 @@ export interface Team {
   id: number;
   name: string;
   url: string;
-  finalMark: number | null;
+  finalMark?: number;
   projectId: number;
   createdAt: Date;
   updatedAt: Date;
   status: string;
-  terminatingAt: Date | null;
+  terminatingAt?: Date;
   users: {
     id: number;
     login: string;
@@ -58,12 +58,12 @@ export interface Team {
     projects_userId: number;
   }[];
   locked: boolean;
-  validated: boolean | null;
+  validated?: boolean;
   closed: boolean;
   repo_url: string;
   repo_uuid: number;
-  lockedAt: Date | null;
-  closedAt: Date | null;
+  lockedAt?: Date;
+  closedAt?: Date;
   project_sessionId: number;
   project_gitlab_path: string;
 }
