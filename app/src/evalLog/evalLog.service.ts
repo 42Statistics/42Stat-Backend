@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { generatePage } from 'src/pagination/pagination.service';
 import { ProjectService } from 'src/project/project.service';
-import { scale_team } from 'src/scaleTeams/db/scaleTeams.database.schema';
-import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
-import { GetEvalLogsArgs } from './dto/evalLogs.dto.getEvalLog';
-import { EvalLogsPaginated } from './models/evalLogs.model';
+import { scale_team } from 'src/scaleTeam/db/scaleTeam.database.schema';
+import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
+import { GetEvalLogsArgs } from './dto/evalLog.dto.getEvalLog';
+import { EvalLogsPaginated } from './models/evalLog.model';
 
 @Injectable()
-export class EvalLogsService {
+export class EvalLogService {
   constructor(
-    private scaleTeamsService: ScaleTeamsService,
+    private scaleTeamService: ScaleTeamService,
     private projectService: ProjectService,
   ) {}
 
@@ -55,7 +55,7 @@ export class EvalLogsService {
       filter['flag.id'] = 9;
     }
 
-    return await this.scaleTeamsService.getEvalLogs(
+    return await this.scaleTeamService.getEvalLogs(
       pageSize,
       pageNumber,
       filter,

@@ -56,7 +56,7 @@ export class EvalReview {
 }
 
 @ObjectType()
-export class EvalLogs {
+export class EvalLog {
   @Field()
   header: EvalLogHeader;
 
@@ -68,4 +68,4 @@ export class EvalLogs {
 }
 
 @ObjectType()
-export class EvalLogsPaginated extends Paginated(EvalLogs) {}
+export class EvalLogsPaginated extends Paginated(EvalLog) {}

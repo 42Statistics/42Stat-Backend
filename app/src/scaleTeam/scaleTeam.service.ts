@@ -3,15 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
-import {
-  EvalLogs,
-  EvalLogsPaginated,
-} from 'src/evalLogs/models/evalLogs.model';
+import { EvalLog, EvalLogsPaginated } from 'src/evalLog/models/evalLog.model';
 import { generatePage } from 'src/pagination/pagination.service';
-import { scale_team } from './db/scaleTeams.database.schema';
+import { scale_team } from './db/scaleTeam.database.schema';
 
 @Injectable()
-export class ScaleTeamsService {
+export class ScaleTeamService {
   constructor(
     @InjectModel(scale_team.name)
     private scaleTeamModel: Model<scale_team>,
@@ -153,7 +150,7 @@ export class ScaleTeamsService {
     pageNumber: number,
     filter?: FilterQuery<scale_team>,
   ): Promise<EvalLogsPaginated> {
-    const aggregate = this.scaleTeamModel.aggregate<EvalLogs>();
+    const aggregate = this.scaleTeamModel.aggregate<EvalLog>();
 
     const evalLogsAggr = await aggregate
       // todo: 평가 취소인 경우에 대한 처리를 할 수 있음

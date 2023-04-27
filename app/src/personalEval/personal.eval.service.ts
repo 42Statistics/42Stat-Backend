@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { ScaleTeamsService } from 'src/scaleTeams/scaleTeams.service';
+import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { Time } from 'src/util';
 
 @Injectable()
 export class PersonalEvalService {
-  constructor(private scaleTeamService: ScaleTeamsService) {}
+  constructor(private scaleTeamService: ScaleTeamService) {}
 
   async currMonthCount(uid: number): Promise<NumberDateRanged> {
     const currDate = Time.curr();
