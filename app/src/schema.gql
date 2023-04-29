@@ -100,7 +100,7 @@ type EvalReview {
   review: String!
 }
 
-type EvalLogs {
+type EvalLog {
   header: EvalLogHeader!
 
   """평가자가 부여한 점수와 리뷰 입니다."""
@@ -111,7 +111,7 @@ type EvalLogs {
 }
 
 type EvalLogsPaginated {
-  nodes: [EvalLogs]!
+  nodes: [EvalLog]!
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
