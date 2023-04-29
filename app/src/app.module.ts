@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { EvalLogModule } from './evalLog/evalLog.module';
 import { HomeModule } from './home/home.module';
@@ -26,6 +27,7 @@ import { TotalModule } from './total/total.module';
     //     retryWrites: false,
     //   },
     // ),
+    ScheduleModule.forRoot(),
     ProjectModule,
     HomeModule,
     TotalModule,

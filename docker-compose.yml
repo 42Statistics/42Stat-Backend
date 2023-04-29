@@ -6,6 +6,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    networks:
+      - internal
     volumes:
       - type: volume
         source: backend-app
@@ -16,11 +18,35 @@ services:
     env_file:
       - env/.env
 
+  redis:
+    container_name: redis
+    build:
+      context: redis
+      dockerfile: Dockerfile
+    networks:
+      - internal
+    entrypoint: sh /tmp/entry.sh
+    volumes:
+      - redis-log:/data
+
+networks:
+  internal:
+    name: internal
+    driver: bridge
+
 volumes:
   backend-app:
     name: backend-app
     driver: local
     driver_opts:
       device: ./app
+      type: none
+      o: bind
+
+  redis-log:
+    name: redis-log
+    driver: local
+    driver_opts:
+      device: ./redis/redis-log
       type: none
       o: bind
