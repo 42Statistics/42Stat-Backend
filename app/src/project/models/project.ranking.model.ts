@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { ProjectPreview } from 'src/project/models/project.preview';
 
 @ObjectType()

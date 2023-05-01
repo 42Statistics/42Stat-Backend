@@ -20,16 +20,16 @@ export class ProjectInfo {
   averageDurationTime: number;
 
   @Field({ description: '총 제출 횟수 입니다.' })
-  totalCloseCnt: number;
+  totalCloseCount: number;
 
   @Field()
-  currRegisteredCnt: number;
+  currRegisteredCount: number;
 
   @Field()
   passPercentage: number;
 
   @Field()
-  totalEvalCnt: number;
+  totalEvalCount: number;
 }
 
 @ObjectType()
@@ -50,19 +50,31 @@ export class ValuePerCircle {
   value: number;
 }
 
+//@ObjectType()
+//export class ValuePerCircleByPromo {
+//  @Field()
+//  circle: number;
+
+//  @Field()
+//  value: number;
+
+//  @Field()
+//  promo: string;
+//}
+
 @ObjectType()
-export class UserCntPerPoint {
+export class UserCountPerPoint {
   @Field()
-  userCnt: number;
+  userCount: number;
 
   @Field()
   point: number;
 }
 
 @ObjectType()
-export class UserCntPerLevel {
+export class UserCountPerLevel {
   @Field()
-  userCnt: number;
+  userCount: number;
 
   @Field()
   level: number;
@@ -71,10 +83,10 @@ export class UserCntPerLevel {
 @ObjectType()
 export class Total {
   @Field((_type) => [ValueRecord])
-  activeUserCntRecords: ValueRecord[];
+  activeUserCountRecords: ValueRecord[];
 
   @Field((_type) => [ValuePerCircle])
-  blackholedCntPerCircles: ValuePerCircle[];
+  blackholedCountPerCircles: ValuePerCircle[];
 
   @Field((_type) => [UserRanking])
   correctionPointRanks: UserRanking[];
@@ -85,6 +97,9 @@ export class Total {
   @Field((_type) => [ValuePerCircle])
   averageCircleDurations: ValuePerCircle[];
 
-  @Field((_type) => [UserCntPerLevel])
-  userCntPerLevels: UserCntPerLevel[];
+  //@Field((_type) => [ValuePerCircleByPromo])
+  //ValuePerCircleByPromo: ValuePerCircleByPromo[];
+
+  @Field((_type) => [UserCountPerLevel])
+  userCountPerLevel: UserCountPerLevel[];
 }

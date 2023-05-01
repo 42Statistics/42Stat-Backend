@@ -1,16 +1,9 @@
-import {
-  Field,
-  Float,
-  ID,
-  ObjectType,
-  registerEnumType,
-} from '@nestjs/graphql';
-import { GraphQLURL } from 'graphql-scalars';
+import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { Coalition } from 'src/coalition/models/coalition.model';
 
 @ObjectType()
 export class UserTitle {
-  @Field((_type) => ID)
+  @Field()
   id: number;
 
   @Field()
@@ -21,7 +14,7 @@ export class UserTitle {
 }
 
 @ObjectType()
-export class UserScoreInfo {
+export class UserScoreRank {
   @Field()
   value: number;
 
@@ -43,14 +36,15 @@ registerEnumType(UserGrade, {
 
 @ObjectType()
 export class UserProfile {
-  @Field((_type) => ID)
+  @Field()
   id: number;
 
   @Field()
   login: string;
 
   @Field()
-  grade: UserGrade;
+  grade: string;
+  //grade: UserGrade;
 
   @Field()
   name: string;
@@ -58,8 +52,8 @@ export class UserProfile {
   @Field({ nullable: true })
   coalition?: Coalition;
 
-  @Field((_type) => GraphQLURL, { nullable: true })
-  imgUrl?: URL;
+  @Field({ nullable: true })
+  imgUrl?: string;
 
   @Field((_type) => [UserTitle], { nullable: 'items' })
   titles: UserTitle[];
@@ -68,7 +62,7 @@ export class UserProfile {
   level: number;
 
   @Field()
-  pooledAt: Date;
+  beginAt: Date;
 
   @Field({ nullable: true })
   blackholedAt?: Date;
@@ -80,5 +74,5 @@ export class UserProfile {
   correctionPoint: number;
 
   @Field()
-  scoreInfo: UserScoreInfo;
+  scoreInfo: UserScoreRank;
 }

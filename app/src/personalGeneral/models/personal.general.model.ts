@@ -1,14 +1,15 @@
-import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
   ArrayDateRanged,
   DateRanged,
 } from 'src/dateRange/models/dateRange.model';
+import { UserProfile } from './personal.general.userProfile.model';
 
 // todo: erase this
 @ObjectType()
 export class TempTeam {
-  @Field((_type) => ID)
-  id: string;
+  @Field()
+  id: number;
 
   @Field()
   name: string;
@@ -93,5 +94,19 @@ export class LevelGraph {
 export class LevelGraphDateRanged extends ArrayDateRanged(LevelGraph) {}
 
 @ObjectType()
-// eslint-disable-next-line
-export class PersonalGeneral {}
+export class PersonalGeneral {
+  @Field()
+  logtimeInfo: LogtimeInfoDateRanged;
+
+  @Field()
+  teamInfo: TeamInfo;
+
+  @Field()
+  levelGraphs: LevelGraphDateRanged;
+
+  @Field()
+  userProfile: UserProfile;
+
+  @Field()
+  levelRank: number;
+}

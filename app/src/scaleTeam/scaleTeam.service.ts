@@ -44,14 +44,14 @@ export class ScaleTeamService {
     const aggregate = this.scaleTeamModel.aggregate<UserRanking>();
 
     if (filter) {
-      aggregate.append({ $match: filter });
+      aggregate.match(filter);
     }
 
     return await aggregate
       .group({
         _id: '$corrector.id',
         login: { $first: '$corrector.login' },
-        value: { $sum: 1 },
+        value: { $count: {} },
       })
       .sort({ value: -1 })
       .limit(3)
