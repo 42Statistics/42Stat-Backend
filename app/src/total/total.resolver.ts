@@ -1,206 +1,31 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { UserRankingDateRanged } from 'src/common/models/common.user.model';
+import {
+  UserRanking,
+  UserRankingDateRanged,
+} from 'src/common/models/common.user.model';
 import {
   CoalitionScore,
   CoalitionScoreRecords,
 } from 'src/score/models/score.coalition.model';
-import { ProjectInfo, Total } from './models/total.model';
+import { Time } from 'src/util';
+import {
+  ProjectInfo,
+  Total,
+  UserCountPerLevel,
+  ValuePerCircle,
+  ValueRecord,
+} from './models/total.model';
 import { TotalService } from './total.service';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
-  constructor(private totalService: TotalService) {}
+  constructor(
+    private totalService: TotalService, //@Inject('REDIS_CRON_CLIENT') //private redisClient: RedisClientType,
+  ) {}
 
   @Query((_returns) => Total)
   async getTotalPage() {
-    return {
-      activeUserCntRecords: [
-        {
-          at: new Date('2022-11-01T00:00:00.405Z'),
-          value: 1000,
-        },
-        {
-          at: new Date('2022-12-01T00:00:00.405Z'),
-          value: 2250,
-        },
-        {
-          at: new Date('2023-01-01T00:00:00.405Z'),
-          value: 1500,
-        },
-        {
-          at: new Date('2023-02-01T00:00:00.405Z'),
-          value: 3000,
-        },
-        {
-          at: new Date('2023-03-01T00:00:00.405Z'),
-          value: 750,
-        },
-        {
-          at: new Date('2023-04-01T00:00:00.405Z'),
-          value: 1000,
-        },
-      ],
-      blackholedCntPerCircles: [
-        {
-          circle: 0,
-          value: 150,
-        },
-        {
-          circle: 1,
-          value: 50,
-        },
-        {
-          circle: 2,
-          value: 20,
-        },
-        {
-          circle: 3,
-          value: 30,
-        },
-        {
-          circle: 4,
-          value: 45,
-        },
-        {
-          circle: 5,
-          value: 5,
-        },
-        {
-          circle: 6,
-          value: 15,
-        },
-      ],
-      correctionPointRanks: [
-        {
-          userPreview: {
-            id: '99756',
-            login: 'yuhwang',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/229c609882b1f47557bad820b39cd65a/yuhwang.jpeg',
-          },
-          value: 240,
-        },
-        {
-          userPreview: {
-            id: 99947,
-            login: 'jaham',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 209,
-        },
-        {
-          userPreview: {
-            id: '106823',
-            login: 'yotak',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/a7a8b01cdd6e43d8b355cd64b3bdd841/yotak.jpg',
-          },
-          value: 180,
-        },
-      ],
-      walletRanks: [
-        {
-          userPreview: {
-            id: 99947,
-            login: 'jaham',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 2022,
-        },
-        {
-          userPreview: {
-            id: '112230',
-            login: 'jeongble',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/68000c4741c4493b400c15554c0170ea/jeongble.jpeg',
-          },
-          value: 1000,
-        },
-        {
-          userPreview: {
-            id: '85166',
-            login: 'seunpark',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/e47ea718a318076d34edc53e2fe90caf/seunpark.gif',
-          },
-          value: 995,
-        },
-      ],
-      averageCircleDurations: [
-        {
-          circle: 0,
-          value: 7,
-        },
-        {
-          circle: 1,
-          value: 10,
-        },
-        {
-          circle: 2,
-          value: 55,
-        },
-        {
-          circle: 3,
-          value: 107,
-        },
-        {
-          circle: 4,
-          value: 204,
-        },
-        {
-          circle: 5,
-          value: 307,
-        },
-        {
-          circle: 6,
-          value: 390,
-        },
-      ],
-      userCntPerLevels: [
-        {
-          userCnt: 25,
-          level: 1,
-        },
-        {
-          userCnt: 50,
-          level: 2,
-        },
-        {
-          userCnt: 40,
-          level: 3,
-        },
-        {
-          userCnt: 60,
-          level: 4,
-        },
-        {
-          userCnt: 10,
-          level: 5,
-        },
-        {
-          userCnt: 25,
-          level: 6,
-        },
-        {
-          userCnt: 50,
-          level: 7,
-        },
-        {
-          userCnt: 40,
-          level: 8,
-        },
-        {
-          userCnt: 60,
-          level: 9,
-        },
-        {
-          userCnt: 10,
-          level: 10,
-        },
-      ],
-    };
+    return {};
   }
 
   @ResolveField('projectInfo', (_returns) => ProjectInfo)
@@ -211,37 +36,53 @@ export class TotalResolver {
       return {
         id: '1',
         name: 'ft_printf',
-        skills: ['c', 'makefile'], //todo
+        skills: ['c', 'makefile'],
         averagePassFinalmark: 115,
         averageDurationTime: 17,
-        totalCloseCnt: 2000,
-        currRegisteredCnt: 40,
+        totalCloseCount: 2000,
+        currRegisteredCount: 40,
         passPercentage: 30,
-        totalEvalCnt: 2200,
+        totalEvalCount: 2200,
       };
     }
     return {
       id: '2',
       name: 'libft',
-      skills: ['c', 'makefile'], //todo
+      skills: ['c', 'makefile'],
       averagePassFinalmark: 109,
       averageDurationTime: 17,
-      totalCloseCnt: 1801,
-      currRegisteredCnt: 80,
+      totalCloseCount: 1801,
+      currRegisteredCount: 80,
       passPercentage: 50,
-      totalEvalCnt: 3392,
+      totalEvalCount: 3392,
     };
   }
 
   @ResolveField('totalScores', (_returns) => [CoalitionScore])
-  // todo: naming
   async totalScores(): Promise<CoalitionScore[]> {
+    //const cached = await this.redisClient.zRange('totalScores', 0, -1, {
+    //  REV: true,
+    //});
+
+    //if (cached.length) return cached.map((curr) => JSON.parse(curr));
+
     return await this.totalService.totalScores();
   }
 
   @ResolveField('scoreRecords', (_returns) => [CoalitionScoreRecords])
   async scoreRecords(): Promise<CoalitionScoreRecords[]> {
-    return this.totalService.scoreRecords();
+    //const cached = await this.redisClient.sMembers('scoreRecords');
+
+    //const cachedStrings = await this.redisClient.sMembers('scoreRecords');
+    //const cached = cachedStrings.map(JSON.parse);
+
+    //if (cached.length) {
+    //  console.log(cached);
+    //console.log(cached.map((record) => JSON.parse(record)));
+    //return cached.map((record) => JSON.parse(record));
+    //}
+
+    return await this.totalService.scoreRecords();
   }
 
   @ResolveField('monthlyScoreRanks', (_returns) => UserRankingDateRanged)
@@ -263,4 +104,46 @@ export class TotalResolver {
   async averageCommentLength(): Promise<number> {
     return await this.totalService.averageCommentLength();
   }
+
+  @ResolveField('userCountPerLevel', (_returns) => [UserCountPerLevel])
+  async userCountPerLevel(): Promise<UserCountPerLevel[]> {
+    return await this.totalService.userCountPerLevel();
+  }
+
+  @ResolveField('walletRanks', (_returns) => [UserRanking])
+  async walletRanks(): Promise<UserRanking[]> {
+    return await this.totalService.walletRanks();
+  }
+
+  @ResolveField('correctionPointRanks', (_returns) => [UserRanking])
+  async correctionPointRanks(): Promise<UserRanking[]> {
+    return await this.totalService.correctionPointRanks();
+  }
+
+  @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
+  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+    return await this.totalService.averageCircleDurations();
+  }
+
+  @ResolveField('blackholedCountPerCircles', (_returns) => [ValuePerCircle])
+  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+    return await this.totalService.blackholedCountPerCircles();
+  }
+
+  @ResolveField('activeUserCountRecords', (_returns) => [ValueRecord])
+  async activeUserCountRecords(): Promise<ValueRecord[]> {
+    const curr = Time.curr();
+    const startOfNextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
+    const start = Time.moveYear(startOfNextMonth, -1);
+    const end = Time.moveMs(startOfNextMonth, -1);
+
+    return await this.totalService.activeUserCountRecords(start, end);
+  }
+
+  //@ResolveField('averageCircleDurationsByPromo', (_returns) => [
+  //  ValuePerCircleByPromo,
+  //])
+  //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
+  //  return await this.totalService.averageCircleDurationsByPromo();
+  //}
 }

@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
+import { FilterQuery } from 'mongoose';
+import { CoalitionsUserService } from 'src/coalitions_user/coalitionsUser.service';
+import { CursusUserService } from 'src/cursus_user/cursusUser.service';
+import { cursus_user } from 'src/cursus_user/db/cursusUser.database.schema';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
+import { ScoreService } from 'src/score/score.service';
+import { TitlesUserService } from 'src/titles_user/titlesUser.service';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
   LogtimeInfoDateRanged,
+  TeamInfo,
 } from './models/personal.general.model';
-import { UserGrade } from './models/personal.general.userProfile.model';
+import { UserProfile } from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
+  constructor(
+    private cursusUserService: CursusUserService,
+    private titlesUserService: TitlesUserService,
+    private scoreService: ScoreService,
+    private coalitionsUserService: CoalitionsUserService,
+  ) {}
   async readTempLocation() {
     const ret = JSON.parse(
       await fs.readFile('/app/temp-data-store/jaham-location.json', {
@@ -19,7 +32,7 @@ export class PersonalGeneralService {
     return ret;
   }
 
-  async getLogtimeInfoByUid(uid: number): Promise<LogtimeInfoDateRanged> {
+  async getLogtimeInfoById(uid: number): Promise<LogtimeInfoDateRanged> {
     const locations = await this.readTempLocation();
 
     const monthStart = new Date(
@@ -82,7 +95,7 @@ export class PersonalGeneralService {
     );
   }
 
-  async getTeamInfoByUid(uid: number) {
+  async getTeamInfoById(uid: number): Promise<TeamInfo> {
     return {
       lastRegistered: 'avaj-launcher',
       lastPass: 'avaj-launcher',
@@ -100,7 +113,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async getLevelHistroyByUid(uid: number): Promise<LevelGraphDateRanged> {
+  async getLevelHistroyById(uid: number): Promise<LevelGraphDateRanged> {
     const levelGraph = [
       {
         date: new Date('2022-01-01'),
@@ -167,41 +180,34 @@ export class PersonalGeneralService {
     return generateDateRanged(levelGraph, new Date('2022'), new Date('2023'));
   }
 
-  async getUserInfo(uid: number) {
-    return {
-      id: 99947,
-      login: 'jaham',
-      name: 'jaewon Ham',
-      grade: UserGrade.MEMBER,
-      imgUrl:
-        'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-      titles: [
-        {
-          id: '1',
-          name: "%login Officially Developer of 24HANE(42Seoul's attendance managing system)",
-          isSelected: true,
-        },
-        {
-          id: '2',
-          name: '%login Librarian of Jiphyeonjeon :books:',
-          isSelected: false,
-        },
-        {
-          id: '3',
-          name: 'Philanthropist %login',
-          isSelected: false,
-        },
-      ],
-      level: 11.66,
-      pooledAt: new Date('2021-11-08'),
-      blackholedAt: null,
-      wallet: 2022,
-      correctionPoint: 42,
-      scoreInfo: {
-        value: 84,
-        rankInCoalition: 91,
-        rankInTotal: 589,
-      },
+  async getUserInfo(uid: number): Promise<UserProfile> {
+    const currTime = Time.curr();
+    const startOfMonth = Time.startOfMonth(currTime);
+    const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
+
+    const cursusUserProfile = await this.cursusUserService.getCursusUserProfile(
+      uid,
+    );
+    const titles = await this.titlesUserService.getTitlesUserProfile(uid);
+    const scoreInfo = await this.coalitionsUserService.getScoreRankById(
+      uid,
+      startOfMonth,
+      startOfNextMonth,
+    );
+
+    const userProfile: UserProfile = {
+      ...cursusUserProfile,
+      titles,
+      scoreInfo,
     };
+
+    return userProfile;
+  }
+
+  async getLevelRank(
+    uid: number,
+    filter?: FilterQuery<cursus_user>,
+  ): Promise<number> {
+    return await this.cursusUserService.getLevelRankById(uid, filter);
   }
 }

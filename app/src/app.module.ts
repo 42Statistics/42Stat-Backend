@@ -2,7 +2,6 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { EvalLogModule } from './evalLog/evalLog.module';
 import { HomeModule } from './home/home.module';
@@ -17,7 +16,6 @@ import { TotalModule } from './total/total.module';
     MongooseModule.forRoot(
       `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
     ),
-    ScheduleModule.forRoot(),
     ProjectModule,
     HomeModule,
     TotalModule,

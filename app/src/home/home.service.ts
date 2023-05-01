@@ -4,15 +4,19 @@ import {
   UserRanking,
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
+import { CursusUserService } from 'src/cursus_user/cursusUser.service';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { Time } from 'src/util';
 
 @Injectable()
 export class HomeService {
-  constructor(private scaleTeamService: ScaleTeamService) {}
+  constructor(
+    private scaleTeamService: ScaleTeamService,
+    private cursusUserService: CursusUserService,
+  ) {}
 
-  async currWeekEvalCnt(): Promise<NumberDateRanged> {
+  async currWeekEvalCount(): Promise<NumberDateRanged> {
     const currDate = Time.curr();
     const currWeek = Time.startOfWeek(currDate);
     const nextWeek = Time.moveWeek(currWeek, 1);
@@ -25,7 +29,7 @@ export class HomeService {
     return generateDateRanged(evalCount, currWeek, Time.moveDate(nextWeek, -1));
   }
 
-  async lastWeekEvalCnt(): Promise<NumberDateRanged> {
+  async lastWeekEvalCount(): Promise<NumberDateRanged> {
     const currDate = Time.curr();
     const currWeek = Time.startOfWeek(currDate);
     const lastWeek = Time.moveWeek(currWeek, -1);
@@ -38,11 +42,11 @@ export class HomeService {
     return generateDateRanged(evalCount, lastWeek, Time.moveDate(currWeek, -1));
   }
 
-  async totalEvalCntRank(): Promise<UserRanking[]> {
+  async totalEvalCountRank(): Promise<UserRanking[]> {
     return this.scaleTeamService.getEvalCountRank();
   }
 
-  async monthlyEvalCntRank(): Promise<UserRankingDateRanged> {
+  async monthlyEvalCountRank(): Promise<UserRankingDateRanged> {
     const currDate = Time.curr();
     const currMonth = Time.startOfMonth(currDate);
     const nextMonth = Time.moveMonth(currMonth, 1);
@@ -57,5 +61,37 @@ export class HomeService {
       currMonth,
       Time.moveDate(nextMonth, -1),
     );
+  }
+
+  async levelRank(): Promise<UserRanking[]> {
+    return await this.cursusUserService.getRank('level');
+  }
+
+  async lastMonthblackholedCount(): Promise<NumberDateRanged> {
+    const lastMonth = Time.moveMonth(Time.curr(), -1);
+    const start = Time.startOfMonth(lastMonth);
+    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
+
+    const blackholedCount = await this.cursusUserService.countPerMonth(
+      start,
+      end,
+      'blackholedAt',
+    );
+
+    return generateDateRanged(blackholedCount[0].value, start, end);
+  }
+
+  async currMonthblackholedCount(): Promise<NumberDateRanged> {
+    const curr = Time.curr();
+    const start = Time.startOfMonth(curr);
+    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
+
+    const blackholedCount = await this.cursusUserService.countPerMonth(
+      start,
+      end,
+      'blackholedAt',
+    );
+
+    return generateDateRanged(blackholedCount[0].value, start, end);
   }
 }

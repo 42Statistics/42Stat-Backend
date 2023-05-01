@@ -11,7 +11,6 @@ export class PersonalEvalResolver {
     private personalGeneralService: PersonalGeneralService,
   ) {}
 
-  // todo: 이 페이지 이름 바꿉시다
   @Query((_returns) => PersonalEval)
   async getPersonalEvalPage(@Args('uid') uid: number): Promise<PersonalEval> {
     return {

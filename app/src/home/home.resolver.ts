@@ -4,6 +4,7 @@ import {
   UserRanking,
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
+import { Time } from 'src/util';
 import { HomeService } from './home.service';
 import { Home } from './models/home.model';
 
@@ -14,9 +15,7 @@ export class HomeResolver {
   @Query((_returns) => Home)
   async getHomePage() {
     return {
-      lastMonthBlackholedCnt: { data: 30, from: new Date(), to: new Date() },
-      currMonthBlackholedCnt: { data: 31, from: new Date(), to: new Date() },
-      currRegisteredCntRank: [
+      currRegisteredCountRank: [
         {
           projectPreview: {
             id: '1',
@@ -136,42 +135,13 @@ export class HomeResolver {
           value: 179,
         },
       ],
-      levelRank: [
-        {
-          userPreview: {
-            id: '1',
-            login: 'jaham',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/cfc5b84fa9130d86b32acec4aae7889f/jaham.jpg',
-          },
-          value: 14.05,
-        },
-        {
-          userPreview: {
-            id: '2',
-            login: 'hyulim',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/a7d0022dd8ba3c74f20cb83ceaac0c88/hyulim.jpg',
-          },
-          value: 13.88,
-        },
-        {
-          userPreview: {
-            id: '3',
-            login: 'yongmkim',
-            imgUrl:
-              'https://cdn.intra.42.fr/users/60f2b806f6ee8a76585ef22a666474d5/yongmkim.JPG',
-          },
-          value: 13.76,
-        },
-      ],
       lastExamResult: {
         data: [
-          { rank: 2, passCnt: 9, totalCnt: 20 },
-          { rank: 3, passCnt: 3, totalCnt: 20 },
-          { rank: 4, passCnt: 4, totalCnt: 12 },
-          { rank: 5, passCnt: 8, totalCnt: 18 },
-          { rank: 6, passCnt: 1, totalCnt: 10 },
+          { rank: 2, passCount: 9, totalCount: 20 },
+          { rank: 3, passCount: 3, totalCount: 20 },
+          { rank: 4, passCount: 4, totalCount: 12 },
+          { rank: 5, passCount: 8, totalCount: 18 },
+          { rank: 6, passCount: 1, totalCount: 10 },
         ],
         from: new Date(),
         to: new Date(),
@@ -179,23 +149,43 @@ export class HomeResolver {
     };
   }
 
-  @ResolveField('currWeekEvalCnt', (_returns) => NumberDateRanged)
-  async currWeekEvalCnt(): Promise<NumberDateRanged> {
-    return await this.homeService.currWeekEvalCnt();
+  @ResolveField('currWeekEvalCount', (_returns) => NumberDateRanged)
+  async currWeekEvalCount(): Promise<NumberDateRanged> {
+    return await this.homeService.currWeekEvalCount();
   }
 
-  @ResolveField('lastWeekEvalCnt', (_returns) => NumberDateRanged)
-  async lastWeekEvalCnt(): Promise<NumberDateRanged> {
-    return await this.homeService.lastWeekEvalCnt();
+  @ResolveField('lastWeekEvalCount', (_returns) => NumberDateRanged)
+  async lastWeekEvalCount(): Promise<NumberDateRanged> {
+    return await this.homeService.lastWeekEvalCount();
   }
 
-  @ResolveField('totalEvalCntRank', (_returns) => [UserRanking])
-  async totalEvalCntRank(): Promise<UserRanking[]> {
-    return await this.homeService.totalEvalCntRank();
+  @ResolveField('totalEvalCountRank', (_returns) => [UserRanking])
+  async totalEvalCountRank(): Promise<UserRanking[]> {
+    return await this.homeService.totalEvalCountRank();
   }
 
-  @ResolveField('monthlyEvalCntRank', (_returns) => UserRankingDateRanged)
-  async monthlyEvalCntRank(): Promise<UserRankingDateRanged> {
-    return await this.homeService.monthlyEvalCntRank();
+  @ResolveField('monthlyEvalCountRank', (_returns) => UserRankingDateRanged)
+  async monthlyEvalCountRank(): Promise<UserRankingDateRanged> {
+    return await this.homeService.monthlyEvalCountRank();
   }
+
+  @ResolveField('levelRank', (_returns) => UserRankingDateRanged)
+  async levelRank(): Promise<UserRanking[]> {
+    return await this.homeService.levelRank();
+  }
+
+  @ResolveField('lastMonthBlackholedCount', (_returns) => NumberDateRanged)
+  async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
+    return await this.homeService.lastMonthblackholedCount();
+  }
+
+  @ResolveField('currMonthBlackholedCount', (_returns) => NumberDateRanged)
+  async currMonthBlackholedCount(): Promise<NumberDateRanged> {
+    return await this.homeService.currMonthblackholedCount();
+  }
+
+  //@ResolveField('getLevelRank', (_returns) => )
+  //async getLevelRank() {
+  //  return await this.homeService.
+  //}
 }

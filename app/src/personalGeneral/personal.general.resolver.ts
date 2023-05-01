@@ -1,4 +1,11 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Int,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import {
   LevelGraphDateRanged,
   LogtimeInfoDateRanged,
@@ -8,32 +15,52 @@ import {
 import { UserProfile } from './models/personal.general.userProfile.model';
 import { PersonalGeneralService } from './personal.general.service';
 
+type PersonalGeneralContext = { uid: number };
+
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
   constructor(private personalGeneralService: PersonalGeneralService) {}
 
   @Query((_returns) => PersonalGeneral)
-  async getPersonGeneralPage() {
-    return {};
+  async getPersonGeneralPage(
+    @Args('uid') uid: number,
+    @Context() context: PersonalGeneralContext,
+  ): Promise<{ userProfile: UserProfile }> {
+    const userProfile = await this.personalGeneralService.getUserInfo(uid);
+    context.uid = userProfile.id;
+
+    return { userProfile };
   }
 
   @ResolveField('logtimeInfo', (_returns) => LogtimeInfoDateRanged)
-  async getLogtimeInfo(): Promise<LogtimeInfoDateRanged> {
-    return await this.personalGeneralService.getLogtimeInfoByUid(99947);
+  async getLogtimeInfo(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<LogtimeInfoDateRanged> {
+    const uid = context.uid;
+    return await this.personalGeneralService.getLogtimeInfoById(uid);
   }
 
   @ResolveField('teamInfo', (_returns) => TeamInfo)
-  async getTeamInfo() {
-    return await this.personalGeneralService.getTeamInfoByUid(99947);
+  async getTeamInfo(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<TeamInfo> {
+    const uid = context.uid;
+    return await this.personalGeneralService.getTeamInfoById(uid);
   }
 
   @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
-  async getLevelHistory(): Promise<LevelGraphDateRanged> {
-    return await this.personalGeneralService.getLevelHistroyByUid(99947);
+  async getLevelGraphs(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<LevelGraphDateRanged> {
+    const uid = context.uid;
+    return await this.personalGeneralService.getLevelHistroyById(uid);
   }
 
-  @ResolveField('userProfile', (_returns) => UserProfile)
-  async getUserInfo() {
-    return await this.personalGeneralService.getUserInfo(99947);
+  @ResolveField('levelRank', (_returns) => Int)
+  async getLevelRank(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<number> {
+    const uid = context.uid;
+    return await this.personalGeneralService.getLevelRank(uid);
   }
 }

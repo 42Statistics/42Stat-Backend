@@ -1,3 +1,5 @@
+import { AggrDatePartition } from 'src/common/db/common.db.aggregation';
+
 const SEC = 1000;
 const MIN = SEC * 60;
 const HOUR = MIN * 60;
@@ -17,7 +19,7 @@ export const Time = {
   WEEK,
 
   // todo: 개발 용도. 완료 후 인자 제거 필요합니다.
-  curr: (): Date => new Date('2023-04-10T00:00:00.000Z'),
+  curr: (): Date => new Date('2023-05-18T00:00:00.000Z'),
 
   moveMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
 
@@ -32,6 +34,13 @@ export const Time = {
   moveMonth: (date: Date, count: number): Date => {
     const copy = new Date(date);
     copy.setMonth(copy.getMonth() + count);
+
+    return copy;
+  },
+
+  moveYear: (date: Date, count: number): Date => {
+    const copy = new Date(date);
+    copy.setFullYear(copy.getFullYear() + count);
 
     return copy;
   },
@@ -68,5 +77,49 @@ export const Time = {
     copy.setHours(0, 0, 0, 0);
 
     return copy;
+  },
+
+  /**
+   * @example
+   * start: 02-10, end: 04-20
+   * return: [ 1970-01-01, 02-01, 03-01, 04-01, new Date()]
+   */
+  partitionByMonth: (start: Date, end: Date): Date[] => {
+    const result = [new Date('1970-01-01')];
+
+    for (
+      let currDate = new Date(start);
+      currDate <= end;
+      currDate = Time.moveMonth(currDate, 1)
+    ) {
+      result.push(new Date(currDate));
+    }
+
+    result.push(new Date());
+
+    return result;
+  },
+
+  /**
+   * @example
+   * start: 02-10, end: 04-20
+   * return:
+   * [
+   *   { $dateToString: { date: 1970-01-01T00:00:00.000Z, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: 02-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: 03-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: 04-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: new Date(), format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   * ]
+   */
+  dateToBoundariesObject: (start: Date, end: Date): AggrDatePartition[] => {
+    const dates = Time.partitionByMonth(start, end);
+
+    return dates.map((date) => ({
+      $dateToString: {
+        date,
+        format: '%Y-%m-%dT%H:%M:%S.%LZ',
+      },
+    }));
   },
 } as const;

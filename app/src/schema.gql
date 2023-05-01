@@ -14,38 +14,32 @@ type Coalition {
 }
 
 type UserTitle {
-  id: ID!
+  id: Int!
   name: String!
   isSelected: Boolean!
 }
 
-type UserScoreInfo {
+type UserScoreRank {
   value: Int!
   rankInCoalition: Int!
   rankInTotal: Int!
 }
 
 type UserProfile {
-  id: ID!
+  id: Int!
   login: String!
   grade: String!
   name: String!
   coalition: Coalition
-  imgUrl: URL
+  imgUrl: String
   titles: [UserTitle]!
   level: Float!
-  pooledAt: DateTime!
+  beginAt: DateTime!
   blackholedAt: DateTime
   wallet: Int!
   correctionPoint: Int!
-  scoreInfo: UserScoreInfo!
-  levelRank: Int!
+  scoreInfo: UserScoreRank!
 }
-
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
 
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
@@ -53,9 +47,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type UserPreview {
-  id: ID!
+  id: Int!
   login: String!
-  imgUrl: URL
+  imgUrl: String
 }
 
 type UserRanking {
@@ -70,10 +64,15 @@ type UserRankingDateRanged {
 }
 
 type ProjectPreview {
-  id: ID!
+  id: Int!
   name: String!
   url: URL!
 }
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
 
 type TeamPreview {
   id: ID!
@@ -130,8 +129,8 @@ type ProjectRanking {
 
 type ExamResult {
   rank: Int!
-  passCnt: Int!
-  totalCnt: Int!
+  passCount: Int!
+  totalCount: Int!
 }
 
 type ExamResultDateRanged {
@@ -141,21 +140,21 @@ type ExamResultDateRanged {
 }
 
 type Home {
-  currMonthBlackholedCnt: NumberDateRanged!
-  lastMonthBlackholedCnt: NumberDateRanged!
-  currRegisteredCntRank: [ProjectRanking!]!
+  currMonthBlackholedCount: NumberDateRanged!
+  lastMonthBlackholedCount: NumberDateRanged!
+  currRegisteredCountRank: [ProjectRanking!]!
   monthlyExpIncrementRank: [UserRanking!]!
   monthlyAccessTimeRank: [UserRanking!]!
-  totalEvalCntRank: [UserRanking!]!
+  totalEvalCountRank: [UserRanking!]!
   levelRank: [UserRanking!]!
   lastExamResult: ExamResultDateRanged!
-  currWeekEvalCnt: NumberDateRanged!
-  lastWeekEvalCnt: NumberDateRanged!
-  monthlyEvalCntRank: UserRankingDateRanged!
+  currWeekEvalCount: NumberDateRanged!
+  lastWeekEvalCount: NumberDateRanged!
+  monthlyEvalCountRank: UserRankingDateRanged!
 }
 
 type TempTeam {
-  id: ID!
+  id: Int!
   name: String!
   occurrence: Int!
   closedAt: DateTime
@@ -216,6 +215,7 @@ type PersonalGeneral {
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
   userProfile: UserProfile!
+  levelRank: Int!
 }
 
 type PersonalEval {
@@ -243,10 +243,10 @@ type ProjectInfo {
   averageDurationTime: Int!
 
   """총 제출 횟수 입니다."""
-  totalCloseCnt: Int!
-  currRegisteredCnt: Int!
+  totalCloseCount: Int!
+  currRegisteredCount: Int!
   passPercentage: Int!
-  totalEvalCnt: Int!
+  totalEvalCount: Int!
 }
 
 type ValueRecord {
@@ -259,18 +259,18 @@ type ValuePerCircle {
   value: Int!
 }
 
-type UserCntPerLevel {
-  userCnt: Int!
+type UserCountPerLevel {
+  userCount: Int!
   level: Int!
 }
 
 type Total {
-  activeUserCntRecords: [ValueRecord!]!
-  blackholedCntPerCircles: [ValuePerCircle!]!
+  activeUserCountRecords: [ValueRecord!]!
+  blackholedCountPerCircles: [ValuePerCircle!]!
   correctionPointRanks: [UserRanking!]!
   walletRanks: [UserRanking!]!
   averageCircleDurations: [ValuePerCircle!]!
-  userCntPerLevels: [UserCntPerLevel!]!
+  userCountPerLevel: [UserCountPerLevel!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
   totalScores: [CoalitionScore!]!
   scoreRecords: [CoalitionScoreRecords!]!
@@ -294,7 +294,7 @@ type Query {
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomePage: Home!
   getTotalPage: Total!
-  getPersonGeneralPage: PersonalGeneral!
+  getPersonGeneralPage(uid: Int!): PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }

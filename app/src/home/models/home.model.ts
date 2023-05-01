@@ -10,10 +10,10 @@ export class ExamResult {
   rank: number;
 
   @Field()
-  passCnt: number;
+  passCount: number;
 
   @Field()
-  totalCnt: number;
+  totalCount: number;
 }
 
 @ObjectType()
@@ -22,13 +22,13 @@ export class ExamResultDateRanged extends ArrayDateRanged(ExamResult) {}
 @ObjectType()
 export class Home {
   @Field()
-  currMonthBlackholedCnt: NumberDateRanged;
+  currMonthBlackholedCount: NumberDateRanged;
 
   @Field()
-  lastMonthBlackholedCnt: NumberDateRanged; //todo: 기획에는 없지만 만들어둠 // 이거 비교하려면 필요한게 맞지 않나?
+  lastMonthBlackholedCount: NumberDateRanged;
 
   @Field((_type) => [ProjectRanking])
-  currRegisteredCntRank: ProjectRanking[];
+  currRegisteredCountRank: ProjectRanking[];
 
   @Field((_type) => [UserRanking])
   monthlyExpIncrementRank: UserRanking[];
@@ -37,7 +37,7 @@ export class Home {
   monthlyAccessTimeRank: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  totalEvalCntRank: UserRanking[];
+  totalEvalCountRank: UserRanking[];
 
   @Field((_type) => [UserRanking])
   levelRank: UserRanking[];
