@@ -15,18 +15,8 @@ import { TotalModule } from './total/total.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.TEMP_DB_HOST}:${process.env.TEMP_DB_PORT}/42stat`,
+      `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
     ),
-    // MongooseModule.forRoot(
-    //   `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
-    //   {
-    //     tlsCAFile: `${process.env.DB_TLS_CA_PATH}`,
-    //     tls: true,
-    //     replicaSet: 'rs0',
-    //     readPreference: 'secondaryPreferred',
-    //     retryWrites: false,
-    //   },
-    // ),
     ScheduleModule.forRoot(),
     ProjectModule,
     HomeModule,
