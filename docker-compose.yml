@@ -13,7 +13,7 @@ services:
         source: backend-app
         target: /app
     ports:
-      - '3000:3000'
+      - '80:80'
     entrypoint: sh /tmp/entry.sh
     env_file:
       - env/.env
