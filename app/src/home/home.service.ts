@@ -4,7 +4,7 @@ import {
   UserRanking,
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
-import { CursusUserService } from 'src/cursus_user/cursusUser.service';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { Time } from 'src/util';
