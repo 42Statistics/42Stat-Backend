@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { CoalitionsUserService } from 'src/coalitions_user/coalitionsUser.service';
+import { CoalitionsUserService } from 'src/coalitionsUser/coalitionsUser.service';
 import {
   UserRanking,
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
-import { CursusUserService } from 'src/cursus_user/cursusUser.service';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { QuestsUserService } from 'src/quests_user/questsUser.service';
+import { QuestsUserService } from 'src/questsUser/questsUser.service';
 import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import {
   CoalitionScore,
