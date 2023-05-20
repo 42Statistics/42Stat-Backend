@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { CursusUserModule } from 'src/cursus_user/cursusUser.module';
+import { CursusUserModule } from 'src/cursusUser/cursusUser.module';
 import { ScaleTeamModule } from 'src/scaleTeam/scaleTeam.module';
 import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
 import { HomeResolver } from './home.resolver';

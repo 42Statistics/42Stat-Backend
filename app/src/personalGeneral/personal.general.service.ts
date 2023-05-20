@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import { FilterQuery } from 'mongoose';
-import { CoalitionsUserService } from 'src/coalitions_user/coalitionsUser.service';
-import { CursusUserService } from 'src/cursus_user/cursusUser.service';
-import { cursus_user } from 'src/cursus_user/db/cursusUser.database.schema';
+import { CoalitionsUserService } from 'src/coalitionsUser/coalitionsUser.service';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
+import { cursus_user } from 'src/cursusUser/db/cursusUser.database.schema';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { ScoreService } from 'src/score/score.service';
-import { TitlesUserService } from 'src/titles_user/titlesUser.service';
+import { TitlesUserService } from 'src/titlesUser/titlesUser.service';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
