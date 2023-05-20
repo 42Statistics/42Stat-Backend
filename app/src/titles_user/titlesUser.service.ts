@@ -14,8 +14,7 @@ export class TitlesUserService {
   async getTitlesUserProfile(uid: number): Promise<UserTitle[]> {
     const aggregate = this.titlesUserModel.aggregate<UserTitle>();
 
-    //todo: titles 저장되면 이거 반환하기
-    const titlesUserProfile = await aggregate
+    return await aggregate
       .match({ userId: uid })
       .lookup({
         from: 'titles',
@@ -25,26 +24,8 @@ export class TitlesUserService {
       })
       .project({
         id: '$titleId',
-        name: '$titles.name',
+        name: { $first: '$titles.name' },
         isSelected: '$selected',
       });
-
-    return [
-      {
-        id: 1,
-        name: "%login Officially Developer of 24HANE(42Seoul's attendance managing system)",
-        isSelected: true,
-      },
-      {
-        id: 2,
-        name: '%login Librarian of Jiphyeonjeon :books:',
-        isSelected: false,
-      },
-      {
-        id: 3,
-        name: 'Philanthropist %login',
-        isSelected: false,
-      },
-    ];
   }
 }
