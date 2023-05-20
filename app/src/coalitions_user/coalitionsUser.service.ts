@@ -6,7 +6,6 @@ import { UserScoreRank } from 'src/personalGeneral/models/personal.general.userP
 import { Time } from 'src/util';
 import { ScoreInfo } from './db/coalitionsUser.database.aggregate';
 import { coalitions_user } from './db/coalitionsUser.database.schema';
-import { CoalitionsUser } from './models/coalitionsUser.model';
 
 @Injectable()
 export class CoalitionsUserService {
