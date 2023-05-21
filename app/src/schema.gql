@@ -151,7 +151,7 @@ type Home {
   monthlyExpIncrementRank: [UserRanking!]!
   monthlyAccessTimeRank: [UserRanking!]!
   totalEvalCountRank: [UserRanking!]!
-  levelRank: [UserRanking!]!
+  levelRank(limit: Int! = 50): [UserRanking!]!
   lastExamResult: ExamResultDateRanged!
   currWeekEvalCount: NumberDateRanged!
   lastWeekEvalCount: NumberDateRanged!
@@ -272,8 +272,8 @@ type UserCountPerLevels {
 type Total {
   activeUserCountRecords: [ValueRecord!]!
   blackholedCountPerCircles: [ValuePerCircle!]!
-  correctionPointRanks: [UserRanking!]!
-  walletRanks: [UserRanking!]!
+  correctionPointRanks(limit: Int! = 3): [UserRanking!]!
+  walletRanks(limit: Int! = 3): [UserRanking!]!
   averageCircleDurations: [ValuePerCircle!]!
   userCountPerLevels: [UserCountPerLevels!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!

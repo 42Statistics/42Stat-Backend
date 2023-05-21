@@ -63,8 +63,8 @@ export class HomeService {
     );
   }
 
-  async levelRank(): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('level', 50);
+  async levelRank(limit: number): Promise<UserRanking[]> {
+    return await this.cursusUserService.getRank('level', limit);
   }
 
   async lastMonthblackholedCount(): Promise<NumberDateRanged> {
