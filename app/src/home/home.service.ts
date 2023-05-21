@@ -78,13 +78,12 @@ export class HomeService {
       'blackholedAt',
     );
 
-    return generateDateRanged(blackholedCount[0].value, start, end);
+    return generateDateRanged(blackholedCount[1].value, start, end);
   }
 
   async currMonthblackholedCount(): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const start = Time.startOfMonth(curr);
-    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
+    const end = Time.curr();
+    const start = Time.startOfMonth(end);
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
       start,
@@ -92,6 +91,6 @@ export class HomeService {
       'blackholedAt',
     );
 
-    return generateDateRanged(blackholedCount[0].value, start, end);
+    return generateDateRanged(blackholedCount[1].value, start, end);
   }
 }

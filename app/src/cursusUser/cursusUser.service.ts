@@ -182,7 +182,7 @@ export class CursusUserService {
         level: '$_id',
         userCount: '$userCount',
       })
-      .sort({ level: -1 });
+      .sort({ level: 1 });
   }
 
   async getRank(
