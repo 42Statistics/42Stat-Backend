@@ -31,11 +31,11 @@ export class CursusUserService {
     return await this.cursusUserModel.find(filter);
   }
 
-  async findByName(name: string): Promise<cursus_user[]> {
+  async findByName(login: string): Promise<cursus_user[]> {
     const result: Map<number, cursus_user> = new Map();
 
     const prefixMatches = await this.findAll({
-      name: { $regex: `^${name}`, $options: 'i' },
+      'user.login': { $regex: `^${login}`, $options: 'i' },
     });
 
     prefixMatches.forEach((prefixMatch) =>
@@ -43,7 +43,7 @@ export class CursusUserService {
     );
 
     const matches = await this.findAll({
-      name: { $regex: name, $options: 'i' },
+      'user.login': { $regex: login, $options: 'i' },
     });
 
     matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));
