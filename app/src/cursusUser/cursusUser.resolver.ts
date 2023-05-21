@@ -8,10 +8,10 @@ export class CursusUserResolver {
 
   @Query((_returns) => [UserSearchPreview], { nullable: 'items' })
   async findUserPreview(
-    @Args('name', { defaultValue: '' }) name: string,
+    @Args('login', { defaultValue: '' }) login: string,
   ): Promise<UserSearchPreview[]> {
-    const user = await this.cursusUserService.findByName(name);
+    const users = await this.cursusUserService.findByName(login);
 
-    return user.map(this.cursusUserService.convertToPreview);
+    return users.map(this.cursusUserService.convertToPreview);
   }
 }
