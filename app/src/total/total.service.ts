@@ -15,7 +15,7 @@ import {
 import { ScoreService } from 'src/score/score.service';
 import { Time } from 'src/util';
 import {
-  UserCountPerLevel,
+  UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
 } from './models/total.model';
@@ -79,8 +79,8 @@ export class TotalService {
     return await this.scaleTeamService.getAverageReviewLength('comment');
   }
 
-  async userCountPerLevel(): Promise<UserCountPerLevel[]> {
-    return await this.cursusUserService.getUserCountPerLevel();
+  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
+    return await this.cursusUserService.getUserCountPerLevels();
   }
 
   //todo: 151069 유저 제거필요

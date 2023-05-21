@@ -7,7 +7,7 @@ import {
 } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
 import {
-  UserCountPerLevel,
+  UserCountPerLevels,
   ValuePerCircle,
 } from 'src/total/models/total.model';
 import { Time } from 'src/util';
@@ -168,8 +168,8 @@ export class CursusUserService {
     return levelRank[0].value;
   }
 
-  async getUserCountPerLevel(): Promise<UserCountPerLevel[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevel>();
+  async getUserCountPerLevels(): Promise<UserCountPerLevels[]> {
+    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevels>();
 
     return await aggregate
       .addFields({ floorLevel: { $floor: '$level' } })
