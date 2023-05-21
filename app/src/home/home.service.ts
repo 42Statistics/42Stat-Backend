@@ -64,7 +64,7 @@ export class HomeService {
   }
 
   async levelRank(): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('level');
+    return await this.cursusUserService.getRank('level', 50);
   }
 
   async lastMonthblackholedCount(): Promise<NumberDateRanged> {
@@ -78,10 +78,15 @@ export class HomeService {
       'blackholedAt',
     );
 
-    return generateDateRanged(blackholedCount[1].value, start, end);
+    return generateDateRanged(
+      Time.getCountByDate(start, blackholedCount),
+      start,
+      end,
+    );
   }
 
   async currMonthblackholedCount(): Promise<NumberDateRanged> {
+    //todo: same end and start
     const end = Time.curr();
     const start = Time.startOfMonth(end);
 
@@ -91,6 +96,10 @@ export class HomeService {
       'blackholedAt',
     );
 
-    return generateDateRanged(blackholedCount[1].value, start, end);
+    return generateDateRanged(
+      Time.getCountByDate(start, blackholedCount),
+      start,
+      end,
+    );
   }
 }
