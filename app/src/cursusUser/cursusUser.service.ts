@@ -187,7 +187,7 @@ export class CursusUserService {
 
   async getRank(
     key: string,
-    limit = 3, //todo: limit 초기값 설정
+    limit: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserModel.aggregate<UserRanking>();

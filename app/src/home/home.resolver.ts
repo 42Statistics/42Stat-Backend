@@ -1,4 +1,4 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
 import {
   UserRanking,
@@ -169,8 +169,10 @@ export class HomeResolver {
   }
 
   @ResolveField('levelRank', (_returns) => UserRankingDateRanged)
-  async levelRank(): Promise<UserRanking[]> {
-    return await this.homeService.levelRank();
+  async levelRank(
+    @Args('limit', { defaultValue: 50 }) limit: number,
+  ): Promise<UserRanking[]> {
+    return await this.homeService.levelRank(limit);
   }
 
   @ResolveField('lastMonthBlackholedCount', (_returns) => NumberDateRanged)

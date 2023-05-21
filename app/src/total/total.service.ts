@@ -83,13 +83,12 @@ export class TotalService {
     return await this.cursusUserService.getUserCountPerLevels();
   }
 
-  //todo: 151069 유저 제거필요
-  async walletRanks(): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.wallet');
+  async walletRanks(limit: number): Promise<UserRanking[]> {
+    return await this.cursusUserService.getRank('user.wallet', limit);
   }
 
-  async correctionPointRanks(): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.correctionPoint');
+  async correctionPointRanks(limit: number): Promise<UserRanking[]> {
+    return await this.cursusUserService.getRank('user.correctionPoint', limit);
   }
 
   async averageCircleDurations(): Promise<ValuePerCircle[]> {
