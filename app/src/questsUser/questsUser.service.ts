@@ -125,7 +125,7 @@ export class QuestsUserService {
       result.push(
         ...valuePerCircle.map(({ value }) => ({
           circle: i + 1,
-          value,
+          value: value + result[i].value,
         })),
       );
     }
