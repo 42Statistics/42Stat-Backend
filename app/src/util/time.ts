@@ -1,4 +1,7 @@
-import { AggrDatePartition } from 'src/common/db/common.db.aggregation';
+import {
+  AggrDatePartition,
+  AggrValuePerDate,
+} from 'src/common/db/common.db.aggregation';
 
 const SEC = 1000;
 const MIN = SEC * 60;
@@ -121,5 +124,19 @@ export const Time = {
         format: '%Y-%m-%dT%H:%M:%S.%LZ',
       },
     }));
+  },
+
+  /**
+   * @description
+   * AggrValuePerDate[] 타입 [{ date: Date, value: number }] 에서
+   * 인자로 들어온 date로 find해 해당하는 object의 value를 반환
+   *
+   * find에 실패시 0을 반환
+   */
+  getCountByDate: (date: Date, elements: AggrValuePerDate[]): number => {
+    return (
+      elements.find((element) => element.date === date.toISOString())?.value ??
+      0
+    );
   },
 } as const;

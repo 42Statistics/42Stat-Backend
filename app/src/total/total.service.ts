@@ -118,15 +118,8 @@ export class TotalService {
     const dates = Time.partitionByMonth(start, end);
 
     return dates.map((date): ValueRecord => {
-      const newPromo =
-        newPromoCounts.find(
-          (newPromoCount) => newPromoCount.date === date.toISOString(),
-        )?.value ?? 0;
-
-      const blackholed =
-        blackholedCounts.find(
-          (blackholedCount) => blackholedCount.date === date.toISOString(),
-        )?.value ?? 0;
+      const newPromo = Time.getCountByDate(date, newPromoCounts);
+      const blackholed = Time.getCountByDate(date, blackholedCounts);
 
       activeUserCount += newPromo - blackholed;
 
