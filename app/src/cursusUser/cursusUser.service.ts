@@ -7,7 +7,7 @@ import {
 } from 'src/common/db/common.db.aggregation';
 import { UserRanking } from 'src/common/models/common.user.model';
 import {
-  UserCountPerLevel,
+  UserCountPerLevels,
   ValuePerCircle,
 } from 'src/total/models/total.model';
 import { Time } from 'src/util';
@@ -15,7 +15,10 @@ import {
   CursusUserDatable,
   cursus_user,
 } from './db/cursusUser.database.schema';
-import { CursusUserProfile } from './models/cursusUser.model';
+import {
+  CursusUserProfile,
+  UserSearchPreview,
+} from './models/cursusUser.model';
 
 @Injectable()
 export class CursusUserService {
@@ -23,6 +26,37 @@ export class CursusUserService {
     @InjectModel(cursus_user.name)
     private cursusUserModel: Model<cursus_user>,
   ) {}
+
+  async findAll(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user[]> {
+    return await this.cursusUserModel.find(filter);
+  }
+
+  async findByName(login: string): Promise<cursus_user[]> {
+    const result: Map<number, cursus_user> = new Map();
+
+    const prefixMatches = await this.findAll({
+      'user.login': { $regex: `^${login}`, $options: 'i' },
+    });
+
+    prefixMatches.forEach((prefixMatch) =>
+      result.set(prefixMatch.id, prefixMatch),
+    );
+
+    const matches = await this.findAll({
+      'user.login': { $regex: login, $options: 'i' },
+    });
+
+    matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));
+
+    return [...result.values()];
+  }
+
+  convertToPreview(cursusUser: cursus_user): UserSearchPreview {
+    return {
+      id: cursusUser.user.id,
+      login: cursusUser.user.login,
+    };
+  }
 
   async getUserCount(filter?: FilterQuery<cursus_user>): Promise<number> {
     if (!filter) {
@@ -134,8 +168,8 @@ export class CursusUserService {
     return levelRank[0].value;
   }
 
-  async getUserCountPerLevel(): Promise<UserCountPerLevel[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevel>();
+  async getUserCountPerLevels(): Promise<UserCountPerLevels[]> {
+    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevels>();
 
     return await aggregate
       .addFields({ floorLevel: { $floor: '$level' } })
