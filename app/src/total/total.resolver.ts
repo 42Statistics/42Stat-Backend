@@ -11,7 +11,7 @@ import { Time } from 'src/util';
 import {
   ProjectInfo,
   Total,
-  UserCountPerLevel,
+  UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
 } from './models/total.model';
@@ -105,9 +105,9 @@ export class TotalResolver {
     return await this.totalService.averageCommentLength();
   }
 
-  @ResolveField('userCountPerLevel', (_returns) => [UserCountPerLevel])
-  async userCountPerLevel(): Promise<UserCountPerLevel[]> {
-    return await this.totalService.userCountPerLevel();
+  @ResolveField('userCountPerLevels', (_returns) => [UserCountPerLevels])
+  async userCountPerLevel(): Promise<UserCountPerLevels[]> {
+    return await this.totalService.userCountPerLevels();
   }
 
   @ResolveField('walletRanks', (_returns) => [UserRanking])
