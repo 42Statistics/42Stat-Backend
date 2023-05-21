@@ -264,7 +264,7 @@ type ValuePerCircle {
   value: Int!
 }
 
-type UserCountPerLevel {
+type UserCountPerLevels {
   userCount: Int!
   level: Int!
 }
@@ -275,7 +275,7 @@ type Total {
   correctionPointRanks: [UserRanking!]!
   walletRanks: [UserRanking!]!
   averageCircleDurations: [ValuePerCircle!]!
-  userCountPerLevel: [UserCountPerLevel!]!
+  userCountPerLevels: [UserCountPerLevels!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
   totalScores: [CoalitionScore!]!
   scoreRecords: [CoalitionScoreRecords!]!

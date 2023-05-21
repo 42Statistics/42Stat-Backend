@@ -72,7 +72,7 @@ export class UserCountPerPoint {
 }
 
 @ObjectType()
-export class UserCountPerLevel {
+export class UserCountPerLevels {
   @Field()
   userCount: number;
 
@@ -100,6 +100,6 @@ export class Total {
   //@Field((_type) => [ValuePerCircleByPromo])
   //ValuePerCircleByPromo: ValuePerCircleByPromo[];
 
-  @Field((_type) => [UserCountPerLevel])
-  userCountPerLevel: UserCountPerLevel[];
+  @Field((_type) => [UserCountPerLevels])
+  userCountPerLevels: UserCountPerLevels[];
 }
