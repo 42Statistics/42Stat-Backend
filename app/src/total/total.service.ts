@@ -122,7 +122,7 @@ export class TotalService {
         const blackholed = Time.getCountByDate(date, blackholedCounts);
 
         activeUserCount += newPromo - blackholed;
-;
+
         return {
           at: dates[index + 1],
           value: activeUserCount,
