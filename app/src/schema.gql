@@ -116,11 +116,6 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
-type UserSearchPreview {
-  id: Int!
-  login: String!
-}
-
 type NumberDateRanged {
   data: Int!
   from: DateTime!
@@ -298,7 +293,7 @@ type CoalitionScoreRecords {
 type Query {
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomePage: Home!
-  findUserPreview(login: String! = ""): [UserSearchPreview]!
+  findUserPreview(login: String! = ""): [UserPreview]!
   getTotalPage: Total!
   getPersonGeneralPage(uid: Int!): PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
