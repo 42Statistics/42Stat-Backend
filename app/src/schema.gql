@@ -267,8 +267,8 @@ type UserCountPerLevels {
 type Total {
   activeUserCountRecords: [ValueRecord!]!
   blackholedCountPerCircles: [ValuePerCircle!]!
-  correctionPointRanks(limit: Int! = 3): [UserRanking!]!
-  walletRanks(limit: Int! = 3): [UserRanking!]!
+  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
+  walletRanks(limit: Int! = 5): [UserRanking!]!
   averageCircleDurations: [ValuePerCircle!]!
   userCountPerLevels: [UserCountPerLevels!]!
   projectInfo(projectName: String! = "libft"): ProjectInfo!
