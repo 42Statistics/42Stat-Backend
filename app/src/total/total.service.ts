@@ -116,17 +116,20 @@ export class TotalService {
 
     const dates = Time.partitionByMonth(start, end);
 
-    return dates.map((date): ValueRecord => {
-      const newPromo = Time.getCountByDate(date, newPromoCounts);
-      const blackholed = Time.getCountByDate(date, blackholedCounts);
+    return dates
+      .map((date, index): ValueRecord => {
+        const newPromo = Time.getCountByDate(date, newPromoCounts);
+        const blackholed = Time.getCountByDate(date, blackholedCounts);
 
-      activeUserCount += newPromo - blackholed;
+        activeUserCount += newPromo - blackholed;
 
-      return {
-        at: date,
-        value: activeUserCount,
-      };
-    });
+        const nextDate = dates[index + 1];
+        return {
+          at: nextDate,
+          value: activeUserCount,
+        };
+      })
+      .filter((record) => record.at !== undefined);
   }
 
   //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
