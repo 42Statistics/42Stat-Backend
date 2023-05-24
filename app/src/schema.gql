@@ -295,7 +295,7 @@ type Query {
   getHomePage: Home!
   findUserPreview(login: String! = ""): [UserPreview]!
   getTotalPage: Total!
-  getPersonGeneralPage(login: String!): PersonalGeneral!
+  getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
   getPersonalEvalPage(uid: Int!): PersonalEval!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
