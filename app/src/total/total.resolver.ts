@@ -139,9 +139,8 @@ export class TotalResolver {
     const curr = Time.curr();
     const startOfNextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
     const start = Time.moveYear(startOfNextMonth, -1);
-    const end = Time.moveMs(startOfNextMonth, -1);
 
-    return await this.totalService.activeUserCountRecords(start, end);
+    return await this.totalService.activeUserCountRecords(start, curr);
   }
 
   //@ResolveField('averageCircleDurationsByPromo', (_returns) => [
