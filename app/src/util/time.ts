@@ -85,7 +85,7 @@ export const Time = {
   /**
    * @example
    * start: 02-10, end: 04-20
-   * return: [ 1970-01-01, 02-01, 03-01, 04-01, new Date()]
+   * return: [ 1970-01-01, 02-01, 03-01, 04-01, 04-20]
    */
   partitionByMonth: (start: Date, end: Date): Date[] => {
     const result = [new Date('1970-01-01')];
@@ -95,10 +95,10 @@ export const Time = {
       currDate <= end;
       currDate = Time.moveMonth(currDate, 1)
     ) {
-      result.push(new Date(currDate));
+      result.push(currDate);
     }
 
-    result.push(new Date());
+    result.push(end);
 
     return result;
   },
@@ -112,7 +112,7 @@ export const Time = {
    *   { $dateToString: { date: 02-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    *   { $dateToString: { date: 03-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    *   { $dateToString: { date: 04-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: new Date(), format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: 04-20, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    * ]
    */
   dateToBoundariesObject: (start: Date, end: Date): AggrDatePartition[] => {
