@@ -28,6 +28,27 @@ export class CursusUserService {
     return await this.cursusUserModel.find(filter);
   }
 
+  async findOne(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user> {
+    const result = await this.cursusUserModel.findOne(filter);
+
+    if (!result) {
+      throw new NotFoundException();
+    }
+
+    return result;
+  }
+
+  //todo: function name
+  async findUser(uid: number, login: string): Promise<cursus_user> {
+    if (uid) {
+      return await this.findOne({ 'user.id': uid });
+    } else if (login) {
+      return await this.findOne({ 'user.login': login });
+    } else {
+      throw new NotFoundException();
+    }
+  }
+
   async findByName(login: string): Promise<cursus_user[]> {
     const result: Map<number, cursus_user> = new Map();
 
