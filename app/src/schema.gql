@@ -296,6 +296,6 @@ type Query {
   findUserPreview(login: String! = ""): [UserPreview]!
   getTotalPage: Total!
   getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
-  getPersonalEvalPage(uid: Int!): PersonalEval!
+  getPersonalEvalPage(uid: Int, login: String): PersonalEval!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
