@@ -32,21 +32,8 @@ export class PersonalGeneralResolver {
     @Args('login', { nullable: true }) login: string,
     @Context() context: PersonalGeneralContext,
   ): Promise<{ userProfile: UserProfile }> {
-    if (login) {
-      const [cursusUser] = await this.cursusUserService.findAll({
-        'user.login': login,
-      });
-
-      if (!cursusUser) {
-        throw new NotFoundException();
-      }
-
-      context.uid = cursusUser.user.id;
-    } else if (uid) {
-      context.uid = uid;
-    } else {
-      throw new NotFoundException();
-    }
+    const cursusUser = await this.cursusUserService.findUser(uid, login);
+    context.uid = cursusUser.user.id;
 
     const userProfile = await this.personalGeneralService.getUserInfo(
       context.uid,
@@ -59,31 +46,27 @@ export class PersonalGeneralResolver {
   async getLogtimeInfo(
     @Context() context: PersonalGeneralContext,
   ): Promise<LogtimeInfoDateRanged> {
-    const uid = context.uid;
-    return await this.personalGeneralService.getLogtimeInfoById(uid);
+    return await this.personalGeneralService.getLogtimeInfoById(context.uid);
   }
 
   @ResolveField('teamInfo', (_returns) => TeamInfo)
   async getTeamInfo(
     @Context() context: PersonalGeneralContext,
   ): Promise<TeamInfo> {
-    const uid = context.uid;
-    return await this.personalGeneralService.getTeamInfoById(uid);
+    return await this.personalGeneralService.getTeamInfoById(context.uid);
   }
 
   @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
   async getLevelGraphs(
     @Context() context: PersonalGeneralContext,
   ): Promise<LevelGraphDateRanged> {
-    const uid = context.uid;
-    return await this.personalGeneralService.getLevelHistroyById(uid);
+    return await this.personalGeneralService.getLevelHistroyById(context.uid);
   }
 
   @ResolveField('levelRank', (_returns) => Int)
   async getLevelRank(
     @Context() context: PersonalGeneralContext,
   ): Promise<number> {
-    const uid = context.uid;
-    return await this.personalGeneralService.getLevelRank(uid);
+    return await this.personalGeneralService.getLevelRank(context.uid);
   }
 }
