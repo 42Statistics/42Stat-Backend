@@ -5,7 +5,7 @@ import {
   AggrNumeric,
   AggrValuePerDate,
 } from 'src/common/db/common.db.aggregation';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { UserPreview, UserRanking } from 'src/common/models/common.user.model';
 import {
   UserCountPerLevels,
   ValuePerCircle,
@@ -15,10 +15,7 @@ import {
   CursusUserDatable,
   cursus_user,
 } from './db/cursusUser.database.schema';
-import {
-  CursusUserProfile,
-  UserSearchPreview,
-} from './models/cursusUser.model';
+import { CursusUserProfile } from './models/cursusUser.model';
 
 @Injectable()
 export class CursusUserService {
@@ -51,10 +48,11 @@ export class CursusUserService {
     return [...result.values()];
   }
 
-  convertToPreview(cursusUser: cursus_user): UserSearchPreview {
+  convertToPreview(cursusUser: cursus_user): UserPreview {
     return {
       id: cursusUser.user.id,
       login: cursusUser.user.login,
+      imgUrl: cursusUser.user.image.link,
     };
   }
 

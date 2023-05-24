@@ -1,15 +1,15 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { UserPreview } from 'src/common/models/common.user.model';
 import { CursusUserService } from './cursusUser.service';
-import { UserSearchPreview } from './models/cursusUser.model';
 
-@Resolver((_of: unknown) => UserSearchPreview)
+@Resolver((_of: unknown) => UserPreview)
 export class CursusUserResolver {
   constructor(private cursusUserService: CursusUserService) {}
 
-  @Query((_returns) => [UserSearchPreview], { nullable: 'items' })
+  @Query((_returns) => [UserPreview], { nullable: 'items' })
   async findUserPreview(
     @Args('login', { defaultValue: '' }) login: string,
-  ): Promise<UserSearchPreview[]> {
+  ): Promise<UserPreview[]> {
     const users = await this.cursusUserService.findByName(login);
 
     return users.map(this.cursusUserService.convertToPreview);

@@ -6,6 +6,3 @@ export class CursusUserProfile extends OmitType(UserProfile, [
   'titles',
   'scoreInfo',
 ]) {}
-
-@ObjectType()
-export class UserSearchPreview extends PickType(UserProfile, ['id', 'login']) {}
