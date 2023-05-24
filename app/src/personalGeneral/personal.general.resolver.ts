@@ -28,20 +28,25 @@ export class PersonalGeneralResolver {
 
   @Query((_returns) => PersonalGeneral)
   async getPersonGeneralPage(
-    @Args('login') login: string,
+    @Args('uid', { nullable: true }) uid: number,
+    @Args('login', { nullable: true }) login: string,
     @Context() context: PersonalGeneralContext,
   ): Promise<{ userProfile: UserProfile }> {
-    const cursusUser = (
-      await this.cursusUserService.findAll({
+    if (login) {
+      const [cursusUser] = await this.cursusUserService.findAll({
         'user.login': login,
-      })
-    )[0];
+      });
 
-    if (!cursusUser) {
+      if (!cursusUser) {
+        throw new NotFoundException();
+      }
+
+      context.uid = cursusUser.user.id;
+    } else if (uid) {
+      context.uid = uid;
+    } else {
       throw new NotFoundException();
     }
-
-    context.uid = cursusUser.user.id;
 
     const userProfile = await this.personalGeneralService.getUserInfo(
       context.uid,
