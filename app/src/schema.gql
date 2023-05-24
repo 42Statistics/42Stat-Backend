@@ -30,7 +30,7 @@ type UserProfile {
   login: String!
   grade: String!
   name: String!
-  coalition: Coalition
+  coalition: Coalition!
   imgUrl: String
   titles: [UserTitle]!
   level: Float!

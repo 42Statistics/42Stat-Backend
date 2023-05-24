@@ -49,8 +49,8 @@ export class UserProfile {
   @Field()
   name: string;
 
-  @Field({ nullable: true })
-  coalition?: Coalition;
+  @Field()
+  coalition: Coalition;
 
   @Field({ nullable: true })
   imgUrl?: string;
