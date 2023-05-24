@@ -112,14 +112,14 @@ export class TotalResolver {
 
   @ResolveField('walletRanks', (_returns) => [UserRanking])
   async walletRanks(
-    @Args('limit', { defaultValue: 3 }) limit: number,
+    @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
     return await this.totalService.walletRanks(limit);
   }
 
   @ResolveField('correctionPointRanks', (_returns) => [UserRanking])
   async correctionPointRanks(
-    @Args('limit', { defaultValue: 3 }) limit: number,
+    @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
     return await this.totalService.correctionPointRanks(limit);
   }
