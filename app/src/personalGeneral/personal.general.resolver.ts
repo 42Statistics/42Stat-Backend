@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import {
   Args,
   Context,
@@ -6,6 +7,7 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import {
   LevelGraphDateRanged,
   LogtimeInfoDateRanged,
@@ -19,15 +21,31 @@ type PersonalGeneralContext = { uid: number };
 
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
-  constructor(private personalGeneralService: PersonalGeneralService) {}
+  constructor(
+    private personalGeneralService: PersonalGeneralService,
+    private cursusUserService: CursusUserService,
+  ) {}
 
   @Query((_returns) => PersonalGeneral)
   async getPersonGeneralPage(
-    @Args('uid') uid: number,
+    @Args('login') login: string,
     @Context() context: PersonalGeneralContext,
   ): Promise<{ userProfile: UserProfile }> {
-    const userProfile = await this.personalGeneralService.getUserInfo(uid);
-    context.uid = userProfile.id;
+    const cursusUser = (
+      await this.cursusUserService.findAll({
+        'user.login': login,
+      })
+    )[0];
+
+    if (!cursusUser) {
+      throw new NotFoundException();
+    }
+
+    context.uid = cursusUser.user.id;
+
+    const userProfile = await this.personalGeneralService.getUserInfo(
+      context.uid,
+    );
 
     return { userProfile };
   }
