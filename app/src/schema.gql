@@ -122,6 +122,12 @@ type NumberDateRanged {
   to: DateTime!
 }
 
+type StringDateRanged {
+  data: String!
+  from: DateTime!
+  to: DateTime!
+}
+
 type ProjectRanking {
   projectPreview: ProjectPreview!
   value: Int!
@@ -179,19 +185,6 @@ type PreferredTime {
   night: Int!
 }
 
-type LogtimeInfo {
-  currMonthLogtime: Int!
-  lastMonthLogtime: Int!
-  preferredTime: PreferredTime!
-  preferredCluster: String!
-}
-
-type LogtimeInfoDateRanged {
-  data: LogtimeInfo!
-  from: DateTime!
-  to: DateTime!
-}
-
 type TeamInfo {
   lastRegistered: String
   lastPass: String
@@ -210,8 +203,17 @@ type LevelGraphDateRanged {
   to: DateTime!
 }
 
+type PreferredTimeDateRanged {
+  data: PreferredTime!
+  from: DateTime!
+  to: DateTime!
+}
+
 type PersonalGeneral {
-  logtimeInfo: LogtimeInfoDateRanged!
+  currMonthLogtime: NumberDateRanged!
+  lastMonthLogtime: NumberDateRanged!
+  preferredTime: PreferredTimeDateRanged!
+  preferredCluster: StringDateRanged!
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
   userProfile: UserProfile!

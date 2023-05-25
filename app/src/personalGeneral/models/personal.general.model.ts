@@ -3,6 +3,10 @@ import {
   ArrayDateRanged,
   DateRanged,
 } from 'src/dateRange/models/dateRange.model';
+import {
+  NumberDateRanged,
+  StringDateRanged,
+} from 'src/common/models/common.number.dateRanaged';
 import { UserProfile } from './personal.general.userProfile.model';
 
 // todo: erase this
@@ -49,24 +53,6 @@ export class PreferredTime {
 }
 
 @ObjectType()
-export class LogtimeInfo {
-  @Field()
-  currMonthLogtime: number;
-
-  @Field()
-  lastMonthLogtime: number;
-
-  @Field()
-  preferredTime: PreferredTime;
-
-  @Field()
-  preferredCluster: string;
-}
-
-@ObjectType()
-export class LogtimeInfoDateRanged extends DateRanged(LogtimeInfo) {}
-
-@ObjectType()
 export class TeamInfo {
   @Field({ nullable: true })
   lastRegistered?: string;
@@ -94,9 +80,21 @@ export class LevelGraph {
 export class LevelGraphDateRanged extends ArrayDateRanged(LevelGraph) {}
 
 @ObjectType()
+export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
+
+@ObjectType()
 export class PersonalGeneral {
   @Field()
-  logtimeInfo: LogtimeInfoDateRanged;
+  currMonthLogtime: NumberDateRanged;
+
+  @Field()
+  lastMonthLogtime: NumberDateRanged;
+
+  @Field()
+  preferredTime: PreferredTimeDateRanged;
+
+  @Field()
+  preferredCluster: StringDateRanged;
 
   @Field()
   teamInfo: TeamInfo;

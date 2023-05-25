@@ -3,6 +3,7 @@ import { CoalitionsUserModule } from 'src/coalitionsUser/coalitionsUser.module';
 import { CoalitionsUserService } from 'src/coalitionsUser/coalitionsUser.service';
 import { CursusUserModule } from 'src/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/cursusUser/cursusUser.service';
+import { LocationModule } from 'src/location/location.module';
 import { PersonalGeneralModule } from 'src/personalGeneral/personal.general.module';
 import { PersonalGeneralService } from 'src/personalGeneral/personal.general.service';
 import { ScaleTeamModule } from 'src/scaleTeam/scaleTeam.module';
@@ -22,6 +23,7 @@ import { PersonalEvalService } from './personal.eval.service';
     CoalitionsUserModule,
     CursusUserModule,
     TitlesUserModule,
+    LocationModule,
   ],
   providers: [
     PersonalEvalResolver,
