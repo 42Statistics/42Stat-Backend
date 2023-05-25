@@ -2,17 +2,17 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/coalitionsUser/coalitionsUser.service';
-import { CursusUserService } from 'src/cursusUser/cursusUser.service';
-import { cursus_user } from 'src/cursusUser/db/cursusUser.database.schema';
-import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { ScoreService } from 'src/score/score.service';
-import { TitlesUserService } from 'src/titlesUser/titlesUser.service';
-import { Time } from 'src/util';
 import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
+import { cursus_user } from 'src/cursusUser/db/cursusUser.database.schema';
+import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { LocationService } from 'src/location/location.service';
+import { ScoreService } from 'src/score/score.service';
+import { TitlesUserService } from 'src/titlesUser/titlesUser.service';
+import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
   PreferredTimeDateRanged,
@@ -39,28 +39,24 @@ export class PersonalGeneralService {
   }
 
   async currMonthLogtime(uid: number): Promise<NumberDateRanged> {
-    //todo: same start and end
-    const curr = Time.curr();
-    const start = Time.startOfMonth(curr);
+    //todo: same end and start
+    const end = Time.curr();
+    const start = Time.startOfMonth(end);
 
-    const logtime = await this.locationService.getLogtime(uid, start, curr);
+    const logtime = await this.locationService.getLogtime(uid, start, end);
 
     //todo: check other date ranged
-    return generateDateRanged(logtime, curr, start);
+    return generateDateRanged(logtime, end, start);
   }
 
   async lastMonthLogtime(uid: number): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
-    const lastMonth = Time.moveMonth(currMonth, -1);
+    const lastMonth = Time.moveMonth(Time.curr(), -1);
+    const start = Time.startOfMonth(lastMonth);
+    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
 
-    const logtime = await this.locationService.getLogtime(
-      uid,
-      lastMonth,
-      currMonth,
-    );
+    const logtime = await this.locationService.getLogtime(uid, start, end);
 
-    return generateDateRanged(logtime, lastMonth, currMonth);
+    return generateDateRanged(logtime, end, start);
   }
 
   async preferredTime(
