@@ -39,7 +39,7 @@ export class PersonalGeneralService {
   }
 
   async currMonthLogtime(uid: number): Promise<NumberDateRanged> {
-    //todo: same end and start
+    //todo: same end and start: curr 에 1Ms 더해두면 겹칠
     const end = Time.curr();
     const start = Time.startOfMonth(end);
 
@@ -64,11 +64,10 @@ export class PersonalGeneralService {
     start?: Date,
     end?: Date,
   ): Promise<PreferredTimeDateRanged> {
-    if (!start) {
-      start = Time.curr();
-    }
-    if (!end) {
+    if (!start || !end) {
+      //todo: same end and start
       end = Time.curr();
+      start = Time.startOfMonth(end);
     }
 
     const preferredTime = await this.locationService.getPreferredTime(
@@ -76,6 +75,7 @@ export class PersonalGeneralService {
       start,
       end,
     );
+
     return generateDateRanged(preferredTime, start, end);
   }
 
@@ -84,11 +84,10 @@ export class PersonalGeneralService {
     start?: Date,
     end?: Date,
   ): Promise<StringDateRanged> {
-    if (!start) {
-      start = Time.curr();
-    }
-    if (!end) {
+    if (!start || !end) {
+      //todo: same end and start
       end = Time.curr();
+      start = Time.startOfMonth(end);
     }
 
     const preferredCluster = await this.locationService.getPreferredCluster(
@@ -96,6 +95,7 @@ export class PersonalGeneralService {
       start,
       end,
     );
+
     return generateDateRanged(preferredCluster, start, end);
   }
 

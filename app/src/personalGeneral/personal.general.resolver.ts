@@ -1,4 +1,3 @@
-import { NotFoundException } from '@nestjs/common';
 import {
   Args,
   Context,
@@ -7,15 +6,15 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
+import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import {
   LevelGraphDateRanged,
-  PreferredTimeDateRanged,
   PersonalGeneral,
+  PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import { UserProfile } from './models/personal.general.userProfile.model';
@@ -69,9 +68,15 @@ export class PersonalGeneralResolver {
 
   @ResolveField('preferredCluster', (_returns) => StringDateRanged)
   async preferredCluster(
+    @Args('start', { nullable: true }) start: Date,
+    @Args('end', { nullable: true }) end: Date,
     @Context() context: PersonalGeneralContext,
   ): Promise<StringDateRanged> {
-    return await this.personalGeneralService.preferredCluster(context.uid);
+    return await this.personalGeneralService.preferredCluster(
+      context.uid,
+      start,
+      end,
+    );
   }
 
   @ResolveField('teamInfo', (_returns) => TeamInfo)
