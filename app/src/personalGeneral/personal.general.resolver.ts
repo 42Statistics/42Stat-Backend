@@ -9,8 +9,12 @@ import {
 } from '@nestjs/graphql';
 import { CursusUserService } from 'src/cursusUser/cursusUser.service';
 import {
+  NumberDateRanged,
+  StringDateRanged,
+} from 'src/common/models/common.number.dateRanaged';
+import {
   LevelGraphDateRanged,
-  LogtimeInfoDateRanged,
+  PreferredTimeDateRanged,
   PersonalGeneral,
   TeamInfo,
 } from './models/personal.general.model';
@@ -42,11 +46,32 @@ export class PersonalGeneralResolver {
     return { userProfile };
   }
 
-  @ResolveField('logtimeInfo', (_returns) => LogtimeInfoDateRanged)
-  async getLogtimeInfo(
+  @ResolveField('currMonthLogtime', (_returns) => NumberDateRanged)
+  async currMonthLogtime(
     @Context() context: PersonalGeneralContext,
-  ): Promise<LogtimeInfoDateRanged> {
-    return await this.personalGeneralService.getLogtimeInfoById(context.uid);
+  ): Promise<NumberDateRanged> {
+    return await this.personalGeneralService.currMonthLogtime(context.uid);
+  }
+
+  @ResolveField('lastMonthLogtime', (_returns) => NumberDateRanged)
+  async lastMonthLogtime(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<NumberDateRanged> {
+    return await this.personalGeneralService.lastMonthLogtime(context.uid);
+  }
+
+  @ResolveField('preferredTime', (_returns) => PreferredTimeDateRanged)
+  async preferredTime(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<PreferredTimeDateRanged> {
+    return await this.personalGeneralService.preferredTime(context.uid);
+  }
+
+  @ResolveField('preferredCluster', (_returns) => StringDateRanged)
+  async preferredCluster(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<StringDateRanged> {
+    return await this.personalGeneralService.preferredCluster(context.uid);
   }
 
   @ResolveField('teamInfo', (_returns) => TeamInfo)

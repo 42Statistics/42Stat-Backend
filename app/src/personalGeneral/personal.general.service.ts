@@ -9,8 +9,13 @@ import { ScoreService } from 'src/score/score.service';
 import { TitlesUserService } from 'src/titlesUser/titlesUser.service';
 import { Time } from 'src/util';
 import {
+  NumberDateRanged,
+  StringDateRanged,
+} from 'src/common/models/common.number.dateRanaged';
+import { LocationService } from 'src/location/location.service';
+import {
   LevelGraphDateRanged,
-  LogtimeInfoDateRanged,
+  PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import { UserProfile } from './models/personal.general.userProfile.model';
@@ -22,6 +27,7 @@ export class PersonalGeneralService {
     private titlesUserService: TitlesUserService,
     private scoreService: ScoreService,
     private coalitionsUserService: CoalitionsUserService,
+    private locationService: LocationService,
   ) {}
   async readTempLocation() {
     const ret = JSON.parse(
@@ -32,67 +38,69 @@ export class PersonalGeneralService {
     return ret;
   }
 
-  async getLogtimeInfoById(uid: number): Promise<LogtimeInfoDateRanged> {
-    const locations = await this.readTempLocation();
+  async currMonthLogtime(uid: number): Promise<NumberDateRanged> {
+    //todo: same start and end
+    const curr = Time.curr();
+    const start = Time.startOfMonth(curr);
 
-    const monthStart = new Date(
-      new Date(new Date().setDate(1)).setHours(0, 0, 0, 0),
-    );
-    const lastMonthStart = new Date(
-      new Date(monthStart).setMonth(monthStart.getMonth() - 1),
+    const logtime = await this.locationService.getLogtime(uid, start, curr);
+
+    //todo: check other date ranged
+    return generateDateRanged(logtime, curr, start);
+  }
+
+  async lastMonthLogtime(uid: number): Promise<NumberDateRanged> {
+    const curr = Time.curr();
+    const currMonth = Time.startOfMonth(curr);
+    const lastMonth = Time.moveMonth(currMonth, -1);
+
+    const logtime = await this.locationService.getLogtime(
+      uid,
+      lastMonth,
+      currMonth,
     );
 
-    const currMonth = locations.filter(
-      (curr: any) =>
-        new Date(curr.begin_at).getTime() > monthStart.getTime() &&
-        new Date(curr.end_at).getTime(),
-    );
-    const lastMonth = locations.filter(
-      (curr: any) =>
-        new Date(curr.end_at).getTime() < monthStart.getTime() &&
-        new Date(curr.begin_at).getTime() > lastMonthStart.getTime() &&
-        new Date(curr.end_at).getTime(),
-    );
+    return generateDateRanged(logtime, lastMonth, currMonth);
+  }
 
-    const logtimeInfo = {
-      currMonthLogtime: Math.floor(
-        currMonth.reduce((acc: number, curr: any) => {
-          return (
-            acc +
-            (new Date(curr.end_at).getTime() -
-              new Date(curr.begin_at).getTime())
-          );
-        }, 0) /
-          1000 /
-          60 /
-          60,
-      ),
-      lastMonthLogtime: Math.floor(
-        lastMonth.reduce((acc: number, curr: any) => {
-          return (
-            acc +
-            (new Date(curr.end_at).getTime() -
-              new Date(curr.begin_at).getTime())
-          );
-        }, 0) /
-          1000 /
-          60 /
-          60,
-      ),
-      preferredTime: {
-        morning: 123,
-        daytime: 123,
-        evening: 123,
-        night: 123,
-      },
-      preferredCluster: 'c1',
-    };
+  async preferredTime(
+    uid: number,
+    start?: Date,
+    end?: Date,
+  ): Promise<PreferredTimeDateRanged> {
+    if (!start) {
+      start = Time.curr();
+    }
+    if (!end) {
+      end = Time.curr();
+    }
 
-    return generateDateRanged(
-      logtimeInfo,
-      lastMonthStart,
-      Time.moveDate(monthStart, -1),
+    const preferredTime = await this.locationService.getPreferredTime(
+      uid,
+      start,
+      end,
     );
+    return generateDateRanged(preferredTime, start, end);
+  }
+
+  async preferredCluster(
+    uid: number,
+    start?: Date,
+    end?: Date,
+  ): Promise<StringDateRanged> {
+    if (!start) {
+      start = Time.curr();
+    }
+    if (!end) {
+      end = Time.curr();
+    }
+
+    const preferredCluster = await this.locationService.getPreferredCluster(
+      uid,
+      start,
+      end,
+    );
+    return generateDateRanged(preferredCluster, start, end);
   }
 
   async getTeamInfoById(uid: number): Promise<TeamInfo> {
