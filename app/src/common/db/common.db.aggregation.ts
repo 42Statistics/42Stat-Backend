@@ -4,6 +4,7 @@ export type AggrNumeric = { value: number };
 export type AggrRecord = { records: ValueRecord[] };
 
 export type AggrValuePerDate = { date: string } & AggrNumeric;
+export type AggrValuePerCluster = { cluster: string } & AggrNumeric;
 
 export type AggrDatePartition = {
   $dateToString: {

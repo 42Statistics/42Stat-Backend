@@ -213,7 +213,7 @@ type PersonalGeneral {
   currMonthLogtime: NumberDateRanged!
   lastMonthLogtime: NumberDateRanged!
   preferredTime: PreferredTimeDateRanged!
-  preferredCluster: StringDateRanged!
+  preferredCluster(start: DateTime, end: DateTime): StringDateRanged!
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
   userProfile: UserProfile!
