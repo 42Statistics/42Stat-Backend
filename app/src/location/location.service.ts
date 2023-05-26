@@ -16,18 +16,133 @@ export class LocationService {
     private locationModel: Model<location>,
   ) {}
 
+  dateDiff(start: number, end: number) {
+    const tempstart = start.toString().padStart(2, '0');
+    const tempend = end.toString().padStart(2, '0');
+
+    return {
+      $dateDiff: {
+        startDate: {
+          $max: [
+            '$beginAt',
+            {
+              $dateFromString: {
+                dateString: {
+                  $dateToString: {
+                    format: `%Y-%m-%dT${tempstart}:00:00.000Z`,
+                    date: '$nextday',
+                  },
+                },
+              },
+            },
+          ],
+        },
+        endDate: {
+          $min: [
+            '$endAt',
+            {
+              $dateFromString: {
+                dateString: {
+                  $dateToString: {
+                    format: `%Y-%m-%dT${tempend}:00:00.000Z`,
+                    date: '$endAt',
+                  },
+                },
+              },
+            },
+          ],
+        },
+        unit: 'millisecond',
+        timezone: 'Asia/Seoul',
+      },
+    };
+  }
+
   async getPreferredTime(
     uid: number,
     start: Date,
     end: Date,
   ): Promise<PreferredTime> {
-    const aggregate = this.locationModel.aggregate<PreferredTime>();
+    const aggregate = this.locationModel.aggregate<{
+      '00to06': number;
+      '06to09': number;
+      '09to12': number;
+      '12to18': number;
+      '18to24': number;
+    }>();
+
+    const to00 = this.dateDiff(21, 0);
+    const to03 = this.dateDiff(0, 3);
+    const to09 = this.dateDiff(3, 9);
+    const to15 = this.dateDiff(9, 15);
+    const to21 = this.dateDiff(15, 21);
+
+    const result = await aggregate
+      .match({
+        'user.id': uid,
+        beginAt: { $gte: start, $lt: end },
+      })
+      .addFields({
+        beginAtFormatted: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$beginAt',
+          },
+        },
+        endAtFormatted: {
+          $dateToString: {
+            format: '%Y-%m-%d',
+            date: '$endAt',
+          },
+        },
+      })
+      .addFields({
+        nextday: {
+          $cond: {
+            if: {
+              $ne: ['$beginAtFormatted', '$endAtFormatted'],
+            },
+            then: {
+              $add: ['$beginAt', Time.DAY],
+            },
+            else: '$beginAt',
+          },
+        },
+      })
+      .append({
+        $project: {
+          '15to21': { $sum: { $cond: [{ $gte: [to21, 0] }, to21, 0] } },
+          '21to00': { $sum: { $cond: [{ $gte: [to00, 0] }, to00, 0] } },
+          '00to03': { $sum: { $cond: [{ $gte: [to03, 0] }, to03, 0] } },
+          '03to09': { $sum: { $cond: [{ $gte: [to09, 0] }, to09, 0] } },
+          '09to15': { $sum: { $cond: [{ $gte: [to15, 0] }, to15, 0] } },
+        },
+      })
+      .group({
+        _id: 0,
+        '00to06': { $sum: '$15to21' },
+        // '06to12': {
+        //   $sum: "$21to03",
+        // },
+        '06to09': { $sum: '$21to00' },
+        '09to12': { $sum: '$00to03' },
+        '12to18': { $sum: '$03to09' },
+        '18to24': { $sum: '$09to15' },
+      });
+    // .project({
+    //   morning: '$00to06',
+    //   daytime: {
+    //     $sum: { $add: ['$06to09', '$09to12'] },
+    //   },
+    //   evening: '$12to18',
+    //   night: '$18to24',
+    // });
 
     return {
-      morning: 123,
-      daytime: 123,
-      evening: 123,
-      night: 123,
+      morning: result[0]?.['00to06'] ?? 0,
+      daytime: (result[0]?.['06to09'] ?? 0) + (result[0]?.['09to12'] ?? 0),
+      evening: result[0]?.['12to18'] ?? 0,
+      night: result[0]?.['18to24'] ?? 0,
     };
   }
 
@@ -88,6 +203,10 @@ export class LocationService {
       .project({ _id: 0 })
       .sort({ value: -1 });
 
+    if (!durationTimePerCluster.length) {
+      return '자리에 앉지 않음';
+    }
+
     return durationTimePerCluster[0].cluster;
   }
 
@@ -113,10 +232,13 @@ export class LocationService {
           },
         },
       })
-      .project({ value: { $sum: '$duration' } })
       .addFields({
-        value: { $floor: { $divide: ['$value', 1000 * 3600] } },
+        value: { $floor: { $divide: [{ $sum: '$duration' }, Time.HOUR] } },
         date: '$_id',
+      })
+      .project({
+        _id: 0,
+        duration: 0,
       });
 
     return Time.getCountByDate(start, durationTimeWithDate);
