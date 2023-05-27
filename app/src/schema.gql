@@ -133,6 +133,63 @@ type ProjectRanking {
   value: Int!
 }
 
+type ProjectInfo {
+  id: ID!
+  name: String!
+  skills: [String]!
+  averagePassFinalmark: Int!
+  averageDurationTime: Int!
+
+  """총 제출 횟수 입니다."""
+  totalCloseCount: Int!
+  currRegisteredCount: Int!
+  passPercentage: Int!
+  totalEvalCount: Int!
+}
+
+type ValueRecord {
+  at: DateTime!
+  value: Int!
+}
+
+type ValuePerCircle {
+  circle: Int!
+  value: Int!
+}
+
+type UserCountPerLevels {
+  userCount: Int!
+  level: Int!
+}
+
+type Total {
+  projectInfo(projectName: String! = "libft"): ProjectInfo!
+
+  " "
+  monthlyScoreRanks: UserRankingDateRanged!
+  totalScores: [CoalitionScore!]!
+  scoreRecords: [CoalitionScoreRecords!]!
+  totalEvalCount: Int!
+  averageFeedbackLength: Int!
+  averageCommentLength: Int!
+  userCountPerLevels: [UserCountPerLevels!]!
+  walletRanks(limit: Int! = 5): [UserRanking!]!
+  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
+  averageCircleDurations(uid: Int): [ValuePerCircle!]!
+  blackholedCountPerCircles: [ValuePerCircle!]!
+  activeUserCountRecords: [ValueRecord!]!
+}
+
+type CoalitionScore {
+  coalition: Coalition!
+  value: Int!
+}
+
+type CoalitionScoreRecords {
+  coalition: Coalition!
+  records: [ValueRecord]!
+}
+
 type ExamResult {
   rank: Int!
   passCount: Int!
@@ -146,17 +203,71 @@ type ExamResultDateRanged {
 }
 
 type Home {
-  currMonthBlackholedCount: NumberDateRanged!
-  lastMonthBlackholedCount: NumberDateRanged!
-  currRegisteredCountRank: [ProjectRanking!]!
-  monthlyExpIncrementRank: [UserRanking!]!
-  monthlyAccessTimeRank: [UserRanking!]!
-  totalEvalCountRank: [UserRanking!]!
-  levelRank(limit: Int! = 50): [UserRanking!]!
-  lastExamResult: ExamResultDateRanged!
+  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
   currWeekEvalCount: NumberDateRanged!
+
+  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
   lastWeekEvalCount: NumberDateRanged!
+
+  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
+  lastMonthBlackholedCount: NumberDateRanged!
+
+  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
+  currMonthBlackholedCount: NumberDateRanged!
+
+  """HOME 지금 가장 많은 사람이 참여하는 과제"""
+  currRegisteredCountRank: [ProjectRanking!]!
+
+  """HOME 직전 회차 시험 Rank별 통과율"""
+  lastExamResult: ExamResultDateRanged!
+
+  """HOME 역대 코알리숑 스코어 합산"""
+  totalScores: [CoalitionScore!]!
+
+  """HOME 코알리숑별 역대 코알리숑 스코어 변동 추이"""
+  scoreRecords: [CoalitionScoreRecords!]!
+
+  """HOME 역대 총 평가 횟수"""
+  totalEvalCount: Int!
+
+  """HOME 평균 피드백 길이"""
+  averageFeedbackLength: Int!
+
+  """HOME 평균 코멘트 길이"""
+  averageCommentLength: Int!
+
+  """HOME 레벨 별 유저 분포"""
+  userCountPerLevels: [UserCountPerLevels!]!
+
+  """HOME 보유 월렛 랭킹"""
+  walletRanks: [UserRanking!]!
+
+  """HOME 보유 평가 포인트 랭킹"""
+  correctionPointRanks: [UserRanking!]!
+
+  """HOME 전체 / 유저별 서클 통과 평균 기간 (uid?: number)"""
+  averageCircleDurations: [ValuePerCircle!]!
+
+  """HOME 언제 블랙홀에 많이 빠질까"""
+  blackholedCountPerCircles: [ValuePerCircle!]!
+
+  """HOME 활성화 유저 수 추이"""
+  activeUserCountRecords: [ValueRecord!]!
+
+  " "
+  totalEvalCountRank: [UserRanking!]!
+
+  " "
   monthlyEvalCountRank: UserRankingDateRanged!
+
+  " "
+  levelRank(limit: Int! = 50): UserRankingDateRanged!
+
+  " "
+  monthlyExpIncrementRank: [UserRanking!]!
+
+  " "
+  monthlyAccessTimeRank: [UserRanking!]!
 }
 
 type TempTeam {
@@ -235,61 +346,6 @@ type PersonalEval {
   """평가자가 작성한 리뷰의 평균 길이 입니다."""
   averageCommentLength: Int!
   userProfile: UserProfile!
-}
-
-type ProjectInfo {
-  id: ID!
-  name: String!
-  skills: [String]!
-  averagePassFinalmark: Int!
-  averageDurationTime: Int!
-
-  """총 제출 횟수 입니다."""
-  totalCloseCount: Int!
-  currRegisteredCount: Int!
-  passPercentage: Int!
-  totalEvalCount: Int!
-}
-
-type ValueRecord {
-  at: DateTime!
-  value: Int!
-}
-
-type ValuePerCircle {
-  circle: Int!
-  value: Int!
-}
-
-type UserCountPerLevels {
-  userCount: Int!
-  level: Int!
-}
-
-type Total {
-  activeUserCountRecords: [ValueRecord!]!
-  blackholedCountPerCircles: [ValuePerCircle!]!
-  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
-  walletRanks(limit: Int! = 5): [UserRanking!]!
-  averageCircleDurations: [ValuePerCircle!]!
-  userCountPerLevels: [UserCountPerLevels!]!
-  projectInfo(projectName: String! = "libft"): ProjectInfo!
-  totalScores: [CoalitionScore!]!
-  scoreRecords: [CoalitionScoreRecords!]!
-  monthlyScoreRanks: UserRankingDateRanged!
-  totalEvalCount: Int!
-  averageFeedbackLength: Int!
-  averageCommentLength: Int!
-}
-
-type CoalitionScore {
-  coalition: Coalition!
-  value: Int!
-}
-
-type CoalitionScoreRecords {
-  coalition: Coalition!
-  records: [ValueRecord]!
 }
 
 type Query {
