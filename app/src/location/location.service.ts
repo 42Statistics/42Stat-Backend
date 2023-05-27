@@ -4,7 +4,6 @@ import { Model } from 'mongoose';
 import {
   AggrNumeric,
   AggrValuePerCluster,
-  AggrValuePerDate,
 } from 'src/common/db/common.db.aggregation';
 import { PreferredTime } from 'src/personalGeneral/models/personal.general.model';
 import { Time } from 'src/util';
@@ -12,6 +11,7 @@ import { location } from './db/location.database.schema';
 
 @Injectable()
 export class LocationService {
+  // as const 는 mongoose 의 타입으로 인해 사용할 수 없습니다.
   clusterList = [
     'c1',
     'c10',
@@ -85,7 +85,7 @@ export class LocationService {
     const to15 = this.dateDiff('09', '15');
     const to21 = this.dateDiff('15', '21');
 
-    const result = await aggregate
+    const [preferredTime] = await aggregate
       .match({
         'user.id': uid,
         beginAt: { $gte: start, $lt: end },
@@ -145,9 +145,7 @@ export class LocationService {
         night: { $floor: { $divide: ['$18to24', Time.HOUR] } },
       });
 
-    return result.length
-      ? result[0]
-      : { morning: 0, daytime: 0, evening: 0, night: 0 };
+    return preferredTime ?? { morning: 0, daytime: 0, evening: 0, night: 0 };
   }
 
   async getPreferredCluster(
@@ -200,13 +198,13 @@ export class LocationService {
     return durationTimePerCluster.cluster;
   }
 
-  async getLogtime(uid: number, start: Date, finish: Date): Promise<number> {
+  async getLogtime(uid: number, start: Date, end: Date): Promise<number> {
     const aggregate = this.locationModel.aggregate<AggrNumeric>();
 
-    const result = await aggregate
+    const [logtime] = await aggregate
       .match({ 'user.id': uid })
       .match({
-        $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: finish } }],
+        $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: end } }],
       })
       .group({
         _id: 0,
@@ -217,8 +215,8 @@ export class LocationService {
               { $subtract: ['$endAt', start] },
               {
                 $cond: [
-                  { $lt: [finish, '$endAt'] },
-                  { $subtract: [finish, '$beginAt'] },
+                  { $lt: [end, '$endAt'] },
+                  { $subtract: [end, '$beginAt'] },
                   { $subtract: ['$endAt', '$beginAt'] },
                 ],
               },
@@ -234,6 +232,6 @@ export class LocationService {
         duration: 0,
       });
 
-    return result.length ? result[0].value : 0;
+    return logtime?.value ?? 0;
   }
 }
