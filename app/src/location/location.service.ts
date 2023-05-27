@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import {
+  AggrNumeric,
   AggrValuePerCluster,
   AggrValuePerDate,
 } from 'src/common/db/common.db.aggregation';
@@ -199,37 +200,40 @@ export class LocationService {
     return durationTimePerCluster.cluster;
   }
 
-  async getLogtime(uid: number, start: Date, end: Date): Promise<number> {
-    const aggregate = this.locationModel.aggregate<AggrValuePerDate>();
+  async getLogtime(uid: number, start: Date, finish: Date): Promise<number> {
+    const aggregate = this.locationModel.aggregate<AggrNumeric>();
 
-    const dateObject = Time.dateToBoundariesObject(start, end);
-
-    const durationTimeWithDate = await aggregate
+    const result = await aggregate
       .match({ 'user.id': uid })
-      .append({
-        $bucket: {
-          groupBy: {
-            $dateToString: {
-              date: '$endAt', //todo: beginAt검사 후 넘어가는 시간에 2번 계산하기 필요
-              format: '%Y-%m-%dT%H:%M:%S.%LZ',
-            },
-          },
-          boundaries: dateObject,
-          default: 'defalut',
-          output: {
-            duration: { $push: { $subtract: ['$endAt', '$beginAt'] } },
+      .match({
+        $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: finish } }],
+      })
+      .group({
+        _id: 0,
+        duration: {
+          $push: {
+            $cond: [
+              { $lt: ['$beginAt', start] },
+              { $subtract: ['$endAt', start] },
+              {
+                $cond: [
+                  { $lt: [finish, '$endAt'] },
+                  { $subtract: [finish, '$beginAt'] },
+                  { $subtract: ['$endAt', '$beginAt'] },
+                ],
+              },
+            ],
           },
         },
       })
       .addFields({
         value: { $floor: { $divide: [{ $sum: '$duration' }, Time.HOUR] } },
-        date: '$_id',
       })
       .project({
         _id: 0,
         duration: 0,
       });
 
-    return Time.getCountByDate(start, durationTimeWithDate);
+    return result.length ? result[0].value : 0;
   }
 }
