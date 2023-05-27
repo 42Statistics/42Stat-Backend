@@ -25,7 +25,7 @@ export class location {
   primary: boolean;
 
   @Prop({ required: true })
-  user: User; //id, login, email?
+  user: User;
 }
 
 export const LocationSchema = SchemaFactory.createForClass(location);

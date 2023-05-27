@@ -11,15 +11,28 @@ import { location } from './db/location.database.schema';
 
 @Injectable()
 export class LocationService {
+  clusterList = [
+    'c1',
+    'c10',
+    'c2',
+    'c3',
+    'c4',
+    'c5',
+    'c6',
+    'c7',
+    'c8',
+    'c9',
+    'cx1',
+    'cx2',
+    'cx3',
+  ];
+
   constructor(
     @InjectModel(location.name)
     private locationModel: Model<location>,
   ) {}
 
-  dateDiff(start: number, end: number) {
-    const tempstart = start.toString().padStart(2, '0');
-    const tempend = end.toString().padStart(2, '0');
-
+  dateDiff(start: string, end: string) {
     return {
       $dateDiff: {
         startDate: {
@@ -29,7 +42,7 @@ export class LocationService {
               $dateFromString: {
                 dateString: {
                   $dateToString: {
-                    format: `%Y-%m-%dT${tempstart}:00:00.000Z`,
+                    format: `%Y-%m-%dT${start}:00:00.000Z`,
                     date: '$nextday',
                   },
                 },
@@ -44,7 +57,7 @@ export class LocationService {
               $dateFromString: {
                 dateString: {
                   $dateToString: {
-                    format: `%Y-%m-%dT${tempend}:00:00.000Z`,
+                    format: `%Y-%m-%dT${end}:00:00.000Z`,
                     date: '$endAt',
                   },
                 },
@@ -63,19 +76,13 @@ export class LocationService {
     start: Date,
     end: Date,
   ): Promise<PreferredTime> {
-    const aggregate = this.locationModel.aggregate<{
-      '00to06': number;
-      '06to09': number;
-      '09to12': number;
-      '12to18': number;
-      '18to24': number;
-    }>();
+    const aggregate = this.locationModel.aggregate<PreferredTime>();
 
-    const to00 = this.dateDiff(21, 0);
-    const to03 = this.dateDiff(0, 3);
-    const to09 = this.dateDiff(3, 9);
-    const to15 = this.dateDiff(9, 15);
-    const to21 = this.dateDiff(15, 21);
+    const to00 = this.dateDiff('21', '00');
+    const to03 = this.dateDiff('00', '03');
+    const to09 = this.dateDiff('03', '09');
+    const to15 = this.dateDiff('09', '15');
+    const to21 = this.dateDiff('15', '21');
 
     const result = await aggregate
       .match({
@@ -121,29 +128,25 @@ export class LocationService {
       .group({
         _id: 0,
         '00to06': { $sum: '$15to21' },
-        // '06to12': {
-        //   $sum: "$21to03",
-        // },
         '06to09': { $sum: '$21to00' },
         '09to12': { $sum: '$00to03' },
         '12to18': { $sum: '$03to09' },
         '18to24': { $sum: '$09to15' },
+      })
+      .project({
+        morning: { $floor: { $divide: ['$00to06', Time.HOUR] } },
+        daytime: {
+          $floor: {
+            $divide: [{ $sum: { $add: ['$06to09', '$09to12'] } }, Time.HOUR],
+          },
+        },
+        evening: { $floor: { $divide: ['$12to18', Time.HOUR] } },
+        night: { $floor: { $divide: ['$18to24', Time.HOUR] } },
       });
-    // .project({
-    //   morning: '$00to06',
-    //   daytime: {
-    //     $sum: { $add: ['$06to09', '$09to12'] },
-    //   },
-    //   evening: '$12to18',
-    //   night: '$18to24',
-    // });
 
-    return {
-      morning: result[0]?.['00to06'] ?? 0,
-      daytime: (result[0]?.['06to09'] ?? 0) + (result[0]?.['09to12'] ?? 0),
-      evening: result[0]?.['12to18'] ?? 0,
-      night: result[0]?.['18to24'] ?? 0,
-    };
+    return result.length
+      ? result[0]
+      : { morning: 0, daytime: 0, evening: 0, night: 0 };
   }
 
   async getPreferredCluster(
@@ -153,7 +156,7 @@ export class LocationService {
   ): Promise<string> {
     const aggregate = this.locationModel.aggregate<AggrValuePerCluster>();
 
-    const durationTimePerCluster = await aggregate
+    const [durationTimePerCluster] = await aggregate
       .match({ 'user.id': uid })
       .match({
         beginAt: { $gte: start },
@@ -169,21 +172,7 @@ export class LocationService {
       .append({
         $bucket: {
           groupBy: '$substring',
-          boundaries: [
-            'c1',
-            'c10',
-            'c2',
-            'c3',
-            'c4',
-            'c5',
-            'c6',
-            'c7',
-            'c8',
-            'c9',
-            'cx1',
-            'cx2',
-            'cx3',
-          ],
+          boundaries: this.clusterList,
           default: 'defalut',
           output: {
             duration: {
@@ -203,11 +192,11 @@ export class LocationService {
       .project({ _id: 0 })
       .sort({ value: -1 });
 
-    if (!durationTimePerCluster.length) {
-      return '자리에 앉지 않음';
+    if (!durationTimePerCluster) {
+      return 'null';
     }
 
-    return durationTimePerCluster[0].cluster;
+    return durationTimePerCluster.cluster;
   }
 
   async getLogtime(uid: number, start: Date, end: Date): Promise<number> {
