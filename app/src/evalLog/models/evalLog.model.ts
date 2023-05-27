@@ -2,7 +2,7 @@ import { Field, ID, ObjectType } from '@nestjs/graphql';
 import { URLResolver } from 'graphql-scalars';
 import { UserPreview } from 'src/common/models/common.user.model';
 import { Paginated } from 'src/pagination/models/pagination.model';
-import { ProjectPreview } from 'src/project/models/project.preview';
+import { ProjectPreview } from 'src/api/project/models/project.preview';
 
 @ObjectType()
 export class TeamPreview {
