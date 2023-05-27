@@ -4,12 +4,12 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 import { EvalLogModule } from './evalLog/evalLog.module';
-import { HomeModule } from './home/home.module';
-import { PersonalEvalModule } from './personalEval/personal.eval.module';
-import { PersonalGeneralModule } from './personalGeneral/personal.general.module';
-import { ProjectModule } from './project/project.module';
-import { ScaleTeamModule } from './scaleTeam/scaleTeam.module';
-import { TotalModule } from './total/total.module';
+import { ProjectModule } from './api/project/project.module';
+import { ScaleTeamModule } from './api/scaleTeam/scaleTeam.module';
+import { HomeModule } from './page/home/home.module';
+import { PersonalEvalModule } from './page/personalEval/personal.eval.module';
+import { PersonalGeneralModule } from './page/personalGeneral/personal.general.module';
+import { TotalModule } from './page/total/total.module';
 
 @Module({
   imports: [

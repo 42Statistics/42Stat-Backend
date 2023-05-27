@@ -1,0 +1,163 @@
+### - `신규 페이지` `기존 페이지-` 기존 항목
+- `신규 페이지` 신규 항목
+(페이지 옮긴 후 기존 페이지 기록 지우기)
+
+### Landing Page
+#### 이후 추가 예정
+- `Landing` 첫 42서울 라 피신 시작일로부터 현재일
+- `Landing` 현재 활성화 유저 수
+- `Landing` 누적 블랙홀 유저 수
+- `Landing` 현재 가장 많은 사람이 참여하는 과제와 유저 수
+
+## Home Page
+### 가져와야 하는것
+; - `Home` TOTAL- 역대 총 평가 횟수
+; - `Home` TOTAL- 평균 피드백 길이
+; - `Home` TOTAL- 평균 코멘트 길이
+; - `Home` TOTAL- 활성화 유저 수 추이
+; - `Home` TOTAL- 레벨 별 유저 분포
+; - `Home` TOTAL- 언제 블랙홀에 많이 빠질까
+; - `Home` TOTAL- 유저별 서클 통과 기간 (캐시)
+  ; - TOTAL- 기수별 서클 통과 평균 기간
+  ; - TOTAL- 서클 통과 평균 기간
+; - `Home` TOTAL- 보유 평가 포인트 랭킹 (캐시)
+; - `Home` TOTAL- 보유 월렛 랭킹 (캐시)
+; - `Home` TOTAL- 코알리숑별 역대 코알리숑 스코어 변동 추이
+; - `Home` TOTAL- 역대 코알리숑 스코어 합산
+
+### 새로 만들어야하는거
+
+- `Home` 개인 카드
+  -> Member 달성한지 7일 이내 여부
+    최근 2일 이내 통과한 과제 여부
+    블랙홀 남은 일수 7 ~ 21일 사이 여부
+    블랙홀 남은 일수 7일 미만 여부
+    주간 경험치 증가량 / 코알리숑 스코어 / 평가 횟수 랭킹 1 ~ 3위에 해당 여부
+    모두 없을시 false나 null 반환
+
+; - `Home` 주간 1인당 평가 횟수
+; - `Home` 멤버 비율
+; - `Home` 블랙홀 유저 비율
+; - `Home` 이번 달 누적 코알리숑 티그 횟수
+
+### 유지
+
+; - `Home` HOME- 지금 가장 많은 사람이 참여하는 과제
+; - `Home` HOME- 월간 누적 블랙홀 인원 (이번 달 + 지난 달)
+; - `Home` HOME- 주간 총 평가 횟수 (이번 주 + 지난 주)
+; - `Home` HOME- 직전 회차 시험 Rank별 통과율
+
+
+
+
+
+
+
+
+
+
+
+
+### Personal/General Page
+- `General` GENERAL- 유저 프로필(코알리숑)
+- `General` GENERAL- 유저 프로필(grade)
+- `General` GENERAL- 유저 프로필(display name)
+- `General` GENERAL- 유저 프로필(title)
+- `General` GENERAL- 유저 프로필(login)
+- `General` GENERAL- 유저 프로필(level)
+- `General` GENERAL- 유저 프로필(image)
+
+- `General` GENERAL- 본과정 시작일
+- `General` GENERAL- 월간 출석 시간 (이번 달 + 저번 달)
+- `General` GENERAL- 보유 월렛
+
+- `General` 월간 코알리숑 스코어, 랭킹
+
+- `General` GENERAL- 최근 통과한 과제
+- `General` GENERAL- 최근 신청한 과제
+- `General` GENERAL- 블랙홀
+- `General` GENERAL- 레벨 증가 그래프
+- `General` GENERAL- 주 접속 클러스터
+- `General` GENERAL- 주 접속 시간대
+
+- `General` 이 유저를 캐릭터로 평가한다면?
+  -> <닮은캐릭터>
+      기준 : 노력 지표 x축, 재능 지표 y축으로 하여 좌표상 위치/원점과의 기울기/원점과의 거리를 고려하여 캐릭터 매칭
+
+      노력 지표 :
+      클러스터 체류시간 / 다른사람들 평균 체류시간, -> 아이맥 사용 시간
+      평가 횟수 / 다른사람들평균 평가횟수,
+      총 아젠다 등록 횟수 ,
+      총 시험 응시 횟수
+      총 과제 트라이(리트포함) 횟수
+
+      재능 지표 :
+      n기인 해당 유저 레벨 / n기 평균 레벨,
+      한번에 통과한 시험 수 / 전체 시험수,
+      한번에 통과한 과제수 / 전체 과제트라이수,
+      받은 평가 중 Outstanding의 개수 / 전체 받은평가 수
+
+      <평가자로 만난다면>
+      평균 평가시간 / 평균 피드백길이 / 평균 부여점수 / 누적 평가 횟수 -> 이미 오는 것들
+      누적 outstanding 준 횟수,
+      누적 fail 준 횟수
+
+
+- `General` GENERAL- 수행한 과제별 기록(시도)
+- `General` 수행한 과제별 기록(팀명)
+- `General` GENERAL- 수행한 과제별 기록(제출일자)
+- `General` GENERAL- 수행한 과제별 기록(등록일)
+- `General` GENERAL- 수행한 과제별 기록(점수)
+- `General` 수행한 과제별 기록(상태)
+
+### Personal/Eval Page
+- `Eval` GENERAL- 보유 평가 포인트
+- `Eval` EVAL- 월간 평가 횟수 
+- `Eval` EVAL- 평균 평가 시간
+- `Eval` EVAL- 평균 평가 점수
+- `Eval` EVAL- 평균 피드백 길이
+- `Eval` EVAL- 평균 코멘트 길이
+- `Eval` EVAL- 누적 평가 횟수
+- `Eval` 누적 평가 시간
+
+- `Eval` EVAL- 운명의 장난 스코어(평가 겹치기, 팀원)
+- `Eval` 최근 받은 피드백
+- `Eval` 이 유저의 이전 평가가 궁금하다면?
+
+### EvalLogSearch Page
+- `EvalLog` LOGSEARCH- 평가로그 전체
+  -> 검색기능
+    to
+    from
+    outstanding only on/off
+    최신순 / 오래된순
+
+### Leaderboard
+- 레벨 랭킹
+  - `Leaderboard` HOME- 누적 레벨 랭킹 (캐시)
+- 경험치 증가량 랭킹
+  - `Leaderboard` HOME- 월간 경험치 증가량 랭킹 (캐시)
+  - `Leaderboard` 주간 경험치 증가량 랭킹
+- 평가 횟수 랭킹
+  - `Leaderboard` HOME- 누적 평가 횟수 랭킹 (캐시)
+  - `Leaderboard` HOME- 월간 평가 횟수 랭킹 (캐시)
+  - `Leaderboard` 주간 평가 횟수 랭킹
+- 코알리숑 스코어 렝킹
+  - `Leaderboard` 누적 코알리숑 스코어 기여 랭킹
+  - `Leaderboard` TOTAL- 월간 코알리숑 스코어 기여 랭킹 (캐시)
+  - `Leaderboard` 주간 코알리숑 스코어 기여 랭킹
+
+### Project
+- `Project` 서클
+- `Project` TOTAL- 이름 (name)
+- `Project` 설명 (projectSessions-description)?
+- `Project` 서브젝트 pdf (id)
+- `Project` TOTAL- 사용 기술 (캐시)
+- `Project` TOTAL- 진행중인 팀 수
+- `Project` n인 팀 진행
+- `Project` 권장 기간 (projectSessions-estimateTime)
+- `Project` 경험치 (projectSessions-difficulty)
+- `Project` TOTAL- 누적 총 제출 횟수
+- `Project` TOTAL- 평균 통과 점수
+- `Project` TOTAL- 점수 비율
+  -> 0-79, 80-100, 101~

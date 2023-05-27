@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { generatePage } from 'src/pagination/pagination.service';
-import { ProjectService } from 'src/project/project.service';
-import { scale_team } from 'src/scaleTeam/db/scaleTeam.database.schema';
-import { ScaleTeamService } from 'src/scaleTeam/scaleTeam.service';
+import { ProjectService } from 'src/api/project/project.service';
+import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
+import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { GetEvalLogsArgs } from './dto/evalLog.dto.getEvalLog';
 import { EvalLogsPaginated } from './models/evalLog.model';
 
