@@ -45,6 +45,7 @@ type UserPreview {
 type UserRanking {
   userPreview: UserPreview!
   value: Float!
+  rank: Int!
 }
 
 type UserRankingDateRanged {
@@ -247,21 +248,6 @@ type Home {
 
   """HOME 이번 달 누적 코알리숑 티그 횟수"""
   tigCountPerCoalitions: [CoalitionPerValue!]!
-
-  " "
-  totalEvalCountRank: [UserRanking!]!
-
-  " "
-  monthlyEvalCountRank: UserRankingDateRanged!
-
-  " "
-  levelRank: UserRankingDateRanged!
-
-  " "
-  monthlyExpIncrementRank: [UserRanking!]!
-
-  " "
-  monthlyAccessTimeRank: [UserRanking!]!
 }
 
 type TempTeam {
@@ -379,6 +365,46 @@ type PersonalEval {
   evalLogSearchLink: String!
 }
 
+type LeaderboardElement {
+  """내 랭킹 정보"""
+  me: UserRanking
+
+  """전체 랭킹 정보"""
+  totalRanks: [UserRanking!]!
+}
+
+type LeaderboardElementDateRanged {
+  data: LeaderboardElement!
+  from: DateTime!
+  to: DateTime!
+}
+
+type LeaderboardEval {
+  total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+enum DateTemplate {
+  WEEKLY
+  MONTHLY
+}
+
+type LeaderboardExp {
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+type LeaderboardLevel {
+  total: LeaderboardElement!
+}
+
+type LeaderboardScore {
+  total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
 type Query {
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomePage: Home!
@@ -386,5 +412,9 @@ type Query {
   getTotalPage: Total!
   getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
   getPersonalEvalPage(uid: Int, login: String): PersonalEval!
+  getLeaderboardLevel: LeaderboardLevel!
+  getLeaderboardExpIncrement: LeaderboardExp!
+  getLeaderboardEvalCount: LeaderboardEval!
+  getLeaderboardScore: LeaderboardScore!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
