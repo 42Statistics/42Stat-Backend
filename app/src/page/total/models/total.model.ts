@@ -1,5 +1,12 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
+import {
+  CoalitionScore,
+  CoalitionScoreRecords,
+} from 'src/api/score/models/score.coalition.model';
+import {
+  UserRanking,
+  UserRankingDateRanged,
+} from 'src/common/models/common.user.model';
 
 // todo: extends OmitType(project)
 @ObjectType()
@@ -82,24 +89,9 @@ export class UserCountPerLevels {
 
 @ObjectType()
 export class Total {
-  @Field((_type) => [ValueRecord])
-  activeUserCountRecords: ValueRecord[];
+  @Field((_type) => ProjectInfo, { description: '' })
+  projectInfo: ProjectInfo;
 
-  @Field((_type) => [ValuePerCircle])
-  blackholedCountPerCircles: ValuePerCircle[];
-
-  @Field((_type) => [UserRanking])
-  correctionPointRanks: UserRanking[];
-
-  @Field((_type) => [UserRanking])
-  walletRanks: UserRanking[];
-
-  @Field((_type) => [ValuePerCircle])
-  averageCircleDurations: ValuePerCircle[];
-
-  //@Field((_type) => [ValuePerCircleByPromo])
-  //ValuePerCircleByPromo: ValuePerCircleByPromo[];
-
-  @Field((_type) => [UserCountPerLevels])
-  userCountPerLevels: UserCountPerLevels[];
+  @Field((_type) => UserRankingDateRanged, { description: ' ' })
+  monthlyScoreRanks: UserRankingDateRanged;
 }

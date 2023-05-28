@@ -6,6 +6,7 @@ import {
 } from 'src/common/models/common.user.model';
 import { HomeService } from './home.service';
 import { Home } from './models/home.model';
+import { CoalitionScore } from 'src/api/score/models/score.coalition.model';
 
 @Resolver((_of: unknown) => Home)
 export class HomeResolver {
@@ -185,8 +186,6 @@ export class HomeResolver {
     return await this.homeService.currMonthblackholedCount();
   }
 
-  //@ResolveField('getLevelRank', (_returns) => )
-  //async getLevelRank() {
-  //  return await this.homeService.
-  //}
+  @ResolveField('tigCountPerCoalitions', (_returns) => [CoalitionScore])
+  async tigCountPerCoalitions(): Promise<CoalitionScore>;
 }

@@ -1,5 +1,6 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import { UserProfile } from 'src/page/personalGeneral/models/personal.general.userProfile.model';
 
 // export enum EvalUserDifficulty {
 //   EASY,
@@ -42,6 +43,9 @@ export class PersonalEval {
 
   @Field({ description: '평가자가 작성한 리뷰의 평균 길이 입니다.' })
   averageCommentLength: number;
+
+  @Field((_type) => UserProfile)
+  userProfile: UserProfile;
 
   //   @Field((_type) => EvalUserDifficulty)
   // difficulty: EvalUserDifficulty;

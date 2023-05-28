@@ -16,6 +16,7 @@ import {
   ValueRecord,
 } from './models/total.model';
 import { TotalService } from './total.service';
+import { UUID } from 'graphql-scalars/typings/mocks';
 
 @Resolver((_of: unknown) => Total)
 export class TotalResolver {
@@ -125,8 +126,10 @@ export class TotalResolver {
   }
 
   @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
-    return await this.totalService.averageCircleDurations();
+  async averageCircleDurations(
+    @Args('uid', { nullable: true }) uid: number,
+  ): Promise<ValuePerCircle[]> {
+    return await this.totalService.averageCircleDurations(uid);
   }
 
   @ResolveField('blackholedCountPerCircles', (_returns) => [ValuePerCircle])

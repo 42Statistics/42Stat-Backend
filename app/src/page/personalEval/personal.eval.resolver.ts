@@ -42,11 +42,12 @@ export class PersonalEvalResolver {
       averageCommentLength: await this.personalEvalService.averageCommentLength(
         context.uid,
       ),
+      userProfile: await this.personalGeneralService.getUserInfo(99947),
     };
   }
 
-  @ResolveField('userProfile', (_returns) => UserProfile)
-  async getUserInfo() {
-    return await this.personalGeneralService.getUserInfo(99947);
-  }
+  // @ResolveField('userProfile', (_returns) => UserProfile)
+  // async getUserInfo() {
+  //   return await this.personalGeneralService.getUserInfo(99947);
+  // }
 }

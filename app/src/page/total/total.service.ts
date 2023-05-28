@@ -91,8 +91,8 @@ export class TotalService {
     return await this.cursusUserService.getRank('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
-    return await this.questsUserService.getAverageCircleDurations();
+  async averageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
+    return await this.questsUserService.getAverageCircleDurations(uid);
   }
 
   async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
