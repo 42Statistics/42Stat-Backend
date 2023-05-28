@@ -109,8 +109,8 @@ export class PersonalGeneralService {
       teams: [
         {
           id: 2966047,
-          projectname: 'avaj-launcher',
-          teamname: `jaham's team`,
+          projectName: 'avaj-launcher',
+          teamName: `jaham's team`,
           occurrence: 0,
           finalMark: 125,
           createdAt: new Date('2022-10-20T04:06:32.437Z'),

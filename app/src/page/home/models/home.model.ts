@@ -1,7 +1,7 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
 import { ProjectRanking } from 'src/api/project/models/project.ranking.model';
 import {
-  CoalitionScore,
+  CoalitionPerValue,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
@@ -61,10 +61,10 @@ export class Home {
   @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
   lastExamResult: ExamResultDateRanged;
 
-  @Field((_type) => [CoalitionScore], {
+  @Field((_type) => [CoalitionPerValue], {
     description: 'HOME 역대 코알리숑 스코어 합산',
   })
-  totalScores: CoalitionScore[];
+  totalScores: CoalitionPerValue[];
 
   @Field((_type) => [CoalitionScoreRecords], {
     description: 'HOME 코알리숑별 역대 코알리숑 스코어 변동 추이',
@@ -109,23 +109,25 @@ export class Home {
   @Field((_type) => [ValueRecord], { description: 'HOME 활성화 유저 수 추이' })
   activeUserCountRecords: ValueRecord[];
 
-  /** make new **/
+  @Field((_type) => [Int, Int], {
+    description: 'HOME 주간 1인당 평가 횟수 [주간 평가 횟수, 활동 유저 수]',
+  })
+  currWeekAverageEvalCount: [number, number];
 
-  @Field((_type) => Int, { description: 'HOME 주간 1인당 평가 횟수' })
-  currWeekAverageEvalCount: number;
+  @Field((_type) => [Int, Int], {
+    description: 'HOME 멤버 비율 [멤버 유저 수, 전체 유저 수]',
+  })
+  memberPercentage: [number, number];
 
-  @Field((_type) => Int, { description: 'HOME 멤버 비율' })
-  memberPercentage: number;
+  @Field((_type) => [Int, Int], {
+    description: 'HOME 블랙홀 유저 비율 [블랙홀 유저 수, 전체 유저 수]',
+  })
+  blackholedPercentage: [number, number];
 
-  @Field((_type) => Int, { description: 'HOME 블랙홀 유저 비율' })
-  blackholedPercentage: number;
-
-  @Field((_type) => [CoalitionScore], {
+  @Field((_type) => [CoalitionPerValue], {
     description: 'HOME 이번 달 누적 코알리숑 티그 횟수',
   })
-  tigCountPerCoalitions: CoalitionScore[];
-
-  /** to move or delete **/
+  tigCountPerCoalitions: CoalitionPerValue[];
 
   @Field((_type) => [UserRanking], { description: ' ' })
   totalEvalCountRank: UserRanking[];

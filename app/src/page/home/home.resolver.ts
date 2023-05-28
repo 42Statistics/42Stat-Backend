@@ -7,7 +7,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import {
-  CoalitionScore,
+  CoalitionPerValue,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
@@ -199,8 +199,8 @@ export class HomeResolver {
     return await this.homeService.currMonthblackholedCount();
   }
 
-  @ResolveField('totalScores', (_returns) => [CoalitionScore])
-  async totalScores(): Promise<CoalitionScore[]> {
+  @ResolveField('totalScores', (_returns) => [CoalitionPerValue])
+  async totalScores(): Promise<CoalitionPerValue[]> {
     return await this.homeService.totalScores();
   }
 
@@ -270,23 +270,23 @@ export class HomeResolver {
     return await this.homeService.activeUserCountRecords(start, curr);
   }
 
-  @ResolveField('currWeekAverageEvalCount', (_returns) => Float)
-  async currWeekAverageEvalCount(): Promise<number> {
+  @ResolveField('currWeekAverageEvalCount', (_returns) => [Int, Int])
+  async currWeekAverageEvalCount(): Promise<[number, number]> {
     return await this.homeService.currWeekAverageEvalCount();
   }
 
-  @ResolveField('memberPercentage', (_returns) => Float)
-  async memberPercentage(): Promise<number> {
+  @ResolveField('memberPercentage', (_returns) => [Int, Int])
+  async memberPercentage(): Promise<[number, number]> {
     return await this.homeService.memberPercentage();
   }
 
-  @ResolveField('blackholedPercentage', (_returns) => Float)
-  async blackholedPercentage(): Promise<number> {
+  @ResolveField('blackholedPercentage', (_returns) => [Int, Int])
+  async blackholedPercentage(): Promise<[number, number]> {
     return await this.homeService.blackholedPercentage();
   }
 
-  @ResolveField('tigCountPerCoalitions', (_returns) => [CoalitionScore])
-  async tigCountPerCoalitions(): Promise<CoalitionScore[]> {
+  @ResolveField('tigCountPerCoalitions', (_returns) => [CoalitionPerValue])
+  async tigCountPerCoalitions(): Promise<CoalitionPerValue[]> {
     return await this.homeService.tigCountPerCoalitions();
   }
 }
