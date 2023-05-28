@@ -1,6 +1,5 @@
-import { Args, Context, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Context, Query, Resolver } from '@nestjs/graphql';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { UserProfile } from 'src/page/personalGeneral/models/personal.general.userProfile.model';
 import { PersonalGeneralService } from 'src/page/personalGeneral/personal.general.service';
 import { PersonalEval } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
@@ -24,6 +23,7 @@ export class PersonalEvalResolver {
     context.uid = cursusUser.user.id;
 
     return {
+      correctionPoint: 1,
       currMonthCount: await this.personalEvalService.currMonthCount(
         context.uid,
       ),
@@ -43,6 +43,9 @@ export class PersonalEvalResolver {
         context.uid,
       ),
       userProfile: await this.personalGeneralService.getUserInfo(99947),
+      totalDuration: 1,
+      latestFeedback: 'aaa',
+      evalLogSearchLink: 'aaa',
     };
   }
 
