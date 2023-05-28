@@ -7,34 +7,46 @@ import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
-import { UserProfile } from './personal.general.userProfile.model';
+import {
+  UserProfile,
+  UserScoreRank,
+} from './personal.general.userProfile.model';
 
-// todo: erase this
+// todo: use team
 @ObjectType()
 export class TempTeam {
   @Field()
   id: number;
 
   @Field()
-  name: string;
+  teamname: string;
+
+  @Field() //todo: projectId 를 통해 구하기
+  projectname: string;
 
   @Field()
   occurrence: number;
 
-  @Field({ nullable: true })
+  @Field()
+  finalMark?: number;
+
+  @Field({ description: '레지스터' })
+  createdAt: Date;
+
+  @Field({ description: '팀 빌딩' })
+  lockedAt?: Date;
+
+  @Field({ description: '제출' })
   closedAt?: Date;
 
   @Field()
-  firstCreatedAt: Date;
+  isValidated: boolean;
 
-  @Field({ nullable: true })
-  finalMark?: number;
+  // @Field({description: '평가완료날'})
+  // teamsUploads.createdAt
 
-  @Field({
-    nullable: true,
-    description: 'true면 통과, false면 fail, null이면 미평가 입니다.',
-  })
-  isValidated?: boolean;
+  @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
+  status: string;
 }
 
 @ObjectType()
@@ -85,6 +97,21 @@ export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
 @ObjectType()
 export class PersonalGeneral {
   @Field()
+  userProfile: UserProfile;
+
+  @Field()
+  beginAt: Date;
+
+  @Field({ nullable: true })
+  blackholedAt?: Date;
+
+  @Field()
+  wallet: number;
+
+  @Field()
+  scoreInfo: UserScoreRank;
+
+  @Field()
   currMonthLogtime: NumberDateRanged;
 
   @Field()
@@ -102,9 +129,7 @@ export class PersonalGeneral {
   @Field()
   levelGraphs: LevelGraphDateRanged;
 
-  @Field()
-  userProfile: UserProfile;
-
-  @Field()
-  levelRank: number;
+  //todo: 사라졌나?
+  // @Field()
+  // levelRank: number;
 }

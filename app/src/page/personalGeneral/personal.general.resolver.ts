@@ -17,7 +17,10 @@ import {
   PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
-import { UserProfile } from './models/personal.general.userProfile.model';
+import {
+  UserProfile,
+  UserScoreRank,
+} from './models/personal.general.userProfile.model';
 import { PersonalGeneralService } from './personal.general.service';
 
 type PersonalGeneralContext = { uid: number };
@@ -43,6 +46,30 @@ export class PersonalGeneralResolver {
     );
 
     return { userProfile };
+  }
+
+  @ResolveField('beginAt', (_returns) => Date)
+  async beginAt(@Context() context: PersonalGeneralContext): Promise<Date> {
+    return await this.personalGeneralService.beginAt(context.uid);
+  }
+
+  @ResolveField('blackholedAt', (_returns) => Date)
+  async blackholedAt(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<Date> {
+    return await this.personalGeneralService.blackholedAt(context.uid);
+  }
+
+  @ResolveField('wallet', (_returns) => Int)
+  async wallet(@Context() context: PersonalGeneralContext): Promise<number> {
+    return await this.personalGeneralService.wallet(context.uid);
+  }
+
+  @ResolveField('scoreInfo', (_returns) => UserScoreRank)
+  async scoreInfo(
+    @Context() context: PersonalGeneralContext,
+  ): Promise<UserScoreRank> {
+    return await this.personalGeneralService.scoreInfo(context.uid);
   }
 
   @ResolveField('currMonthLogtime', (_returns) => NumberDateRanged)
@@ -93,10 +120,10 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.getLevelHistroyById(context.uid);
   }
 
-  @ResolveField('levelRank', (_returns) => Int)
-  async getLevelRank(
-    @Context() context: PersonalGeneralContext,
-  ): Promise<number> {
-    return await this.personalGeneralService.getLevelRank(context.uid);
-  }
+  // @ResolveField('levelRank', (_returns) => Int)
+  // async getLevelRank(
+  //   @Context() context: PersonalGeneralContext,
+  // ): Promise<number> {
+  //   return await this.personalGeneralService.getLevelRank(context.uid);
+  // }
 }

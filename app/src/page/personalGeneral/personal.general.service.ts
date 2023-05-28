@@ -18,7 +18,10 @@ import {
   PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
-import { UserProfile } from './models/personal.general.userProfile.model';
+import {
+  UserProfile,
+  UserScoreRank,
+} from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
@@ -106,12 +109,15 @@ export class PersonalGeneralService {
       teams: [
         {
           id: 2966047,
-          name: 'avaj-launcher',
+          projectname: 'avaj-launcher',
+          teamname: `jaham's team`,
           occurrence: 0,
-          closedAt: new Date('2022-10-20T16:26:30.317Z'),
-          firstCreatedAt: new Date('2022-10-20T04:06:32.437Z'),
           finalMark: 125,
+          createdAt: new Date('2022-10-20T04:06:32.437Z'),
+          lockedAt: new Date('2022-10-20T04:06:32.437Z'),
+          closedAt: new Date('2022-10-20T16:26:30.317Z'),
           isValidated: true,
+          status: '완료',
         },
       ],
     };
@@ -185,24 +191,14 @@ export class PersonalGeneralService {
   }
 
   async getUserInfo(uid: number): Promise<UserProfile> {
-    const currTime = Time.curr();
-    const startOfMonth = Time.startOfMonth(currTime);
-    const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
-
     const cursusUserProfile = await this.cursusUserService.getCursusUserProfile(
       uid,
     );
     const titles = await this.titlesUserService.getTitlesUserProfile(uid);
-    const scoreInfo = await this.coalitionsUserService.getScoreRankById(
-      uid,
-      startOfMonth,
-      startOfNextMonth,
-    );
 
     const userProfile: UserProfile = {
       ...cursusUserProfile,
       titles,
-      scoreInfo,
     };
 
     return userProfile;
@@ -213,5 +209,29 @@ export class PersonalGeneralService {
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
     return await this.cursusUserService.getLevelRankById(uid, filter);
+  }
+
+  async beginAt(uid: number): Promise<Date> {
+    return new Date();
+  }
+
+  async blackholedAt(uid: number): Promise<Date> {
+    return new Date();
+  }
+
+  async wallet(uid: number): Promise<number> {
+    return 1234;
+  }
+
+  async scoreInfo(uid: number): Promise<UserScoreRank> {
+    const currTime = Time.curr();
+    const startOfMonth = Time.startOfMonth(currTime);
+    const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
+
+    return await this.coalitionsUserService.getScoreRankById(
+      uid,
+      startOfMonth,
+      startOfNextMonth,
+    );
   }
 }

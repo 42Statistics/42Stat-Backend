@@ -29,22 +29,12 @@ type UserProfile {
   id: Int!
   login: String!
   grade: String!
-  name: String!
+  displayname: String!
   coalition: Coalition!
   imgUrl: String
   titles: [UserTitle]!
   level: Float!
-  beginAt: DateTime!
-  blackholedAt: DateTime
-  wallet: Int!
-  correctionPoint: Int!
-  scoreInfo: UserScoreRank!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type UserPreview {
   id: Int!
@@ -62,6 +52,11 @@ type UserRankingDateRanged {
   from: DateTime!
   to: DateTime!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type ProjectPreview {
   id: Int!
@@ -271,14 +266,23 @@ type Home {
 
 type TempTeam {
   id: Int!
-  name: String!
+  teamname: String!
+  projectname: String!
   occurrence: Int!
-  closedAt: DateTime
-  firstCreatedAt: DateTime!
-  finalMark: Int
+  finalMark: Int!
 
-  """true면 통과, false면 fail, null이면 미평가 입니다."""
-  isValidated: Boolean
+  """레지스터"""
+  createdAt: DateTime!
+
+  """팀 빌딩"""
+  lockedAt: DateTime!
+
+  """제출"""
+  closedAt: DateTime!
+  isValidated: Boolean!
+
+  """상태: 팀빌딩, 진행중, 평가중, 완료"""
+  status: String!
 }
 
 type PreferredTime {
@@ -320,14 +324,17 @@ type PreferredTimeDateRanged {
 }
 
 type PersonalGeneral {
+  userProfile: UserProfile!
+  beginAt: DateTime!
+  blackholedAt: DateTime
+  wallet: Int!
+  scoreInfo: UserScoreRank!
   currMonthLogtime: NumberDateRanged!
   lastMonthLogtime: NumberDateRanged!
   preferredTime: PreferredTimeDateRanged!
   preferredCluster(start: DateTime, end: DateTime): StringDateRanged!
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
-  userProfile: UserProfile!
-  levelRank: Int!
 }
 
 type PersonalEval {
