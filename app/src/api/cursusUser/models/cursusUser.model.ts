@@ -4,5 +4,5 @@ import { UserProfile } from 'src/page/personalGeneral/models/personal.general.us
 @ObjectType()
 export class CursusUserProfile extends OmitType(UserProfile, [
   'titles',
-  'scoreInfo',
+  // 'scoreInfo',
 ]) {}

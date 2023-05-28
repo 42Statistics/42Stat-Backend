@@ -146,10 +146,10 @@ export class CursusUserService {
         coalition: { $first: '$coalitions' },
         imgUrl: '$user.image.link',
         level: '$level',
-        beginAt: '$beginAt',
-        blackholedAt: '$blackholedAt',
-        wallet: '$user.wallet',
-        correctionPoint: '$user.correctionPoint',
+        // beginAt: '$beginAt',
+        // blackholedAt: '$blackholedAt',
+        // wallet: '$user.wallet',
+        // correctionPoint: '$user.correctionPoint',
       })
       .project({ 'coalition._id': 0 });
 
