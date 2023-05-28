@@ -9,7 +9,7 @@
 - `Landing` 누적 블랙홀 유저 수
 - `Landing` 현재 가장 많은 사람이 참여하는 과제와 유저 수
 
-## Home Page
+## Home Page ✅
 ### 가져와야 하는것
 ; - `Home` TOTAL- 역대 총 평가 횟수
 ; - `Home` TOTAL- 평균 피드백 길이
@@ -52,33 +52,39 @@
 
 
 
-
-
-
-
-
-
 ### Personal/General Page
-- `General` GENERAL- 유저 프로필(코알리숑)
-- `General` GENERAL- 유저 프로필(grade)
-- `General` GENERAL- 유저 프로필(display name)
-- `General` GENERAL- 유저 프로필(title)
-- `General` GENERAL- 유저 프로필(login)
-- `General` GENERAL- 유저 프로필(level)
-- `General` GENERAL- 유저 프로필(image)
+; - `General` GENERAL- 유저 프로필(코알리숑)
+; - `General` GENERAL- 유저 프로필(grade)
+; - `General` GENERAL- 유저 프로필(display name)
+; - `General` GENERAL- 유저 프로필(title)
+; - `General` GENERAL- 유저 프로필(login)
+; - `General` GENERAL- 유저 프로필(level)
+; - `General` GENERAL- 유저 프로필(image)
 
-- `General` GENERAL- 본과정 시작일
-- `General` GENERAL- 월간 출석 시간 (이번 달 + 저번 달)
-- `General` GENERAL- 보유 월렛
+유저프로필 -> 카드 (별도 함수로 분리)
+; - `General` GENERAL- 본과정 시작일
+; - `General` GENERAL- 보유 월렛
+; - `General` GENERAL- 블랙홀
+; - `General` GENERAL- 월간 코알리숑 스코어, 랭킹
 
-- `General` 월간 코알리숑 스코어, 랭킹
+; - `General` GENERAL- 월간 출석 시간 (이번 달 + 저번 달)
+; - `General` GENERAL- 주 접속 클러스터
+; - `General` GENERAL- 주 접속 시간대
 
-- `General` GENERAL- 최근 통과한 과제
-- `General` GENERAL- 최근 신청한 과제
-- `General` GENERAL- 블랙홀
-- `General` GENERAL- 레벨 증가 그래프
-- `General` GENERAL- 주 접속 클러스터
-- `General` GENERAL- 주 접속 시간대
+; - `General` GENERAL- 팀(최근 통과한 과제)
+; - `General` GENERAL- 팀(최근 신청한 과제)
+; - `General` GENERAL- 수행한 과제별 기록(프로젝트이름)
+; - `General` GENERAL- 수행한 과제별 기록(팀이름)
+; - `General` GENERAL- 수행한 과제별 기록(시도)
+; - `General` GENERAL- 수행한 과제별 기록(점수)
+; - `General` GENERAL- 수행한 과제별 기록(레지스터 날)
+; - `General` GENERAL- 수행한 과제별 기록(팀 생성 날)
+; - `General` GENERAL- 수행한 과제별 기록(제출일자)
+; - `General` GENERAL- 수행한 과제별 기록(평가완료)
+; - `General` 수행한 과제별 기록(상태)
+
+; - `General` GENERAL- 레벨 증가 그래프
+
 
 - `General` 이 유저를 캐릭터로 평가한다면?
   -> <닮은캐릭터>
@@ -103,15 +109,13 @@
       누적 fail 준 횟수
 
 
-- `General` GENERAL- 수행한 과제별 기록(시도)
-- `General` 수행한 과제별 기록(팀명)
-- `General` GENERAL- 수행한 과제별 기록(제출일자)
-- `General` GENERAL- 수행한 과제별 기록(등록일)
-- `General` GENERAL- 수행한 과제별 기록(점수)
-- `General` 수행한 과제별 기록(상태)
+
 
 ### Personal/Eval Page
+유저프로필 -> 카드
 - `Eval` GENERAL- 보유 평가 포인트
+
+
 - `Eval` EVAL- 월간 평가 횟수 
 - `Eval` EVAL- 평균 평가 시간
 - `Eval` EVAL- 평균 평가 점수

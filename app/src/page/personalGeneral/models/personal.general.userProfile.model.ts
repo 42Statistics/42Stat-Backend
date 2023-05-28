@@ -47,7 +47,7 @@ export class UserProfile {
   //grade: UserGrade;
 
   @Field()
-  name: string;
+  displayname: string;
 
   @Field()
   coalition: Coalition;
@@ -61,18 +61,18 @@ export class UserProfile {
   @Field((_type) => Float)
   level: number;
 
-  @Field()
-  beginAt: Date;
+  // @Field()
+  // beginAt: Date;
 
-  @Field({ nullable: true })
-  blackholedAt?: Date;
+  // @Field({ nullable: true })
+  // blackholedAt?: Date;
 
-  @Field()
-  wallet: number;
+  // @Field()
+  // wallet: number;
 
-  @Field()
-  correctionPoint: number;
+  // @Field()
+  // correctionPoint: number;
 
-  @Field()
-  scoreInfo: UserScoreRank;
+  // @Field()
+  // scoreInfo: UserScoreRank;
 }
