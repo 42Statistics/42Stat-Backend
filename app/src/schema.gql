@@ -264,6 +264,22 @@ type Home {
   monthlyAccessTimeRank: [UserRanking!]!
 }
 
+type PreferredTime {
+  total: Int!
+
+  """06 ~ 12"""
+  morning: Int!
+
+  """12 ~ 18"""
+  daytime: Int!
+
+  """18 ~ 24"""
+  evening: Int!
+
+  """24 ~ 06"""
+  night: Int!
+}
+
 type TempTeam {
   id: Int!
   teamname: String!
@@ -281,22 +297,11 @@ type TempTeam {
   closedAt: DateTime!
   isValidated: Boolean!
 
+  """평가완료날"""
+  finishAt: DateTime!
+
   """상태: 팀빌딩, 진행중, 평가중, 완료"""
   status: String!
-}
-
-type PreferredTime {
-  """06 ~ 12"""
-  morning: Int!
-
-  """12 ~ 18"""
-  daytime: Int!
-
-  """18 ~ 24"""
-  evening: Int!
-
-  """24 ~ 06"""
-  night: Int!
 }
 
 type TeamInfo {
