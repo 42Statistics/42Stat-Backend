@@ -247,21 +247,6 @@ type Home {
 
   """HOME 이번 달 누적 코알리숑 티그 횟수"""
   tigCountPerCoalitions: [CoalitionPerValue!]!
-
-  " "
-  totalEvalCountRank: [UserRanking!]!
-
-  " "
-  monthlyEvalCountRank: UserRankingDateRanged!
-
-  " "
-  levelRank: UserRankingDateRanged!
-
-  " "
-  monthlyExpIncrementRank: [UserRanking!]!
-
-  " "
-  monthlyAccessTimeRank: [UserRanking!]!
 }
 
 type TempTeam {
