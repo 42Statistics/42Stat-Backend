@@ -116,23 +116,6 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
-type NumberDateRanged {
-  data: Int!
-  from: DateTime!
-  to: DateTime!
-}
-
-type StringDateRanged {
-  data: String!
-  from: DateTime!
-  to: DateTime!
-}
-
-type ProjectRanking {
-  projectPreview: ProjectPreview!
-  value: Int!
-}
-
 type ProjectInfo {
   id: ID!
   name: String!
@@ -167,17 +150,6 @@ type Total {
 
   " "
   monthlyScoreRanks: UserRankingDateRanged!
-  totalScores: [CoalitionScore!]!
-  scoreRecords: [CoalitionScoreRecords!]!
-  totalEvalCount: Int!
-  averageFeedbackLength: Int!
-  averageCommentLength: Int!
-  userCountPerLevels: [UserCountPerLevels!]!
-  walletRanks(limit: Int! = 5): [UserRanking!]!
-  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
-  averageCircleDurations(uid: Int): [ValuePerCircle!]!
-  blackholedCountPerCircles: [ValuePerCircle!]!
-  activeUserCountRecords: [ValueRecord!]!
 }
 
 type CoalitionScore {
@@ -188,6 +160,23 @@ type CoalitionScore {
 type CoalitionScoreRecords {
   coalition: Coalition!
   records: [ValueRecord]!
+}
+
+type NumberDateRanged {
+  data: Int!
+  from: DateTime!
+  to: DateTime!
+}
+
+type StringDateRanged {
+  data: String!
+  from: DateTime!
+  to: DateTime!
+}
+
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
 }
 
 type ExamResult {
@@ -235,24 +224,34 @@ type Home {
 
   """HOME 평균 코멘트 길이"""
   averageCommentLength: Int!
-
-  """HOME 레벨 별 유저 분포"""
   userCountPerLevels: [UserCountPerLevels!]!
 
   """HOME 보유 월렛 랭킹"""
-  walletRanks: [UserRanking!]!
+  walletRanks(limit: Int! = 5): [UserRanking!]!
 
   """HOME 보유 평가 포인트 랭킹"""
-  correctionPointRanks: [UserRanking!]!
+  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
 
-  """HOME 전체 / 유저별 서클 통과 평균 기간 (uid?: number)"""
-  averageCircleDurations: [ValuePerCircle!]!
+  """HOME 전체/유저별 서클 통과 평균 기간 (uid?: number)"""
+  averageCircleDurations(uid: Int): [ValuePerCircle!]!
 
   """HOME 언제 블랙홀에 많이 빠질까"""
   blackholedCountPerCircles: [ValuePerCircle!]!
 
   """HOME 활성화 유저 수 추이"""
   activeUserCountRecords: [ValueRecord!]!
+
+  """HOME 주간 1인당 평가 횟수"""
+  currWeekAverageEvalCount: Int!
+
+  """HOME 멤버 비율"""
+  memberPercentage: Int!
+
+  """HOME 블랙홀 유저 비율"""
+  blackholedPercentage: Int!
+
+  """HOME 이번 달 누적 코알리숑 티그 횟수"""
+  tigCountPerCoalitions: [CoalitionScore!]!
 
   " "
   totalEvalCountRank: [UserRanking!]!
@@ -261,7 +260,7 @@ type Home {
   monthlyEvalCountRank: UserRankingDateRanged!
 
   " "
-  levelRank(limit: Int! = 50): UserRankingDateRanged!
+  levelRank: UserRankingDateRanged!
 
   " "
   monthlyExpIncrementRank: [UserRanking!]!
