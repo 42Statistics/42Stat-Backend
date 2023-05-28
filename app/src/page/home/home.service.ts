@@ -55,31 +55,6 @@ export class HomeService {
     return generateDateRanged(evalCount, lastWeek, Time.moveDate(currWeek, -1));
   }
 
-  async totalEvalCountRank(): Promise<UserRanking[]> {
-    return this.scaleTeamService.getEvalCountRank();
-  }
-
-  async monthlyEvalCountRank(): Promise<UserRankingDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
-    const nextMonth = Time.moveMonth(currMonth, 1);
-
-    const evalCountRank = await this.scaleTeamService.getEvalCountRank({
-      beginAt: { $gte: currMonth, $lt: nextMonth },
-      filledAt: { $ne: null },
-    });
-
-    return generateDateRanged(
-      evalCountRank,
-      currMonth,
-      Time.moveDate(nextMonth, -1),
-    );
-  }
-
-  async levelRank(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('level', limit);
-  }
-
   async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
     const lastMonth = Time.moveMonth(Time.curr(), -1);
     const start = Time.startOfMonth(lastMonth);

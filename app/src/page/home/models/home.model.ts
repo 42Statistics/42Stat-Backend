@@ -128,19 +128,4 @@ export class Home {
     description: 'HOME 이번 달 누적 코알리숑 티그 횟수',
   })
   tigCountPerCoalitions: CoalitionPerValue[];
-
-  @Field((_type) => [UserRanking], { description: ' ' })
-  totalEvalCountRank: UserRanking[];
-
-  @Field((_type) => UserRankingDateRanged, { description: ' ' })
-  monthlyEvalCountRank: UserRankingDateRanged;
-
-  @Field((_type) => UserRankingDateRanged, { description: ' ' })
-  levelRank: UserRankingDateRanged;
-
-  @Field((_type) => [UserRanking], { description: ' ' })
-  monthlyExpIncrementRank: UserRanking[];
-
-  @Field((_type) => [UserRanking], { description: ' ' })
-  monthlyAccessTimeRank: UserRanking[];
 }
