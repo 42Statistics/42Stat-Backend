@@ -94,7 +94,7 @@ export class Home {
   correctionPointRanks: UserRanking[];
 
   @Field((_type) => [ValuePerCircle], {
-    description: 'HOME 전체 / 유저별 서클 통과 평균 기간 (uid?: number)',
+    description: 'HOME 전체/유저별 서클 통과 평균 기간 (uid?: number)',
   })
   averageCircleDurations: ValuePerCircle[];
 
@@ -109,14 +109,16 @@ export class Home {
   @Field((_type) => [ValueRecord], { description: 'HOME 활성화 유저 수 추이' })
   activeUserCountRecords: ValueRecord[];
 
+  /** make new **/
+
   @Field((_type) => Int, { description: 'HOME 주간 1인당 평가 횟수' })
-  abc: number;
+  currWeekAverageEvalCount: number;
 
   @Field((_type) => Int, { description: 'HOME 멤버 비율' })
-  abc: number;
+  memberPercentage: number;
 
   @Field((_type) => Int, { description: 'HOME 블랙홀 유저 비율' })
-  abc: number;
+  blackholedPercentage: number;
 
   @Field((_type) => [CoalitionScore], {
     description: 'HOME 이번 달 누적 코알리숑 티그 횟수',
