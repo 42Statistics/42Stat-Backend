@@ -1,12 +1,5 @@
-import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
-import {
-  CoalitionPerValue,
-  CoalitionScoreRecords,
-} from 'src/api/score/models/score.coalition.model';
-import {
-  UserRanking,
-  UserRankingDateRanged,
-} from 'src/common/models/common.user.model';
+import { Field, ID, ObjectType } from '@nestjs/graphql';
+import { UserRankingDateRanged } from 'src/common/models/common.user.model';
 
 // todo: extends OmitType(project)
 @ObjectType()
