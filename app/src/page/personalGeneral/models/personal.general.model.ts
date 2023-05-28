@@ -18,10 +18,10 @@ export class TempTeam {
   id: number;
 
   @Field()
-  teamname: string;
+  teamName: string;
 
   @Field() //todo: projectId 를 통해 구하기
-  projectname: string;
+  projectName: string;
 
   @Field()
   occurrence: number;

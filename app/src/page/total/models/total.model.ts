@@ -1,6 +1,6 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import {
-  CoalitionScore,
+  CoalitionPerValue,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import {

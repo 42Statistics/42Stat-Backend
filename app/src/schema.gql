@@ -147,7 +147,7 @@ type Total {
   monthlyScoreRanks: UserRankingDateRanged!
 }
 
-type CoalitionScore {
+type CoalitionPerValue {
   coalition: Coalition!
   value: Int!
 }
@@ -206,7 +206,7 @@ type Home {
   lastExamResult: ExamResultDateRanged!
 
   """HOME 역대 코알리숑 스코어 합산"""
-  totalScores: [CoalitionScore!]!
+  totalScores: [CoalitionPerValue!]!
 
   """HOME 코알리숑별 역대 코알리숑 스코어 변동 추이"""
   scoreRecords: [CoalitionScoreRecords!]!
@@ -236,17 +236,17 @@ type Home {
   """HOME 활성화 유저 수 추이"""
   activeUserCountRecords: [ValueRecord!]!
 
-  """HOME 주간 1인당 평가 횟수"""
-  currWeekAverageEvalCount: Int!
+  """HOME 주간 1인당 평가 횟수 [주간 평가 횟수, 활동 유저 수]"""
+  currWeekAverageEvalCount: [Int!]!
 
-  """HOME 멤버 비율"""
-  memberPercentage: Int!
+  """HOME 멤버 비율 [멤버 유저 수, 전체 유저 수]"""
+  memberPercentage: [Int!]!
 
-  """HOME 블랙홀 유저 비율"""
-  blackholedPercentage: Int!
+  """HOME 블랙홀 유저 비율 [블랙홀 유저 수, 전체 유저 수]"""
+  blackholedPercentage: [Int!]!
 
   """HOME 이번 달 누적 코알리숑 티그 횟수"""
-  tigCountPerCoalitions: [CoalitionScore!]!
+  tigCountPerCoalitions: [CoalitionPerValue!]!
 
   " "
   totalEvalCountRank: [UserRanking!]!
@@ -264,26 +264,10 @@ type Home {
   monthlyAccessTimeRank: [UserRanking!]!
 }
 
-type PreferredTime {
-  total: Int!
-
-  """06 ~ 12"""
-  morning: Int!
-
-  """12 ~ 18"""
-  daytime: Int!
-
-  """18 ~ 24"""
-  evening: Int!
-
-  """24 ~ 06"""
-  night: Int!
-}
-
 type TempTeam {
   id: Int!
-  teamname: String!
-  projectname: String!
+  teamName: String!
+  projectName: String!
   occurrence: Int!
   finalMark: Int!
 
@@ -302,6 +286,22 @@ type TempTeam {
 
   """상태: 팀빌딩, 진행중, 평가중, 완료"""
   status: String!
+}
+
+type PreferredTime {
+  total: Int!
+
+  """06 ~ 12"""
+  morning: Int!
+
+  """12 ~ 18"""
+  daytime: Int!
+
+  """18 ~ 24"""
+  evening: Int!
+
+  """24 ~ 06"""
+  night: Int!
 }
 
 type TeamInfo {

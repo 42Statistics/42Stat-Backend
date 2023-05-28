@@ -3,7 +3,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import {
-  CoalitionScore,
+  CoalitionPerValue,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
@@ -116,7 +116,7 @@ export class HomeService {
     );
   }
 
-  async totalScores(): Promise<CoalitionScore[]> {
+  async totalScores(): Promise<CoalitionPerValue[]> {
     return await this.scoreService.getScoresByCoalition();
   }
 
@@ -203,21 +203,21 @@ export class HomeService {
       .filter((record) => record.at !== undefined);
   }
 
-  async currWeekAverageEvalCount(): Promise<number> {
-    return 1.71;
+  async currWeekAverageEvalCount(): Promise<[number, number]> {
+    return [132, 1000];
   }
 
   //todo: description: 비활성화 유저도 직전 상태로 포함
-  async memberPercentage(): Promise<number> {
-    return 74.42;
+  async memberPercentage(): Promise<[number, number]> {
+    return [240, 2038];
   }
 
   //todo: description: 비활성화 유저도 직전 상태로 포함
-  async blackholedPercentage(): Promise<number> {
-    return 24.42;
+  async blackholedPercentage(): Promise<[number, number]> {
+    return [1038, 2038];
   }
 
-  async tigCountPerCoalitions(): Promise<CoalitionScore[]> {
+  async tigCountPerCoalitions(): Promise<CoalitionPerValue[]> {
     return [
       {
         coalition: {
