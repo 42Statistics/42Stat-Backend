@@ -2,6 +2,7 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Coalition } from 'src/api/coalition/models/coalition.model';
 import { ValueRecord } from 'src/page/total/models/total.model';
 
+//todo: change name
 @ObjectType()
 export class CoalitionScore {
   @Field()
