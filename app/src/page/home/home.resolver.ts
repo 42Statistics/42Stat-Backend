@@ -1,11 +1,4 @@
-import {
-  Args,
-  Float,
-  Int,
-  Query,
-  ResolveField,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
   CoalitionPerValue,
   CoalitionScoreRecords,
@@ -191,12 +184,12 @@ export class HomeResolver {
 
   @ResolveField('lastMonthBlackholedCount', (_returns) => NumberDateRanged)
   async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    return await this.homeService.lastMonthblackholedCount();
+    return await this.homeService.lastMonthBlackholedCount();
   }
 
   @ResolveField('currMonthBlackholedCount', (_returns) => NumberDateRanged)
   async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    return await this.homeService.currMonthblackholedCount();
+    return await this.homeService.currMonthBlackholedCount();
   }
 
   @ResolveField('totalScores', (_returns) => [CoalitionPerValue])

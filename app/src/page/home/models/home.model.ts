@@ -1,4 +1,4 @@
-import { Field, Float, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ProjectRanking } from 'src/api/project/models/project.ranking.model';
 import {
   CoalitionPerValue,
