@@ -12,7 +12,6 @@ import {
   UserScoreRank,
 } from './personal.general.userProfile.model';
 
-// todo: use team
 @ObjectType()
 export class TempTeam {
   @Field()
@@ -42,8 +41,8 @@ export class TempTeam {
   @Field()
   isValidated: boolean;
 
-  // @Field({description: '평가완료날'})
-  // teamsUploads.createdAt
+  @Field({ description: '평가완료날' }) //todo: teamsUploads.createdAt
+  finishAt?: Date;
 
   @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
   status: string;
@@ -51,6 +50,9 @@ export class TempTeam {
 
 @ObjectType()
 export class PreferredTime {
+  @Field()
+  total: number;
+
   @Field({ description: '06 ~ 12' })
   morning: number;
 

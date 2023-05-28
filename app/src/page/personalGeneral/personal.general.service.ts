@@ -117,6 +117,7 @@ export class PersonalGeneralService {
           lockedAt: new Date('2022-10-20T04:06:32.437Z'),
           closedAt: new Date('2022-10-20T16:26:30.317Z'),
           isValidated: true,
+          finishAt: new Date(),
           status: '완료',
         },
       ],
