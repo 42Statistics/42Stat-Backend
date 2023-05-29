@@ -10,6 +10,7 @@ import { HomeModule } from './page/home/home.module';
 import { PersonalEvalModule } from './page/personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './page/personalGeneral/personal.general.module';
 import { TotalModule } from './page/total/total.module';
+import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -21,8 +22,9 @@ import { TotalModule } from './page/total/total.module';
     TotalModule,
     PersonalGeneralModule,
     PersonalEvalModule,
-    ScaleTeamModule,
+    LeaderboardModule,
     EvalLogModule,
+    ScaleTeamModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       buildSchemaOptions: {
