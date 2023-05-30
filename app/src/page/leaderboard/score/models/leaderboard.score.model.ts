@@ -6,12 +6,12 @@ import {
 
 @ObjectType()
 export class LeaderboardScore {
-  @Field({ description: '주간 코알리숑 스코어 기여 랭킹' })
-  weeklyScoreRank: LeaderboardElementDateRanged;
+  @Field()
+  total: LeaderboardElement;
 
-  @Field({ description: '월간 코알리숑 스코어 기여 랭킹' })
-  monthlyScoreRank: LeaderboardElementDateRanged;
+  @Field()
+  byDateRange: LeaderboardElementDateRanged;
 
-  @Field({ description: '누적 코알리숑 스코어 기여 랭킹' })
-  totalScoreRank: LeaderboardElement;
+  @Field()
+  byDateTemplate: LeaderboardElementDateRanged;
 }

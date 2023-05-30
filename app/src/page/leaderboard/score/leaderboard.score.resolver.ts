@@ -1,4 +1,4 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { Time } from 'src/util';
 import {
   LeaderboardElement,
@@ -6,55 +6,40 @@ import {
 } from '../models/leaderboard.model';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
+import {
+  DateRangeArgs,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 
 @Resolver((_of: unknown) => LeaderboardScore)
 export class LeaderboardScoreResolver {
   constructor(private leaderboardScoreService: LeaderboardScoreService) {}
 
   @Query((_returns) => LeaderboardScore)
-  async leaderboardScore() {
+  async getLeaderboardScore() {
     return {};
-  }
-
-  @ResolveField('weekly', (_returns) => LeaderboardElementDateRanged)
-  async weekly(): Promise<LeaderboardElementDateRanged> {
-    const start = Time.curr();
-    const end = Time.curr();
-    const a = await this.leaderboardScoreService.scoreRank(start, end);
-
-    return {
-      from: start,
-      to: end,
-      data: {
-        me: a[0],
-        userRanking: a,
-      },
-    };
-  }
-
-  @ResolveField('monthly', (_returns) => LeaderboardElementDateRanged)
-  async monthly(): Promise<LeaderboardElementDateRanged> {
-    const start = Time.curr();
-    const end = Time.curr();
-    const a = await this.leaderboardScoreService.scoreRank(start, end);
-
-    return {
-      from: start,
-      to: end,
-      data: {
-        me: a[0],
-        userRanking: a,
-      },
-    };
   }
 
   @ResolveField('total', (_returns) => LeaderboardElement)
   async total(): Promise<LeaderboardElement> {
-    const a = await this.leaderboardScoreService.totalScoreRank();
+    return await this.leaderboardScoreService.scoreRank(99947);
+  }
 
-    return {
-      me: a[0],
-      userRanking: a,
-    };
+  @ResolveField('byDateRange', (_returns) => LeaderboardElementDateRanged)
+  async byDateRange(
+    @Args() dateRangeArgs: DateRangeArgs,
+  ): Promise<LeaderboardElementDateRanged> {
+    return await this.leaderboardScoreService.scoreRankByDateRange(
+      99947,
+      dateRangeArgs,
+    );
+  }
+
+  @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
+  async byDateTemplate(@Args() { dateTemplate }: DateTemplateArgs) {
+    return await this.leaderboardScoreService.scoreRankByDateTemplate(
+      99947,
+      dateTemplate,
+    );
   }
 }

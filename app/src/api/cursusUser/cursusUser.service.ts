@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model } from 'mongoose';
+import type { Aggregate, FilterQuery, Model } from 'mongoose';
 import {
   AggrNumeric,
   AggrValuePerDate,
@@ -36,6 +36,10 @@ export class CursusUserService {
     }
 
     return result;
+  }
+
+  aggregate<ReturnType>(): Aggregate<ReturnType[]> {
+    return this.cursusUserModel.aggregate<ReturnType>();
   }
 
   //todo: function name
