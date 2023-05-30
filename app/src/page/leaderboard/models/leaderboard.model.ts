@@ -7,11 +7,11 @@ import { DateRanged } from 'src/dateRange/models/dateRange.model';
 
 @ObjectType()
 export class LeaderboardElement {
-  @Field({ description: '내 랭킹 정보' })
-  me: UserRanking;
+  @Field({ description: '내 랭킹 정보', nullable: true })
+  me?: UserRanking;
 
   @Field((_type) => [UserRanking], { description: '전체 랭킹 정보' })
-  userRanking: UserRanking[];
+  totalRanks: UserRanking[];
 }
 
 @ObjectType()

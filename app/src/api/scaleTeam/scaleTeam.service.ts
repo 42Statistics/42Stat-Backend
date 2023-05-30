@@ -1,10 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
-import { UserRanking } from 'src/common/models/common.user.model';
-import { EvalLog, EvalLogsPaginated } from 'src/evalLog/models/evalLog.model';
+import type { UserRanking } from 'src/common/models/common.user.model';
+import type {
+  EvalLog,
+  EvalLogsPaginated,
+} from 'src/evalLog/models/evalLog.model';
 import { generatePage } from 'src/pagination/pagination.service';
+import { CursusUserService } from '../cursusUser/cursusUser.service';
+import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
+import {
+  lookupScaleTeams,
+  rankEvalCount,
+} from './db/scaleTeam.database.aggregate';
 import { scale_team } from './db/scaleTeam.database.schema';
 
 @Injectable()
@@ -12,6 +21,7 @@ export class ScaleTeamService {
   constructor(
     @InjectModel(scale_team.name)
     private scaleTeamModel: Model<scale_team>,
+    private cursusUserService: CursusUserService,
   ) {}
 
   // async find(
@@ -38,44 +48,35 @@ export class ScaleTeamService {
     return await this.scaleTeamModel.countDocuments(filter);
   }
 
+  // total의 경우 5초, 기간 한정하는 경우 1초 이내
   async getEvalCountRank(
     filter?: FilterQuery<scale_team>,
   ): Promise<UserRanking[]> {
-    const aggregate = this.scaleTeamModel.aggregate<UserRanking>();
-
-    if (filter) {
-      aggregate.match(filter);
-    }
+    const aggregate = this.cursusUserService.aggregate<UserRanking>();
 
     return await aggregate
-      .group({
-        _id: '$corrector.id',
-        login: { $first: '$corrector.login' },
-        value: { $count: {} },
-      })
-      .sort({ value: -1 })
-      .limit(3)
-      .lookup({
-        from: 'users',
-        localField: '_id',
-        foreignField: 'id',
-        as: 'user',
-      })
+      .append(
+        lookupScaleTeams(
+          'user.id',
+          'corrector.id',
+          filter ? [{ $match: filter }] : undefined,
+        ),
+      )
+      .addFields({ value: { $size: '$scale_teams' } })
+      .append(...rankEvalCount)
+      .append(addUserPreview('user'))
       .project({
         _id: 0,
-        userPreview: {
-          id: '$_id',
-          login: '$login',
-          imgUrl: { $first: '$user.image.link' },
-        },
-        value: '$value',
+        userPreview: 1,
+        value: 1,
+        rank: 1,
       });
   }
 
   async getAverageFinalMark(uid: number): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
 
-    const finalMarkAggr = await aggregate
+    const [finalMarkAggr] = await aggregate
       .match({
         'corrector.id': uid,
         finalMark: { $ne: null },
@@ -89,7 +90,7 @@ export class ScaleTeamService {
         value: { $round: '$value' },
       });
 
-    return finalMarkAggr.length ? finalMarkAggr[0].value : 0;
+    return finalMarkAggr?.value ?? 0;
   }
 
   async getAverageReviewLength(
@@ -98,7 +99,7 @@ export class ScaleTeamService {
   ): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
 
-    const reviewAggr = await aggregate
+    const [reviewAggr] = await aggregate
       .match({
         ...filter,
         [`${field}`]: { $ne: null },
@@ -112,7 +113,7 @@ export class ScaleTeamService {
         value: { $round: '$value' },
       });
 
-    return reviewAggr.length ? reviewAggr[0].value : 0;
+    return reviewAggr?.value ?? 0;
   }
 
   async getAverageDurationMinute(
@@ -120,7 +121,7 @@ export class ScaleTeamService {
   ): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
 
-    const sumOfDuration = await aggregate
+    const [sumOfDuration] = await aggregate
       .match({
         filledAt: { $ne: null },
         ...filter,
@@ -142,7 +143,7 @@ export class ScaleTeamService {
         value: { $round: '$value' },
       });
 
-    return sumOfDuration.length ? sumOfDuration[0].value : 0;
+    return sumOfDuration?.value ?? 0;
   }
 
   async getEvalLogs(

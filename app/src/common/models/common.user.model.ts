@@ -16,6 +16,9 @@ export class UserRanking {
 
   @Field((_type) => Float)
   value: number;
+
+  @Field()
+  rank: number;
 }
 
 @ObjectType()

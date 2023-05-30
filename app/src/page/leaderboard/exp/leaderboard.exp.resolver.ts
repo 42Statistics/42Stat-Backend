@@ -1,4 +1,8 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  DateRangeArgs,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardExpService } from './leaderboard.exp.service';
 import { LeaderboardExp } from './models/leaderboard.exp.model';
@@ -8,41 +12,27 @@ export class LeaderboardExpResolver {
   constructor(private leaderboardExpService: LeaderboardExpService) {}
 
   @Query((_returns) => LeaderboardExp)
-  async leaderboardExpIncrement() {
+  async getLeaderboardExpIncrement() {
     return {};
   }
 
-  @ResolveField('weekly', (_returns) => LeaderboardElementDateRanged)
-  async weekly(): Promise<LeaderboardElementDateRanged> {
-    const a = await this.leaderboardExpService.expIncrementRank(
-      new Date(),
-      new Date(),
+  @ResolveField('byDateRange', (_returns) => Int)
+  async byDateRange(
+    @Args() dateRange: DateRangeArgs,
+  ): Promise<LeaderboardElementDateRanged> {
+    return await this.leaderboardExpService.expIncrementRankByDateRange(
+      99947,
+      dateRange,
     );
-
-    return {
-      from: new Date(),
-      to: new Date(),
-      data: {
-        me: a[0],
-        userRanking: a,
-      },
-    };
   }
 
-  @ResolveField('monthly', (_returns) => LeaderboardElementDateRanged)
-  async monthly(): Promise<LeaderboardElementDateRanged> {
-    const a = await this.leaderboardExpService.expIncrementRank(
-      new Date(),
-      new Date(),
+  @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
+  async byDateTemplate(
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<LeaderboardElementDateRanged> {
+    return await this.leaderboardExpService.expIncrementRankByDateTemplate(
+      99947,
+      dateTemplate,
     );
-
-    return {
-      from: new Date(),
-      to: new Date(),
-      data: {
-        me: a[0],
-        userRanking: a,
-      },
-    };
   }
 }

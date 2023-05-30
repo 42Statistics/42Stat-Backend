@@ -8,17 +8,12 @@ export class LeaderboardLevelResolver {
   constructor(private leaderboardLevelService: LeaderboardLevelService) {}
 
   @Query((_returns) => LeaderboardLevel)
-  async leaderboardLevel() {
+  async getLeaderboardLevel() {
     return {};
   }
 
-  @ResolveField('level', (_returns) => LeaderboardElement)
-  async level(): Promise<LeaderboardElement> {
-    const levelRank = await this.leaderboardLevelService.getLevelRank(50);
-
-    return {
-      me: levelRank[0],
-      userRanking: levelRank,
-    };
+  @ResolveField('total', (_returns) => LeaderboardElement)
+  async total(): Promise<LeaderboardElement> {
+    return await this.leaderboardLevelService.levelRank(99947, 50);
   }
 }

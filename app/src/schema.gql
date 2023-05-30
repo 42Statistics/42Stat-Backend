@@ -45,6 +45,7 @@ type UserPreview {
 type UserRanking {
   userPreview: UserPreview!
   value: Float!
+  rank: Int!
 }
 
 type UserRankingDateRanged {
@@ -366,10 +367,10 @@ type PersonalEval {
 
 type LeaderboardElement {
   """내 랭킹 정보"""
-  me: UserRanking!
+  me: UserRanking
 
   """전체 랭킹 정보"""
-  userRanking: [UserRanking!]!
+  totalRanks: [UserRanking!]!
 }
 
 type LeaderboardElementDateRanged {
@@ -379,41 +380,29 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  """주간 평가 횟수 랭킹"""
-  weekly: LeaderboardElementDateRanged!
-
-  """월간 평가 횟수 랭킹"""
-  monthly: LeaderboardElementDateRanged!
-
-  """누적 평가 횟수 랭킹"""
   total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+enum DateTemplate {
+  WEEKLY
+  MONTHLY
 }
 
 type LeaderboardExp {
-  """주간 경험치 증가량 랭킹"""
-  weekly: LeaderboardElementDateRanged!
-
-  """월간 경험치 증가량 랭킹"""
-  monthly: LeaderboardElementDateRanged!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  """누적 레벨 랭킹"""
-  level: LeaderboardElement!
+  total: LeaderboardElement!
 }
 
 type LeaderboardScore {
-  """주간 코알리숑 스코어 기여 랭킹"""
-  weeklyScoreRank: LeaderboardElementDateRanged!
-
-  """월간 코알리숑 스코어 기여 랭킹"""
-  monthlyScoreRank: LeaderboardElementDateRanged!
-
-  """누적 코알리숑 스코어 기여 랭킹"""
-  totalScoreRank: LeaderboardElement!
-  weekly: LeaderboardElementDateRanged!
-  monthly: LeaderboardElementDateRanged!
   total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type Query {
@@ -423,9 +412,9 @@ type Query {
   getTotalPage: Total!
   getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
   getPersonalEvalPage(uid: Int, login: String): PersonalEval!
-  leaderboardLevel: LeaderboardLevel!
-  leaderboardExpIncrement: LeaderboardExp!
-  leaderboardEvalCount: LeaderboardEval!
-  leaderboardScore: LeaderboardScore!
+  getLeaderboardLevel: LeaderboardLevel!
+  getLeaderboardExpIncrement: LeaderboardExp!
+  getLeaderboardEvalCount: LeaderboardEval!
+  getLeaderboardScore: LeaderboardScore!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
