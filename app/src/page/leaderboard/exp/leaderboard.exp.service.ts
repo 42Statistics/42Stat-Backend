@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import { generateDateRanged } from 'src/dateRange/dateRange.service';
+import {
+  dateRangeFromTemplate,
+  generateDateRanged,
+} from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
   DateTemplate,
@@ -98,8 +101,7 @@ export class LeaderboardExpService {
     userId: number,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
-    const dateRange =
-      this.leaderboardService.dateRangeFromTemplate(dateTemplate);
+    const dateRange = dateRangeFromTemplate(dateTemplate);
 
     return await this.expIncrementRankByDateRange(userId, dateRange);
   }
