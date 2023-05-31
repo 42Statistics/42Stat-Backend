@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ProjectRanking } from 'src/api/project/models/project.ranking.model';
 import {
-  CoalitionPerValue,
+  ValuePerCoalition,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
@@ -10,12 +10,45 @@ import {
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
-import {
-  UserCountPerLevels,
-  ValuePerCircle,
-  ValueRecord,
-} from 'src/page/total/models/total.model';
 
+@ObjectType()
+export class ValueRecord {
+  @Field()
+  at: Date;
+
+  @Field()
+  value: number;
+}
+
+@ObjectType()
+export class ValuePerCircle {
+  @Field()
+  circle: number;
+
+  @Field()
+  value: number;
+}
+
+//@ObjectType()
+//export class ValuePerCircleByPromo {
+//  @Field()
+//  circle: number;
+
+//  @Field()
+//  value: number;
+
+//  @Field()
+//  promo: string;
+//}
+
+@ObjectType()
+export class UserCountPerLevels {
+  @Field()
+  userCount: number;
+
+  @Field()
+  level: number;
+}
 @ObjectType()
 export class ExamResult {
   @Field()
@@ -61,10 +94,10 @@ export class Home {
   @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
   lastExamResult: ExamResultDateRanged;
 
-  @Field((_type) => [CoalitionPerValue], {
+  @Field((_type) => [ValuePerCoalition], {
     description: 'HOME 역대 코알리숑 스코어 합산',
   })
-  totalScores: CoalitionPerValue[];
+  totalScores: ValuePerCoalition[];
 
   @Field((_type) => [CoalitionScoreRecords], {
     description: 'HOME 코알리숑별 역대 코알리숑 스코어 변동 추이',
@@ -124,8 +157,8 @@ export class Home {
   })
   blackholedPercentage: [number, number];
 
-  @Field((_type) => [CoalitionPerValue], {
+  @Field((_type) => [ValuePerCoalition], {
     description: 'HOME 이번 달 누적 코알리숑 티그 횟수',
   })
-  tigCountPerCoalitions: CoalitionPerValue[];
+  tigCountPerCoalitions: ValuePerCoalition[];
 }
