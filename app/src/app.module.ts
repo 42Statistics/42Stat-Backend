@@ -11,7 +11,6 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { PersonalEvalModule } from './page/personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './page/personalGeneral/personal.general.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
-import { TotalModule } from './page/total/total.module';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { TotalModule } from './page/total/total.module';
     ProjectModule,
     HomeModule,
     ProjectInfoModule,
-    TotalModule,
     PersonalGeneralModule,
     PersonalEvalModule,
     LeaderboardModule,
