@@ -5,13 +5,10 @@ export class ProjectEvalInfo {
   @Field()
   totalEvalCount: number;
 
-  @Field({ description: '평가 점수가 100점 초과인 평가 수 입니다.' })
-  bonusCount: number;
+  @Field()
+  passCount: number;
 
-  @Field({ description: '평가 점수가 80 ~ 100점인 평가 수 입니다.' })
-  mandatoryCount: number;
-
-  @Field({ description: '평가 점수가 80점 미만인 평가 수 입니다.' })
+  @Field()
   failCount: number;
 }
 
