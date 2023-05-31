@@ -1,6 +1,6 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
-  CoalitionPerValue,
+  ValuePerCoalition,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
@@ -10,7 +10,7 @@ import {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
-} from '../total/models/total.model';
+} from '../home/models/home.model';
 import { HomeService } from './home.service';
 import { Home } from './models/home.model';
 
@@ -81,8 +81,8 @@ export class HomeResolver {
     return await this.homeService.currMonthBlackholedCount();
   }
 
-  @ResolveField('totalScores', (_returns) => [CoalitionPerValue])
-  async totalScores(): Promise<CoalitionPerValue[]> {
+  @ResolveField('totalScores', (_returns) => [ValuePerCoalition])
+  async totalScores(): Promise<ValuePerCoalition[]> {
     return await this.homeService.totalScores();
   }
 
@@ -167,8 +167,8 @@ export class HomeResolver {
     return await this.homeService.blackholedPercentage();
   }
 
-  @ResolveField('tigCountPerCoalitions', (_returns) => [CoalitionPerValue])
-  async tigCountPerCoalitions(): Promise<CoalitionPerValue[]> {
+  @ResolveField('tigCountPerCoalitions', (_returns) => [ValuePerCoalition])
+  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
     return await this.homeService.tigCountPerCoalitions();
   }
 }

@@ -3,22 +3,19 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import {
-  CoalitionPerValue,
+  ValuePerCoalition,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
-import {
-  UserRanking,
-  UserRankingDateRanged,
-} from 'src/common/models/common.user.model';
+import { UserRanking } from 'src/common/models/common.user.model';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { Time } from 'src/util';
 import {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
-} from '../total/models/total.model';
+} from './models/home.model';
 
 @Injectable()
 export class HomeService {
@@ -91,7 +88,7 @@ export class HomeService {
     );
   }
 
-  async totalScores(): Promise<CoalitionPerValue[]> {
+  async totalScores(): Promise<ValuePerCoalition[]> {
     return await this.scoreService.getScoresByCoalition();
   }
 
@@ -192,7 +189,7 @@ export class HomeService {
     return [1038, 2038];
   }
 
-  async tigCountPerCoalitions(): Promise<CoalitionPerValue[]> {
+  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
     return [
       {
         coalition: {

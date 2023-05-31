@@ -39,10 +39,10 @@ export class TempTeam {
   closedAt?: Date;
 
   @Field()
-  isValidated: boolean;
+  isValidated?: boolean;
 
   @Field({ description: '평가완료날' }) //todo: teamsUploads.createdAt
-  finishAt?: Date;
+  finishedAt?: Date;
 
   @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
   status: string;

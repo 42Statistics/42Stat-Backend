@@ -6,10 +6,10 @@ import {
   AggrValuePerDate,
 } from 'src/common/db/common.db.aggregation';
 import { UserPreview, UserRanking } from 'src/common/models/common.user.model';
-import {
+import type {
   UserCountPerLevels,
   ValuePerCircle,
-} from 'src/page/total/models/total.model';
+} from 'src/page/home/models/home.model';
 import { Time } from 'src/util';
 import {
   CursusUserDatable,

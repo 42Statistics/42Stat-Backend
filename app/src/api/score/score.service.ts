@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { score } from './db/score.database.schema';
 import {
-  CoalitionPerValue,
+  ValuePerCoalition,
   CoalitionScoreRecords,
 } from './models/score.coalition.model';
 @Injectable()
@@ -12,8 +12,8 @@ export class ScoreService {
     @InjectModel(score.name)
     private scoreModel: Model<score>,
   ) {}
-  async getScoresByCoalition(): Promise<CoalitionPerValue[]> {
-    const aggregate = this.scoreModel.aggregate<CoalitionPerValue>();
+  async getScoresByCoalition(): Promise<ValuePerCoalition[]> {
+    const aggregate = this.scoreModel.aggregate<ValuePerCoalition>();
 
     return await aggregate
       .match({ coalitionsUserId: { $ne: null } })
