@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
-import { EvalLogModule } from './evalLog/evalLog.module';
+import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { ProjectModule } from './api/project/project.module';
 import { ScaleTeamModule } from './api/scaleTeam/scaleTeam.module';
 import { HomeModule } from './page/home/home.module';

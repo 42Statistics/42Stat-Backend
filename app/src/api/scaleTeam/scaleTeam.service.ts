@@ -6,7 +6,7 @@ import type { UserRanking } from 'src/common/models/common.user.model';
 import type {
   EvalLog,
   EvalLogsPaginated,
-} from 'src/evalLog/models/evalLog.model';
+} from 'src/page/evalLog/models/evalLog.model';
 import { generatePage } from 'src/pagination/pagination.service';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
