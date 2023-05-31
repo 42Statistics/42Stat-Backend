@@ -10,7 +10,7 @@ import {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
-} from '../total/models/total.model';
+} from '../home/models/home.model';
 import { HomeService } from './home.service';
 import { Home } from './models/home.model';
 

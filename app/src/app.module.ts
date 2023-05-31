@@ -3,14 +3,15 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
-import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { ProjectModule } from './api/project/project.module';
 import { ScaleTeamModule } from './api/scaleTeam/scaleTeam.module';
+import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { HomeModule } from './page/home/home.module';
+import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { PersonalEvalModule } from './page/personalEval/personal.eval.module';
 import { PersonalGeneralModule } from './page/personalGeneral/personal.general.module';
+import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { TotalModule } from './page/total/total.module';
-import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
     ),
     ProjectModule,
     HomeModule,
+    ProjectInfoModule,
     TotalModule,
     PersonalGeneralModule,
     PersonalEvalModule,

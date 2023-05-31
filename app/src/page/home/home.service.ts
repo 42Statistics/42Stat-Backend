@@ -8,17 +8,14 @@ import {
 } from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
-import {
-  UserRanking,
-  UserRankingDateRanged,
-} from 'src/common/models/common.user.model';
+import { UserRanking } from 'src/common/models/common.user.model';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { Time } from 'src/util';
 import {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
-} from '../total/models/total.model';
+} from './models/home.model';
 
 @Injectable()
 export class HomeService {

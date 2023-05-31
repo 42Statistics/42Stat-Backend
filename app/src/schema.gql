@@ -2,6 +2,17 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ProjectPreview {
+  id: Int!
+  name: String!
+  url: URL!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
 type Coalition {
   id: Int!
   name: String!
@@ -59,17 +70,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type ProjectPreview {
-  id: Int!
-  name: String!
-  url: URL!
-}
-
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
-
 type TeamPreview {
   id: ID!
   name: String!
@@ -112,18 +112,21 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
-type ProjectInfo {
-  id: ID!
-  name: String!
-  skills: [String]!
-  averagePassFinalmark: Int!
-  averageDurationTime: Int!
+type ProjectRanking {
+  projectPreview: ProjectPreview!
+  value: Int!
+}
 
-  """총 제출 횟수 입니다."""
-  totalCloseCount: Int!
-  currRegisteredCount: Int!
-  passPercentage: Int!
-  totalEvalCount: Int!
+type NumberDateRanged {
+  data: Int!
+  from: DateTime!
+  to: DateTime!
+}
+
+type StringDateRanged {
+  data: String!
+  from: DateTime!
+  to: DateTime!
 }
 
 type ValueRecord {
@@ -139,40 +142,6 @@ type ValuePerCircle {
 type UserCountPerLevels {
   userCount: Int!
   level: Int!
-}
-
-type Total {
-  projectInfo(projectName: String! = "libft"): ProjectInfo!
-
-  " "
-  monthlyScoreRanks: UserRankingDateRanged!
-}
-
-type CoalitionPerValue {
-  coalition: Coalition!
-  value: Int!
-}
-
-type CoalitionScoreRecords {
-  coalition: Coalition!
-  records: [ValueRecord]!
-}
-
-type NumberDateRanged {
-  data: Int!
-  from: DateTime!
-  to: DateTime!
-}
-
-type StringDateRanged {
-  data: String!
-  from: DateTime!
-  to: DateTime!
-}
-
-type ProjectRanking {
-  projectPreview: ProjectPreview!
-  value: Int!
 }
 
 type ExamResult {
@@ -248,6 +217,56 @@ type Home {
 
   """HOME 이번 달 누적 코알리숑 티그 횟수"""
   tigCountPerCoalitions: [CoalitionPerValue!]!
+}
+
+type CoalitionPerValue {
+  coalition: Coalition!
+  value: Int!
+}
+
+type CoalitionScoreRecords {
+  coalition: Coalition!
+  records: [ValueRecord]!
+}
+
+type LeaderboardElement {
+  """내 랭킹 정보"""
+  me: UserRanking
+
+  """전체 랭킹 정보"""
+  totalRanks: [UserRanking!]!
+}
+
+type LeaderboardElementDateRanged {
+  data: LeaderboardElement!
+  from: DateTime!
+  to: DateTime!
+}
+
+type LeaderboardEval {
+  total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+enum DateTemplate {
+  WEEKLY
+  MONTHLY
+}
+
+type LeaderboardExp {
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+type LeaderboardLevel {
+  total: LeaderboardElement!
+}
+
+type LeaderboardScore {
+  total: LeaderboardElement!
+  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type TempTeam {
@@ -365,50 +384,40 @@ type PersonalEval {
   evalLogSearchLink: String!
 }
 
-type LeaderboardElement {
-  """내 랭킹 정보"""
-  me: UserRanking
-
-  """전체 랭킹 정보"""
-  totalRanks: [UserRanking!]!
+type ProjectEvalInfo {
+  totalEvalCount: Int!
+  passCount: Int!
+  failCount: Int!
 }
 
-type LeaderboardElementDateRanged {
-  data: LeaderboardElement!
-  from: DateTime!
-  to: DateTime!
+type ProjectInfo {
+  id: Int!
+  name: String!
+  skills: [String]!
+  keywords: [String]!
+  description: String!
+  minUserCount: Int!
+  maxUserCount: Int!
+  duration: Int!
+  difficulty: Int!
+  ongoingTeamCount: Int!
+
+  """총 제출 횟수 입니다."""
+  closedTeamCount: Int!
+  averagePassFinalmark: Int!
+  evalInfo: ProjectEvalInfo!
 }
 
-type LeaderboardEval {
-  total: LeaderboardElement!
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
-}
-
-enum DateTemplate {
-  WEEKLY
-  MONTHLY
-}
-
-type LeaderboardExp {
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
-}
-
-type LeaderboardLevel {
-  total: LeaderboardElement!
-}
-
-type LeaderboardScore {
-  total: LeaderboardElement!
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+type Total {
+  " "
+  monthlyScoreRanks: UserRankingDateRanged!
 }
 
 type Query {
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomePage: Home!
   findUserPreview(login: String! = ""): [UserPreview]!
+  getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getTotalPage: Total!
   getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
   getPersonalEvalPage(uid: Int, login: String): PersonalEval!

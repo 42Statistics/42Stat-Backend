@@ -10,12 +10,54 @@ import {
   UserRankingDateRanged,
 } from 'src/common/models/common.user.model';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
-import {
-  UserCountPerLevels,
-  ValuePerCircle,
-  ValueRecord,
-} from 'src/page/total/models/total.model';
 
+@ObjectType()
+export class ValueRecord {
+  @Field()
+  at: Date;
+
+  @Field()
+  value: number;
+}
+
+@ObjectType()
+export class ValuePerCircle {
+  @Field()
+  circle: number;
+
+  @Field()
+  value: number;
+}
+
+//@ObjectType()
+//export class ValuePerCircleByPromo {
+//  @Field()
+//  circle: number;
+
+//  @Field()
+//  value: number;
+
+//  @Field()
+//  promo: string;
+//}
+
+@ObjectType()
+export class UserCountPerPoint {
+  @Field()
+  userCount: number;
+
+  @Field()
+  point: number;
+}
+
+@ObjectType()
+export class UserCountPerLevels {
+  @Field()
+  userCount: number;
+
+  @Field()
+  level: number;
+}
 @ObjectType()
 export class ExamResult {
   @Field()
