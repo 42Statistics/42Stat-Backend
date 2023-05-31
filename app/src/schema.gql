@@ -44,8 +44,8 @@ type UserPreview {
 
 type UserRanking {
   userPreview: UserPreview!
-  value: Float!
-  rank: Int!
+  value: Float
+  rank: Int
 }
 
 type UserRankingDateRanged {

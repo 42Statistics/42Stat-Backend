@@ -14,11 +14,11 @@ export class UserRanking {
   @Field((_type) => UserPreview)
   userPreview: UserPreview;
 
-  @Field((_type) => Float)
-  value: number;
+  @Field((_type) => Float, { nullable: true })
+  value?: number;
 
-  @Field()
-  rank: number;
+  @Field({ nullable: true })
+  rank?: number;
 }
 
 @ObjectType()
