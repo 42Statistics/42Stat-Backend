@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { UserRanking } from 'src/common/models/common.user.model';
-import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { DateRangeArgs, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import {
+  dateRangeFromTemplate,
+  generateDateRanged,
+} from 'src/dateRange/dateRange.service';
+import type {
+  DateRangeArgs,
+  DateTemplate,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { LeaderboardService } from '../leaderboard.service';
 import {
   LeaderboardElement,
@@ -97,8 +103,7 @@ export class LeaderboardScoreService {
     userId: number,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
-    const dateRange =
-      this.leaderboardService.dateRangeFromTemplate(dateTemplate);
+    const dateRange = dateRangeFromTemplate(dateTemplate);
 
     return this.scoreRankByDateRange(userId, dateRange);
   }
