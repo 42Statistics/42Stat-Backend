@@ -77,6 +77,7 @@ export class LeaderboardScoreService {
     filter?: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
     const userRanking: UserRanking[] = this.tempScores;
+    //todo: 블랙홀유저의 value가 0으로 나오는지 확인 후 구분하기
 
     return this.leaderboardService.userRankingToLeaderboardElement(
       userId,
