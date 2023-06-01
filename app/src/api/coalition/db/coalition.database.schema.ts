@@ -14,13 +14,13 @@ export class coalition {
   @Prop({ required: true })
   slug: string;
 
-  @Prop()
+  @Prop({ required: true })
   image_url?: string;
 
-  @Prop()
+  @Prop({ required: true })
   cover_url?: string;
 
-  @Prop()
+  @Prop({ required: true })
   color?: string;
 
   @Prop({ required: true })
