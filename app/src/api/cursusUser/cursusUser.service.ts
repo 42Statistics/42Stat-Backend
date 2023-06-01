@@ -29,13 +29,13 @@ export class CursusUserService {
   }
 
   async findOne(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user> {
-    const result = await this.cursusUserModel.findOne(filter);
+    const cursusUser = await this.cursusUserModel.findOne(filter);
 
-    if (!result) {
+    if (!cursusUser) {
       throw new NotFoundException();
     }
 
-    return result;
+    return cursusUser;
   }
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
