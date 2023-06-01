@@ -14,7 +14,7 @@ export class CoalitionsUserService {
     private coalitionsUserModel: Model<coalitions_user>,
   ) {}
 
-  getScoreInfo(
+  scoreInfo(
     start: Date = Time.startOfMonth(Time.curr()), //todo: 기본 기간 설정
     end: Date = Time.startOfMonth(Time.moveMonth(Time.curr(), 1)),
     limit?: number,
@@ -68,12 +68,12 @@ export class CoalitionsUserService {
     return aggregate;
   }
 
-  async getScoreRank(
+  async scoreRank(
     start: Date,
     end: Date,
     limit: number = Number.MAX_SAFE_INTEGER,
   ): Promise<UserRanking[]> {
-    const aggregate = this.getScoreInfo(start, end, limit);
+    const aggregate = this.scoreInfo(start, end, limit);
 
     return await aggregate
       .lookup({
@@ -93,12 +93,12 @@ export class CoalitionsUserService {
       });
   }
 
-  async getScoreRankById(
+  async scoreRankById(
     uid: number,
     start: Date,
     end: Date,
   ): Promise<UserScoreRank> {
-    const rankInTotalArr: ScoreInfo[] = await this.getScoreInfo(start, end);
+    const rankInTotalArr: ScoreInfo[] = await this.scoreInfo(start, end);
 
     const userRanking = rankInTotalArr.find(
       (rankInTotal: ScoreInfo) => rankInTotal.userId === uid,

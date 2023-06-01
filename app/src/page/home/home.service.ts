@@ -31,7 +31,7 @@ export class HomeService {
     const currWeek = Time.startOfWeek(currDate);
     const nextWeek = Time.moveWeek(currWeek, 1);
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
+    const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: currWeek, $lt: nextWeek },
       filledAt: { $ne: null },
     });
@@ -44,7 +44,7 @@ export class HomeService {
     const currWeek = Time.startOfWeek(curr);
     const lastWeek = Time.moveWeek(currWeek, -1);
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
+    const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: lastWeek, $lt: currWeek },
       filledAt: { $ne: null },
     });
@@ -64,7 +64,7 @@ export class HomeService {
     );
 
     return generateDateRanged(
-      Time.getCountByDate(start, blackholedCount),
+      Time.getValueByDate(start, blackholedCount),
       start,
       end,
     );
@@ -82,14 +82,14 @@ export class HomeService {
     );
 
     return generateDateRanged(
-      Time.getCountByDate(start, blackholedCount),
+      Time.getValueByDate(start, blackholedCount),
       start,
       end,
     );
   }
 
   async totalScores(): Promise<ValuePerCoalition[]> {
-    return await this.scoreService.getScoresByCoalition();
+    return await this.scoreService.scoresByCoalition();
   }
 
   async scoreRecords(): Promise<CoalitionScoreRecords[]> {
@@ -100,7 +100,7 @@ export class HomeService {
     const currMonth = Time.startOfMonth(currDate);
     const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -12));
 
-    return await this.scoreService.getScoreRecords({
+    return await this.scoreService.scoreRecords({
       createdAt: { $gte: lastYear, $lt: currMonth },
       coalitionsUserId: { $ne: null },
       coalitionId: { $in: coalitionIds },
@@ -108,31 +108,31 @@ export class HomeService {
   }
 
   async totalEvalCount(): Promise<number> {
-    return await this.scaleTeamService.getEvalCount();
+    return await this.scaleTeamService.evalCount();
   }
 
   async averageFeedbackLength(): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('feedback');
+    return await this.scaleTeamService.averageReviewLength('feedback');
   }
 
   async averageCommentLength(): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('comment');
+    return await this.scaleTeamService.averageReviewLength('comment');
   }
 
   async userCountPerLevels(): Promise<UserCountPerLevels[]> {
-    return await this.cursusUserService.getUserCountPerLevels();
+    return await this.cursusUserService.userCountPerLevels();
   }
 
   async walletRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.wallet', limit);
+    return await this.cursusUserService.rank('user.wallet', limit);
   }
 
   async correctionPointRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.correctionPoint', limit);
+    return await this.cursusUserService.rank('user.correctionPoint', limit);
   }
 
   async averageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
-    return await this.questsUserService.getAverageCircleDurations(uid);
+    return await this.questsUserService.averageCircleDurations(uid);
   }
 
   //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
@@ -140,7 +140,7 @@ export class HomeService {
   //}
 
   async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
-    return await this.cursusUserService.getBlackholedCountPerCircles();
+    return await this.cursusUserService.blackholedCountPerCircles();
   }
 
   async activeUserCountRecords(start: Date, end: Date): Promise<ValueRecord[]> {
@@ -162,8 +162,8 @@ export class HomeService {
 
     return dates
       .map((date, index): ValueRecord => {
-        const newPromo = Time.getCountByDate(date, newPromoCounts);
-        const blackholed = Time.getCountByDate(date, blackholedCounts);
+        const newPromo = Time.getValueByDate(date, newPromoCounts);
+        const blackholed = Time.getValueByDate(date, blackholedCounts);
 
         activeUserCount += newPromo - blackholed;
 

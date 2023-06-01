@@ -1,6 +1,6 @@
 import { Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { LeaderboardElement } from '../models/leaderboard.model';
-import { LeaderboardLevelService } from './leaderboad.level.service';
+import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevel } from './models/leaderboard.level.model';
 
 @Resolver((_of: unknown) => LeaderboardLevel)

@@ -46,7 +46,7 @@ export class PersonalGeneralService {
     const end = Time.curr();
     const start = Time.startOfMonth(end);
 
-    const logtime = await this.locationService.getLogtime(uid, start, end);
+    const logtime = await this.locationService.logtime(uid, start, end);
 
     //todo: check other date ranged
     return generateDateRanged(logtime, end, start);
@@ -57,7 +57,7 @@ export class PersonalGeneralService {
     const start = Time.startOfMonth(lastMonth);
     const end = Time.moveMs(Time.moveMonth(start, 1), -1);
 
-    const logtime = await this.locationService.getLogtime(uid, start, end);
+    const logtime = await this.locationService.logtime(uid, start, end);
 
     return generateDateRanged(logtime, end, start);
   }
@@ -73,7 +73,7 @@ export class PersonalGeneralService {
       start = Time.startOfMonth(end);
     }
 
-    const preferredTime = await this.locationService.getPreferredTime(
+    const preferredTime = await this.locationService.preferredTime(
       uid,
       start,
       end,
@@ -93,7 +93,7 @@ export class PersonalGeneralService {
       start = Time.startOfMonth(end);
     }
 
-    const preferredCluster = await this.locationService.getPreferredCluster(
+    const preferredCluster = await this.locationService.preferredCluster(
       uid,
       start,
       end,
@@ -102,7 +102,7 @@ export class PersonalGeneralService {
     return generateDateRanged(preferredCluster, start, end);
   }
 
-  async getTeamInfoById(uid: number): Promise<TeamInfo> {
+  async teamInfoById(uid: number): Promise<TeamInfo> {
     return {
       lastRegistered: 'avaj-launcher',
       lastPass: 'avaj-launcher',
@@ -124,7 +124,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async getLevelHistroyById(uid: number): Promise<LevelGraphDateRanged> {
+  async levelHistroyById(uid: number): Promise<LevelGraphDateRanged> {
     const levelGraph = [
       {
         date: new Date('2022-01-01'),
@@ -191,11 +191,11 @@ export class PersonalGeneralService {
     return generateDateRanged(levelGraph, new Date('2022'), new Date('2023'));
   }
 
-  async getUserInfo(uid: number): Promise<UserProfile> {
-    const cursusUserProfile = await this.cursusUserService.getCursusUserProfile(
+  async userInfo(uid: number): Promise<UserProfile> {
+    const cursusUserProfile = await this.cursusUserService.cursusUserProfile(
       uid,
     );
-    const titles = await this.titlesUserService.getTitlesUserProfile(uid);
+    const titles = await this.titlesUserService.titlesUserProfile(uid);
 
     const userProfile: UserProfile = {
       ...cursusUserProfile,
@@ -205,11 +205,11 @@ export class PersonalGeneralService {
     return userProfile;
   }
 
-  async getLevelRank(
+  async levelRank(
     uid: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
-    return await this.cursusUserService.getLevelRankById(uid, filter);
+    return await this.cursusUserService.levelRankById(uid, filter);
   }
 
   async beginAt(uid: number): Promise<Date> {
@@ -229,7 +229,7 @@ export class PersonalGeneralService {
     const startOfMonth = Time.startOfMonth(currTime);
     const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
 
-    return await this.coalitionsUserService.getScoreRankById(
+    return await this.coalitionsUserService.scoreRankById(
       uid,
       startOfMonth,
       startOfNextMonth,

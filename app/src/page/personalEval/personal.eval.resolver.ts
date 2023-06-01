@@ -42,7 +42,7 @@ export class PersonalEvalResolver {
       averageCommentLength: await this.personalEvalService.averageCommentLength(
         context.uid,
       ),
-      userProfile: await this.personalGeneralService.getUserInfo(99947),
+      userProfile: await this.personalGeneralService.userInfo(99947),
       totalDuration: 1,
       latestFeedback: 'aaa',
       evalLogSearchLink: 'aaa',

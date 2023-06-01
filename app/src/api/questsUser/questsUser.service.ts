@@ -11,7 +11,7 @@ export class QuestsUserService {
     private questUserModel: Model<quests_user>,
   ) {}
 
-  async getFirstCircleDuration(uid?: number): Promise<ValuePerCircle> {
+  async firstCircleDuration(uid?: number): Promise<ValuePerCircle> {
     const aggregate = this.questUserModel.aggregate<ValuePerCircle>();
 
     if (uid) {
@@ -70,12 +70,12 @@ export class QuestsUserService {
     return { circle: 0, value: firstCircle.length ? firstCircle[0].value : 0 };
   }
 
-  async getAverageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
+  async averageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
     const questId = [44, 45, 46, 47, 48, 49, 37] as const;
 
     const result: ValuePerCircle[] = [];
 
-    result.push(await this.getFirstCircleDuration(uid));
+    result.push(await this.firstCircleDuration(uid));
 
     for (let i = 0; i < questId.length - 1; i++) {
       const aggregate = this.questUserModel.aggregate<ValuePerCircle>();

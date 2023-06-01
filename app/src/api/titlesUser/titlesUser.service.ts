@@ -11,7 +11,7 @@ export class TitlesUserService {
     private titlesUserModel: Model<titles_user>,
   ) {}
 
-  async getTitlesUserProfile(uid: number): Promise<UserTitle[]> {
+  async titlesUserProfile(uid: number): Promise<UserTitle[]> {
     const aggregate = this.titlesUserModel.aggregate<UserTitle>();
 
     return await aggregate

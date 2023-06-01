@@ -9,6 +9,6 @@ export class EvalLogResolver {
 
   @Query((_returns) => EvalLogsPaginated)
   async getEvalLogs(@Args() args: GetEvalLogsArgs): Promise<EvalLogsPaginated> {
-    return await this.evalLogService.getEvalLogs(args);
+    return await this.evalLogService.evalLogs(args);
   }
 }

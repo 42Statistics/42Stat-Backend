@@ -10,7 +10,7 @@ export class TeamService {
     private teamModel: Model<team>,
   ) {}
 
-  async getTeamCount(filter?: FilterQuery<team>): Promise<number> {
+  async teamCount(filter?: FilterQuery<team>): Promise<number> {
     if (!filter) {
       return await this.teamModel.estimatedDocumentCount();
     }
@@ -22,7 +22,7 @@ export class TeamService {
    *
    * @return number[] 0번째에 pass, 1번째에 fail 숫자를 담은 배열을 반환합니다.
    */
-  async getTeamResult(filter?: FilterQuery<team>): Promise<[number, number]> {
+  async teamResult(filter?: FilterQuery<team>): Promise<[number, number]> {
     const aggregate = this.teamModel.aggregate<
       { _id: 'true' | 'false' } & AggrNumeric
     >();
@@ -37,7 +37,7 @@ export class TeamService {
     return [pass, fail];
   }
 
-  async getRegisteredCount(filter?: FilterQuery<team>): Promise<number> {
+  async registeredCount(filter?: FilterQuery<team>): Promise<number> {
     const aggregate = this.teamModel.aggregate<AggrNumeric>();
 
     if (filter) {
@@ -52,7 +52,7 @@ export class TeamService {
     return registeredCountAggr.length ? registeredCountAggr[0].value : 0;
   }
 
-  async getTeamMatesUid(
+  async teamMatesUid(
     targetUid: number,
   ): Promise<{ uid: number; value: number }[]> {
     const aggregate = this.teamModel.aggregate<{ uid: number } & AggrNumeric>();

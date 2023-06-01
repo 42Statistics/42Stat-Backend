@@ -72,7 +72,7 @@ export class LocationService {
     };
   }
 
-  async getPreferredTime(
+  async preferredTime(
     uid: number,
     start: Date,
     end: Date,
@@ -148,11 +148,7 @@ export class LocationService {
     return preferredTime ?? { morning: 0, daytime: 0, evening: 0, night: 0 };
   }
 
-  async getPreferredCluster(
-    uid: number,
-    start: Date,
-    end: Date,
-  ): Promise<string> {
+  async preferredCluster(uid: number, start: Date, end: Date): Promise<string> {
     const aggregate = this.locationModel.aggregate<AggrValuePerCluster>();
 
     const [durationTimePerCluster] = await aggregate
@@ -198,7 +194,7 @@ export class LocationService {
     return durationTimePerCluster.cluster;
   }
 
-  async getLogtime(uid: number, start: Date, end: Date): Promise<number> {
+  async logtime(uid: number, start: Date, end: Date): Promise<number> {
     const aggregate = this.locationModel.aggregate<AggrNumeric>();
 
     const [logtime] = await aggregate

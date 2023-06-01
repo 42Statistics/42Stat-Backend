@@ -133,7 +133,7 @@ export const Time = {
    *
    * find에 실패시 0을 반환
    */
-  getCountByDate: (date: Date, elements: AggrValuePerDate[]): number => {
+  getValueByDate: (date: Date, elements: AggrValuePerDate[]): number => {
     return (
       elements.find((element) => element.date === date.toISOString())?.value ??
       0

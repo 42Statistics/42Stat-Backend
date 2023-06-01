@@ -41,9 +41,7 @@ export class PersonalGeneralResolver {
     const cursusUser = await this.cursusUserService.findUser(uid, login);
     context.uid = cursusUser.user.id;
 
-    const userProfile = await this.personalGeneralService.getUserInfo(
-      context.uid,
-    );
+    const userProfile = await this.personalGeneralService.userInfo(context.uid);
 
     return { userProfile };
   }
@@ -107,23 +105,16 @@ export class PersonalGeneralResolver {
   }
 
   @ResolveField('teamInfo', (_returns) => TeamInfo)
-  async getTeamInfo(
+  async teamInfo(
     @Context() context: PersonalGeneralContext,
   ): Promise<TeamInfo> {
-    return await this.personalGeneralService.getTeamInfoById(context.uid);
+    return await this.personalGeneralService.teamInfoById(context.uid);
   }
 
   @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
-  async getLevelGraphs(
+  async levelGraphs(
     @Context() context: PersonalGeneralContext,
   ): Promise<LevelGraphDateRanged> {
-    return await this.personalGeneralService.getLevelHistroyById(context.uid);
+    return await this.personalGeneralService.levelHistroyById(context.uid);
   }
-
-  // @ResolveField('levelRank', (_returns) => Int)
-  // async getLevelRank(
-  //   @Context() context: PersonalGeneralContext,
-  // ): Promise<number> {
-  //   return await this.personalGeneralService.getLevelRank(context.uid);
-  // }
 }

@@ -81,7 +81,7 @@ export class CursusUserService {
     };
   }
 
-  async getUserCount(filter?: FilterQuery<cursus_user>): Promise<number> {
+  async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {
     if (!filter) {
       return await this.cursusUserModel.estimatedDocumentCount();
     }
@@ -124,7 +124,7 @@ export class CursusUserService {
       });
   }
 
-  async getCursusUserProfile(uid: number): Promise<CursusUserProfile> {
+  async cursusUserProfile(uid: number): Promise<CursusUserProfile> {
     const aggregate = this.cursusUserModel.aggregate<CursusUserProfile>();
 
     const cursusUserProfile = await aggregate
@@ -164,7 +164,7 @@ export class CursusUserService {
     return cursusUserProfile[0];
   }
 
-  async getLevelRankById(
+  async levelRankById(
     uid: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
@@ -191,7 +191,7 @@ export class CursusUserService {
     return levelRank[0].value;
   }
 
-  async getUserCountPerLevels(): Promise<UserCountPerLevels[]> {
+  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
     const aggregate = this.cursusUserModel.aggregate<UserCountPerLevels>();
 
     return await aggregate
@@ -208,7 +208,7 @@ export class CursusUserService {
       .sort({ level: 1 });
   }
 
-  async getRank(
+  async rank(
     key: string,
     limit: number,
     filter?: FilterQuery<cursus_user>,
@@ -236,7 +236,7 @@ export class CursusUserService {
   }
 
   // executionTimeMillisEstimate: 319
-  async getBlackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
     const aggregate = this.cursusUserModel.aggregate<ValuePerCircle>();
 
     return await aggregate
