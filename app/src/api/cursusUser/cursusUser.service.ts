@@ -29,13 +29,13 @@ export class CursusUserService {
   }
 
   async findOne(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user> {
-    const result = await this.cursusUserModel.findOne(filter);
+    const cursusUser = await this.cursusUserModel.findOne(filter);
 
-    if (!result) {
+    if (!cursusUser) {
       throw new NotFoundException();
     }
 
-    return result;
+    return cursusUser;
   }
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
@@ -43,9 +43,9 @@ export class CursusUserService {
   }
 
   //todo: function name
-  async findUser(uid: number, login: string): Promise<cursus_user> {
-    if (uid) {
-      return await this.findOne({ 'user.id': uid });
+  async findUser(userId: number, login: string): Promise<cursus_user> {
+    if (userId) {
+      return await this.findOne({ 'user.id': userId });
     } else if (login) {
       return await this.findOne({ 'user.login': login });
     } else {
@@ -81,7 +81,7 @@ export class CursusUserService {
     };
   }
 
-  async getUserCount(filter?: FilterQuery<cursus_user>): Promise<number> {
+  async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {
     if (!filter) {
       return await this.cursusUserModel.estimatedDocumentCount();
     }
@@ -124,11 +124,11 @@ export class CursusUserService {
       });
   }
 
-  async getCursusUserProfile(uid: number): Promise<CursusUserProfile> {
+  async cursusUserProfile(userId: number): Promise<CursusUserProfile> {
     const aggregate = this.cursusUserModel.aggregate<CursusUserProfile>();
 
     const cursusUserProfile = await aggregate
-      .match({ cursusId: 21, 'user.id': uid })
+      .match({ cursusId: 21, 'user.id': userId })
       .lookup({
         from: 'coalitions_users',
         localField: 'user.id',
@@ -164,8 +164,8 @@ export class CursusUserService {
     return cursusUserProfile[0];
   }
 
-  async getLevelRankById(
-    uid: number,
+  async levelRankById(
+    userId: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
     const aggregate = this.cursusUserModel.aggregate<AggrNumeric>();
@@ -182,7 +182,7 @@ export class CursusUserService {
       },
     });
 
-    const levelRank = await aggregate.match({ 'user.id': uid });
+    const levelRank = await aggregate.match({ 'user.id': userId });
 
     if (!levelRank.length) {
       throw new NotFoundException();
@@ -191,7 +191,7 @@ export class CursusUserService {
     return levelRank[0].value;
   }
 
-  async getUserCountPerLevels(): Promise<UserCountPerLevels[]> {
+  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
     const aggregate = this.cursusUserModel.aggregate<UserCountPerLevels>();
 
     return await aggregate
@@ -208,7 +208,7 @@ export class CursusUserService {
       .sort({ level: 1 });
   }
 
-  async getRank(
+  async rank(
     key: string,
     limit: number,
     filter?: FilterQuery<cursus_user>,
@@ -236,7 +236,7 @@ export class CursusUserService {
   }
 
   // executionTimeMillisEstimate: 319
-  async getBlackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
     const aggregate = this.cursusUserModel.aggregate<ValuePerCircle>();
 
     return await aggregate

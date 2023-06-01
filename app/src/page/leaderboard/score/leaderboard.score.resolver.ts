@@ -1,15 +1,14 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { Time } from 'src/util';
+import {
+  DateRangeArgs,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 import {
   LeaderboardElement,
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
-import {
-  DateRangeArgs,
-  DateTemplateArgs,
-} from 'src/dateRange/dtos/dateRange.dto';
 
 @Resolver((_of: unknown) => LeaderboardScore)
 export class LeaderboardScoreResolver {

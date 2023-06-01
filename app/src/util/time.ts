@@ -88,19 +88,19 @@ export const Time = {
    * return: [ 1970-01-01, 02-01, 03-01, 04-01, 04-20]
    */
   partitionByMonth: (start: Date, end: Date): Date[] => {
-    const result = [new Date('1970-01-01')];
+    const partitioned = [new Date('1970-01-01')];
 
     for (
       let currDate = new Date(start);
       currDate <= end;
       currDate = Time.moveMonth(currDate, 1)
     ) {
-      result.push(currDate);
+      partitioned.push(currDate);
     }
 
-    result.push(end);
+    partitioned.push(end);
 
-    return result;
+    return partitioned;
   },
 
   /**
@@ -133,7 +133,7 @@ export const Time = {
    *
    * find에 실패시 0을 반환
    */
-  getCountByDate: (date: Date, elements: AggrValuePerDate[]): number => {
+  getValueByDate: (date: Date, elements: AggrValuePerDate[]): number => {
     return (
       elements.find((element) => element.date === date.toISOString())?.value ??
       0

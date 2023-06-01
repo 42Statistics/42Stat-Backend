@@ -102,7 +102,7 @@ export class team extends TeamBase {
   repoUrl: string;
 
   @Prop()
-  repoUuid: string;
+  repoUuserId: string;
 
   @Prop()
   teamsUploads: TeamsUpload;

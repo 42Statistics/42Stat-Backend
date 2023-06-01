@@ -27,7 +27,7 @@ export class LeaderboardEvalService {
     userId: number,
     filter?: FilterQuery<scale_team>,
   ): Promise<LeaderboardElement> {
-    const userRanking = await this.scaleTeamService.getEvalCountRank(filter);
+    const userRanking = await this.scaleTeamService.evalCountRank(filter);
 
     return this.leaderboardService.userRankingToLeaderboardElement(
       userId,

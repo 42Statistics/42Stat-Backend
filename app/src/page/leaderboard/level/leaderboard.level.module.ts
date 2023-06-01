@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { LeaderboardService } from '../leaderboard.service';
-import { LeaderboardLevelService } from './leaderboad.level.service';
+import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevelResolver } from './leaderboard.level.resovler';
 
 @Module({

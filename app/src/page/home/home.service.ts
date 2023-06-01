@@ -27,24 +27,22 @@ export class HomeService {
   ) {}
 
   async currWeekEvalCount(): Promise<NumberDateRanged> {
-    const currDate = Time.curr();
-    const currWeek = Time.startOfWeek(currDate);
-    const nextWeek = Time.moveWeek(currWeek, 1);
+    const curr = Time.curr();
+    const currWeek = Time.startOfWeek(Time.curr());
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
-      beginAt: { $gte: currWeek, $lt: nextWeek },
+    const evalCount = await this.scaleTeamService.evalCount({
+      beginAt: { $gte: currWeek, $lt: curr },
       filledAt: { $ne: null },
     });
 
-    return generateDateRanged(evalCount, currWeek, Time.moveDate(nextWeek, -1));
+    return generateDateRanged(evalCount, currWeek, Time.moveDate(curr, -1));
   }
 
   async lastWeekEvalCount(): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const currWeek = Time.startOfWeek(curr);
+    const currWeek = Time.startOfWeek(Time.curr());
     const lastWeek = Time.moveWeek(currWeek, -1);
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
+    const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: lastWeek, $lt: currWeek },
       filledAt: { $ne: null },
     });
@@ -52,55 +50,52 @@ export class HomeService {
     return generateDateRanged(evalCount, lastWeek, Time.moveDate(currWeek, -1));
   }
 
-  async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const lastMonth = Time.moveMonth(Time.curr(), -1);
-    const start = Time.startOfMonth(lastMonth);
-    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
+  async currMonthBlackholedCount(): Promise<NumberDateRanged> {
+    const curr = Time.curr();
+    const currMonth = Time.startOfMonth(curr);
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
-      start,
-      end,
+      currMonth,
+      curr,
       'blackholedAt',
     );
 
     return generateDateRanged(
-      Time.getCountByDate(start, blackholedCount),
-      start,
-      end,
+      Time.getValueByDate(currMonth, blackholedCount),
+      currMonth,
+      curr,
     );
   }
 
-  async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    //todo: same end and start
-    const end = Time.curr();
-    const start = Time.startOfMonth(end);
+  async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
+    const currMonth = Time.startOfMonth(Time.curr());
+    const lastMonth = Time.moveMonth(currMonth, -1);
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
-      start,
-      end,
+      lastMonth,
+      currMonth,
       'blackholedAt',
     );
 
     return generateDateRanged(
-      Time.getCountByDate(start, blackholedCount),
-      start,
-      end,
+      Time.getValueByDate(lastMonth, blackholedCount),
+      lastMonth,
+      currMonth,
     );
   }
 
   async totalScores(): Promise<ValuePerCoalition[]> {
-    return await this.scoreService.getScoresByCoalition();
+    return await this.scoreService.scoresByCoalition();
   }
 
   async scoreRecords(): Promise<CoalitionScoreRecords[]> {
     // todo: 고정 코알리숑 아이디
     const coalitionIds = [85, 86, 87, 88];
 
-    const currDate = Time.curr();
-    const currMonth = Time.startOfMonth(currDate);
-    const lastYear = Time.startOfMonth(Time.moveMonth(currDate, -12));
+    const currMonth = Time.startOfMonth(Time.curr());
+    const lastYear = Time.moveYear(currMonth, -1);
 
-    return await this.scoreService.getScoreRecords({
+    return await this.scoreService.scoreRecords({
       createdAt: { $gte: lastYear, $lt: currMonth },
       coalitionsUserId: { $ne: null },
       coalitionId: { $in: coalitionIds },
@@ -108,31 +103,31 @@ export class HomeService {
   }
 
   async totalEvalCount(): Promise<number> {
-    return await this.scaleTeamService.getEvalCount();
+    return await this.scaleTeamService.evalCount();
   }
 
   async averageFeedbackLength(): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('feedback');
+    return await this.scaleTeamService.averageReviewLength('feedback');
   }
 
   async averageCommentLength(): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('comment');
+    return await this.scaleTeamService.averageReviewLength('comment');
   }
 
   async userCountPerLevels(): Promise<UserCountPerLevels[]> {
-    return await this.cursusUserService.getUserCountPerLevels();
+    return await this.cursusUserService.userCountPerLevels();
   }
 
   async walletRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.wallet', limit);
+    return await this.cursusUserService.rank('user.wallet', limit);
   }
 
   async correctionPointRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.getRank('user.correctionPoint', limit);
+    return await this.cursusUserService.rank('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
-    return await this.questsUserService.getAverageCircleDurations(uid);
+  async averageCircleDurations(userId?: number): Promise<ValuePerCircle[]> {
+    return await this.questsUserService.averageCircleDurations(userId);
   }
 
   //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
@@ -140,30 +135,34 @@ export class HomeService {
   //}
 
   async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
-    return await this.cursusUserService.getBlackholedCountPerCircles();
+    return await this.cursusUserService.blackholedCountPerCircles();
   }
 
-  async activeUserCountRecords(start: Date, end: Date): Promise<ValueRecord[]> {
+  async activeUserCountRecords(): Promise<ValueRecord[]> {
+    const curr = Time.curr();
+    const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
+    const lastYear = Time.moveYear(nextMonth, -1);
+
     const newPromoCounts = await this.cursusUserService.countPerMonth(
-      start,
-      end,
+      lastYear,
+      curr,
       'beginAt',
     );
 
     const blackholedCounts = await this.cursusUserService.countPerMonth(
-      start,
-      end,
+      lastYear,
+      curr,
       'blackholedAt',
     );
 
     let activeUserCount = 0;
 
-    const dates = Time.partitionByMonth(start, end);
+    const dates = Time.partitionByMonth(lastYear, curr);
 
     return dates
       .map((date, index): ValueRecord => {
-        const newPromo = Time.getCountByDate(date, newPromoCounts);
-        const blackholed = Time.getCountByDate(date, blackholedCounts);
+        const newPromo = Time.getValueByDate(date, newPromoCounts);
+        const blackholed = Time.getValueByDate(date, blackholedCounts);
 
         activeUserCount += newPromo - blackholed;
 
