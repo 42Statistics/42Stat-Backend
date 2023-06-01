@@ -26,8 +26,7 @@ export class PersonalEvalService {
   }
 
   async lastMonthCount(userId: number): Promise<NumberDateRanged> {
-    const currDate = Time.curr();
-    const currMonth = Time.startOfMonth(currDate);
+    const currMonth = Time.startOfMonth(Time.curr());
     const lastMonth = Time.moveMonth(currMonth, -1);
 
     const evalCount = await this.scaleTeamService.evalCount({
@@ -36,11 +35,7 @@ export class PersonalEvalService {
       filledAt: { $ne: null },
     });
 
-    return generateDateRanged(
-      evalCount,
-      lastMonth,
-      Time.moveDate(currMonth, -1),
-    );
+    return generateDateRanged(evalCount, lastMonth, currMonth);
   }
 
   async totalCount(userId: number): Promise<number> {

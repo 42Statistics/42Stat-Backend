@@ -42,64 +42,60 @@ export class PersonalGeneralService {
   }
 
   async currMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    //todo: same end and start: curr 에 1Ms 더해두면 겹칠
-    const end = Time.curr();
-    const start = Time.startOfMonth(end);
+    const curr = Time.curr();
+    const currMonth = Time.startOfMonth(curr);
 
-    const logtime = await this.locationService.logtime(userId, start, end);
+    const logtime = await this.locationService.logtime(userId, currMonth, curr);
 
     //todo: check other date ranged
-    return generateDateRanged(logtime, end, start);
+    return generateDateRanged(logtime, curr, currMonth);
   }
 
   async lastMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const lastMonth = Time.moveMonth(Time.curr(), -1);
-    const start = Time.startOfMonth(lastMonth);
-    const end = Time.moveMs(Time.moveMonth(start, 1), -1);
+    const currMonth = Time.startOfMonth(Time.curr());
+    const lastMonth = Time.moveMonth(currMonth, -1);
 
-    const logtime = await this.locationService.logtime(userId, start, end);
+    const logtime = await this.locationService.logtime(
+      userId,
+      currMonth,
+      lastMonth,
+    );
 
-    return generateDateRanged(logtime, end, start);
+    return generateDateRanged(logtime, lastMonth, currMonth);
   }
 
   async preferredTime(
     userId: number,
-    start?: Date,
-    end?: Date,
+    //start?: Date,
+    //end?: Date,
   ): Promise<PreferredTimeDateRanged> {
-    if (!start || !end) {
-      //todo: same end and start
-      end = Time.curr();
-      start = Time.startOfMonth(end);
-    }
+    const curr = Time.curr();
+    const currMonth = Time.startOfMonth(curr);
 
     const preferredTime = await this.locationService.preferredTime(
       userId,
-      start,
-      end,
+      currMonth,
+      curr,
     );
 
-    return generateDateRanged(preferredTime, start, end);
+    return generateDateRanged(preferredTime, currMonth, curr);
   }
 
   async preferredCluster(
     userId: number,
-    start?: Date,
-    end?: Date,
+    //start?: Date,
+    //end?: Date,
   ): Promise<StringDateRanged> {
-    if (!start || !end) {
-      //todo: same end and start
-      end = Time.curr();
-      start = Time.startOfMonth(end);
-    }
+    const curr = Time.curr();
+    const currMonth = Time.startOfMonth(curr);
 
     const preferredCluster = await this.locationService.preferredCluster(
       userId,
-      start,
-      end,
+      currMonth,
+      curr,
     );
 
-    return generateDateRanged(preferredCluster, start, end);
+    return generateDateRanged(preferredCluster, currMonth, curr);
   }
 
   async teamInfoById(userId: number): Promise<TeamInfo> {
