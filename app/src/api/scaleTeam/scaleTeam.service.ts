@@ -73,12 +73,12 @@ export class ScaleTeamService {
       });
   }
 
-  async averageFinalMark(uid: number): Promise<number> {
+  async averageFinalMark(userId: number): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
 
     const [finalMarkAggr] = await aggregate
       .match({
-        'corrector.id': uid,
+        'corrector.id': userId,
         finalMark: { $ne: null },
       })
       .group({

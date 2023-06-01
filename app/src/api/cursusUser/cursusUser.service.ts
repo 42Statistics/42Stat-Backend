@@ -43,9 +43,9 @@ export class CursusUserService {
   }
 
   //todo: function name
-  async findUser(uid: number, login: string): Promise<cursus_user> {
-    if (uid) {
-      return await this.findOne({ 'user.id': uid });
+  async findUser(userId: number, login: string): Promise<cursus_user> {
+    if (userId) {
+      return await this.findOne({ 'user.id': userId });
     } else if (login) {
       return await this.findOne({ 'user.login': login });
     } else {
@@ -124,11 +124,11 @@ export class CursusUserService {
       });
   }
 
-  async cursusUserProfile(uid: number): Promise<CursusUserProfile> {
+  async cursusUserProfile(userId: number): Promise<CursusUserProfile> {
     const aggregate = this.cursusUserModel.aggregate<CursusUserProfile>();
 
     const cursusUserProfile = await aggregate
-      .match({ cursusId: 21, 'user.id': uid })
+      .match({ cursusId: 21, 'user.id': userId })
       .lookup({
         from: 'coalitions_users',
         localField: 'user.id',
@@ -165,7 +165,7 @@ export class CursusUserService {
   }
 
   async levelRankById(
-    uid: number,
+    userId: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
     const aggregate = this.cursusUserModel.aggregate<AggrNumeric>();
@@ -182,7 +182,7 @@ export class CursusUserService {
       },
     });
 
-    const levelRank = await aggregate.match({ 'user.id': uid });
+    const levelRank = await aggregate.match({ 'user.id': userId });
 
     if (!levelRank.length) {
       throw new NotFoundException();

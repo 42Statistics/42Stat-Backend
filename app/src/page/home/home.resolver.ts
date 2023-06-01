@@ -126,9 +126,9 @@ export class HomeResolver {
 
   @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
   async averageCircleDurations(
-    @Args('uid', { nullable: true }) uid: number,
+    @Args('userId', { nullable: true }) userId: number,
   ): Promise<ValuePerCircle[]> {
-    return await this.homeService.averageCircleDurations(uid);
+    return await this.homeService.averageCircleDurations(userId);
   }
 
   //@ResolveField('averageCircleDurationsByPromo', (_returns) => [

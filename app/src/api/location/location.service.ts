@@ -73,7 +73,7 @@ export class LocationService {
   }
 
   async preferredTime(
-    uid: number,
+    userId: number,
     start: Date,
     end: Date,
   ): Promise<PreferredTime> {
@@ -87,7 +87,7 @@ export class LocationService {
 
     const [preferredTime] = await aggregate
       .match({
-        'user.id': uid,
+        'user.id': userId,
         beginAt: { $gte: start, $lt: end },
       })
       .addFields({
@@ -148,11 +148,15 @@ export class LocationService {
     return preferredTime ?? { morning: 0, daytime: 0, evening: 0, night: 0 };
   }
 
-  async preferredCluster(uid: number, start: Date, end: Date): Promise<string> {
+  async preferredCluster(
+    userId: number,
+    start: Date,
+    end: Date,
+  ): Promise<string> {
     const aggregate = this.locationModel.aggregate<AggrValuePerCluster>();
 
     const [durationTimePerCluster] = await aggregate
-      .match({ 'user.id': uid })
+      .match({ 'user.id': userId })
       .match({
         beginAt: { $gte: start },
         endAt: { $lt: end },
@@ -194,11 +198,11 @@ export class LocationService {
     return durationTimePerCluster.cluster;
   }
 
-  async logtime(uid: number, start: Date, end: Date): Promise<number> {
+  async logtime(userId: number, start: Date, end: Date): Promise<number> {
     const aggregate = this.locationModel.aggregate<AggrNumeric>();
 
     const [logtime] = await aggregate
-      .match({ 'user.id': uid })
+      .match({ 'user.id': userId })
       .match({
         $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: end } }],
       })

@@ -11,11 +11,11 @@ export class TitlesUserService {
     private titlesUserModel: Model<titles_user>,
   ) {}
 
-  async titlesUserProfile(uid: number): Promise<UserTitle[]> {
+  async titlesUserProfile(userId: number): Promise<UserTitle[]> {
     const aggregate = this.titlesUserModel.aggregate<UserTitle>();
 
     return await aggregate
-      .match({ userId: uid })
+      .match({ userId: userId })
       .lookup({
         from: 'titles',
         localField: 'titleId',

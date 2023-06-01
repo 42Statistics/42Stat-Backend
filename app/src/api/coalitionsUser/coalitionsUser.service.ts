@@ -94,14 +94,14 @@ export class CoalitionsUserService {
   }
 
   async scoreRankById(
-    uid: number,
+    userId: number,
     start: Date,
     end: Date,
   ): Promise<UserScoreRank> {
     const rankInTotalArr: ScoreInfo[] = await this.scoreInfo(start, end);
 
     const userRanking = rankInTotalArr.find(
-      (rankInTotal: ScoreInfo) => rankInTotal.userId === uid,
+      (rankInTotal: ScoreInfo) => rankInTotal.userId === userId,
     );
     const coalitionId = userRanking?.coalitionId;
     const value = userRanking?.scores;
@@ -111,9 +111,9 @@ export class CoalitionsUserService {
     );
 
     const findTotalRankById = (rankInTotalArr: ScoreInfo) =>
-      rankInTotalArr.userId === uid;
+      rankInTotalArr.userId === userId;
     const findCoalitionRankById = (rankInCoalitionArr: ScoreInfo) =>
-      rankInCoalitionArr.userId === uid;
+      rankInCoalitionArr.userId === userId;
 
     const rankInCoalition =
       rankInCoalitionArr.findIndex(findCoalitionRankById) + 1;

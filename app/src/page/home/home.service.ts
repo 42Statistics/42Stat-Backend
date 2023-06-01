@@ -131,8 +131,8 @@ export class HomeService {
     return await this.cursusUserService.rank('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(uid?: number): Promise<ValuePerCircle[]> {
-    return await this.questsUserService.averageCircleDurations(uid);
+  async averageCircleDurations(userId?: number): Promise<ValuePerCircle[]> {
+    return await this.questsUserService.averageCircleDurations(userId);
   }
 
   //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {

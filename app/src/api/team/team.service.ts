@@ -54,14 +54,16 @@ export class TeamService {
 
   async teamMatesUid(
     targetUid: number,
-  ): Promise<{ uid: number; value: number }[]> {
-    const aggregate = this.teamModel.aggregate<{ uid: number } & AggrNumeric>();
+  ): Promise<{ userId: number; value: number }[]> {
+    const aggregate = this.teamModel.aggregate<
+      { userId: number } & AggrNumeric
+    >();
 
     return await aggregate
       .match({ 'users.id': targetUid })
       .unwind({ path: 'users' })
       .group({ _id: '$users.id', value: { $count: {} } })
       .match({ _id: { $ne: targetUid } })
-      .project({ _id: 0, uid: '$_id', value: 1 });
+      .project({ _id: 0, userId: '$_id', value: 1 });
   }
 }

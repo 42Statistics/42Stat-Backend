@@ -4,7 +4,7 @@ import { PersonalGeneralService } from 'src/page/personalGeneral/personal.genera
 import { PersonalEval } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
-type PersonalEvalContext = { uid: number };
+type PersonalEvalContext = { userId: number };
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
   constructor(
@@ -15,32 +15,32 @@ export class PersonalEvalResolver {
 
   @Query((_returns) => PersonalEval)
   async getPersonalEvalPage(
-    @Args('uid', { nullable: true }) uid: number,
+    @Args('userId', { nullable: true }) userId: number,
     @Args('login', { nullable: true }) login: string,
     @Context() context: PersonalEvalContext,
   ): Promise<PersonalEval> {
-    const cursusUser = await this.cursusUserService.findUser(uid, login);
-    context.uid = cursusUser.user.id;
+    const cursusUser = await this.cursusUserService.findUser(userId, login);
+    context.userId = cursusUser.user.id;
 
     return {
       correctionPoint: 1,
       currMonthCount: await this.personalEvalService.currMonthCount(
-        context.uid,
+        context.userId,
       ),
       lastMonthCount: await this.personalEvalService.lastMonthCount(
-        context.uid,
+        context.userId,
       ),
-      totalCount: await this.personalEvalService.totalCount(context.uid),
+      totalCount: await this.personalEvalService.totalCount(context.userId),
       averageDuration: await this.personalEvalService.averageDuration(
-        context.uid,
+        context.userId,
       ),
       averageFinalMark: await this.personalEvalService.averageFinalMark(
-        context.uid,
+        context.userId,
       ),
       averageFeedbackLength:
-        await this.personalEvalService.averageFeedbackLength(context.uid),
+        await this.personalEvalService.averageFeedbackLength(context.userId),
       averageCommentLength: await this.personalEvalService.averageCommentLength(
-        context.uid,
+        context.userId,
       ),
       userProfile: await this.personalGeneralService.userInfo(99947),
       totalDuration: 1,
