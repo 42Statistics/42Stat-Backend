@@ -8,44 +8,38 @@ export class Quest {
   @Prop({ required: true })
   id: number;
 
-  //@Prop({ required: true })
-  //name: string;
+  @Prop()
+  name: string;
 
-  //@Prop({ required: true })
-  //slug: string;
+  @Prop()
+  slug: string;
 
-  //@Prop({ required: true })
-  //kind: string;
+  @Prop()
+  kind: string;
 
-  //@Prop({ required: true })
-  //createdAt: Date;
+  @Prop()
+  internalName: string;
 
-  //@Prop({ required: true })
-  //updatedAt: Date;
+  @Prop()
+  createdAt: Date;
 
-  //@Prop({ required: true })
-  //firstName: string;
+  @Prop()
+  updatedAt: Date;
 
-  //@Prop({ required: true })
-  //lastName: string;
+  @Prop()
+  description: string;
 
-  //@Prop({ required: true })
-  //usualFullName: string;
+  @Prop()
+  cursusId: number;
 
-  //@Prop({ required: true })
-  //poolMonth: string;
+  @Prop()
+  campusId?: number;
 
-  //@Prop({ required: true })
-  //poolYear: string;
+  @Prop()
+  gradeId: number;
 
-  //@Prop({ required: true })
-  //anonymizeDate: Date;
-
-  //@Prop({ required: true })
-  //dataErasureDate: Date;
-
-  //@Prop({ required: true })
-  //alumnizedAt?: Date;
+  @Prop()
+  position: number;
 }
 
 @Schema()
@@ -53,26 +47,32 @@ export class quests_user {
   @Prop({ required: true })
   id: number;
 
+  @Prop()
+  advancement?: string;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  endAt?: Date;
+
+  @Prop()
+  prct?: number;
+
   @Prop({ required: true })
   quest: Quest;
 
   @Prop({ required: true })
-  user: User;
-
-  //@Prop({ required: true })
-  //endAt?: Date;
-
-  @Prop({ required: true })
   questId: number;
 
+  @Prop()
+  updatedAt: Date;
+
   @Prop({ required: true })
-  validatedAt: Date;
+  user: User;
 
-  //@Prop({ required: true })
-  //createdAt: Date;
-
-  //@Prop({ required: true })
-  //updatedAt: Date;
+  @Prop({ required: true })
+  validatedAt?: Date;
 }
 
 export const QuestsUserSchema = SchemaFactory.createForClass(quests_user);

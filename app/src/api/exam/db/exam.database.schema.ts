@@ -10,34 +10,13 @@ export class exam {
   id: number;
 
   @Prop({ required: true })
-  ipRange: string;
-
-  @Prop({ required: true })
   beginAt: Date;
-
-  @Prop({ required: true })
-  endAt: Date;
-
-  @Prop({ required: true })
-  location: string;
-
-  @Prop()
-  maxPeople?: number;
-
-  @Prop({ required: true })
-  nbrSubscribers: number;
-
-  @Prop({ required: true })
-  name: string;
-
-  @Prop({ required: true })
-  createdAt: Date;
-
-  @Prop({ required: true })
-  updatedAt: Date;
 
   // @Prop({ required: true })
   // campus: campusSchema,
+
+  @Prop()
+  createdAt: Date;
 
   // @Prop({ required: true })
   // cursus: z
@@ -51,7 +30,28 @@ export class exam {
   //   .array(),
 
   @Prop({ required: true })
+  endAt: Date;
+
+  @Prop({ required: true })
+  ipRange: string;
+
+  @Prop({ required: true })
+  location: string;
+
+  @Prop()
+  maxPeople?: number;
+
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
+  nbrSubscribers: number;
+
+  @Prop({ required: true })
   projects: project[];
+
+  @Prop()
+  updatedAt: Date;
 }
 
 export const ExamSchema = SchemaFactory.createForClass(exam);
