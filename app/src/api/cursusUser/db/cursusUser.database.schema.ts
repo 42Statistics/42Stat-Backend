@@ -1,16 +1,37 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
+
 export type UserDocument = HydratedDocument<cursus_user>;
 export type CursusUserDatable = 'beginAt' | 'blackholedAt';
 
 @Schema()
-export class Cursus {
-  @Prop({ required: true })
+export class Skills {
+  @Prop()
   id: number;
-  //createdAt: Date;
-  //name: string;
-  //slug: string;
-  //kind: string;
+
+  @Prop()
+  name: string;
+
+  @Prop()
+  level: number;
+}
+
+@Schema()
+export class Cursus {
+  @Prop()
+  id: number;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  name: string;
+
+  @Prop()
+  slug: string;
+
+  @Prop()
+  kind: string;
 }
 
 @Schema()
@@ -20,66 +41,88 @@ export class Image {
 }
 
 @Schema()
-export class User {
+export class UserBase {
   @Prop({ required: true })
   id: number;
-  // @Prop({ required: true })
-  // email: string;
+
   @Prop({ required: true })
   login: string;
-  //firstName: string;
-  //lastName: string;
-  //usualFullName: string;
-  //usualFirstName?: string;
-  //url: string;
-  //phone: string;
+
+  @Prop()
+  url: string;
+}
+
+@Schema()
+export class User extends UserBase {
+  @Prop()
+  email: string;
+
+  @Prop()
+  firstName: string;
+
+  @Prop()
+  lastName: string;
+
+  @Prop()
+  usualFullName: string;
+
+  @Prop()
+  usualFirstName?: string;
+
+  @Prop()
+  phone: string;
+
   @Prop({ required: true })
   displayname: string;
-  //kind: string;
+
+  @Prop()
+  kind: string;
+
   @Prop({ required: true })
   image: Image;
-  //versions: {
-  //  large: string;
-  //  medium: string;
-  //  small: string;
-  //  micro: string;
-  //};
+
   @Prop({ required: true })
   'staff?': string;
+
   @Prop({ required: true })
   correctionPoint: number;
-  //@Prop({ required: true })
-  //poolMonth: string;
-  //@Prop({ required: true })
-  //poolYear: string;
-  //@Prop({ required: true })
-  //location?: string;
+
+  @Prop()
+  poolMonth: string;
+
+  @Prop()
+  poolYear: string;
+
+  @Prop({ required: true })
+  location?: string;
+
   @Prop({ required: true })
   wallet: number;
-  //anonymizeDate: Date;
-  //dataErasureDate: Date;
-  //createdAt: Date;
-  //updatedAt: Date;
-  //alumnizedAt?: Date;
-  //alumni?: Date;
-  @Prop({ required: true })
+
+  @Prop()
+  anonymizeDate: Date;
+
+  @Prop()
+  dataErasureDate: Date;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+
+  @Prop()
+  alumnizedAt?: Date;
+
+  @Prop()
+  'alumni?': boolean;
+
+  @Prop()
   'active?': boolean;
 }
 
 @Schema()
 export class cursus_user {
-  @Prop({ required: true })
-  grade?: string;
-
-  @Prop({ required: true })
-  level: number;
-
-  //@Prop({ required: true })
-  //skills: Skills;
-
-  //@Prop({ required: true })
-  //blackholedAt?: Date;
-
   @Prop({ required: true })
   id: number;
 
@@ -87,24 +130,37 @@ export class cursus_user {
   beginAt: Date;
 
   @Prop({ required: true })
-  endAt?: Date;
+  blackholedAt?: Date;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  cursus: Cursus;
 
   @Prop()
   cursusId: number;
 
   @Prop()
+  endAt?: Date;
+
+  @Prop({ required: true })
+  grade?: string;
+
+  @Prop()
   hasCoalition: boolean;
 
-  //@Prop()
-  //createdAt: Date;
+  @Prop({ required: true })
+  level: number;
 
-  //@Prop()
-  //updatedAt: Date;
+  // @Prop({ type: [{ type: mongoose.Schema.Types.Array, ref: 'Skills' }] })
+  @Prop()
+  skills: Skills[];
 
-  @Prop({ type: mongoose.Schema.Types.Mixed })
-  cursus: Cursus;
+  @Prop()
+  updatedAt: Date;
 
-  @Prop({ type: mongoose.Schema.Types.Mixed })
+  @Prop({ type: User })
   user: User;
 }
 

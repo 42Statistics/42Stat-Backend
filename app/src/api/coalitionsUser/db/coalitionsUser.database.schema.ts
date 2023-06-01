@@ -5,26 +5,26 @@ export type CoalitionsUserDocument = HydratedDocument<coalitions_user>;
 
 @Schema()
 export class coalitions_user {
-  @Prop()
+  @Prop({ required: true })
   id: number;
 
-  @Prop()
+  @Prop({ required: true })
   coalitionId: number;
-
-  @Prop()
-  userId: number;
-
-  @Prop()
-  score: number;
-
-  @Prop()
-  rank: number;
 
   @Prop()
   createdAt: Date;
 
   @Prop()
+  rank: number;
+
+  @Prop({ required: true })
+  score: number;
+
+  @Prop()
   updatedAt: Date;
+
+  @Prop({ required: true })
+  userId: number;
 }
 
 export const CoalitionsUserSchema =

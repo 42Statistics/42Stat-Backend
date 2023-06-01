@@ -14,11 +14,11 @@ export class titles_user {
   @Prop({ required: true })
   selected: boolean;
 
-  //@Prop()
-  //createdAt: Date;
+  @Prop()
+  createdAt: Date;
 
-  //@Prop()
-  //updatedAt: Date;
+  @Prop()
+  updatedAt: Date;
 }
 
 export const TitlesUserSchema = SchemaFactory.createForClass(titles_user);
