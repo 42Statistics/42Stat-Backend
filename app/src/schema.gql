@@ -59,17 +59,6 @@ type UserRanking {
   rank: Int
 }
 
-type UserRankingDateRanged {
-  data: [UserRanking!]!
-  from: DateTime!
-  to: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
 type TeamPreview {
   id: ID!
   name: String!
@@ -89,6 +78,11 @@ type EvalLogHeader {
   projectPreview: ProjectPreview!
   flag: Flag!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type EvalReview {
   mark: Int!
@@ -176,7 +170,7 @@ type Home {
   lastExamResult: ExamResultDateRanged!
 
   """HOME 역대 코알리숑 스코어 합산"""
-  totalScores: [CoalitionPerValue!]!
+  totalScores: [ValuePerCoalition!]!
 
   """HOME 코알리숑별 역대 코알리숑 스코어 변동 추이"""
   scoreRecords: [CoalitionScoreRecords!]!
@@ -216,10 +210,10 @@ type Home {
   blackholedPercentage: [Int!]!
 
   """HOME 이번 달 누적 코알리숑 티그 횟수"""
-  tigCountPerCoalitions: [CoalitionPerValue!]!
+  tigCountPerCoalitions: [ValuePerCoalition!]!
 }
 
-type CoalitionPerValue {
+type ValuePerCoalition {
   coalition: Coalition!
   value: Int!
 }
@@ -287,7 +281,7 @@ type TempTeam {
   isValidated: Boolean!
 
   """평가완료날"""
-  finishAt: DateTime!
+  finishedAt: DateTime!
 
   """상태: 팀빌딩, 진행중, 평가중, 완료"""
   status: String!
@@ -408,17 +402,11 @@ type ProjectInfo {
   evalInfo: ProjectEvalInfo!
 }
 
-type Total {
-  " "
-  monthlyScoreRanks: UserRankingDateRanged!
-}
-
 type Query {
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomePage: Home!
   findUserPreview(login: String! = ""): [UserPreview]!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
-  getTotalPage: Total!
   getPersonGeneralPage(uid: Int, login: String): PersonalGeneral!
   getPersonalEvalPage(uid: Int, login: String): PersonalEval!
   getLeaderboardLevel: LeaderboardLevel!

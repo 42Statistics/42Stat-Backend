@@ -4,7 +4,7 @@ import { ValueRecord } from 'src/page/home/models/home.model';
 
 //todo: change name
 @ObjectType()
-export class CoalitionPerValue {
+export class ValuePerCoalition {
   @Field()
   coalition: Coalition;
 

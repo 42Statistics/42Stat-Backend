@@ -1,7 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { ProjectRanking } from 'src/api/project/models/project.ranking.model';
 import {
-  CoalitionPerValue,
+  ValuePerCoalition,
   CoalitionScoreRecords,
 } from 'src/api/score/models/score.coalition.model';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
@@ -40,15 +40,6 @@ export class ValuePerCircle {
 //  @Field()
 //  promo: string;
 //}
-
-@ObjectType()
-export class UserCountPerPoint {
-  @Field()
-  userCount: number;
-
-  @Field()
-  point: number;
-}
 
 @ObjectType()
 export class UserCountPerLevels {
@@ -103,10 +94,10 @@ export class Home {
   @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
   lastExamResult: ExamResultDateRanged;
 
-  @Field((_type) => [CoalitionPerValue], {
+  @Field((_type) => [ValuePerCoalition], {
     description: 'HOME 역대 코알리숑 스코어 합산',
   })
-  totalScores: CoalitionPerValue[];
+  totalScores: ValuePerCoalition[];
 
   @Field((_type) => [CoalitionScoreRecords], {
     description: 'HOME 코알리숑별 역대 코알리숑 스코어 변동 추이',
@@ -166,8 +157,8 @@ export class Home {
   })
   blackholedPercentage: [number, number];
 
-  @Field((_type) => [CoalitionPerValue], {
+  @Field((_type) => [ValuePerCoalition], {
     description: 'HOME 이번 달 누적 코알리숑 티그 횟수',
   })
-  tigCountPerCoalitions: CoalitionPerValue[];
+  tigCountPerCoalitions: ValuePerCoalition[];
 }
