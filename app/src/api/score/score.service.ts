@@ -12,7 +12,7 @@ export class ScoreService {
     @InjectModel(score.name)
     private scoreModel: Model<score>,
   ) {}
-  async getScoresByCoalition(): Promise<ValuePerCoalition[]> {
+  async scoresByCoalition(): Promise<ValuePerCoalition[]> {
     const aggregate = this.scoreModel.aggregate<ValuePerCoalition>();
 
     return await aggregate
@@ -28,7 +28,7 @@ export class ScoreService {
       .project({ _id: 0, coalition: { $first: '$coalition' }, value: 1 });
   }
 
-  async getScoreRecords(
+  async scoreRecords(
     filter?: FilterQuery<score>,
   ): Promise<CoalitionScoreRecords[]> {
     const aggregate = this.scoreModel.aggregate<CoalitionScoreRecords>();

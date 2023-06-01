@@ -126,9 +126,9 @@ export class HomeResolver {
 
   @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
   async averageCircleDurations(
-    @Args('uid', { nullable: true }) uid: number,
+    @Args('userId', { nullable: true }) userId: number,
   ): Promise<ValuePerCircle[]> {
-    return await this.homeService.averageCircleDurations(uid);
+    return await this.homeService.averageCircleDurations(userId);
   }
 
   //@ResolveField('averageCircleDurationsByPromo', (_returns) => [
@@ -145,11 +145,7 @@ export class HomeResolver {
 
   @ResolveField('activeUserCountRecords', (_returns) => [ValueRecord])
   async activeUserCountRecords(): Promise<ValueRecord[]> {
-    const curr = Time.curr();
-    const startOfNextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
-    const start = Time.moveYear(startOfNextMonth, -1);
-
-    return await this.homeService.activeUserCountRecords(start, curr);
+    return await this.homeService.activeUserCountRecords();
   }
 
   @ResolveField('currWeekAverageEvalCount', (_returns) => [Int, Int])

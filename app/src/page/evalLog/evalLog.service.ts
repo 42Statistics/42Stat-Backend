@@ -14,7 +14,7 @@ export class EvalLogService {
     private projectService: ProjectService,
   ) {}
 
-  async getEvalLogs({
+  async evalLogs({
     corrector,
     corrected,
     projectName,
@@ -55,10 +55,6 @@ export class EvalLogService {
       filter['flag.id'] = 9;
     }
 
-    return await this.scaleTeamService.getEvalLogs(
-      pageSize,
-      pageNumber,
-      filter,
-    );
+    return await this.scaleTeamService.evalLogs(pageSize, pageNumber, filter);
   }
 }

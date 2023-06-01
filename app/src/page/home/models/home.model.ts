@@ -127,7 +127,7 @@ export class Home {
   correctionPointRanks: UserRanking[];
 
   @Field((_type) => [ValuePerCircle], {
-    description: 'HOME 전체/유저별 서클 통과 평균 기간 (uid?: number)',
+    description: 'HOME 전체/유저별 서클 통과 평균 기간 (userId?: number)',
   })
   averageCircleDurations: ValuePerCircle[];
 

@@ -10,7 +10,7 @@ export class LeaderboardLevelService {
   ) {}
 
   async levelRank(userId: number, limit: number) {
-    const userRanking = await this.cursusUserService.getRank('level', limit);
+    const userRanking = await this.cursusUserService.rank('level', limit);
 
     return this.leaderboardService.userRankingToLeaderboardElement(
       userId,

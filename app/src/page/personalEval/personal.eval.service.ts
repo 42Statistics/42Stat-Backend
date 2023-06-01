@@ -8,12 +8,12 @@ import { Time } from 'src/util';
 export class PersonalEvalService {
   constructor(private scaleTeamService: ScaleTeamService) {}
 
-  async currMonthCount(uid: number): Promise<NumberDateRanged> {
+  async currMonthCount(userId: number): Promise<NumberDateRanged> {
     const currDate = Time.curr();
     const currMonth = Time.startOfMonth(currDate);
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
-      'corrector.id': uid,
+    const evalCount = await this.scaleTeamService.evalCount({
+      'corrector.id': userId,
       beginAt: { $gte: currMonth },
       filledAt: { $ne: null },
     });
@@ -25,50 +25,45 @@ export class PersonalEvalService {
     );
   }
 
-  async lastMonthCount(uid: number): Promise<NumberDateRanged> {
-    const currDate = Time.curr();
-    const currMonth = Time.startOfMonth(currDate);
+  async lastMonthCount(userId: number): Promise<NumberDateRanged> {
+    const currMonth = Time.startOfMonth(Time.curr());
     const lastMonth = Time.moveMonth(currMonth, -1);
 
-    const evalCount = await this.scaleTeamService.getEvalCount({
-      'corrector.id': uid,
+    const evalCount = await this.scaleTeamService.evalCount({
+      'corrector.id': userId,
       beginAt: { $gte: lastMonth, $lt: currMonth },
       filledAt: { $ne: null },
     });
 
-    return generateDateRanged(
-      evalCount,
-      lastMonth,
-      Time.moveDate(currMonth, -1),
-    );
+    return generateDateRanged(evalCount, lastMonth, currMonth);
   }
 
-  async totalCount(uid: number): Promise<number> {
-    return await this.scaleTeamService.getEvalCount({
-      'corrector.id': uid,
+  async totalCount(userId: number): Promise<number> {
+    return await this.scaleTeamService.evalCount({
+      'corrector.id': userId,
       filledAt: { $ne: null },
     });
   }
 
-  async averageDuration(uid: number): Promise<number> {
-    return await this.scaleTeamService.getAverageDurationMinute({
-      'corrector.id': uid,
+  async averageDuration(userId: number): Promise<number> {
+    return await this.scaleTeamService.averageDurationMinute({
+      'corrector.id': userId,
     });
   }
 
-  async averageFinalMark(uid: number): Promise<number> {
-    return await this.scaleTeamService.getAverageFinalMark(uid);
+  async averageFinalMark(userId: number): Promise<number> {
+    return await this.scaleTeamService.averageFinalMark(userId);
   }
 
-  async averageFeedbackLength(uid: number): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('feedback', {
-      'correcteds.id': uid,
+  async averageFeedbackLength(userId: number): Promise<number> {
+    return await this.scaleTeamService.averageReviewLength('feedback', {
+      'correcteds.id': userId,
     });
   }
 
-  async averageCommentLength(uid: number): Promise<number> {
-    return await this.scaleTeamService.getAverageReviewLength('comment', {
-      'corrector.id': uid,
+  async averageCommentLength(userId: number): Promise<number> {
+    return await this.scaleTeamService.averageReviewLength('comment', {
+      'corrector.id': userId,
     });
   }
 }

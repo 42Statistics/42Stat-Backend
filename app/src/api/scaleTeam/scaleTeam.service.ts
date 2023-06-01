@@ -40,7 +40,7 @@ export class ScaleTeamService {
   //     .limit(pageSize);
   // }
 
-  async getEvalCount(filter?: FilterQuery<scale_team>): Promise<number> {
+  async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     if (!filter) {
       return await this.scaleTeamModel.estimatedDocumentCount();
     }
@@ -49,7 +49,7 @@ export class ScaleTeamService {
   }
 
   // total의 경우 5초, 기간 한정하는 경우 1초 이내
-  async getEvalCountRank(
+  async evalCountRank(
     filter?: FilterQuery<scale_team>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserService.aggregate<UserRanking>();
@@ -73,12 +73,12 @@ export class ScaleTeamService {
       });
   }
 
-  async getAverageFinalMark(uid: number): Promise<number> {
+  async averageFinalMark(userId: number): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
 
     const [finalMarkAggr] = await aggregate
       .match({
-        'corrector.id': uid,
+        'corrector.id': userId,
         finalMark: { $ne: null },
       })
       .group({
@@ -93,7 +93,7 @@ export class ScaleTeamService {
     return finalMarkAggr?.value ?? 0;
   }
 
-  async getAverageReviewLength(
+  async averageReviewLength(
     field: 'comment' | 'feedback',
     filter?: FilterQuery<scale_team>,
   ): Promise<number> {
@@ -116,7 +116,7 @@ export class ScaleTeamService {
     return reviewAggr?.value ?? 0;
   }
 
-  async getAverageDurationMinute(
+  async averageDurationMinute(
     filter?: FilterQuery<scale_team>,
   ): Promise<number> {
     const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
@@ -146,7 +146,7 @@ export class ScaleTeamService {
     return sumOfDuration?.value ?? 0;
   }
 
-  async getEvalLogs(
+  async evalLogs(
     pageSize: number,
     pageNumber: number,
     filter?: FilterQuery<scale_team>,
