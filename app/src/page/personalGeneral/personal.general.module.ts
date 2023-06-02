@@ -4,7 +4,6 @@ import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.ser
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { LocationModule } from 'src/api/location/location.module';
-import { LocationService } from 'src/api/location/location.service';
 import { ScoreModule } from 'src/api/score/score.module';
 import { ScoreService } from 'src/api/score/score.service';
 import { TitlesUserModule } from 'src/api/titlesUser/titlesUser.module';
@@ -27,7 +26,6 @@ import { PersonalGeneralService } from './personal.general.service';
     TitlesUserService,
     ScoreService,
     CoalitionsUserService,
-    LocationService,
   ],
 })
 // eslint-disable-next-line
