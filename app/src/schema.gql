@@ -336,11 +336,11 @@ type PersonalGeneral {
   currMonthLogtime: NumberDateRanged!
   lastMonthLogtime: NumberDateRanged!
   teamInfo: TeamInfo!
-  levelGraphs: LevelGraphDateRanged!
   preferredTime: PreferredTime!
   preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeDateRanged!
   preferredCluster: String!
   preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
+  levelGraphs: LevelGraphDateRanged!
 }
 
 type PersonalEval {
