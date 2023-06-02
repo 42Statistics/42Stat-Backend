@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model } from 'mongoose';
 import {
   AggrNumeric,
-  AggrValuePerDate,
+  AggrNumericPerDate,
 } from 'src/common/db/common.db.aggregation';
 import { UserPreview, UserRanking } from 'src/common/models/common.user.model';
 import type {
@@ -93,10 +93,10 @@ export class CursusUserService {
     start: Date,
     end: Date,
     key: CursusUserDatable,
-  ): Promise<AggrValuePerDate[]> {
+  ): Promise<AggrNumericPerDate[]> {
     const dateObject = Time.dateToBoundariesObject(start, end);
 
-    const aggregate = this.cursusUserModel.aggregate<AggrValuePerDate>();
+    const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
 
     return await aggregate
       .append({
