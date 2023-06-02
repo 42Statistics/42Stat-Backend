@@ -48,7 +48,7 @@ export class TempTeam {
   status: string;
 }
 @ObjectType()
-export class PreferredTimeElement {
+export class PreferredTime {
   @Field()
   total: number;
 
@@ -66,9 +66,7 @@ export class PreferredTimeElement {
 }
 
 @ObjectType()
-export class PreferredTimeElementDateRanged extends DateRanged(
-  PreferredTimeElement,
-) {}
+export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
 
 @ObjectType()
 export class TeamInfo {

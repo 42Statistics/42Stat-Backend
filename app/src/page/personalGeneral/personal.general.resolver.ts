@@ -15,8 +15,8 @@ import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import {
   LevelGraphDateRanged,
   PersonalGeneral,
-  PreferredTimeElement,
-  PreferredTimeElementDateRanged,
+  PreferredTime,
+  PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import {
@@ -88,21 +88,21 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.lastMonthLogtime(context.userId);
   }
 
-  @ResolveField('preferredTime', (_returns) => PreferredTimeElement)
+  @ResolveField('preferredTime', (_returns) => PreferredTime)
   async preferredTime(
     @Context() context: PersonalGeneralContext,
-  ): Promise<PreferredTimeElement> {
+  ): Promise<PreferredTime> {
     return await this.personalGeneralService.preferredTime(context.userId);
   }
 
   @ResolveField(
     'preferredTimeByDateRange',
-    (_returns) => PreferredTimeElementDateRanged,
+    (_returns) => PreferredTimeDateRanged,
   )
   async preferredTimeByDateRange(
     @Context() context: PersonalGeneralContext,
     @Args() dateRange: DateRangeArgs,
-  ): Promise<PreferredTimeElementDateRanged> {
+  ): Promise<PreferredTimeDateRanged> {
     return await this.personalGeneralService.preferredTimeByDate(
       context.userId,
       dateRange,

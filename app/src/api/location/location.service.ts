@@ -5,7 +5,7 @@ import {
   AggrNumeric,
   AggrNumericPerCluster,
 } from 'src/common/db/common.db.aggregation';
-import { PreferredTimeElement } from 'src/page/personalGeneral/models/personal.general.model';
+import { PreferredTime } from 'src/page/personalGeneral/models/personal.general.model';
 import { Time } from 'src/util';
 import { location } from './db/location.database.schema';
 
@@ -75,8 +75,8 @@ export class LocationService {
   async preferredTime(
     userId: number,
     filter?: FilterQuery<location>,
-  ): Promise<PreferredTimeElement> {
-    const aggregate = this.locationModel.aggregate<PreferredTimeElement>();
+  ): Promise<PreferredTime> {
+    const aggregate = this.locationModel.aggregate<PreferredTime>();
 
     const to00 = this.dateDiff('21', '00');
     const to03 = this.dateDiff('00', '03');
