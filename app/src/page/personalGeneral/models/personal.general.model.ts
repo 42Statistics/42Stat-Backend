@@ -1,5 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import {
+  NumberDateRanged,
+  StringDateRanged,
+} from 'src/common/models/common.number.dateRanaged';
 import {
   ArrayDateRanged,
   DateRanged,
@@ -118,6 +121,18 @@ export class PersonalGeneral {
 
   @Field()
   teamInfo: TeamInfo;
+
+  @Field()
+  preferredTime: PreferredTime;
+
+  @Field()
+  preferredTimeByDateRange: PreferredTimeDateRanged;
+
+  @Field()
+  preferredCluster: string;
+
+  @Field()
+  preferredClusterByDateRange: StringDateRanged;
 
   @Field()
   levelGraphs: LevelGraphDateRanged;
