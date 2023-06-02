@@ -1,8 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import {
-  NumberDateRanged,
-  StringDateRanged,
-} from 'src/common/models/common.number.dateRanaged';
+import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
 import {
   ArrayDateRanged,
   DateRanged,
@@ -47,8 +44,9 @@ export class TempTeam {
   @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
   status: string;
 }
+
 @ObjectType()
-export class PreferredTimeElement {
+export class PreferredTime {
   @Field()
   total: number;
 
@@ -66,9 +64,7 @@ export class PreferredTimeElement {
 }
 
 @ObjectType()
-export class PreferredTimeElementDateRanged extends DateRanged(
-  PreferredTimeElement,
-) {}
+export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
 
 @ObjectType()
 export class TeamInfo {

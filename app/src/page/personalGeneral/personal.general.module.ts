@@ -11,13 +11,9 @@ import { TitlesUserModule } from 'src/api/titlesUser/titlesUser.module';
 import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
 import { PersonalGeneralResolver } from './personal.general.resolver';
 import { PersonalGeneralService } from './personal.general.service';
-import { PreferredClusterModule } from './preferredCluster/preferredCluster.module';
-import { PreferredTimeModule } from './preferredTime/preferredTime.module';
 
 @Module({
   imports: [
-    PreferredTimeModule,
-    PreferredClusterModule,
     CoalitionsUserModule,
     CursusUserModule,
     LocationModule,

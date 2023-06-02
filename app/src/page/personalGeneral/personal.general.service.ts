@@ -14,8 +14,8 @@ import { generateDateRanged } from 'src/dateRange/dateRange.service';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
-  PreferredTimeElement,
-  PreferredTimeElementDateRanged,
+  PreferredTime,
+  PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import {
@@ -65,14 +65,14 @@ export class PersonalGeneralService {
     return generateDateRanged(logtime, lastMonth, currMonth);
   }
 
-  async preferredTime(userId: number): Promise<PreferredTimeElement> {
+  async preferredTime(userId: number): Promise<PreferredTime> {
     return await this.locationService.preferredTime(userId);
   }
 
   async preferredTimeByDate(
     userId: number,
     dateRange: DateRangeArgs,
-  ): Promise<PreferredTimeElementDateRanged> {
+  ): Promise<PreferredTimeDateRanged> {
     const dateFilter: FilterQuery<location> = {
       beginAt: { $gte: dateRange.start, $lt: dateRange.end },
       filledAt: { $ne: null },

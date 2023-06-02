@@ -287,7 +287,7 @@ type TempTeam {
   status: String!
 }
 
-type PreferredTimeElement {
+type PreferredTime {
   total: Int!
 
   """06 ~ 12"""
@@ -303,8 +303,8 @@ type PreferredTimeElement {
   night: Int!
 }
 
-type PreferredTimeElementDateRanged {
-  data: PreferredTimeElement!
+type PreferredTimeDateRanged {
+  data: PreferredTime!
   from: DateTime!
   to: DateTime!
 }
@@ -337,22 +337,10 @@ type PersonalGeneral {
   lastMonthLogtime: NumberDateRanged!
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
-  preferredTime: PreferredTimeElement!
-  preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeElementDateRanged!
+  preferredTime: PreferredTime!
+  preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeDateRanged!
   preferredCluster: StringDateRanged!
   preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
-}
-
-type PreferredCluster {
-  total: String!
-  byDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
-  byDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
-}
-
-type PreferredTime {
-  total: PreferredTimeElement!
-  byDateRange(start: DateTime!, end: DateTime!): PreferredTimeElementDateRanged!
-  byDateTemplate(dateTemplate: DateTemplate!): PreferredTimeElementDateRanged!
 }
 
 type PersonalEval {
@@ -422,8 +410,6 @@ type Query {
   findUserPreview(login: String! = ""): [UserPreview]!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getPersonGeneralPage(userId: Int, login: String): PersonalGeneral!
-  getPreferredTime(userId: Int, login: String): PreferredTime!
-  getPreferredCluster(userId: Int, login: String): PreferredCluster!
   getPersonalEvalPage(userId: Int, login: String): PersonalEval!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
