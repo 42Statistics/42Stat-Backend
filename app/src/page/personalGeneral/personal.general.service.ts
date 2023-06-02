@@ -86,15 +86,8 @@ export class PersonalGeneralService {
     return generateDateRanged(preferredTime, dateRange.start, dateRange.end);
   }
 
-  async preferredCluster(userId: number): Promise<StringDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
-
-    const preferredCluster = await this.locationService.preferredCluster(
-      userId,
-    );
-
-    return generateDateRanged(preferredCluster, currMonth, curr);
+  async preferredCluster(userId: number): Promise<string> {
+    return await this.locationService.preferredCluster(userId);
   }
 
   async preferredClusterByDateRange(

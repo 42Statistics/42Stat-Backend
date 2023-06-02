@@ -109,10 +109,10 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField('preferredCluster', (_returns) => StringDateRanged)
+  @ResolveField('preferredCluster', (_returns) => String)
   async preferredCluster(
     @Context() context: PersonalGeneralContext,
-  ): Promise<StringDateRanged> {
+  ): Promise<string> {
     return await this.personalGeneralService.preferredCluster(context.userId);
   }
 

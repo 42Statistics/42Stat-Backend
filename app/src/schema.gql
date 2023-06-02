@@ -339,7 +339,7 @@ type PersonalGeneral {
   levelGraphs: LevelGraphDateRanged!
   preferredTime: PreferredTime!
   preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeDateRanged!
-  preferredCluster: StringDateRanged!
+  preferredCluster: String!
   preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
 }
 
