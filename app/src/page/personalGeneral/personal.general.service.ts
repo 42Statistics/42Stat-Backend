@@ -4,6 +4,7 @@ import { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
 import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
 import {
@@ -11,6 +12,7 @@ import {
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
@@ -22,8 +24,6 @@ import {
   UserProfile,
   UserScoreRank,
 } from './models/personal.general.userProfile.model';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
-import { location } from 'src/api/location/db/location.database.schema';
 
 @Injectable()
 export class PersonalGeneralService {
@@ -69,7 +69,7 @@ export class PersonalGeneralService {
     return await this.locationService.preferredTime(userId);
   }
 
-  async preferredTimeByDate(
+  async preferredTimeByDateRange(
     userId: number,
     dateRange: DateRangeArgs,
   ): Promise<PreferredTimeDateRanged> {
