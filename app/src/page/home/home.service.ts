@@ -3,19 +3,23 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import {
-  ValuePerCoalition,
   CoalitionScoreRecords,
+  ValuePerCoalition,
 } from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
 import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
 import { UserRanking } from 'src/common/models/common.user.model';
-import { generateDateRanged } from 'src/dateRange/dateRange.service';
+import {
+  dateRangeFromTemplate,
+  generateDateRanged,
+} from 'src/dateRange/dateRange.service';
 import { Time } from 'src/util';
 import {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
 } from './models/home.model';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 @Injectable()
 export class HomeService {
@@ -27,60 +31,53 @@ export class HomeService {
   ) {}
 
   async currWeekEvalCount(): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const currWeek = Time.startOfWeek(Time.curr());
+    const dateRange = dateRangeFromTemplate(DateTemplate.CURRWEEK);
 
     const evalCount = await this.scaleTeamService.evalCount({
-      beginAt: { $gte: currWeek, $lt: curr },
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
       filledAt: { $ne: null }, //todo: check filter
     });
 
-    return generateDateRanged(evalCount, currWeek, Time.moveDate(curr, -1));
+    return generateDateRanged(evalCount, dateRange);
   }
 
   async lastWeekEvalCount(): Promise<NumberDateRanged> {
-    const currWeek = Time.startOfWeek(Time.curr());
-    const lastWeek = Time.moveWeek(currWeek, -1);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LASTWEEK);
 
     const evalCount = await this.scaleTeamService.evalCount({
-      beginAt: { $gte: lastWeek, $lt: currWeek },
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
       filledAt: { $ne: null },
     });
 
-    return generateDateRanged(evalCount, lastWeek, Time.moveDate(currWeek, -1));
+    return generateDateRanged(evalCount, dateRange);
   }
 
   async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
+    const currMonth = dateRangeFromTemplate(DateTemplate.CURRMONTH);
+    const dateRange = { ...currMonth, end: Time.curr() };
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
-      currMonth,
-      curr,
+      dateRange,
       'blackholedAt',
     );
 
     return generateDateRanged(
-      Time.getValueByDate(currMonth, blackholedCount),
-      currMonth,
-      curr,
+      Time.getValueByDate(dateRange.start, blackholedCount),
+      dateRange,
     );
   }
 
   async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const currMonth = Time.startOfMonth(Time.curr());
-    const lastMonth = Time.moveMonth(currMonth, -1);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LASTMONTH);
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
-      lastMonth,
-      currMonth,
+      dateRange,
       'blackholedAt',
     );
 
     return generateDateRanged(
-      Time.getValueByDate(lastMonth, blackholedCount),
-      lastMonth,
-      currMonth,
+      Time.getValueByDate(dateRange.start, blackholedCount),
+      dateRange,
     );
   }
 
@@ -139,25 +136,26 @@ export class HomeService {
   }
 
   async activeUserCountRecords(): Promise<ValueRecord[]> {
-    const curr = Time.curr();
-    const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
-    const lastYear = Time.moveYear(nextMonth, -1);
+    // const curr = Time.curr();
+    // const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
+    // const lastYear = Time.moveYear(nextMonth, -1);
+
+    const lastYear = dateRangeFromTemplate(DateTemplate.LASTYEAR);
+    const dateRange = { ...lastYear, end: Time.curr() };
 
     const newPromoCounts = await this.cursusUserService.countPerMonth(
-      lastYear,
-      curr,
+      dateRange,
       'beginAt',
     );
 
     const blackholedCounts = await this.cursusUserService.countPerMonth(
-      lastYear,
-      curr,
+      dateRange,
       'blackholedAt',
     );
 
     let activeUserCount = 0;
 
-    const dates = Time.partitionByMonth(lastYear, curr);
+    const dates = Time.partitionByMonth(dateRange);
 
     return dates
       .map((date, index): ValueRecord => {

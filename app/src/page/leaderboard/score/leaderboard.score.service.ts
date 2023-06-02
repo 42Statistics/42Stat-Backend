@@ -87,17 +87,17 @@ export class LeaderboardScoreService {
 
   async scoreRankByDateRange(
     userId: number,
-    { start, end }: DateRangeArgs,
+    dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
       $match: {
-        createdAt: { $gte: start, $lt: end },
+        createdAt: { $gte: dateRange.start, $lt: dateRange.end },
       },
     };
 
     const scoreRanking = await this.scoreRank(userId, dateFilter);
 
-    return generateDateRanged(scoreRanking, start, end);
+    return generateDateRanged(scoreRanking, dateRange);
   }
 
   async scoreRankByDateTemplate(

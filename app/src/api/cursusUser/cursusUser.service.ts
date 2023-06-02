@@ -16,6 +16,7 @@ import {
   cursus_user,
 } from './db/cursusUser.database.schema';
 import { CursusUserProfile } from './models/cursusUser.model';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 
 @Injectable()
 export class CursusUserService {
@@ -90,11 +91,10 @@ export class CursusUserService {
   }
 
   async countPerMonth(
-    start: Date,
-    end: Date,
+    dateRange: DateRangeArgs,
     key: CursusUserDatable,
   ): Promise<AggrNumericPerDate[]> {
-    const dateObject = Time.dateToBoundariesObject(start, end);
+    const dateObject = Time.dateToBoundariesObject(dateRange);
 
     const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
 

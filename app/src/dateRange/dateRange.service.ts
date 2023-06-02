@@ -4,13 +4,12 @@ import type { IDateRangedType } from './models/dateRange.model';
 
 export const generateDateRanged = <T>(
   data: T,
-  from: Date,
-  to: Date,
+  { start, end }: DateRangeArgs,
 ): IDateRangedType<T> => {
   return {
     data,
-    from,
-    to,
+    from: start, //todo: change name
+    to: end,
   } as const;
 };
 
@@ -40,6 +39,17 @@ export const dateRangeFromTemplate = (
       return {
         start: Time.moveMonth(Time.startOfMonth(curr), -1),
         end: Time.startOfMonth(curr),
+      };
+    /**
+     * curr = 23-05-18
+     * lastYear = 22-06-01 ~ 23-06-01
+     */
+    case DateTemplate.LASTYEAR:
+      const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
+      const lastYear = Time.moveYear(nextMonth, -1);
+      return {
+        start: lastYear,
+        end: nextMonth,
       };
   }
 };

@@ -2,6 +2,7 @@ import {
   AggrDatePartition,
   AggrNumericPerDate,
 } from 'src/common/db/common.db.aggregation';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 
 const SEC = 1000;
 const MIN = SEC * 60;
@@ -87,7 +88,7 @@ export const Time = {
    * start: 02-10, end: 04-20
    * return: [ 1970-01-01, 02-01, 03-01, 04-01, 04-20]
    */
-  partitionByMonth: (start: Date, end: Date): Date[] => {
+  partitionByMonth: ({ start, end }: DateRangeArgs): Date[] => {
     const partitioned = [new Date('1970-01-01')];
 
     for (
@@ -115,8 +116,8 @@ export const Time = {
    *   { $dateToString: { date: 04-20, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    * ]
    */
-  dateToBoundariesObject: (start: Date, end: Date): AggrDatePartition[] => {
-    const dates = Time.partitionByMonth(start, end);
+  dateToBoundariesObject: (dateRange: DateRangeArgs): AggrDatePartition[] => {
+    const dates = Time.partitionByMonth(dateRange);
 
     return dates.map((date) => ({
       $dateToString: {

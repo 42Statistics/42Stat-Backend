@@ -37,16 +37,16 @@ export class LeaderboardEvalService {
 
   async evalCountRankByDateRange(
     userId: number,
-    { start, end }: DateRangeArgs,
+    dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<scale_team> = {
-      beginAt: { $gte: start, $lt: end },
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
       filledAt: { $ne: null },
     };
 
     const evalCountRank = await this.evalCountRank(userId, dateFilter);
 
-    return generateDateRanged(evalCountRank, start, end);
+    return generateDateRanged(evalCountRank, dateRange);
   }
 
   async evalCountRankByDateTemplate(

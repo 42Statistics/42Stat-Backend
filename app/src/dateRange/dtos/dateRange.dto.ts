@@ -5,6 +5,8 @@ export enum DateTemplate {
   CURRWEEK,
   LASTMONTH,
   CURRMONTH,
+  // CURRYEAR,
+  LASTYEAR,
 }
 
 registerEnumType(DateTemplate, { name: 'DateTemplate' });
