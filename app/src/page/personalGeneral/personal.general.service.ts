@@ -11,8 +11,11 @@ import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
-import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import {
+  dateRangeFromTemplate,
+  generateDateRanged,
+} from 'src/dateRange/dateRange.service';
+import { DateRangeArgs, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
@@ -43,26 +46,19 @@ export class PersonalGeneralService {
   }
 
   async currMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
-
-    const logtime = await this.locationService.logtime(userId, currMonth, curr);
+    const dateRange = dateRangeFromTemplate(DateTemplate.CURRMONTH);
+    const logtime = await this.locationService.logtime(userId, dateRange);
 
     //todo: check other date ranged
-    return generateDateRanged(logtime, currMonth, curr);
+    return generateDateRanged(logtime, dateRange);
   }
 
   async lastMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const currMonth = Time.startOfMonth(Time.curr());
-    const lastMonth = Time.moveMonth(currMonth, -1);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LASTMONTH);
 
-    const logtime = await this.locationService.logtime(
-      userId,
-      currMonth,
-      lastMonth,
-    );
+    const logtime = await this.locationService.logtime(userId, dateRange);
 
-    return generateDateRanged(logtime, lastMonth, currMonth);
+    return generateDateRanged(logtime, dateRange);
   }
 
   async preferredTime(userId: number): Promise<PreferredTime> {
@@ -83,7 +79,7 @@ export class PersonalGeneralService {
       dateFilter,
     );
 
-    return generateDateRanged(preferredTime, dateRange.start, dateRange.end);
+    return generateDateRanged(preferredTime, dateRange);
   }
 
   async preferredCluster(userId: number): Promise<string> {
@@ -104,7 +100,7 @@ export class PersonalGeneralService {
       dateFilter,
     );
 
-    return generateDateRanged(preferredCluster, dateRange.start, dateRange.end);
+    return generateDateRanged(preferredCluster, dateRange);
   }
 
   async teamInfoById(userId: number): Promise<TeamInfo> {
@@ -193,7 +189,10 @@ export class PersonalGeneralService {
       },
     ];
 
-    return generateDateRanged(levelGraph, new Date('2022'), new Date('2023'));
+    return generateDateRanged(levelGraph, {
+      start: new Date('2022'),
+      end: new Date('2023'),
+    });
   }
 
   async userInfo(userId: number): Promise<UserProfile> {

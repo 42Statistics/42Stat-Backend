@@ -5,6 +5,7 @@ import {
   AggrNumeric,
   AggrNumericPerCluster,
 } from 'src/common/db/common.db.aggregation';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PreferredTime } from 'src/page/personalGeneral/models/personal.general.model';
 import { Time } from 'src/util';
 import { location } from './db/location.database.schema';
@@ -207,7 +208,10 @@ export class LocationService {
     return durationTimePerCluster.cluster;
   }
 
-  async logtime(userId: number, start: Date, end: Date): Promise<number> {
+  async logtime(
+    userId: number,
+    { start, end }: DateRangeArgs,
+  ): Promise<number> {
     const aggregate = this.locationModel.aggregate<AggrNumeric>();
 
     const [logtime] = await aggregate

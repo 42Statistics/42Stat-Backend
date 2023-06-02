@@ -248,6 +248,7 @@ enum DateTemplate {
   CURRWEEK
   LASTMONTH
   CURRMONTH
+  LASTYEAR
 }
 
 type LeaderboardExp {
