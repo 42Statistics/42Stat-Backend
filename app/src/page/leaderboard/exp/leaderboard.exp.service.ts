@@ -85,16 +85,16 @@ export class LeaderboardExpService {
 
   async expIncrementRankByDateRange(
     userId: number,
-    { start, end }: DateRangeArgs,
+    dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
-      beginAt: { $gte: start, $lt: end },
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
       filledAt: { $ne: null },
     };
 
     const evalCountRank = await this.expIncrementRank(userId, dateFilter);
 
-    return generateDateRanged(evalCountRank, start, end);
+    return generateDateRanged(evalCountRank, dateRange);
   }
 
   async expIncrementRankByDateTemplate(
