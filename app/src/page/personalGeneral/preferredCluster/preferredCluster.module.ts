@@ -9,30 +9,28 @@ import { ScoreModule } from 'src/api/score/score.module';
 import { ScoreService } from 'src/api/score/score.service';
 import { TitlesUserModule } from 'src/api/titlesUser/titlesUser.module';
 import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
-import { PersonalGeneralResolver } from './personal.general.resolver';
-import { PersonalGeneralService } from './personal.general.service';
-import { PreferredClusterModule } from './preferredCluster/preferredCluster.module';
-import { PreferredTimeModule } from './preferredTime/preferredTime.module';
+import { PersonalGeneralService } from '../personal.general.service';
+import { PreferredClusterResolver } from './preferredCluster.resolver';
+import { PreferredClusterService } from './preferredCluster.service';
 
 @Module({
   imports: [
-    PreferredTimeModule,
-    PreferredClusterModule,
-    CoalitionsUserModule,
     CursusUserModule,
     LocationModule,
-    ScoreModule,
     TitlesUserModule,
+    ScoreModule,
+    CoalitionsUserModule,
   ],
   providers: [
-    PersonalGeneralResolver,
+    PreferredClusterResolver,
+    PreferredClusterService,
     PersonalGeneralService,
     CursusUserService,
-    TitlesUserService,
+    LocationService,
+    TitlesUserService, //todo: 정리하기 ...
     ScoreService,
     CoalitionsUserService,
-    LocationService,
   ],
 })
 // eslint-disable-next-line
-export class PersonalGeneralModule {}
+export class PreferredClusterModule {}

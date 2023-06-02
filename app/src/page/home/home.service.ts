@@ -32,7 +32,7 @@ export class HomeService {
 
     const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: currWeek, $lt: curr },
-      filledAt: { $ne: null },
+      filledAt: { $ne: null }, //todo: check filter
     });
 
     return generateDateRanged(evalCount, currWeek, Time.moveDate(curr, -1));

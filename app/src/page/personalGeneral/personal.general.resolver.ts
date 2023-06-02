@@ -6,15 +6,17 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
+import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import {
   LevelGraphDateRanged,
   PersonalGeneral,
-  PreferredTimeDateRanged,
+  PreferredTimeElement,
+  PreferredTimeElementDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import {
@@ -86,23 +88,42 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.lastMonthLogtime(context.userId);
   }
 
-  @ResolveField('preferredTime', (_returns) => PreferredTimeDateRanged)
+  @ResolveField('preferredTime', (_returns) => PreferredTimeElement)
   async preferredTime(
     @Context() context: PersonalGeneralContext,
-  ): Promise<PreferredTimeDateRanged> {
+  ): Promise<PreferredTimeElement> {
     return await this.personalGeneralService.preferredTime(context.userId);
+  }
+
+  @ResolveField(
+    'preferredTimeByDateRange',
+    (_returns) => PreferredTimeElementDateRanged,
+  )
+  async preferredTimeByDateRange(
+    @Context() context: PersonalGeneralContext,
+    @Args() dateRange: DateRangeArgs,
+  ): Promise<PreferredTimeElementDateRanged> {
+    return await this.personalGeneralService.preferredTimeByDate(
+      context.userId,
+      dateRange,
+    );
   }
 
   @ResolveField('preferredCluster', (_returns) => StringDateRanged)
   async preferredCluster(
-    @Args('start', { nullable: true }) start: Date,
-    @Args('end', { nullable: true }) end: Date,
     @Context() context: PersonalGeneralContext,
   ): Promise<StringDateRanged> {
-    return await this.personalGeneralService.preferredCluster(
+    return await this.personalGeneralService.preferredCluster(context.userId);
+  }
+
+  @ResolveField('preferredClusterByDateRange', (_returns) => StringDateRanged)
+  async preferredClusterByDateRange(
+    @Context() context: PersonalGeneralContext,
+    @Args() dateRange: DateRangeArgs,
+  ): Promise<StringDateRanged> {
+    return await this.personalGeneralService.preferredClusterByDateRange(
       context.userId,
-      start,
-      end,
+      dateRange,
     );
   }
 

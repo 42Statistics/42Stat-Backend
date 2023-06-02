@@ -2,33 +2,34 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
 import { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
+import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { LocationService } from 'src/api/location/location.service';
+import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
 import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { generateDateRanged } from 'src/dateRange/dateRange.service';
-import { LocationService } from 'src/api/location/location.service';
-import { ScoreService } from 'src/api/score/score.service';
-import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
 import { Time } from 'src/util';
 import {
   LevelGraphDateRanged,
-  PreferredTimeDateRanged,
+  PreferredTimeElement,
+  PreferredTimeElementDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
 import {
   UserProfile,
   UserScoreRank,
 } from './models/personal.general.userProfile.model';
+import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { location } from 'src/api/location/db/location.database.schema';
 
 @Injectable()
 export class PersonalGeneralService {
   constructor(
     private cursusUserService: CursusUserService,
     private titlesUserService: TitlesUserService,
-    private scoreService: ScoreService,
     private coalitionsUserService: CoalitionsUserService,
     private locationService: LocationService,
   ) {}
@@ -48,7 +49,7 @@ export class PersonalGeneralService {
     const logtime = await this.locationService.logtime(userId, currMonth, curr);
 
     //todo: check other date ranged
-    return generateDateRanged(logtime, curr, currMonth);
+    return generateDateRanged(logtime, currMonth, curr);
   }
 
   async lastMonthLogtime(userId: number): Promise<NumberDateRanged> {
@@ -64,38 +65,53 @@ export class PersonalGeneralService {
     return generateDateRanged(logtime, lastMonth, currMonth);
   }
 
-  async preferredTime(
+  async preferredTime(userId: number): Promise<PreferredTimeElement> {
+    return await this.locationService.preferredTime(userId);
+  }
+
+  async preferredTimeByDate(
     userId: number,
-    //start?: Date,
-    //end?: Date,
-  ): Promise<PreferredTimeDateRanged> {
-    const curr = Time.curr();
-    const currMonth = Time.startOfMonth(curr);
+    dateRange: DateRangeArgs,
+  ): Promise<PreferredTimeElementDateRanged> {
+    const dateFilter: FilterQuery<location> = {
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
+      filledAt: { $ne: null },
+    };
 
     const preferredTime = await this.locationService.preferredTime(
       userId,
-      currMonth,
-      curr,
+      dateFilter,
     );
 
-    return generateDateRanged(preferredTime, currMonth, curr);
+    return generateDateRanged(preferredTime, dateRange.start, dateRange.end);
   }
 
-  async preferredCluster(
-    userId: number,
-    //start?: Date,
-    //end?: Date,
-  ): Promise<StringDateRanged> {
+  async preferredCluster(userId: number): Promise<StringDateRanged> {
     const curr = Time.curr();
     const currMonth = Time.startOfMonth(curr);
 
     const preferredCluster = await this.locationService.preferredCluster(
       userId,
-      currMonth,
-      curr,
     );
 
     return generateDateRanged(preferredCluster, currMonth, curr);
+  }
+
+  async preferredClusterByDateRange(
+    userId: number,
+    dateRange: DateRangeArgs,
+  ): Promise<StringDateRanged> {
+    const dateFilter: FilterQuery<location> = {
+      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
+      filledAt: { $ne: null },
+    };
+
+    const preferredCluster = await this.locationService.preferredCluster(
+      userId,
+      dateFilter,
+    );
+
+    return generateDateRanged(preferredCluster, dateRange.start, dateRange.end);
   }
 
   async teamInfoById(userId: number): Promise<TeamInfo> {

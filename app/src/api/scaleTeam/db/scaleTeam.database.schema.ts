@@ -72,7 +72,7 @@ export class Scale {
   disclaimerMd: string;
 
   @Prop()
-  guserIdelinesMd: string;
+  guidelinesMd: string;
 
   @Prop()
   createdAt: Date;
