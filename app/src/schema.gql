@@ -244,8 +244,10 @@ type LeaderboardEval {
 }
 
 enum DateTemplate {
-  WEEKLY
-  MONTHLY
+  LASTWEEK
+  CURRWEEK
+  LASTMONTH
+  CURRMONTH
 }
 
 type LeaderboardExp {
@@ -341,6 +343,8 @@ type PersonalGeneral {
   preferredCluster: String!
   preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
   levelGraphs: LevelGraphDateRanged!
+  preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
+  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
 }
 
 type PersonalEval {

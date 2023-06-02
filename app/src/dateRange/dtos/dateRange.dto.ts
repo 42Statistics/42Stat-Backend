@@ -1,8 +1,10 @@
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
 
 export enum DateTemplate {
-  WEEKLY,
-  MONTHLY,
+  LASTWEEK,
+  CURRWEEK,
+  LASTMONTH,
+  CURRMONTH,
 }
 
 registerEnumType(DateTemplate, { name: 'DateTemplate' });
