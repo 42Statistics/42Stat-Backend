@@ -11,7 +11,11 @@ import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { dateRangeFromTemplate } from 'src/dateRange/dateRange.service';
+import {
+  DateRangeArgs,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 import {
   LevelGraphDateRanged,
   PersonalGeneral,
@@ -103,7 +107,23 @@ export class PersonalGeneralResolver {
     @Context() context: PersonalGeneralContext,
     @Args() dateRange: DateRangeArgs,
   ): Promise<PreferredTimeDateRanged> {
-    return await this.personalGeneralService.preferredTimeByDate(
+    return await this.personalGeneralService.preferredTimeByDateRange(
+      context.userId,
+      dateRange,
+    );
+  }
+
+  @ResolveField(
+    'preferredTimeByDateTemplate',
+    (_returns) => PreferredTimeDateRanged,
+  )
+  async preferredTimeByDateTemplate(
+    @Context() context: PersonalGeneralContext,
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<PreferredTimeDateRanged> {
+    const dateRange = dateRangeFromTemplate(dateTemplate);
+
+    return await this.personalGeneralService.preferredTimeByDateRange(
       context.userId,
       dateRange,
     );
@@ -121,6 +141,22 @@ export class PersonalGeneralResolver {
     @Context() context: PersonalGeneralContext,
     @Args() dateRange: DateRangeArgs,
   ): Promise<StringDateRanged> {
+    return await this.personalGeneralService.preferredClusterByDateRange(
+      context.userId,
+      dateRange,
+    );
+  }
+
+  @ResolveField(
+    'preferredClusterByDateTemplate',
+    (_returns) => StringDateRanged,
+  )
+  async preferredClusterByDateTemplate(
+    @Context() context: PersonalGeneralContext,
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<StringDateRanged> {
+    const dateRange = dateRangeFromTemplate(dateTemplate);
+
     return await this.personalGeneralService.preferredClusterByDateRange(
       context.userId,
       dateRange,
