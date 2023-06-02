@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import {
   AggrNumeric,
-  AggrValuePerCluster,
+  AggrNumericPerCluster,
 } from 'src/common/db/common.db.aggregation';
-import { PreferredTime } from 'src/page/personalGeneral/models/personal.general.model';
+import { PreferredTimeElement } from 'src/page/personalGeneral/models/personal.general.model';
 import { Time } from 'src/util';
 import { location } from './db/location.database.schema';
 
@@ -74,10 +74,9 @@ export class LocationService {
 
   async preferredTime(
     userId: number,
-    start: Date,
-    end: Date,
-  ): Promise<PreferredTime> {
-    const aggregate = this.locationModel.aggregate<PreferredTime>();
+    filter?: FilterQuery<location>,
+  ): Promise<PreferredTimeElement> {
+    const aggregate = this.locationModel.aggregate<PreferredTimeElement>();
 
     const to00 = this.dateDiff('21', '00');
     const to03 = this.dateDiff('00', '03');
@@ -85,11 +84,13 @@ export class LocationService {
     const to15 = this.dateDiff('09', '15');
     const to21 = this.dateDiff('15', '21');
 
+    aggregate.match({ 'user.id': userId });
+
+    if (filter) {
+      aggregate.match(filter);
+    }
+
     const [preferredTime] = await aggregate
-      .match({
-        'user.id': userId,
-        beginAt: { $gte: start, $lt: end },
-      })
       .addFields({
         beginAtFormatted: {
           $dateToString: {
@@ -144,23 +145,31 @@ export class LocationService {
         evening: { $floor: { $divide: ['$12to18', Time.HOUR] } },
         night: { $floor: { $divide: ['$18to24', Time.HOUR] } },
       });
-
-    return preferredTime ?? { morning: 0, daytime: 0, evening: 0, night: 0 };
+    //todo: add total
+    return (
+      preferredTime ?? {
+        total: 0,
+        morning: 0,
+        daytime: 0,
+        evening: 0,
+        night: 0,
+      }
+    );
   }
 
   async preferredCluster(
     userId: number,
-    start: Date,
-    end: Date,
+    filter?: FilterQuery<location>,
   ): Promise<string> {
-    const aggregate = this.locationModel.aggregate<AggrValuePerCluster>();
+    const aggregate = this.locationModel.aggregate<AggrNumericPerCluster>();
+
+    aggregate.match({ 'user.id': userId });
+
+    if (filter) {
+      aggregate.match(filter);
+    }
 
     const [durationTimePerCluster] = await aggregate
-      .match({ 'user.id': userId })
-      .match({
-        beginAt: { $gte: start },
-        endAt: { $lt: end },
-      })
       .project({
         _id: 0,
         beginAt: 1,

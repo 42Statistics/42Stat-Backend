@@ -92,14 +92,10 @@ type EvalReview {
 type EvalLog {
   header: EvalLogHeader!
 
-  """
-  평가자가 부여한 점수와 리뷰 입니다.
-  """
+  """평가자가 부여한 점수와 리뷰 입니다."""
   correctorReview: EvalReview!
 
-  """
-  피평가자가 부여한 점수와 리뷰 입니다.
-  """
+  """피평가자가 부여한 점수와 리뷰 입니다."""
   correctedsReview: EvalReview!
 }
 
@@ -155,105 +151,65 @@ type ExamResultDateRanged {
 }
 
 type Home {
-  """
-  HOME 주간 총 평가 횟수 (이번 주 + 지난 주)
-  """
+  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
   currWeekEvalCount: NumberDateRanged!
 
-  """
-  HOME 주간 총 평가 횟수 (이번 주 + 지난 주)
-  """
+  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
   lastWeekEvalCount: NumberDateRanged!
 
-  """
-  HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)
-  """
+  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
   lastMonthBlackholedCount: NumberDateRanged!
 
-  """
-  HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)
-  """
+  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
   currMonthBlackholedCount: NumberDateRanged!
 
-  """
-  HOME 지금 가장 많은 사람이 참여하는 과제
-  """
+  """HOME 지금 가장 많은 사람이 참여하는 과제"""
   currRegisteredCountRank: [ProjectRanking!]!
 
-  """
-  HOME 직전 회차 시험 Rank별 통과율
-  """
+  """HOME 직전 회차 시험 Rank별 통과율"""
   lastExamResult: ExamResultDateRanged!
 
-  """
-  HOME 역대 코알리숑 스코어 합산
-  """
+  """HOME 역대 코알리숑 스코어 합산"""
   totalScores: [ValuePerCoalition!]!
 
-  """
-  HOME 코알리숑별 역대 코알리숑 스코어 변동 추이
-  """
+  """HOME 코알리숑별 역대 코알리숑 스코어 변동 추이"""
   scoreRecords: [CoalitionScoreRecords!]!
 
-  """
-  HOME 역대 총 평가 횟수
-  """
+  """HOME 역대 총 평가 횟수"""
   totalEvalCount: Int!
 
-  """
-  HOME 평균 피드백 길이
-  """
+  """HOME 평균 피드백 길이"""
   averageFeedbackLength: Int!
 
-  """
-  HOME 평균 코멘트 길이
-  """
+  """HOME 평균 코멘트 길이"""
   averageCommentLength: Int!
   userCountPerLevels: [UserCountPerLevels!]!
 
-  """
-  HOME 보유 월렛 랭킹
-  """
+  """HOME 보유 월렛 랭킹"""
   walletRanks(limit: Int! = 5): [UserRanking!]!
 
-  """
-  HOME 보유 평가 포인트 랭킹
-  """
+  """HOME 보유 평가 포인트 랭킹"""
   correctionPointRanks(limit: Int! = 5): [UserRanking!]!
 
-  """
-  HOME 전체/유저별 서클 통과 평균 기간 (userId?: number)
-  """
+  """HOME 전체/유저별 서클 통과 평균 기간 (userId?: number)"""
   averageCircleDurations(userId: Int): [ValuePerCircle!]!
 
-  """
-  HOME 언제 블랙홀에 많이 빠질까
-  """
+  """HOME 언제 블랙홀에 많이 빠질까"""
   blackholedCountPerCircles: [ValuePerCircle!]!
 
-  """
-  HOME 활성화 유저 수 추이
-  """
+  """HOME 활성화 유저 수 추이"""
   activeUserCountRecords: [ValueRecord!]!
 
-  """
-  HOME 주간 1인당 평가 횟수 [주간 평가 횟수, 활동 유저 수]
-  """
+  """HOME 주간 1인당 평가 횟수 [주간 평가 횟수, 활동 유저 수]"""
   currWeekAverageEvalCount: [Int!]!
 
-  """
-  HOME 멤버 비율 [멤버 유저 수, 전체 유저 수]
-  """
+  """HOME 멤버 비율 [멤버 유저 수, 전체 유저 수]"""
   memberPercentage: [Int!]!
 
-  """
-  HOME 블랙홀 유저 비율 [블랙홀 유저 수, 전체 유저 수]
-  """
+  """HOME 블랙홀 유저 비율 [블랙홀 유저 수, 전체 유저 수]"""
   blackholedPercentage: [Int!]!
 
-  """
-  HOME 이번 달 누적 코알리숑 티그 횟수
-  """
+  """HOME 이번 달 누적 코알리숑 티그 횟수"""
   tigCountPerCoalitions: [ValuePerCoalition!]!
 }
 
@@ -268,14 +224,10 @@ type CoalitionScoreRecords {
 }
 
 type LeaderboardElement {
-  """
-  내 랭킹 정보
-  """
+  """내 랭킹 정보"""
   me: UserRanking
 
-  """
-  전체 랭킹 정보
-  """
+  """전체 랭킹 정보"""
   totalRanks: [UserRanking!]!
 }
 
@@ -318,55 +270,43 @@ type TempTeam {
   occurrence: Int!
   finalMark: Int!
 
-  """
-  레지스터
-  """
+  """레지스터"""
   createdAt: DateTime!
 
-  """
-  팀 빌딩
-  """
+  """팀 빌딩"""
   lockedAt: DateTime!
 
-  """
-  제출
-  """
+  """제출"""
   closedAt: DateTime!
   isValidated: Boolean!
 
-  """
-  평가완료날
-  """
+  """평가완료날"""
   finishedAt: DateTime!
 
-  """
-  상태: 팀빌딩, 진행중, 평가중, 완료
-  """
+  """상태: 팀빌딩, 진행중, 평가중, 완료"""
   status: String!
 }
 
-type PreferredTime {
+type PreferredTimeElement {
   total: Int!
 
-  """
-  06 ~ 12
-  """
+  """06 ~ 12"""
   morning: Int!
 
-  """
-  12 ~ 18
-  """
+  """12 ~ 18"""
   daytime: Int!
 
-  """
-  18 ~ 24
-  """
+  """18 ~ 24"""
   evening: Int!
 
-  """
-  24 ~ 06
-  """
+  """24 ~ 06"""
   night: Int!
+}
+
+type PreferredTimeElementDateRanged {
+  data: PreferredTimeElement!
+  from: DateTime!
+  to: DateTime!
 }
 
 type TeamInfo {
@@ -387,12 +327,6 @@ type LevelGraphDateRanged {
   to: DateTime!
 }
 
-type PreferredTimeDateRanged {
-  data: PreferredTime!
-  from: DateTime!
-  to: DateTime!
-}
-
 type PersonalGeneral {
   userProfile: UserProfile!
   beginAt: DateTime!
@@ -401,68 +335,60 @@ type PersonalGeneral {
   scoreInfo: UserScoreRank!
   currMonthLogtime: NumberDateRanged!
   lastMonthLogtime: NumberDateRanged!
-  preferredTime: PreferredTimeDateRanged!
-  preferredCluster(start: DateTime, end: DateTime): StringDateRanged!
   teamInfo: TeamInfo!
   levelGraphs: LevelGraphDateRanged!
+  preferredTime: PreferredTimeElement!
+  preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeElementDateRanged!
+  preferredCluster: StringDateRanged!
+  preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
+}
+
+type PreferredCluster {
+  total: String!
+  byDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
+}
+
+type PreferredTime {
+  total: PreferredTimeElement!
+  byDateRange(start: DateTime!, end: DateTime!): PreferredTimeElementDateRanged!
+  byDateTemplate(dateTemplate: DateTemplate!): PreferredTimeElementDateRanged!
 }
 
 type PersonalEval {
   userProfile: UserProfile!
 
-  """
-  보유 평가 포인트
-  """
+  """보유 평가 포인트"""
   correctionPoint: Int!
 
-  """
-  월간 평가 횟수 (이번달 + 저번달)
-  """
+  """월간 평가 횟수 (이번달 + 저번달)"""
   currMonthCount: NumberDateRanged!
 
-  """
-  월간 평가 횟수 (이번달 + 저번달)
-  """
+  """월간 평가 횟수 (이번달 + 저번달)"""
   lastMonthCount: NumberDateRanged!
 
-  """
-  누적 평가 횟수
-  """
+  """누적 평가 횟수"""
   totalCount: Int!
 
-  """
-  누적 평가 시간
-  """
+  """누적 평가 시간"""
   totalDuration: Int!
 
-  """
-  평균 평가 시간
-  """
+  """평균 평가 시간"""
   averageDuration: Int!
 
-  """
-  평균 평가 점수
-  """
+  """평균 평가 점수"""
   averageFinalMark: Float!
 
-  """
-  평균 피드백 길이
-  """
+  """평균 피드백 길이"""
   averageFeedbackLength: Int!
 
-  """
-  평균 코멘트 길이
-  """
+  """평균 코멘트 길이"""
   averageCommentLength: Int!
 
-  """
-  최근 받은 피드백
-  """
+  """최근 받은 피드백"""
   latestFeedback: String!
 
-  """
-  이 유저의 이전 평가가 궁금하다면?
-  """
+  """이 유저의 이전 평가가 궁금하다면?"""
   evalLogSearchLink: String!
 }
 
@@ -484,9 +410,7 @@ type ProjectInfo {
   difficulty: Int!
   ongoingTeamCount: Int!
 
-  """
-  총 제출 횟수 입니다.
-  """
+  """총 제출 횟수 입니다."""
   closedTeamCount: Int!
   averagePassFinalmark: Int!
   evalInfo: ProjectEvalInfo!
@@ -498,17 +422,12 @@ type Query {
   findUserPreview(login: String! = ""): [UserPreview]!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getPersonGeneralPage(userId: Int, login: String): PersonalGeneral!
+  getPreferredTime(userId: Int, login: String): PreferredTime!
+  getPreferredCluster(userId: Int, login: String): PreferredCluster!
   getPersonalEvalPage(userId: Int, login: String): PersonalEval!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
-  getEvalLogs(
-    pageSize: Int! = 10
-    pageNumber: Int! = 1
-    corrector: String
-    corrected: String
-    projectName: String
-    outstandingOnly: Boolean! = false
-  ): EvalLogsPaginated!
+  getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }

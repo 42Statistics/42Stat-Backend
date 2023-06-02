@@ -1,12 +1,12 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
-  ArrayDateRanged,
-  DateRanged,
-} from 'src/dateRange/models/dateRange.model';
-import {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
+import {
+  ArrayDateRanged,
+  DateRanged,
+} from 'src/dateRange/models/dateRange.model';
 import {
   UserProfile,
   UserScoreRank,
@@ -47,9 +47,8 @@ export class TempTeam {
   @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
   status: string;
 }
-
 @ObjectType()
-export class PreferredTime {
+export class PreferredTimeElement {
   @Field()
   total: number;
 
@@ -65,6 +64,11 @@ export class PreferredTime {
   @Field({ description: '24 ~ 06' })
   night: number;
 }
+
+@ObjectType()
+export class PreferredTimeElementDateRanged extends DateRanged(
+  PreferredTimeElement,
+) {}
 
 @ObjectType()
 export class TeamInfo {
@@ -94,9 +98,6 @@ export class LevelGraph {
 export class LevelGraphDateRanged extends ArrayDateRanged(LevelGraph) {}
 
 @ObjectType()
-export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
-
-@ObjectType()
 export class PersonalGeneral {
   @Field()
   userProfile: UserProfile;
@@ -118,12 +119,6 @@ export class PersonalGeneral {
 
   @Field()
   lastMonthLogtime: NumberDateRanged;
-
-  @Field()
-  preferredTime: PreferredTimeDateRanged;
-
-  @Field()
-  preferredCluster: StringDateRanged;
 
   @Field()
   teamInfo: TeamInfo;
