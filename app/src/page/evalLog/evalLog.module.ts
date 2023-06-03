@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
-import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
-import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import { EvalLogResolver } from './evalLog.resolver';
-import { EvalLogService } from './evalLog.service';
 import { ProjectModule } from 'src/api/project/project.module';
 import { ProjectService } from 'src/api/project/project.service';
+import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
+import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { PaginationCursorModule } from 'src/pagination/cursor/pagination.cursor.module';
+import { EvalLogResolver } from './evalLog.resolver';
+import { EvalLogService } from './evalLog.service';
 
 @Module({
-  imports: [ScaleTeamModule, ProjectModule],
+  imports: [ScaleTeamModule, ProjectModule, PaginationCursorModule],
   providers: [
     EvalLogResolver,
     EvalLogService,

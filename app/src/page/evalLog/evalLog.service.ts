@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
-import { generatePage } from 'src/pagination/pagination.service';
 import { ProjectService } from 'src/api/project/project.service';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { PaginationCursorService } from 'src/pagination/cursor/pagination.cursor.service';
 import { GetEvalLogsArgs } from './dto/evalLog.dto.getEvalLog';
-import { EvalLogsPaginated } from './models/evalLog.model';
+import { EvalLog, EvalLogsPaginated } from './models/evalLog.model';
 
 @Injectable()
 export class EvalLogService {
   constructor(
     private scaleTeamService: ScaleTeamService,
     private projectService: ProjectService,
+    private paginationService: PaginationCursorService,
   ) {}
 
   async evalLogs({
@@ -28,7 +29,15 @@ export class EvalLogService {
       const projectList = await this.projectService.findByName(projectName);
 
       if (projectList.length === 0) {
-        return generatePage([], 0, { pageSize, pageNumber });
+        return this.paginationService.generatePage<EvalLog>(
+          [],
+          0,
+          {
+            pageSize,
+            pageNumber,
+          },
+          'header', //todo: 흠.........
+        );
       }
 
       const exactMatchProject = projectList.find(

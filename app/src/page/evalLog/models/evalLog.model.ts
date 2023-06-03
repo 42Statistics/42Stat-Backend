@@ -1,24 +1,23 @@
-import { Field, ID, ObjectType } from '@nestjs/graphql';
-import { URLResolver } from 'graphql-scalars';
-import { UserPreview } from 'src/common/models/common.user.model';
-import { Paginated } from 'src/pagination/models/pagination.model';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { ProjectPreview } from 'src/api/project/models/project.preview';
+import { UserPreview } from 'src/common/models/common.user.model';
+import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
 
 @ObjectType()
 export class TeamPreview {
-  @Field((_type) => ID)
+  @Field()
   id: number;
 
   @Field()
   name: string;
 
-  @Field((_type) => URLResolver)
+  @Field()
   url: string;
 }
 
 @ObjectType()
 export class Flag {
-  @Field((_type) => ID)
+  @Field()
   id: number;
 
   @Field()
@@ -68,4 +67,4 @@ export class EvalLog {
 }
 
 @ObjectType()
-export class EvalLogsPaginated extends Paginated(EvalLog) {}
+export class EvalLogsPaginated extends CursorPaginated(EvalLog) {}

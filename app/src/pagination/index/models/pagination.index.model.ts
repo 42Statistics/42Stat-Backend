@@ -1,16 +1,18 @@
 import { Type } from '@nestjs/common';
 import { Field, ObjectType } from '@nestjs/graphql';
 
-export interface IPaginatedType<T> {
+export interface IIndexPaginatedType<T> {
   nodes: T[];
   totalCount: number;
   pageSize: number;
   pageNumber: number;
 }
 
-export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
+export function IndexPaginated<T>(
+  classRef: Type<T>,
+): Type<IIndexPaginatedType<T>> {
   @ObjectType({ isAbstract: true })
-  abstract class PaginatedType implements IPaginatedType<T> {
+  abstract class IndexPaginatedType implements IIndexPaginatedType<T> {
     @Field((_type) => [classRef], { nullable: 'items' })
     nodes: T[];
 
@@ -24,5 +26,5 @@ export function Paginated<T>(classRef: Type<T>): Type<IPaginatedType<T>> {
     pageNumber: number;
   }
 
-  return PaginatedType as Type<IPaginatedType<T>>;
+  return IndexPaginatedType as Type<IIndexPaginatedType<T>>;
 }
