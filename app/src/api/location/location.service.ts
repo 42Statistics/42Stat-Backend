@@ -145,8 +145,11 @@ export class LocationService {
         },
         evening: { $floor: { $divide: ['$12to18', Time.HOUR] } },
         night: { $floor: { $divide: ['$18to24', Time.HOUR] } },
+      })
+      .addFields({
+        total: { $sum: ['$morning', '$daytime', '$evening', '$night'] },
       });
-    //todo: add total
+
     return (
       preferredTime ?? {
         total: 0,
