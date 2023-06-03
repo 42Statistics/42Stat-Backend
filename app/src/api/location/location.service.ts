@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
-import {
+import type { FilterQuery, Model } from 'mongoose';
+import type {
   AggrNumeric,
   AggrNumericPerCluster,
 } from 'src/common/db/common.db.aggregation';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
-import { PreferredTime } from 'src/page/personalGeneral/models/personal.general.model';
+import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import type { PreferredTime } from 'src/page/personalGeneral/models/personal.general.model';
 import { Time } from 'src/util';
 import { location } from './db/location.database.schema';
 
