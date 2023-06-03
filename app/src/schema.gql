@@ -244,11 +244,11 @@ type LeaderboardEval {
 }
 
 enum DateTemplate {
-  LASTWEEK
-  CURRWEEK
-  LASTMONTH
-  CURRMONTH
-  LASTYEAR
+  CURR_WEEK
+  LAST_WEEK
+  CURR_MONTH
+  LAST_MONTH
+  LAST_YEAR
 }
 
 type LeaderboardExp {
