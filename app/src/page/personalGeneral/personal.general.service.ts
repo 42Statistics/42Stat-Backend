@@ -70,8 +70,8 @@ export class PersonalGeneralService {
     dateRange: DateRangeArgs,
   ): Promise<PreferredTimeDateRanged> {
     const dateFilter: FilterQuery<location> = {
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
-      filledAt: { $ne: null },
+      beginAt: { $lt: dateRange.start },
+      endAt: { $gte: dateRange.end },
     };
 
     const preferredTime = await this.locationService.preferredTime(
@@ -91,8 +91,8 @@ export class PersonalGeneralService {
     dateRange: DateRangeArgs,
   ): Promise<StringDateRanged> {
     const dateFilter: FilterQuery<location> = {
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
-      filledAt: { $ne: null },
+      beginAt: { $lt: dateRange.end },
+      endAt: { $gt: dateRange.start },
     };
 
     const preferredCluster = await this.locationService.preferredCluster(
