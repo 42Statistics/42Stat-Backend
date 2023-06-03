@@ -1,5 +1,5 @@
 FROM node:19-alpine3.16
-RUN npm install -g pnpm
+RUN npm install -g pnpm@latest-8
 EXPOSE 3000
 WORKDIR /app
 COPY entry.sh /tmp/
