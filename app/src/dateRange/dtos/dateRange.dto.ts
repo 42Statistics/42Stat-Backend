@@ -26,6 +26,11 @@ export enum DateTemplate {
 
 registerEnumType(DateTemplate, { name: 'DateTemplate' });
 
+export type DateRange = {
+  start: Date;
+  end: Date;
+};
+
 @ArgsType()
 export class DateTemplateArgs {
   @Field((_type) => DateTemplate)
@@ -33,7 +38,7 @@ export class DateTemplateArgs {
 }
 
 @ArgsType()
-export class DateRangeArgs {
+export class DateRangeArgs implements DateRange {
   @Field()
   start: Date;
 
