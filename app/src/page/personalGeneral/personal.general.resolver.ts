@@ -167,13 +167,13 @@ export class PersonalGeneralResolver {
   async teamInfo(
     @Context() context: PersonalGeneralContext,
   ): Promise<TeamInfo> {
-    return await this.personalGeneralService.teamInfoById(context.userId);
+    return await this.personalGeneralService.userTeamInfo(context.userId);
   }
 
   @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
   async levelGraphs(
     @Context() context: PersonalGeneralContext,
   ): Promise<LevelGraphDateRanged> {
-    return await this.personalGeneralService.levelHistroyById(context.userId);
+    return await this.personalGeneralService.userLevelHistroy(context.userId);
   }
 }

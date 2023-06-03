@@ -23,7 +23,7 @@ export const Time = {
   WEEK,
 
   // todo: 개발 용도. 완료 후 인자 제거 필요합니다.
-  curr: (): Date => new Date(),
+  now: (): Date => new Date(),
 
   moveMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
 
