@@ -3,8 +3,8 @@ import { Field, ObjectType } from '@nestjs/graphql';
 
 export interface IDateRangedType<T> {
   data: T;
-  from: Date;
-  to: Date;
+  start: Date;
+  end: Date;
 }
 
 export function DateRanged<T>(classRef: Type<T>): Type<IDateRangedType<T>> {
@@ -14,10 +14,10 @@ export function DateRanged<T>(classRef: Type<T>): Type<IDateRangedType<T>> {
     data: T;
 
     @Field()
-    from: Date;
+    start: Date;
 
     @Field()
-    to: Date;
+    end: Date;
   }
 
   return DateRangedType as Type<IDateRangedType<T>>;
@@ -25,8 +25,8 @@ export function DateRanged<T>(classRef: Type<T>): Type<IDateRangedType<T>> {
 
 export interface IArrayDateRangedType<T> {
   data: T[];
-  from: Date;
-  to: Date;
+  start: Date;
+  end: Date;
 }
 
 export function ArrayDateRanged<T>(
@@ -38,10 +38,10 @@ export function ArrayDateRanged<T>(
     data: T[];
 
     @Field()
-    from: Date;
+    start: Date;
 
     @Field()
-    to: Date;
+    end: Date;
   }
 
   return DateRangedType as Type<IArrayDateRangedType<T>>;
