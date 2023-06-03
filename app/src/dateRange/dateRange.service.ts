@@ -19,32 +19,27 @@ export const dateRangeFromTemplate = (
   const curr = Time.curr();
 
   switch (dateTemplate) {
-    //todo: defalut: 06-04~06-11 -> 06-04~06-05(today)변경해야할때 확인하기
-    case DateTemplate.CURRWEEK:
+    case DateTemplate.CURR_WEEK:
       return {
         start: Time.startOfWeek(curr),
         end: Time.moveWeek(Time.startOfWeek(curr), 1),
       };
-    case DateTemplate.LASTWEEK:
+    case DateTemplate.LAST_WEEK:
       return {
         start: Time.moveWeek(Time.startOfWeek(curr), -1),
         end: Time.startOfWeek(curr),
       };
-    case DateTemplate.CURRMONTH:
+    case DateTemplate.CURR_MONTH:
       return {
         start: Time.startOfMonth(curr),
         end: Time.moveMonth(Time.startOfMonth(curr), 1),
       };
-    case DateTemplate.LASTMONTH:
+    case DateTemplate.LAST_MONTH:
       return {
         start: Time.moveMonth(Time.startOfMonth(curr), -1),
         end: Time.startOfMonth(curr),
       };
-    /**
-     * curr = 23-05-18
-     * lastYear = 22-06-01 ~ 23-06-01
-     */
-    case DateTemplate.LASTYEAR:
+    case DateTemplate.LAST_YEAR:
       const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
       const lastYear = Time.moveYear(nextMonth, -1);
       return {
