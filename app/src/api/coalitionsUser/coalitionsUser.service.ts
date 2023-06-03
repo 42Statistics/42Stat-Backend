@@ -15,8 +15,8 @@ export class CoalitionsUserService {
   ) {}
 
   scoreInfo(
-    start: Date = Time.startOfMonth(Time.curr()), //todo: 기본 기간 설정
-    end: Date = Time.startOfMonth(Time.moveMonth(Time.curr(), 1)),
+    start: Date = Time.startOfMonth(Time.now()), //todo: 기본 기간 설정
+    end: Date = Time.startOfMonth(Time.moveMonth(Time.now(), 1)),
     limit?: number,
   ): Aggregate<any> {
     //todo: aggregate type
@@ -34,7 +34,7 @@ export class CoalitionsUserService {
           { 'cursus_users.blackholedAt': null },
           {
             'cursus_users.blackholedAt': {
-              $gte: Time.curr(),
+              $gte: Time.now(),
             },
           },
         ],
@@ -93,7 +93,7 @@ export class CoalitionsUserService {
       });
   }
 
-  async scoreRankById(
+  async userScoreRank(
     userId: number,
     start: Date,
     end: Date,
@@ -110,14 +110,11 @@ export class CoalitionsUserService {
       (rankInTotal: ScoreInfo) => rankInTotal.coalitionId === coalitionId,
     );
 
-    const findTotalRankById = (rankInTotalArr: ScoreInfo) =>
-      rankInTotalArr.userId === userId;
-    const findCoalitionRankById = (rankInCoalitionArr: ScoreInfo) =>
-      rankInCoalitionArr.userId === userId;
-
     const rankInCoalition =
-      rankInCoalitionArr.findIndex(findCoalitionRankById) + 1;
-    const rankInTotal = rankInTotalArr.findIndex(findTotalRankById) + 1;
+      rankInCoalitionArr.findIndex((rank) => rank.userId === userId) + 1;
+
+    const rankInTotal =
+      rankInTotalArr.findIndex((rank) => rank.userId === userId) + 1;
 
     if (value === undefined) {
       throw new NotFoundException();

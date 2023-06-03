@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs/promises';
-import { FilterQuery } from 'mongoose';
+import type { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
 import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
-import {
+import type {
   NumberDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.number.dateRanaged';
@@ -17,13 +17,13 @@ import {
 } from 'src/dateRange/dateRange.service';
 import { DateRangeArgs, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
-import {
+import type {
   LevelGraphDateRanged,
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
-import {
+import type {
   UserProfile,
   UserScoreRank,
 } from './models/personal.general.userProfile.model';
@@ -103,7 +103,7 @@ export class PersonalGeneralService {
     return generateDateRanged(preferredCluster, dateRange);
   }
 
-  async teamInfoById(userId: number): Promise<TeamInfo> {
+  async userTeamInfo(userId: number): Promise<TeamInfo> {
     return {
       lastRegistered: 'avaj-launcher',
       lastPass: 'avaj-launcher',
@@ -125,7 +125,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async levelHistroyById(userId: number): Promise<LevelGraphDateRanged> {
+  async userLevelHistroy(userId: number): Promise<LevelGraphDateRanged> {
     const levelGraph = [
       {
         date: new Date('2022-01-01'),
@@ -213,7 +213,7 @@ export class PersonalGeneralService {
     userId: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
-    return await this.cursusUserService.levelRankById(userId, filter);
+    return await this.cursusUserService.userLevelRank(userId, filter);
   }
 
   async beginAt(userId: number): Promise<Date> {
@@ -229,11 +229,11 @@ export class PersonalGeneralService {
   }
 
   async scoreInfo(userId: number): Promise<UserScoreRank> {
-    const currTime = Time.curr();
-    const startOfMonth = Time.startOfMonth(currTime);
+    const now = Time.now();
+    const startOfMonth = Time.startOfMonth(now);
     const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
 
-    return await this.coalitionsUserService.scoreRankById(
+    return await this.coalitionsUserService.userScoreRank(
       userId,
       startOfMonth,
       startOfNextMonth,

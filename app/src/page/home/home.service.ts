@@ -2,24 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import {
+import type {
   CoalitionScoreRecords,
   ValuePerCoalition,
 } from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
-import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
-import { UserRanking } from 'src/common/models/common.user.model';
+import type { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import type { UserRanking } from 'src/common/models/common.user.model';
 import {
   dateRangeFromTemplate,
   generateDateRanged,
 } from 'src/dateRange/dateRange.service';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
-import {
+import type {
   UserCountPerLevels,
   ValuePerCircle,
   ValueRecord,
 } from './models/home.model';
-import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 @Injectable()
 export class HomeService {
@@ -54,7 +54,7 @@ export class HomeService {
 
   async currMonthBlackholedCount(): Promise<NumberDateRanged> {
     const currMonth = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
-    const dateRange = { ...currMonth, end: Time.curr() };
+    const dateRange = { ...currMonth, end: Time.now() };
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
       dateRange,
@@ -89,7 +89,7 @@ export class HomeService {
     // todo: 고정 코알리숑 아이디
     const coalitionIds = [85, 86, 87, 88];
 
-    const currMonth = Time.startOfMonth(Time.curr());
+    const currMonth = Time.startOfMonth(Time.now());
     const lastYear = Time.moveYear(currMonth, -1);
 
     return await this.scoreService.scoreRecords({
@@ -141,7 +141,7 @@ export class HomeService {
     // const lastYear = Time.moveYear(nextMonth, -1);
 
     const lastYear = dateRangeFromTemplate(DateTemplate.LAST_YEAR);
-    const dateRange = { ...lastYear, end: Time.curr() };
+    const dateRange = { ...lastYear, end: Time.now() };
 
     const newPromoCounts = await this.cursusUserService.countPerMonth(
       dateRange,

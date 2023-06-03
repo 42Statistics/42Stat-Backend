@@ -164,7 +164,7 @@ export class CursusUserService {
     return cursusUserProfile[0];
   }
 
-  async levelRankById(
+  async userLevelRank(
     userId: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<number> {
@@ -243,7 +243,7 @@ export class CursusUserService {
       .match({
         blackholedAt: {
           $ne: null,
-          $lt: Time.curr(),
+          $lt: Time.now(),
         },
       })
       .lookup({
