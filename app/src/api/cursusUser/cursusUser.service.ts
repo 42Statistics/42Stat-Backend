@@ -91,8 +91,8 @@ export class CursusUserService {
   }
 
   async countPerMonth(
-    dateRange: DateRangeArgs,
     key: CursusUserDatable,
+    dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
     const dateObject = Time.dateToBoundariesObject(dateRange);
 

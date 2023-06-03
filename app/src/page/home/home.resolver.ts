@@ -1,13 +1,16 @@
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
-  CoalitionScoreRecords,
-  ValuePerCoalition,
-} from 'src/api/score/models/score.coalition.model';
-import { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+  NumberDateRanged,
+  NumericRateDateRanged,
+} from 'src/common/models/common.dateRanaged';
+import { NumericRate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
+import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import {
+  ScoreRecordPerCoalition,
   UserCountPerLevels,
   ValuePerCircle,
+  ValuePerCoalition,
   ValueRecord,
 } from '../home/models/home.model';
 import { HomeService } from './home.service';
@@ -60,39 +63,58 @@ export class HomeResolver {
     };
   }
 
-  @ResolveField('currWeekEvalCount', (_returns) => NumberDateRanged)
-  async currWeekEvalCount(): Promise<NumberDateRanged> {
-    return await this.homeService.currWeekEvalCount();
+  @ResolveField('activeUserCountRecords', (_returns) => [ValueRecord])
+  async activeUserCountRecords(): Promise<ValueRecord[]> {
+    return await this.homeService.activeUserCountRecords();
   }
 
-  @ResolveField('lastWeekEvalCount', (_returns) => NumberDateRanged)
-  async lastWeekEvalCount(): Promise<NumberDateRanged> {
-    return await this.homeService.lastWeekEvalCount();
+  @ResolveField('userCountPerLevels', (_returns) => [UserCountPerLevels])
+  async userCountPerLevel(): Promise<UserCountPerLevels[]> {
+    return await this.homeService.userCountPerLevels();
   }
 
-  @ResolveField('lastMonthBlackholedCount', (_returns) => NumberDateRanged)
-  async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    return await this.homeService.lastMonthBlackholedCount();
+  @ResolveField('memberRate', (_returns) => NumericRate)
+  async memberRate(): Promise<NumericRate> {
+    return await this.homeService.memberRate();
   }
 
-  @ResolveField('currMonthBlackholedCount', (_returns) => NumberDateRanged)
-  async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    return await this.homeService.currMonthBlackholedCount();
+  @ResolveField('blackholedRate', (_returns) => NumericRate)
+  async blackholedRate(): Promise<NumericRate> {
+    return await this.homeService.blackholedRate();
   }
 
-  @ResolveField('totalScores', (_returns) => [ValuePerCoalition])
-  async totalScores(): Promise<ValuePerCoalition[]> {
-    return await this.homeService.totalScores();
+  @ResolveField('blackholedCountByDateTemplate', (_returns) => NumberDateRanged)
+  async blackholedCountByDateTemplate(
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ) {
+    return await this.homeService.blackholedCountByDateTemplate(dateTemplate);
   }
 
-  @ResolveField('scoreRecords', (_returns) => [CoalitionScoreRecords])
-  async scoreRecords(): Promise<CoalitionScoreRecords[]> {
-    return await this.homeService.scoreRecords();
+  @ResolveField('blackholedCountPerCircles', (_returns) => [ValuePerCircle])
+  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+    return await this.homeService.blackholedCountPerCircles();
   }
 
-  @ResolveField('totalEvalCount', (_returns) => Int)
-  async totalEvalCount(): Promise<number> {
-    return await this.homeService.totalEvalCount();
+  @ResolveField('totalEvalCount', (_returns) => NumberDateRanged)
+  async evalCount(): Promise<NumberDateRanged> {
+    return await this.evalCount();
+  }
+
+  @ResolveField('evalCountByDateTemplate', (_returns) => NumberDateRanged)
+  async evalCountByDateTemplate(
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<NumberDateRanged> {
+    return await this.homeService.evalCountByDateTemplate(dateTemplate);
+  }
+
+  @ResolveField(
+    'averageEvalCountByDateTemplate',
+    (_returns) => NumericRateDateRanged,
+  )
+  async averageEvalCountByDateTemplate(
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<NumericRateDateRanged> {
+    return await this.homeService.averageEvalCountByDateTemplate(dateTemplate);
   }
 
   @ResolveField('averageFeedbackLength', (_returns) => Int)
@@ -105,10 +127,18 @@ export class HomeResolver {
     return await this.homeService.averageCommentLength();
   }
 
-  @ResolveField('userCountPerLevels', (_returns) => [UserCountPerLevels])
-  async userCountPerLevel(): Promise<UserCountPerLevels[]> {
-    return await this.homeService.userCountPerLevels();
+  @ResolveField('totalScoresPerCoalition', (_returns) => [ValuePerCoalition])
+  async totalScores(): Promise<ValuePerCoalition[]> {
+    return await this.homeService.totalScoresPerCoalition();
   }
+
+  @ResolveField('scoreRecordsPerCoalition', (_returns) => [
+    ScoreRecordPerCoalition,
+  ])
+  async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
+    return await this.homeService.scoreRecordsPerCoalition();
+  }
+
   @ResolveField('walletRanks', (_returns) => [UserRanking])
   async walletRanks(
     @Args('limit', { defaultValue: 5 }) limit: number,
@@ -124,10 +154,13 @@ export class HomeResolver {
   }
 
   @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
-  async averageCircleDurations(
-    @Args('userId', { nullable: true }) userId: number,
-  ): Promise<ValuePerCircle[]> {
-    return await this.homeService.averageCircleDurations(userId);
+  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+    return await this.homeService.averageCircleDurations();
+  }
+
+  @ResolveField('tigCountPerCoalitions', (_returns) => [ValuePerCoalition])
+  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
+    return await this.homeService.tigCountPerCoalitions();
   }
 
   //@ResolveField('averageCircleDurationsByPromo', (_returns) => [
@@ -136,34 +169,4 @@ export class HomeResolver {
   //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
   //  return await this.totalService.averageCircleDurationsByPromo();
   //}
-
-  @ResolveField('blackholedCountPerCircles', (_returns) => [ValuePerCircle])
-  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
-    return await this.homeService.blackholedCountPerCircles();
-  }
-
-  @ResolveField('activeUserCountRecords', (_returns) => [ValueRecord])
-  async activeUserCountRecords(): Promise<ValueRecord[]> {
-    return await this.homeService.activeUserCountRecords();
-  }
-
-  @ResolveField('currWeekAverageEvalCount', (_returns) => [Int, Int])
-  async currWeekAverageEvalCount(): Promise<[number, number]> {
-    return await this.homeService.currWeekAverageEvalCount();
-  }
-
-  @ResolveField('memberPercentage', (_returns) => [Int, Int])
-  async memberPercentage(): Promise<[number, number]> {
-    return await this.homeService.memberPercentage();
-  }
-
-  @ResolveField('blackholedPercentage', (_returns) => [Int, Int])
-  async blackholedPercentage(): Promise<[number, number]> {
-    return await this.homeService.blackholedPercentage();
-  }
-
-  @ResolveField('tigCountPerCoalitions', (_returns) => [ValuePerCoalition])
-  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
-    return await this.homeService.tigCountPerCoalitions();
-  }
 }
