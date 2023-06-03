@@ -6,20 +6,21 @@ import {
   dateRangeFromTemplate,
   generateDateRanged,
 } from 'src/dateRange/dateRange.service';
+import { dateRangeFilter } from 'src/dateRange/db/dateRange.database.aggregate';
 import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
-import { LeaderboardService } from '../leaderboard.service';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
 export class LeaderboardEvalService {
   constructor(
-    private leaderboardService: LeaderboardService,
+    private leaderboardUtilService: LeaderboardUtilService,
     private scaleTeamService: ScaleTeamService,
   ) {}
 
@@ -29,7 +30,7 @@ export class LeaderboardEvalService {
   ): Promise<LeaderboardElement> {
     const userRanking = await this.scaleTeamService.evalCountRank(filter);
 
-    return this.leaderboardService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.userRankingToLeaderboardElement(
       userId,
       userRanking,
     );
@@ -40,7 +41,7 @@ export class LeaderboardEvalService {
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<scale_team> = {
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
+      beginAt: dateRangeFilter(dateRange),
       filledAt: { $ne: null },
     };
 

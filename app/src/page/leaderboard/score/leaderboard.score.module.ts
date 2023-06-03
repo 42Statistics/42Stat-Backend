@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
+import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardScoreResolver } from './leaderboard.score.resolver';
 import { LeaderboardScoreService } from './leaderboard.score.service';
-import { LeaderboardService } from '../leaderboard.service';
 
 @Module({
-  imports: [],
+  imports: [LeaderboardUtilModule],
   providers: [
     LeaderboardScoreResolver,
     LeaderboardScoreService,
-    LeaderboardService,
+    LeaderboardUtilService,
   ],
 })
 // eslint-disable-next-line

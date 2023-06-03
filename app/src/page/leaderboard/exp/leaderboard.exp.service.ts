@@ -4,15 +4,16 @@ import {
   dateRangeFromTemplate,
   generateDateRanged,
 } from 'src/dateRange/dateRange.service';
+import { dateRangeFilter } from 'src/dateRange/db/dateRange.database.aggregate';
 import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
-import { LeaderboardService } from '../leaderboard.service';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 const tempResult = [
   {
@@ -69,7 +70,7 @@ const tempResult = [
 
 @Injectable()
 export class LeaderboardExpService {
-  constructor(private leaderboardService: LeaderboardService) {}
+  constructor(private leaderboardUtilService: LeaderboardUtilService) {}
 
   async expIncrementRank(
     userId: number,
@@ -77,7 +78,7 @@ export class LeaderboardExpService {
   ): Promise<LeaderboardElement> {
     const userRanking = tempResult;
 
-    return this.leaderboardService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.userRankingToLeaderboardElement(
       userId,
       userRanking,
     );
@@ -88,7 +89,7 @@ export class LeaderboardExpService {
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
+      beginAt: dateRangeFilter(dateRange),
       filledAt: { $ne: null },
     };
 
