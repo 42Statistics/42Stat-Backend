@@ -1,23 +1,25 @@
 import { Injectable } from '@nestjs/common';
+import type { FilterQuery } from 'mongoose';
+import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
+import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import type {
-  CoalitionScoreRecords,
-  ValuePerCoalition,
-} from 'src/api/score/models/score.coalition.model';
 import { ScoreService } from 'src/api/score/score.service';
-import type { NumberDateRanged } from 'src/common/models/common.number.dateRanaged';
+import type {
+  NumberDateRanged,
+  NumericRateDateRanged,
+} from 'src/common/models/common.dateRanaged';
+import type { NumericRate } from 'src/common/models/common.rate.model';
 import type { UserRanking } from 'src/common/models/common.user.model';
-import {
-  dateRangeFromTemplate,
-  generateDateRanged,
-} from 'src/dateRange/dateRange.service';
-import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import type {
+  ScoreRecordPerCoalition,
   UserCountPerLevels,
   ValuePerCircle,
+  ValuePerCoalition,
   ValueRecord,
 } from './models/home.model';
 
@@ -28,79 +30,136 @@ export class HomeService {
     private scaleTeamService: ScaleTeamService,
     private scoreService: ScoreService,
     private questsUserService: QuestsUserService,
+    private dateRangeService: DateRangeService,
   ) {}
 
-  async currWeekEvalCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.CURR_WEEK);
+  async activeUserCountRecords(): Promise<ValueRecord[]> {
+    const now = Time.now();
+    const nextMonth = Time.moveMonth(Time.startOfMonth(now), 1);
+    const lastYear = Time.moveYear(nextMonth, -1);
 
-    const evalCount = await this.scaleTeamService.evalCount({
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
-      filledAt: { $ne: null },
-    });
+    const dateRange: DateRange = {
+      start: lastYear,
+      end: Time.now(),
+    };
 
-    return generateDateRanged(evalCount, dateRange);
-  }
-
-  async lastWeekEvalCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_WEEK);
-
-    const evalCount = await this.scaleTeamService.evalCount({
-      beginAt: { $gte: dateRange.start, $lt: dateRange.end },
-      filledAt: { $ne: null },
-    });
-
-    return generateDateRanged(evalCount, dateRange);
-  }
-
-  async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const currMonth = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
-    const dateRange = { ...currMonth, end: Time.now() };
-
-    const blackholedCount = await this.cursusUserService.countPerMonth(
+    const newPromoCounts = await this.cursusUserService.countPerMonth(
+      'beginAt',
       dateRange,
-      'blackholedAt',
     );
 
-    return generateDateRanged(
+    const blackholedCounts = await this.cursusUserService.countPerMonth(
+      'blackholedAt',
+      dateRange,
+    );
+
+    const dates = Time.partitionByMonth(dateRange);
+
+    return dates.reduce(
+      ([valueRecords, activeUserCount], date, index) => {
+        const newPromo = Time.getValueByDate(date, newPromoCounts);
+        const blackholed = Time.getValueByDate(date, blackholedCounts);
+
+        const currActiveUserCount = activeUserCount + newPromo - blackholed;
+
+        const at = dates.at(index + 1);
+
+        if (at) {
+          valueRecords.push({ at, value: currActiveUserCount });
+        }
+
+        return [valueRecords, currActiveUserCount] as const;
+      },
+      [[], 0] as readonly [ValueRecord[], number],
+    )[0];
+  }
+
+  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
+    return await this.cursusUserService.userCountPerLevels();
+  }
+
+  //todo: description: 비활성화 유저도 직전 상태로 포함
+  async memberRate(): Promise<NumericRate> {
+    return { total: 2038, value: 240 };
+  }
+
+  //todo: description: 비활성화 유저도 직전 상태로 포함
+  async blackholedRate(): Promise<NumericRate> {
+    return { total: 2038, value: 1038 };
+  }
+
+  async blackholedCountByDateRange({
+    start,
+    end,
+  }: DateRange): Promise<NumberDateRanged> {
+    const now = Time.now();
+
+    const dateRange: DateRange = {
+      start,
+      end: now < end ? now : end,
+    };
+
+    const blackholedCount = await this.cursusUserService.countPerMonth(
+      'blackholedAt',
+      dateRange,
+    );
+
+    return this.dateRangeService.toDateRanged(
       Time.getValueByDate(dateRange.start, blackholedCount),
       dateRange,
     );
   }
 
-  async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_MONTH);
+  async blackholedCountByDateTemplate(
+    dateTemplate: DateTemplate,
+  ): Promise<NumberDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    const blackholedCount = await this.cursusUserService.countPerMonth(
+    return await this.blackholedCountByDateRange(dateRange);
+  }
+
+  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+    return await this.cursusUserService.blackholedCountPerCircles();
+  }
+
+  async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
+    return await this.scaleTeamService.evalCount(filter);
+  }
+
+  async evalCountByDateRange(dateRange: DateRange): Promise<NumberDateRanged> {
+    const evalFilter: FilterQuery<scale_team> = {
+      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
+      filledAt: { $ne: null },
+    };
+
+    const evalCount = await this.evalCount(evalFilter);
+
+    return this.dateRangeService.toDateRanged(evalCount, dateRange);
+  }
+
+  async evalCountByDateTemplate(
+    dateTemplate: DateTemplate,
+  ): Promise<NumberDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    return await this.evalCountByDateRange(dateRange);
+  }
+
+  async averageEvalCountByDateRange(
+    dateRange: DateRange,
+  ): Promise<NumericRateDateRanged> {
+    return this.dateRangeService.toDateRanged(
+      { total: 1000, value: 132 },
       dateRange,
-      'blackholedAt',
-    );
-
-    return generateDateRanged(
-      Time.getValueByDate(dateRange.start, blackholedCount),
-      dateRange,
     );
   }
 
-  async totalScores(): Promise<ValuePerCoalition[]> {
-    return await this.scoreService.scoresByCoalition();
-  }
+  async averageEvalCountByDateTemplate(
+    dateTemplate: DateTemplate,
+  ): Promise<NumericRateDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-  async scoreRecords(): Promise<CoalitionScoreRecords[]> {
-    // todo: 고정 코알리숑 아이디
-    const coalitionIds = [85, 86, 87, 88];
-
-    const currMonth = Time.startOfMonth(Time.now());
-    const lastYear = Time.moveYear(currMonth, -1);
-
-    return await this.scoreService.scoreRecords({
-      createdAt: { $gte: lastYear, $lt: currMonth },
-      coalitionsUserId: { $ne: null },
-      coalitionId: { $in: coalitionIds },
-    });
-  }
-
-  async totalEvalCount(): Promise<number> {
-    return await this.scaleTeamService.evalCount();
+    return await this.averageEvalCountByDateRange(dateRange);
   }
 
   async averageFeedbackLength(): Promise<number> {
@@ -111,8 +170,24 @@ export class HomeService {
     return await this.scaleTeamService.averageReviewLength('comment');
   }
 
-  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
-    return await this.cursusUserService.userCountPerLevels();
+  async totalScoresPerCoalition(): Promise<ValuePerCoalition[]> {
+    return await this.scoreService.scoresPerCoalition();
+  }
+
+  async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
+    const currMonth = Time.startOfMonth(Time.now());
+    const lastYear = Time.moveYear(currMonth, -1);
+
+    const dateRange: DateRange = {
+      start: lastYear,
+      end: currMonth,
+    };
+
+    return await this.scoreService.scoreRecordsPerCoalition({
+      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
+      coalitionsUserId: { $ne: null },
+      coalitionId: { $in: SEOUL_COALITION_ID },
+    });
   }
 
   async walletRanks(limit: number): Promise<UserRanking[]> {
@@ -123,67 +198,8 @@ export class HomeService {
     return await this.cursusUserService.rank('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(userId?: number): Promise<ValuePerCircle[]> {
-    return await this.questsUserService.averageCircleDurations(userId);
-  }
-
-  //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
-  //  return await this.questsUserService.getAverageCircleDurationsByPromo();
-  //}
-
-  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
-    return await this.cursusUserService.blackholedCountPerCircles();
-  }
-
-  async activeUserCountRecords(): Promise<ValueRecord[]> {
-    // const curr = Time.curr();
-    // const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
-    // const lastYear = Time.moveYear(nextMonth, -1);
-
-    const lastYear = dateRangeFromTemplate(DateTemplate.LAST_YEAR);
-    const dateRange = { ...lastYear, end: Time.now() };
-
-    const newPromoCounts = await this.cursusUserService.countPerMonth(
-      dateRange,
-      'beginAt',
-    );
-
-    const blackholedCounts = await this.cursusUserService.countPerMonth(
-      dateRange,
-      'blackholedAt',
-    );
-
-    let activeUserCount = 0;
-
-    const dates = Time.partitionByMonth(dateRange);
-
-    return dates
-      .map((date, index): ValueRecord => {
-        const newPromo = Time.getValueByDate(date, newPromoCounts);
-        const blackholed = Time.getValueByDate(date, blackholedCounts);
-
-        activeUserCount += newPromo - blackholed;
-
-        return {
-          at: dates[index + 1],
-          value: activeUserCount,
-        };
-      })
-      .filter((record) => record.at !== undefined);
-  }
-
-  async currWeekAverageEvalCount(): Promise<[number, number]> {
-    return [132, 1000];
-  }
-
-  //todo: description: 비활성화 유저도 직전 상태로 포함
-  async memberPercentage(): Promise<[number, number]> {
-    return [240, 2038];
-  }
-
-  //todo: description: 비활성화 유저도 직전 상태로 포함
-  async blackholedPercentage(): Promise<[number, number]> {
-    return [1038, 2038];
+  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+    return await this.questsUserService.averageCircleDurations();
   }
 
   async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
@@ -246,4 +262,8 @@ export class HomeService {
       },
     ];
   }
+
+  //async averageCircleDurationsByPromo(): Promise<ValuePerCircleByPromo[]> {
+  //  return await this.questsUserService.getAverageCircleDurationsByPromo();
+  //}
 }
