@@ -35,7 +35,7 @@ export class HomeService {
 
     const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: dateRange.start, $lt: dateRange.end },
-      filledAt: { $ne: null }, //todo: check filter
+      filledAt: { $ne: null },
     });
 
     return generateDateRanged(evalCount, dateRange);
