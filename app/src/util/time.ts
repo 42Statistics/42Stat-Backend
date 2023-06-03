@@ -11,6 +11,7 @@ const DAY = HOUR * 24;
 const WEEK = DAY * 7;
 
 /**
+ *
  * @description 사용 시 sudo timedatectl 로 TimeZone 확인해야 합니다.
  * 모든 함수는 local time 기준 입니다.
  * 모든 함수는 원본을 변경하지 않습니다.
@@ -22,7 +23,6 @@ export const Time = {
   DAY,
   WEEK,
 
-  // todo: 개발 용도. 완료 후 인자 제거 필요합니다.
   now: (): Date => new Date(),
 
   moveMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
@@ -50,6 +50,7 @@ export const Time = {
   },
 
   /**
+   *
    * @param date
    * @returns date가 속한 날의 00시 00분 00초 를 반환합니다.
    */
@@ -61,6 +62,7 @@ export const Time = {
   },
 
   /**
+   *
    * @param date
    * @returns date가 속한 주의 일요일을 반환합니다.
    */
@@ -84,16 +86,17 @@ export const Time = {
   },
 
   /**
+   *
    * @example
    * start: 02-10, end: 04-20
-   * return: [ 1970-01-01, 02-01, 03-01, 04-01, 04-20]
+   * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
    */
   partitionByMonth: ({ start, end }: DateRangeArgs): Date[] => {
-    const partitioned = [new Date('1970-01-01')];
+    const partitioned = [new Date(0), start];
 
     for (
-      let currDate = new Date(start);
-      currDate <= end;
+      let currDate = Time.moveMonth(Time.startOfMonth(start), 1);
+      currDate < end;
       currDate = Time.moveMonth(currDate, 1)
     ) {
       partitioned.push(currDate);
@@ -105,12 +108,13 @@ export const Time = {
   },
 
   /**
+   *
    * @example
    * start: 02-10, end: 04-20
    * return:
    * [
    *   { $dateToString: { date: 1970-01-01T00:00:00.000Z, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: 02-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
+   *   { $dateToString: { date: 02-10, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    *   { $dateToString: { date: 03-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    *   { $dateToString: { date: 04-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    *   { $dateToString: { date: 04-20, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
@@ -128,6 +132,7 @@ export const Time = {
   },
 
   /**
+   *
    * @description
    * AggrNumericPerDate[] 타입 [{ date: Date, value: number }] 에서
    * 인자로 들어온 date로 find해 해당하는 object의 value를 반환
