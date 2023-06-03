@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { scale_team, ScaleTeamSchema } from './db/scaleTeam.database.schema';
-import { ScaleTeamService } from './scaleTeam.service';
 import { CursusUserModule } from '../cursusUser/cursusUser.module';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
+import { scale_team, ScaleTeamSchema } from './db/scaleTeam.database.schema';
+import { ScaleTeamService } from './scaleTeam.service';
 
 @Module({
   imports: [

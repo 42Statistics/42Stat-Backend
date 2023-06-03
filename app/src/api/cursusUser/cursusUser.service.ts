@@ -25,6 +25,17 @@ import {
 
 export const FT_CURSUS = 21;
 
+//todo: common database
+// type QueryArg<Schema> = {
+//   filter?: FilterQuery<Schema>;
+//   limit?: number;
+//   sort: {
+//     key: keyof Schema;
+//     value: 1 | -1;
+//   };
+//   projection?: {};
+// };
+
 @Injectable()
 export class CursusUserService {
   constructor(
@@ -209,9 +220,10 @@ export class CursusUserService {
       .sort({ level: 1 });
   }
 
+  // todo: query
   async rank(
     key: string,
-    limit: number,
+    limit?: number,
     filter?: FilterQuery<cursus_user>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserModel.aggregate<UserRanking>();
@@ -220,20 +232,24 @@ export class CursusUserService {
       aggregate.match(filter);
     }
 
-    return await aggregate
+    aggregate
       .match({ 'user.active?': true })
       .match({ 'user.kind': 'student' })
-      .sort({ [`${key}`]: -1 })
-      .limit(limit)
-      .project({
-        _id: 0,
-        userPreview: {
-          id: '$user.id',
-          login: '$user.login',
-          imgUrl: '$user.image.link',
-        },
-        value: `$${key}`,
-      });
+      .sort({ [`${key}`]: -1 });
+
+    if (limit) {
+      aggregate.limit(limit);
+    }
+
+    return await aggregate.project({
+      _id: 0,
+      userPreview: {
+        id: '$user.id',
+        login: '$user.login',
+        imgUrl: '$user.image.link',
+      },
+      value: `$${key}`,
+    });
   }
 
   // executionTimeMillisEstimate: 319

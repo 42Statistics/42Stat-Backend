@@ -2,7 +2,7 @@ import { ArgsType, Field } from '@nestjs/graphql';
 import { Max, Min } from 'class-validator';
 
 @ArgsType()
-export class PaginationArgs {
+export class PaginationIndexArgs {
   @Field({ defaultValue: 10 })
   @Max(100)
   @Min(1)

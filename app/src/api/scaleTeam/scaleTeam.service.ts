@@ -7,7 +7,7 @@ import type {
   EvalLog,
   EvalLogsPaginated,
 } from 'src/page/evalLog/models/evalLog.model';
-import { generatePage } from 'src/pagination/pagination.service';
+import { PaginationCursorService } from 'src/pagination/cursor/pagination.cursor.service';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
 import {
@@ -22,6 +22,7 @@ export class ScaleTeamService {
     @InjectModel(scale_team.name)
     private scaleTeamModel: Model<scale_team>,
     private cursusUserService: CursusUserService,
+    private paginationService: PaginationCursorService,
   ) {}
 
   // async find(
@@ -156,19 +157,26 @@ export class ScaleTeamService {
     const evalLogsAggr = await aggregate
       // todo: 평가 취소인 경우에 대한 처리를 할 수 있음
       .match({ ...filter, feedback: { $ne: null }, comment: { $ne: null } })
-      .sort({ beginAt: -1 })
-      .skip((pageNumber - 1) * pageSize)
-      .limit(pageSize)
+      .facet({
+        slicedData: [
+          // { $match: {} },
+          { $sort: { beginAt: -1 } },
+          { $skip: (pageNumber - 1) * pageSize },
+          { $limit: pageSize },
+        ],
+        totalCount: [{ $group: { _id: null, count: { $count: {} } } }],
+      })
+      .unwind({ path: '$slicedData' })
       .lookup({
         from: 'projects',
-        localField: 'team.projectId',
+        localField: 'slicedData.team.projectId',
         foreignField: 'id',
         as: 'projectPreview',
       })
       .addFields({ projectPreview: { $first: '$projectPreview' } })
       .lookup({
         from: 'users',
-        localField: 'corrector.id',
+        localField: 'slicedData.corrector.id',
         foreignField: 'id',
         as: 'joinedCorrector',
       })
@@ -176,23 +184,27 @@ export class ScaleTeamService {
         _id: 0,
         header: {
           corrector: {
-            id: '$corrector.id',
-            login: '$corrector.login',
+            id: '$slicedData.corrector.id',
+            login: '$slicedData.corrector.login',
             imgUrl: { $first: '$joinedCorrector.image.link' },
           },
           teamPreview: {
-            id: '$team.id',
-            name: '$team.name',
+            id: '$slicedDatateam.id',
+            name: '$slicedData.team.name',
             url: {
               $concat: [
                 'https://projects.intra.42.fr/projects/',
                 { $toString: '$projectPreview.id' },
                 '/projects_users/',
-                { $toString: { $first: '$team.users.projectsUserId' } },
+                {
+                  $toString: {
+                    $first: '$slicedData.team.users.projectsUserId',
+                  },
+                },
               ],
             },
           },
-          beginAt: '$beginAt',
+          beginAt: '$slicedData.beginAt',
           projectPreview: {
             id: '$projectPreview.id',
             name: '$projectPreview.name',
@@ -204,15 +216,18 @@ export class ScaleTeamService {
             },
           },
           flag: {
-            id: '$flag.id',
-            name: '$flag.name',
-            isPositive: '$flag.positive',
+            id: '$slicedData.flag.id',
+            name: '$slicedData.flag.name',
+            isPositive: '$slicedData.flag.positive',
           },
         },
-        correctorReview: { mark: '$finalMark', review: '$comment' },
+        correctorReview: {
+          mark: '$slicedData.finalMark',
+          review: '$slicedData.comment',
+        },
         correctedsReview: {
-          mark: { $max: '$feedbacks.rating' },
-          review: '$feedback',
+          mark: { $max: '$slicedData.feedbacks.rating' },
+          review: '$slicedData.feedback',
         },
       });
 
@@ -222,6 +237,14 @@ export class ScaleTeamService {
       comment: { $ne: null },
     });
 
-    return generatePage(evalLogsAggr, totalCount, { pageSize, pageNumber });
+    return this.paginationService.generatePage<EvalLog>(
+      evalLogsAggr,
+      totalCount,
+      {
+        pageSize,
+        pageNumber,
+      },
+      'header',
+    );
   }
 }
