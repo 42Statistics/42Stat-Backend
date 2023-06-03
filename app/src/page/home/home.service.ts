@@ -31,7 +31,7 @@ export class HomeService {
   ) {}
 
   async currWeekEvalCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.CURRWEEK);
+    const dateRange = dateRangeFromTemplate(DateTemplate.CURR_WEEK);
 
     const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: dateRange.start, $lt: dateRange.end },
@@ -42,7 +42,7 @@ export class HomeService {
   }
 
   async lastWeekEvalCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LASTWEEK);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_WEEK);
 
     const evalCount = await this.scaleTeamService.evalCount({
       beginAt: { $gte: dateRange.start, $lt: dateRange.end },
@@ -53,7 +53,7 @@ export class HomeService {
   }
 
   async currMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const currMonth = dateRangeFromTemplate(DateTemplate.CURRMONTH);
+    const currMonth = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
     const dateRange = { ...currMonth, end: Time.curr() };
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
@@ -68,7 +68,7 @@ export class HomeService {
   }
 
   async lastMonthBlackholedCount(): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LASTMONTH);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_MONTH);
 
     const blackholedCount = await this.cursusUserService.countPerMonth(
       dateRange,
@@ -140,7 +140,7 @@ export class HomeService {
     // const nextMonth = Time.startOfMonth(Time.moveMonth(curr, 1));
     // const lastYear = Time.moveYear(nextMonth, -1);
 
-    const lastYear = dateRangeFromTemplate(DateTemplate.LASTYEAR);
+    const lastYear = dateRangeFromTemplate(DateTemplate.LAST_YEAR);
     const dateRange = { ...lastYear, end: Time.curr() };
 
     const newPromoCounts = await this.cursusUserService.countPerMonth(

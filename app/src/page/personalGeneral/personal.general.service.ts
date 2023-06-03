@@ -46,7 +46,7 @@ export class PersonalGeneralService {
   }
 
   async currMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.CURRMONTH);
+    const dateRange = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
     const logtime = await this.locationService.logtime(userId, dateRange);
 
     //todo: check other date ranged
@@ -54,7 +54,7 @@ export class PersonalGeneralService {
   }
 
   async lastMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LASTMONTH);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_MONTH);
 
     const logtime = await this.locationService.logtime(userId, dateRange);
 

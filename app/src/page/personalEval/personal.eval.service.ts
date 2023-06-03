@@ -12,7 +12,7 @@ export class PersonalEvalService {
   constructor(private scaleTeamService: ScaleTeamService) {}
 
   async currMonthCount(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.CURRMONTH);
+    const dateRange = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
 
     const evalCount = await this.scaleTeamService.evalCount({
       'corrector.id': userId,
@@ -24,7 +24,7 @@ export class PersonalEvalService {
   }
 
   async lastMonthCount(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LASTMONTH);
+    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_MONTH);
 
     const evalCount = await this.scaleTeamService.evalCount({
       'corrector.id': userId,
