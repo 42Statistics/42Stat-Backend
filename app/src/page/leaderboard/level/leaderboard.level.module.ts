@@ -1,16 +1,17 @@
 import { Module } from '@nestjs/common';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { LeaderboardService } from '../leaderboard.service';
-import { LeaderboardLevelService } from './leaderboard.level.service';
+import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardLevelResolver } from './leaderboard.level.resovler';
+import { LeaderboardLevelService } from './leaderboard.level.service';
 
 @Module({
-  imports: [CursusUserModule],
+  imports: [LeaderboardUtilModule, CursusUserModule],
   providers: [
     LeaderboardLevelResolver,
     LeaderboardLevelService,
-    LeaderboardService,
+    LeaderboardUtilService,
     CursusUserService,
   ],
 })

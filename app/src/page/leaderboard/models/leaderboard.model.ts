@@ -1,8 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import {
-  UserRanking,
-  UserRankingDateRanged,
-} from 'src/common/models/common.user.model';
+import { UserRanking } from 'src/common/models/common.user.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 
 @ObjectType()

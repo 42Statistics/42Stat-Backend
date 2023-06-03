@@ -5,15 +5,16 @@ import {
   dateRangeFromTemplate,
   generateDateRanged,
 } from 'src/dateRange/dateRange.service';
+import { dateRangeFilter } from 'src/dateRange/db/dateRange.database.aggregate';
 import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
-import { LeaderboardService } from '../leaderboard.service';
-import {
+import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
 export class LeaderboardScoreService {
@@ -70,7 +71,7 @@ export class LeaderboardScoreService {
     },
   ];
 
-  constructor(private leaderboardService: LeaderboardService) {}
+  constructor(private leaderboardUtilService: LeaderboardUtilService) {}
 
   async scoreRank(
     userId: number,
@@ -79,7 +80,7 @@ export class LeaderboardScoreService {
     const userRanking: UserRanking[] = this.tempScores;
     //todo: 블랙홀유저의 value가 0으로 나오는지 확인 후 구분하기
 
-    return this.leaderboardService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.userRankingToLeaderboardElement(
       userId,
       userRanking,
     );
@@ -91,7 +92,7 @@ export class LeaderboardScoreService {
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
       $match: {
-        createdAt: { $gte: dateRange.start, $lt: dateRange.end },
+        createdAt: dateRangeFilter(dateRange),
       },
     };
 
