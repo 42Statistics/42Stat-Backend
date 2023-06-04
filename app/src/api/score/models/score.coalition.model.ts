@@ -1,3 +1,0 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Coalition } from 'src/api/coalition/models/coalition.model';
-import { ValueRecord } from 'src/page/home/models/home.model';

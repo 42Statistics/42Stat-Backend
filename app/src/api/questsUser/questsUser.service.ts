@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import type { ValuePerCircle } from 'src/page/home/models/home.model';
+import type { ValuePerCircle } from 'src/page/home/user/models/home.user.model';
 import { quests_user } from './db/questsUser.database.schema';
 
 @Injectable()

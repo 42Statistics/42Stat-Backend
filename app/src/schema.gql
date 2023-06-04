@@ -2,17 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type ProjectPreview {
-  id: Int!
-  name: String!
-  url: URL!
-}
-
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
-
 type Coalition {
   id: Int!
   name: String!
@@ -58,6 +47,17 @@ type UserRanking {
   value: Float
   rank: Int
 }
+
+type ProjectPreview {
+  id: Int!
+  name: String!
+  url: URL!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
 
 type TeamPreview {
   id: ID!
@@ -106,25 +106,87 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
+type ValueRecord {
+  at: DateTime!
+  value: Int!
+}
+
+type ValuePerCoalition {
+  coalition: Coalition!
+  value: Int!
+}
+
+type ScoreRecordPerCoalition {
+  coalition: Coalition!
+  records: [ValueRecord]!
+}
+
+type HomeCoalition {
+  totalScoresPerCoalition: [ValuePerCoalition!]!
+  scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
+  tigCountPerCoalitions: [ValuePerCoalition!]!
+}
+
+type IntDateRanged {
+  data: Int!
+  start: DateTime!
+  end: DateTime!
+}
+
+type FloatDateRanged {
+  data: Float!
+  start: DateTime!
+  end: DateTime!
+}
+
+type StringDateRanged {
+  data: String!
+  start: DateTime!
+  end: DateTime!
+}
+
+type HomeEval {
+  totalEvalCount: Int!
+  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged!
+  averageFeedbackLength: Int!
+  averageCommentLength: Int!
+}
+
+enum DateTemplate {
+  CURR_WEEK
+  LAST_WEEK
+  CURR_MONTH
+  LAST_MONTH
+  LAST_YEAR
+}
+
 type ProjectRanking {
   projectPreview: ProjectPreview!
   value: Int!
 }
 
-type NumberDateRanged {
-  data: Int!
-  from: DateTime!
-  to: DateTime!
+type ExamResult {
+  rank: Int!
+  passCount: Int!
+  totalCount: Int!
 }
 
-type StringDateRanged {
-  data: String!
-  from: DateTime!
-  to: DateTime!
+type ExamResultDateRanged {
+  data: [ExamResult!]!
+  start: DateTime!
+  end: DateTime!
 }
 
-type ValueRecord {
-  at: DateTime!
+type HomeTeam {
+  currRegisteredCountRank: [ProjectRanking!]!
+
+  """HOME 직전 회차 시험 Rank별 통과율"""
+  lastExamResult: ExamResultDateRanged!
+}
+
+type IntRate {
+  total: Int!
   value: Int!
 }
 
@@ -138,89 +200,16 @@ type UserCountPerLevels {
   level: Int!
 }
 
-type ExamResult {
-  rank: Int!
-  passCount: Int!
-  totalCount: Int!
-}
-
-type ExamResultDateRanged {
-  data: [ExamResult!]!
-  from: DateTime!
-  to: DateTime!
-}
-
-type Home {
-  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
-  currWeekEvalCount: NumberDateRanged!
-
-  """HOME 주간 총 평가 횟수 (이번 주 + 지난 주)"""
-  lastWeekEvalCount: NumberDateRanged!
-
-  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
-  lastMonthBlackholedCount: NumberDateRanged!
-
-  """HOME 월간 누적 블랙홀 인원 (이번 달 + 지난 달)"""
-  currMonthBlackholedCount: NumberDateRanged!
-
-  """HOME 지금 가장 많은 사람이 참여하는 과제"""
-  currRegisteredCountRank: [ProjectRanking!]!
-
-  """HOME 직전 회차 시험 Rank별 통과율"""
-  lastExamResult: ExamResultDateRanged!
-
-  """HOME 역대 코알리숑 스코어 합산"""
-  totalScores: [ValuePerCoalition!]!
-
-  """HOME 코알리숑별 역대 코알리숑 스코어 변동 추이"""
-  scoreRecords: [CoalitionScoreRecords!]!
-
-  """HOME 역대 총 평가 횟수"""
-  totalEvalCount: Int!
-
-  """HOME 평균 피드백 길이"""
-  averageFeedbackLength: Int!
-
-  """HOME 평균 코멘트 길이"""
-  averageCommentLength: Int!
-  userCountPerLevels: [UserCountPerLevels!]!
-
-  """HOME 보유 월렛 랭킹"""
-  walletRanks(limit: Int! = 5): [UserRanking!]!
-
-  """HOME 보유 평가 포인트 랭킹"""
-  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
-
-  """HOME 전체/유저별 서클 통과 평균 기간 (userId?: number)"""
-  averageCircleDurations(userId: Int): [ValuePerCircle!]!
-
-  """HOME 언제 블랙홀에 많이 빠질까"""
-  blackholedCountPerCircles: [ValuePerCircle!]!
-
-  """HOME 활성화 유저 수 추이"""
+type HomeUser {
   activeUserCountRecords: [ValueRecord!]!
-
-  """HOME 주간 1인당 평가 횟수 [주간 평가 횟수, 활동 유저 수]"""
-  currWeekAverageEvalCount: [Int!]!
-
-  """HOME 멤버 비율 [멤버 유저 수, 전체 유저 수]"""
-  memberPercentage: [Int!]!
-
-  """HOME 블랙홀 유저 비율 [블랙홀 유저 수, 전체 유저 수]"""
-  blackholedPercentage: [Int!]!
-
-  """HOME 이번 달 누적 코알리숑 티그 횟수"""
-  tigCountPerCoalitions: [ValuePerCoalition!]!
-}
-
-type ValuePerCoalition {
-  coalition: Coalition!
-  value: Int!
-}
-
-type CoalitionScoreRecords {
-  coalition: Coalition!
-  records: [ValueRecord]!
+  userCountPerLevels: [UserCountPerLevels!]!
+  memberRate: IntRate!
+  blackholedRate: IntRate!
+  blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  blackholedCountPerCircles: [ValuePerCircle!]!
+  walletRanks(limit: Int! = 5): [UserRanking!]!
+  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
+  averageCircleDurations: [ValuePerCircle!]!
 }
 
 type LeaderboardElement {
@@ -233,22 +222,14 @@ type LeaderboardElement {
 
 type LeaderboardElementDateRanged {
   data: LeaderboardElement!
-  from: DateTime!
-  to: DateTime!
+  start: DateTime!
+  end: DateTime!
 }
 
 type LeaderboardEval {
   total: LeaderboardElement!
   byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
   byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
-}
-
-enum DateTemplate {
-  CURR_WEEK
-  LAST_WEEK
-  CURR_MONTH
-  LAST_MONTH
-  LAST_YEAR
 }
 
 type LeaderboardExp {
@@ -308,8 +289,8 @@ type PreferredTime {
 
 type PreferredTimeDateRanged {
   data: PreferredTime!
-  from: DateTime!
-  to: DateTime!
+  start: DateTime!
+  end: DateTime!
 }
 
 type TeamInfo {
@@ -326,8 +307,8 @@ type LevelGraph {
 
 type LevelGraphDateRanged {
   data: [LevelGraph!]!
-  from: DateTime!
-  to: DateTime!
+  start: DateTime!
+  end: DateTime!
 }
 
 type PersonalGeneral {
@@ -336,8 +317,8 @@ type PersonalGeneral {
   blackholedAt: DateTime
   wallet: Int!
   scoreInfo: UserScoreRank!
-  currMonthLogtime: NumberDateRanged!
-  lastMonthLogtime: NumberDateRanged!
+  currMonthLogtime: IntDateRanged!
+  lastMonthLogtime: IntDateRanged!
   teamInfo: TeamInfo!
   preferredTime: PreferredTime!
   preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeDateRanged!
@@ -355,10 +336,10 @@ type PersonalEval {
   correctionPoint: Int!
 
   """월간 평가 횟수 (이번달 + 저번달)"""
-  currMonthCount: NumberDateRanged!
+  currMonthCount: IntDateRanged!
 
   """월간 평가 횟수 (이번달 + 저번달)"""
-  lastMonthCount: NumberDateRanged!
+  lastMonthCount: IntDateRanged!
 
   """누적 평가 횟수"""
   totalCount: Int!
@@ -410,15 +391,18 @@ type ProjectInfo {
 }
 
 type Query {
-  findProjectPreview(name: String! = ""): [ProjectPreview]!
-  getHomePage: Home!
   findUserPreview(login: String! = ""): [UserPreview]!
-  getProjectInfo(projectName: String! = "libft"): ProjectInfo!
-  getPersonGeneralPage(userId: Int, login: String): PersonalGeneral!
-  getPersonalEvalPage(userId: Int, login: String): PersonalEval!
+  findProjectPreview(name: String! = ""): [ProjectPreview]!
+  getHomeUser: HomeUser!
+  getHomeEval: HomeEval!
+  getHomeCoalition: HomeCoalition!
+  getHomeTeam: HomeTeam!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
+  getProjectInfo(projectName: String! = "libft"): ProjectInfo!
+  getPersonGeneralPage(userId: Int, login: String): PersonalGeneral!
+  getPersonalEvalPage(userId: Int, login: String): PersonalEval!
 }

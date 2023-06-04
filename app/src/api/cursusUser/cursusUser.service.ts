@@ -1,22 +1,25 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model } from 'mongoose';
-import {
+import type {
   AggrNumeric,
   AggrNumericPerDate,
 } from 'src/common/db/common.db.aggregation';
-import { UserPreview, UserRanking } from 'src/common/models/common.user.model';
+import type {
+  UserPreview,
+  UserRanking,
+} from 'src/common/models/common.user.model';
+import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   UserCountPerLevels,
   ValuePerCircle,
-} from 'src/page/home/models/home.model';
+} from 'src/page/home/user/models/home.user.model';
 import { Time } from 'src/util';
 import {
   CursusUserDatable,
   cursus_user,
 } from './db/cursusUser.database.schema';
-import { CursusUserProfile } from './models/cursusUser.model';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import type { CursusUserProfile } from './models/cursusUser.model';
 
 @Injectable()
 export class CursusUserService {

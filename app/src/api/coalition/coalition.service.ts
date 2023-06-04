@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { coalition } from './db/coalition.database.schema';
 
-export const SEOUL_COALITION_ID = [85, 86, 87, 88]; // todo: as const;
+export const SEOUL_COALITION_ID = [85, 86, 87, 88] as const;
 
 @Injectable()
 export class CoalitionService {
