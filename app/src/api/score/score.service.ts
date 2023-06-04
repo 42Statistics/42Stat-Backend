@@ -5,7 +5,7 @@ import { score } from './db/score.database.schema';
 import type {
   ScoreRecordPerCoalition,
   ValuePerCoalition,
-} from 'src/page/home/models/home.model';
+} from 'src/page/home/coalition/models/home.coalition.model';
 
 @Injectable()
 export class ScoreService {

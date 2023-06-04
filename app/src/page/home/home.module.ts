@@ -1,21 +1,15 @@
 import { Module } from '@nestjs/common';
-import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
-import { QuestsUserModule } from 'src/api/questsUser/questsUser.module';
-import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
-import { ScoreModule } from 'src/api/score/score.module';
-import { HomeResolver } from './home.resolver';
-import { HomeService } from './home.service';
-import { DateRangeModule } from 'src/dateRange/dateRange.module';
-import { DateRangeService } from 'src/dateRange/dateRange.service';
+import { HomeCoalitionModule } from './coalition/home.coalition.module';
+import { HomeEvalModule } from './eval/home.eval.module';
+import { HomeTeamModule } from './team/home.team.module';
+import { HomeUserModule } from './user/home.user.module';
 
 @Module({
   imports: [
-    ScaleTeamModule,
-    CursusUserModule,
-    QuestsUserModule,
-    ScoreModule,
-    DateRangeModule,
+    HomeUserModule,
+    HomeEvalModule,
+    HomeCoalitionModule,
+    HomeTeamModule,
   ],
-  providers: [HomeResolver, HomeService, DateRangeService],
 })
 export class HomeModule {}
