@@ -1,8 +1,8 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import {
-  NumberDateRanged,
+  IntDateRanged,
   StringDateRanged,
-} from 'src/common/models/common.number.dateRanaged';
+} from 'src/common/models/common.dateRanaged.model';
 import {
   ArrayDateRanged,
   DateRanged,
@@ -114,30 +114,17 @@ export class PersonalGeneral {
   scoreInfo: UserScoreRank;
 
   @Field()
-  currMonthLogtime: NumberDateRanged;
+  logtimeByDateTemplate: IntDateRanged;
 
   @Field()
-  lastMonthLogtime: NumberDateRanged;
+  preferredTimeByDateTemplate: PreferredTimeDateRanged;
+
+  @Field()
+  preferredClusterByDateTemplate: StringDateRanged;
 
   @Field()
   teamInfo: TeamInfo;
 
   @Field()
-  preferredTime: PreferredTime;
-
-  @Field()
-  preferredTimeByDateRange: PreferredTimeDateRanged;
-
-  @Field()
-  preferredCluster: string;
-
-  @Field()
-  preferredClusterByDateRange: StringDateRanged;
-
-  @Field()
   levelGraphs: LevelGraphDateRanged;
-
-  //todo: 사라졌나?
-  // @Field()
-  // levelRank: number;
 }
