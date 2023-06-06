@@ -1,8 +1,5 @@
-import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import {
-  DateRangeArgs,
-  DateTemplateArgs,
-} from 'src/dateRange/dtos/dateRange.dto';
+import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardExpService } from './leaderboard.exp.service';
 import { LeaderboardExp } from './models/leaderboard.exp.model';
@@ -16,21 +13,11 @@ export class LeaderboardExpResolver {
     return {};
   }
 
-  @ResolveField('byDateRange', (_returns) => Int)
-  async byDateRange(
-    @Args() dateRange: DateRangeArgs,
-  ): Promise<LeaderboardElementDateRanged> {
-    return await this.leaderboardExpService.expIncrementRankByDateRange(
-      99947,
-      dateRange,
-    );
-  }
-
   @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
-    return await this.leaderboardExpService.expIncrementRankByDateTemplate(
+    return await this.leaderboardExpService.rankByDateTemplate(
       99947,
       dateTemplate,
     );

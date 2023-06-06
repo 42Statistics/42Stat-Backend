@@ -2,11 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import {
-  dateRangeFromTemplate,
-  generateDateRanged,
-} from 'src/dateRange/dateRange.service';
-import { dateRangeFilter } from 'src/dateRange/db/dateRange.database.aggregate';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
   DateTemplate,
@@ -22,9 +18,10 @@ export class LeaderboardEvalService {
   constructor(
     private leaderboardUtilService: LeaderboardUtilService,
     private scaleTeamService: ScaleTeamService,
+    private dateRangeService: DateRangeService,
   ) {}
 
-  async evalCountRank(
+  async rank(
     userId: number,
     filter?: FilterQuery<scale_team>,
   ): Promise<LeaderboardElement> {
@@ -36,26 +33,26 @@ export class LeaderboardEvalService {
     );
   }
 
-  async evalCountRankByDateRange(
+  async rankByDateRange(
     userId: number,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<scale_team> = {
-      beginAt: dateRangeFilter(dateRange),
+      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
       filledAt: { $ne: null },
     };
 
-    const evalCountRank = await this.evalCountRank(userId, dateFilter);
+    const evalCountRank = await this.rank(userId, dateFilter);
 
-    return generateDateRanged(evalCountRank, dateRange);
+    return this.dateRangeService.toDateRanged(evalCountRank, dateRange);
   }
 
-  async evalCountRankByDateTemplate(
+  async rankByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
-    const dateRange = dateRangeFromTemplate(dateTemplate);
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.evalCountRankByDateRange(userId, dateRange);
+    return this.rankByDateRange(userId, dateRange);
   }
 }

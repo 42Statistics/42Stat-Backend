@@ -1,8 +1,5 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import {
-  DateRangeArgs,
-  DateTemplateArgs,
-} from 'src/dateRange/dtos/dateRange.dto';
+import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -21,22 +18,12 @@ export class LeaderboardScoreResolver {
 
   @ResolveField('total', (_returns) => LeaderboardElement)
   async total(): Promise<LeaderboardElement> {
-    return await this.leaderboardScoreService.scoreRank(99947);
-  }
-
-  @ResolveField('byDateRange', (_returns) => LeaderboardElementDateRanged)
-  async byDateRange(
-    @Args() dateRangeArgs: DateRangeArgs,
-  ): Promise<LeaderboardElementDateRanged> {
-    return await this.leaderboardScoreService.scoreRankByDateRange(
-      99947,
-      dateRangeArgs,
-    );
+    return await this.leaderboardScoreService.rank(99947);
   }
 
   @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(@Args() { dateTemplate }: DateTemplateArgs) {
-    return await this.leaderboardScoreService.scoreRankByDateTemplate(
+    return await this.leaderboardScoreService.rankByDateTemplate(
       99947,
       dateTemplate,
     );
