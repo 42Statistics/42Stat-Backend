@@ -10,14 +10,23 @@ type Coalition {
   coverUrl: String
   color: String
   score: Int!
+
+  """코알리숑 마스터의 user id 입니다."""
   userId: Int!
 }
 
 type UserTitle {
-  id: Int!
+  titleId: Int!
   name: String!
-  isSelected: Boolean!
+  selected: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type UserScoreRank {
   value: Int!
@@ -28,10 +37,10 @@ type UserScoreRank {
 type UserProfile {
   id: Int!
   login: String!
+  imgUrl: String
   grade: String!
   displayname: String!
   coalition: Coalition!
-  imgUrl: String
   titles: [UserTitle]!
   level: Float!
 }
@@ -78,11 +87,6 @@ type EvalLogHeader {
   projectPreview: ProjectPreview!
   flag: Flag!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type EvalReview {
   mark: Int!
@@ -317,16 +321,11 @@ type PersonalGeneral {
   blackholedAt: DateTime
   wallet: Int!
   scoreInfo: UserScoreRank!
-  currMonthLogtime: IntDateRanged!
-  lastMonthLogtime: IntDateRanged!
-  teamInfo: TeamInfo!
-  preferredTime: PreferredTime!
-  preferredTimeByDateRange(start: DateTime!, end: DateTime!): PreferredTimeDateRanged!
-  preferredCluster: String!
-  preferredClusterByDateRange(start: DateTime!, end: DateTime!): StringDateRanged!
-  levelGraphs: LevelGraphDateRanged!
+  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
+  teamInfo: TeamInfo!
+  levelGraphs: LevelGraphDateRanged!
 }
 
 type PersonalEval {
@@ -391,7 +390,7 @@ type ProjectInfo {
 }
 
 type Query {
-  findUserPreview(login: String! = ""): [UserPreview]!
+  findUserPreview(login: String! = "", limit: Int! = 10): [UserPreview]!
   findProjectPreview(name: String! = ""): [ProjectPreview]!
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!
@@ -403,6 +402,6 @@ type Query {
   getLeaderboardScore: LeaderboardScore!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
-  getPersonGeneralPage(userId: Int, login: String): PersonalGeneral!
+  getPersonalGeneralPage(login: String, userId: Int): PersonalGeneral!
   getPersonalEvalPage(userId: Int, login: String): PersonalEval!
 }

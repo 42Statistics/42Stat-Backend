@@ -3,22 +3,18 @@ import * as fs from 'fs/promises';
 import type { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
-import { location } from 'src/api/location/db/location.database.schema';
+import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
-import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
 import type {
-  NumberDateRanged,
+  IntDateRanged,
   StringDateRanged,
-} from 'src/common/models/common.number.dateRanaged';
-import {
-  dateRangeFromTemplate,
-  generateDateRanged,
-} from 'src/dateRange/dateRange.service';
-import { DateRangeArgs, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+} from 'src/common/models/common.dateRanaged.model';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
+import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import type {
   LevelGraphDateRanged,
+  PersonalGeneral,
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
@@ -27,15 +23,17 @@ import type {
   UserProfile,
   UserScoreRank,
 } from './models/personal.general.userProfile.model';
+import type { PersonalGeneralContext } from './personal.general.resolver';
 
 @Injectable()
 export class PersonalGeneralService {
   constructor(
     private cursusUserService: CursusUserService,
-    private titlesUserService: TitlesUserService,
     private coalitionsUserService: CoalitionsUserService,
     private locationService: LocationService,
+    private dateRangeService: DateRangeService,
   ) {}
+
   async readTempLocation() {
     const ret = JSON.parse(
       await fs.readFile('/app/temp-data-store/jaham-location.json', {
@@ -45,20 +43,84 @@ export class PersonalGeneralService {
     return ret;
   }
 
-  async currMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.CURR_MONTH);
-    const logtime = await this.locationService.logtime(userId, dateRange);
+  async findUserIdByLogin(login: string): Promise<number> {
+    const cursusUser = await this.cursusUserService.findOneByLogin(login);
 
-    //todo: check other date ranged
-    return generateDateRanged(logtime, dateRange);
+    return cursusUser.user.id;
   }
 
-  async lastMonthLogtime(userId: number): Promise<NumberDateRanged> {
-    const dateRange = dateRangeFromTemplate(DateTemplate.LAST_MONTH);
+  async selectUserId({
+    context,
+    login,
+    userId,
+  }: {
+    context: PersonalGeneralContext;
+    login?: string;
+    userId?: number;
+  }): Promise<number> {
+    if (login) {
+      const cursusUser = await this.cursusUserService.findOneByLogin(login);
 
+      return cursusUser.user.id;
+    }
+
+    if (userId) {
+      return userId;
+    }
+
+    return context.userId;
+  }
+
+  async personalGeneralProfile(
+    userId: number,
+  ): Promise<
+    Pick<PersonalGeneral, 'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'>
+  > {
+    const userFullProfile = await this.cursusUserService.userFullProfile(
+      userId,
+    );
+
+    const { cursusUser, coalition, titlesUsers } = userFullProfile;
+
+    return {
+      userProfile: {
+        id: cursusUser.user.id,
+        login: cursusUser.user.login,
+        imgUrl: cursusUser.user.image.link,
+        grade: cursusUser.grade ?? 'No Grade',
+        level: cursusUser.level,
+        displayname: cursusUser.user.displayname,
+        coalition,
+        titles: titlesUsers.map((titleUser) => ({
+          titleId: titleUser.titleId,
+          name: titleUser.titles.name,
+          selected: titleUser.selected,
+          createdAt: titleUser.createdAt,
+          updatedAt: titleUser.updatedAt,
+        })),
+      },
+      beginAt: cursusUser.beginAt,
+      blackholedAt: cursusUser.blackholedAt,
+      wallet: cursusUser.user.wallet,
+    };
+  }
+
+  async logtimeByDateRange(
+    userId: number,
+    dateRange: DateRange,
+  ): Promise<IntDateRanged> {
     const logtime = await this.locationService.logtime(userId, dateRange);
 
-    return generateDateRanged(logtime, dateRange);
+    return this.dateRangeService.toDateRanged(logtime, dateRange);
+  }
+
+  async logtimeByDateTemplate(
+    userId: number,
+    dateTemplate: DateTemplate,
+  ): Promise<IntDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    return await this.logtimeByDateRange(userId, dateRange);
   }
 
   async preferredTime(userId: number): Promise<PreferredTime> {
@@ -67,7 +129,7 @@ export class PersonalGeneralService {
 
   async preferredTimeByDateRange(
     userId: number,
-    dateRange: DateRangeArgs,
+    dateRange: DateRange,
   ): Promise<PreferredTimeDateRanged> {
     const dateFilter: FilterQuery<location> = {
       beginAt: { $lt: dateRange.start },
@@ -79,7 +141,16 @@ export class PersonalGeneralService {
       dateFilter,
     );
 
-    return generateDateRanged(preferredTime, dateRange);
+    return this.dateRangeService.toDateRanged(preferredTime, dateRange);
+  }
+
+  async preferredTimeByDateTemplate(
+    userId: number,
+    dateTemplate: DateTemplate,
+  ): Promise<PreferredTimeDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    return await this.preferredTimeByDateRange(userId, dateRange);
   }
 
   async preferredCluster(userId: number): Promise<string> {
@@ -88,7 +159,7 @@ export class PersonalGeneralService {
 
   async preferredClusterByDateRange(
     userId: number,
-    dateRange: DateRangeArgs,
+    dateRange: DateRange,
   ): Promise<StringDateRanged> {
     const dateFilter: FilterQuery<location> = {
       beginAt: { $lt: dateRange.end },
@@ -100,10 +171,19 @@ export class PersonalGeneralService {
       dateFilter,
     );
 
-    return generateDateRanged(preferredCluster, dateRange);
+    return this.dateRangeService.toDateRanged(preferredCluster, dateRange);
   }
 
-  async userTeamInfo(userId: number): Promise<TeamInfo> {
+  async preferredClusterByDateTemplate(
+    userId: number,
+    dateTemplate: DateTemplate,
+  ): Promise<StringDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    return await this.preferredClusterByDateRange(userId, dateRange);
+  }
+
+  async teamInfo(userId: number): Promise<TeamInfo> {
     return {
       lastRegistered: 'avaj-launcher',
       lastPass: 'avaj-launcher',
@@ -125,7 +205,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async userLevelHistroy(userId: number): Promise<LevelGraphDateRanged> {
+  async levelHistroy(userId: number): Promise<LevelGraphDateRanged> {
     const levelGraph = [
       {
         date: new Date('2022-01-01'),
@@ -189,43 +269,10 @@ export class PersonalGeneralService {
       },
     ];
 
-    return generateDateRanged(levelGraph, {
+    return this.dateRangeService.toDateRanged(levelGraph, {
       start: new Date('2022'),
       end: new Date('2023'),
     });
-  }
-
-  async userInfo(userId: number): Promise<UserProfile> {
-    const cursusUserProfile = await this.cursusUserService.cursusUserProfile(
-      userId,
-    );
-    const titles = await this.titlesUserService.titlesUserProfile(userId);
-
-    const userProfile: UserProfile = {
-      ...cursusUserProfile,
-      titles,
-    };
-
-    return userProfile;
-  }
-
-  async levelRank(
-    userId: number,
-    filter?: FilterQuery<cursus_user>,
-  ): Promise<number> {
-    return await this.cursusUserService.userLevelRank(userId, filter);
-  }
-
-  async beginAt(userId: number): Promise<Date> {
-    return new Date();
-  }
-
-  async blackholedAt(userId: number): Promise<Date> {
-    return new Date();
-  }
-
-  async wallet(userId: number): Promise<number> {
-    return 1234;
   }
 
   async scoreInfo(userId: number): Promise<UserScoreRank> {

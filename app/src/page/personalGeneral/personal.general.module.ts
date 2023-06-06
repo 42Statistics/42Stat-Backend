@@ -4,10 +4,8 @@ import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.ser
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { LocationModule } from 'src/api/location/location.module';
-import { ScoreModule } from 'src/api/score/score.module';
-import { ScoreService } from 'src/api/score/score.service';
-import { TitlesUserModule } from 'src/api/titlesUser/titlesUser.module';
-import { TitlesUserService } from 'src/api/titlesUser/titlesUser.service';
+import { DateRangeModule } from 'src/dateRange/dateRange.module';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { PersonalGeneralResolver } from './personal.general.resolver';
 import { PersonalGeneralService } from './personal.general.service';
 
@@ -16,16 +14,14 @@ import { PersonalGeneralService } from './personal.general.service';
     CoalitionsUserModule,
     CursusUserModule,
     LocationModule,
-    ScoreModule,
-    TitlesUserModule,
+    DateRangeModule,
   ],
   providers: [
     PersonalGeneralResolver,
     PersonalGeneralService,
     CursusUserService,
-    TitlesUserService,
-    ScoreService,
     CoalitionsUserService,
+    DateRangeService,
   ],
 })
 // eslint-disable-next-line
