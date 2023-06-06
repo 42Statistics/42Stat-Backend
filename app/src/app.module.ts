@@ -8,8 +8,7 @@ import { ProjectModule } from './api/project/project.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { HomeModule } from './page/home/home.module';
 import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
-import { PersonalEvalModule } from './page/personalEval/personal.eval.module';
-import { PersonalGeneralModule } from './page/personalGeneral/personal.general.module';
+import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 
 @Module({
@@ -20,11 +19,10 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
     CursusUserModule,
     ProjectModule,
     HomeModule,
+    PersonalModule,
+    ProjectInfoModule,
     LeaderboardModule,
     EvalLogModule,
-    ProjectInfoModule,
-    PersonalGeneralModule,
-    PersonalEvalModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       buildSchemaOptions: {

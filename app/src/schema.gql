@@ -110,25 +110,25 @@ type EvalLogsPaginated {
   pageNumber: Int!
 }
 
-type ValueRecord {
+type IntRecord {
   at: DateTime!
   value: Int!
 }
 
-type ValuePerCoalition {
+type IntPerCoalition {
   coalition: Coalition!
   value: Int!
 }
 
 type ScoreRecordPerCoalition {
   coalition: Coalition!
-  records: [ValueRecord]!
+  records: [IntRecord]!
 }
 
 type HomeCoalition {
-  totalScoresPerCoalition: [ValuePerCoalition!]!
+  totalScoresPerCoalition: [IntPerCoalition!]!
   scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
-  tigCountPerCoalitions: [ValuePerCoalition!]!
+  tigCountPerCoalitions: [IntPerCoalition!]!
 }
 
 type IntDateRanged {
@@ -194,7 +194,7 @@ type IntRate {
   value: Int!
 }
 
-type ValuePerCircle {
+type IntPerCircle {
   circle: Int!
   value: Int!
 }
@@ -205,15 +205,15 @@ type UserCountPerLevels {
 }
 
 type HomeUser {
-  activeUserCountRecords: [ValueRecord!]!
+  activeUserCountRecords: [IntRecord!]!
   userCountPerLevels: [UserCountPerLevels!]!
   memberRate: IntRate!
   blackholedRate: IntRate!
   blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  blackholedCountPerCircles: [ValuePerCircle!]!
+  blackholedCountPerCircles: [IntPerCircle!]!
   walletRanks(limit: Int! = 5): [UserRanking!]!
   correctionPointRanks(limit: Int! = 5): [UserRanking!]!
-  averageCircleDurations: [ValuePerCircle!]!
+  averageCircleDurations: [IntPerCircle!]!
 }
 
 type LeaderboardElement {
@@ -249,6 +249,21 @@ type LeaderboardScore {
   total: LeaderboardElement!
   byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
   byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
+type PersonalEval {
+  userProfile: UserProfile!
+  correctionPoint: Int!
+  totalCount: Int!
+  countByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  totalDuration: Int!
+  averageDuration: Int!
+  averageFinalMark: Float!
+  averageFeedbackLength: Int!
+  averageCommentLength: Int!
+  latestFeedback: String!
+  evalLogSearchLink: String!
+  evalLogSearchUrl: String!
 }
 
 type TempTeam {
@@ -303,16 +318,10 @@ type TeamInfo {
   teams: [TempTeam]!
 }
 
-type LevelGraph {
-  date: DateTime!
+type LevelRecord {
+  after: Int!
   userLevel: Float!
   averageLevel: Float!
-}
-
-type LevelGraphDateRanged {
-  data: [LevelGraph!]!
-  start: DateTime!
-  end: DateTime!
 }
 
 type PersonalGeneral {
@@ -325,44 +334,7 @@ type PersonalGeneral {
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
   teamInfo: TeamInfo!
-  levelGraphs: LevelGraphDateRanged!
-}
-
-type PersonalEval {
-  userProfile: UserProfile!
-
-  """보유 평가 포인트"""
-  correctionPoint: Int!
-
-  """월간 평가 횟수 (이번달 + 저번달)"""
-  currMonthCount: IntDateRanged!
-
-  """월간 평가 횟수 (이번달 + 저번달)"""
-  lastMonthCount: IntDateRanged!
-
-  """누적 평가 횟수"""
-  totalCount: Int!
-
-  """누적 평가 시간"""
-  totalDuration: Int!
-
-  """평균 평가 시간"""
-  averageDuration: Int!
-
-  """평균 평가 점수"""
-  averageFinalMark: Float!
-
-  """평균 피드백 길이"""
-  averageFeedbackLength: Int!
-
-  """평균 코멘트 길이"""
-  averageCommentLength: Int!
-
-  """최근 받은 피드백"""
-  latestFeedback: String!
-
-  """이 유저의 이전 평가가 궁금하다면?"""
-  evalLogSearchLink: String!
+  levelRecords: [LevelRecord!]!
 }
 
 type ProjectEvalInfo {
@@ -396,12 +368,12 @@ type Query {
   getHomeEval: HomeEval!
   getHomeCoalition: HomeCoalition!
   getHomeTeam: HomeTeam!
+  getPersonalGeneralPage(login: String, userId: Int): PersonalGeneral!
+  getPersonalEvalPage(userId: Int, login: String): PersonalEval!
+  getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
   getEvalLogs(pageSize: Int! = 10, pageNumber: Int! = 1, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
-  getProjectInfo(projectName: String! = "libft"): ProjectInfo!
-  getPersonalGeneralPage(login: String, userId: Int): PersonalGeneral!
-  getPersonalEvalPage(userId: Int, login: String): PersonalEval!
 }
