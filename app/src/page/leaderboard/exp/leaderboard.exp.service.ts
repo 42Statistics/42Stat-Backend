@@ -77,7 +77,7 @@ export class LeaderboardExpService {
   ): Promise<LeaderboardElement> {
     const userRanking = tempResult;
 
-    return this.leaderboardUtilService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
       userRanking,
     );

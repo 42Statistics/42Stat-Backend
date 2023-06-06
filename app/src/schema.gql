@@ -216,12 +216,18 @@ type HomeUser {
   averageCircleDurations: [IntPerCircle!]!
 }
 
+type LeaderboardRanking {
+  userPreview: UserPreview!
+  value: Float
+  rank: Int!
+}
+
 type LeaderboardElement {
   """내 랭킹 정보"""
-  me: UserRanking
+  me: LeaderboardRanking
 
   """전체 랭킹 정보"""
-  totalRanks: [UserRanking!]!
+  totalRanks: [LeaderboardRanking!]!
 }
 
 type LeaderboardElementDateRanged {
@@ -232,12 +238,10 @@ type LeaderboardElementDateRanged {
 
 type LeaderboardEval {
   total: LeaderboardElement!
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
   byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
   byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
@@ -247,7 +251,6 @@ type LeaderboardLevel {
 
 type LeaderboardScore {
   total: LeaderboardElement!
-  byDateRange(start: DateTime!, end: DateTime!): LeaderboardElementDateRanged!
   byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 

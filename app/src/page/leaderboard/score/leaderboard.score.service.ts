@@ -9,6 +9,7 @@ import type {
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
+  LeaderboardRanking,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
@@ -76,12 +77,12 @@ export class LeaderboardScoreService {
     userId: number,
     filter?: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
-    const userRanking: UserRanking[] = this.tempScores;
+    const leaderboardRanking: LeaderboardRanking[] = this.tempScores;
     //todo: 블랙홀유저의 value가 0으로 나오는지 확인 후 구분하기
 
-    return this.leaderboardUtilService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
-      userRanking,
+      leaderboardRanking,
     );
   }
 
