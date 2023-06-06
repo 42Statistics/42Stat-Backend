@@ -1,10 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import {
-  dateRangeFromTemplate,
-  generateDateRanged,
-} from 'src/dateRange/dateRange.service';
-import { dateRangeFilter } from 'src/dateRange/db/dateRange.database.aggregate';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
   DateTemplate,
@@ -70,9 +66,12 @@ const tempResult = [
 
 @Injectable()
 export class LeaderboardExpService {
-  constructor(private leaderboardUtilService: LeaderboardUtilService) {}
+  constructor(
+    private leaderboardUtilService: LeaderboardUtilService,
+    private dateRangeService: DateRangeService,
+  ) {}
 
-  async expIncrementRank(
+  async rank(
     userId: number,
     filter: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
@@ -84,26 +83,26 @@ export class LeaderboardExpService {
     );
   }
 
-  async expIncrementRankByDateRange(
+  async rankByDateRange(
     userId: number,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
-      beginAt: dateRangeFilter(dateRange),
+      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
       filledAt: { $ne: null },
     };
 
-    const evalCountRank = await this.expIncrementRank(userId, dateFilter);
+    const evalCountRank = await this.rank(userId, dateFilter);
 
-    return generateDateRanged(evalCountRank, dateRange);
+    return this.dateRangeService.toDateRanged(evalCountRank, dateRange);
   }
 
-  async expIncrementRankByDateTemplate(
+  async rankByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
-    const dateRange = dateRangeFromTemplate(dateTemplate);
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return await this.expIncrementRankByDateRange(userId, dateRange);
+    return await this.rankByDateRange(userId, dateRange);
   }
 }

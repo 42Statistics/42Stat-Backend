@@ -3,10 +3,7 @@ import {
   IntDateRanged,
   StringDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
-import {
-  ArrayDateRanged,
-  DateRanged,
-} from 'src/dateRange/models/dateRange.model';
+import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import {
   UserProfile,
   UserScoreRank,

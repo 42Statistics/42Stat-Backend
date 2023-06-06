@@ -10,8 +10,5 @@ export class LeaderboardScore {
   total: LeaderboardElement;
 
   @Field()
-  byDateRange: LeaderboardElementDateRanged;
-
-  @Field()
   byDateTemplate: LeaderboardElementDateRanged;
 }
