@@ -16,10 +16,18 @@ import type {
 } from 'src/page/home/user/models/home.user.model';
 import { Time } from 'src/util';
 import {
-  CursusUserDatable,
+  CursusUserDocument,
+  User,
   cursus_user,
 } from './db/cursusUser.database.schema';
-import type { CursusUserProfile } from './models/cursusUser.model';
+import { CoalitionsUserDocument } from '../coalitionsUser/db/coalitionsUser.database.schema';
+import { UserFullProfile } from './db/cursusUser.database.aggregate';
+import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
+import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
+import { lookupTitle } from '../title/db/title.database.aggregate';
+
+export const FT_CURSUS = 21;
 
 @Injectable()
 export class CursusUserService {
@@ -28,11 +36,19 @@ export class CursusUserService {
     private cursusUserModel: Model<cursus_user>,
   ) {}
 
-  async findAll(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user[]> {
+  aggregate<ReturnType>(): Aggregate<ReturnType[]> {
+    return this.cursusUserModel.aggregate<ReturnType>();
+  }
+
+  async findAll(
+    filter: FilterQuery<CursusUserDocument> = {},
+  ): Promise<CursusUserDocument[]> {
     return await this.cursusUserModel.find(filter);
   }
 
-  async findOne(filter: FilterQuery<cursus_user> = {}): Promise<cursus_user> {
+  async findOne(
+    filter: FilterQuery<CursusUserDocument> = {},
+  ): Promise<CursusUserDocument> {
     const cursusUser = await this.cursusUserModel.findOne(filter);
 
     if (!cursusUser) {
@@ -42,50 +58,70 @@ export class CursusUserService {
     return cursusUser;
   }
 
-  aggregate<ReturnType>(): Aggregate<ReturnType[]> {
-    return this.cursusUserModel.aggregate<ReturnType>();
+  async findOneByUserId(userId: number): Promise<CursusUserDocument> {
+    return await this.findOne({ 'user.id': userId });
   }
 
-  //todo: function name
-  async findUser(userId: number, login: string): Promise<cursus_user> {
-    if (userId) {
-      return await this.findOne({ 'user.id': userId });
-    } else if (login) {
-      return await this.findOne({ 'user.login': login });
-    } else {
-      throw new NotFoundException();
-    }
+  async findOneByLogin(login: string): Promise<CursusUserDocument> {
+    return await this.findOne({ 'user.login': login });
   }
 
-  async findByName(login: string): Promise<cursus_user[]> {
-    const result: Map<number, cursus_user> = new Map();
+  async findUserPreviewByLogin(
+    login: string,
+    limit: number,
+  ): Promise<UserPreview[]> {
+    type Userable = Pick<User, 'id' | 'login' | 'image'>;
 
-    const prefixMatches = await this.findAll({
-      'user.login': { $regex: `^${login}`, $options: 'i' },
+    const extractUserPreview = ({
+      id,
+      login,
+      image,
+    }: Userable): UserPreview => ({
+      id,
+      login,
+      imgUrl: image?.link,
     });
 
-    prefixMatches.forEach((prefixMatch) =>
-      result.set(prefixMatch.id, prefixMatch),
+    const result: Map<number, UserPreview> = new Map();
+
+    const previewProjection = {
+      'user.id': 1,
+      'user.login': 1,
+      'user.image': 1,
+    };
+
+    const prefixMatches: { user: Userable }[] = await this.cursusUserModel
+      .find(
+        {
+          'user.login': { $regex: `^${login}`, $options: 'i' },
+        },
+        previewProjection,
+      )
+      .limit(limit);
+
+    prefixMatches.forEach(({ user }) =>
+      result.set(user.id, extractUserPreview(user)),
     );
 
-    const matches = await this.findAll({
-      'user.login': { $regex: login, $options: 'i' },
-    });
+    if (prefixMatches.length < limit) {
+      const matches: { user: Userable }[] = await this.cursusUserModel
+        .find(
+          {
+            'user.login': { $regex: login, $options: 'i' },
+          },
+          previewProjection,
+        )
+        .limit(limit - prefixMatches.length);
 
-    matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));
+      matches.forEach(({ user }) =>
+        result.set(user.id, extractUserPreview(user)),
+      );
+    }
 
     return [...result.values()];
   }
 
-  convertToPreview(cursusUser: cursus_user): UserPreview {
-    return {
-      id: cursusUser.user.id,
-      login: cursusUser.user.login,
-      imgUrl: cursusUser.user.image.link,
-    };
-  }
-
-  async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {
+  async userCount(filter?: FilterQuery<CursusUserDocument>): Promise<number> {
     if (!filter) {
       return await this.cursusUserModel.estimatedDocumentCount();
     }
@@ -94,7 +130,7 @@ export class CursusUserService {
   }
 
   async countPerMonth(
-    key: CursusUserDatable,
+    key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
     const dateObject = Time.dateToBoundariesObject(dateRange);
@@ -127,71 +163,37 @@ export class CursusUserService {
       });
   }
 
-  async cursusUserProfile(userId: number): Promise<CursusUserProfile> {
-    const aggregate = this.cursusUserModel.aggregate<CursusUserProfile>();
+  async userFullProfile(userId: number): Promise<UserFullProfile> {
+    const aggregate = this.cursusUserModel.aggregate<UserFullProfile>();
 
-    const cursusUserProfile = await aggregate
-      .match({ cursusId: 21, 'user.id': userId })
-      .lookup({
-        from: 'coalitions_users',
-        localField: 'user.id',
-        foreignField: 'userId',
-        as: 'coalitions_users',
+    const [cursusUserProfile] = await aggregate
+      .match({ 'user.id': userId, 'cursus.id': FT_CURSUS })
+      .addFields({
+        cursusUser: '$$ROOT',
       })
-      .lookup({
-        from: 'coalitions',
-        localField: 'coalitions_users.coalitionId',
-        foreignField: 'id',
-        as: 'coalitions',
-      })
+      .append(
+        lookupCoalitionsUser('user.id', 'userId', [
+          lookupCoalition('coalitionId', 'id'),
+          { $addFields: { coalitions: { $first: '$coalitions' } } },
+        ]),
+      )
+      .append(
+        lookupTitlesUser('user.id', 'userId', [
+          lookupTitle('titleId', 'id'),
+          { $addFields: { titles: { $first: '$titles' } } },
+        ]),
+      )
       .project({
-        _id: 0,
-        id: '$user.id',
-        login: '$user.login',
-        grade: '$grade',
-        name: '$user.displayname',
-        coalition: { $first: '$coalitions' },
-        imgUrl: '$user.image.link',
-        level: '$level',
-        // beginAt: '$beginAt',
-        // blackholedAt: '$blackholedAt',
-        // wallet: '$user.wallet',
-        // correctionPoint: '$user.correctionPoint',
-      })
-      .project({ 'coalition._id': 0 });
+        cursusUser: 1,
+        coalition: { $first: '$coalitions_users.coalitions' },
+        titlesUsers: '$titles_users',
+      });
 
-    if (!cursusUserProfile.length) {
+    if (!cursusUserProfile) {
       throw new NotFoundException();
     }
 
-    return cursusUserProfile[0];
-  }
-
-  async userLevelRank(
-    userId: number,
-    filter?: FilterQuery<cursus_user>,
-  ): Promise<number> {
-    const aggregate = this.cursusUserModel.aggregate<AggrNumeric>();
-
-    if (filter) {
-      aggregate.match(filter);
-    }
-
-    aggregate.append({
-      $setWindowFields: {
-        partitionBy: 'level',
-        sortBy: { level: -1 },
-        output: { value: { $rank: {} } },
-      },
-    });
-
-    const levelRank = await aggregate.match({ 'user.id': userId });
-
-    if (!levelRank.length) {
-      throw new NotFoundException();
-    }
-
-    return levelRank[0].value;
+    return cursusUserProfile;
   }
 
   async userCountPerLevels(): Promise<UserCountPerLevels[]> {
@@ -214,7 +216,7 @@ export class CursusUserService {
   async rank(
     key: string,
     limit: number,
-    filter?: FilterQuery<cursus_user>,
+    filter?: FilterQuery<CursusUserDocument>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserModel.aggregate<UserRanking>();
 
