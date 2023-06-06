@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import {
   Args,
   Context,
@@ -8,12 +7,11 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { PersonalEval } from './models/personal.eval.model';
-import { PersonalEvalService } from './personal.eval.service';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
+import { PersonalEval } from './models/personal.eval.model';
+import { PersonalEvalService } from './personal.eval.service';
 
 type PersonalEvalContext = { userId: number };
 @Resolver((_of: unknown) => PersonalEval)
