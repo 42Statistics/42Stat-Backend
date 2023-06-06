@@ -4,13 +4,19 @@ import { Coalition } from 'src/api/coalition/models/coalition.model';
 @ObjectType()
 export class UserTitle {
   @Field()
-  id: number;
+  titleId: number;
 
   @Field()
   name: string;
 
   @Field()
-  isSelected: boolean;
+  selected: boolean;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }
 
 @ObjectType()
@@ -42,6 +48,9 @@ export class UserProfile {
   @Field()
   login: string;
 
+  @Field({ nullable: true })
+  imgUrl?: string;
+
   @Field()
   grade: string;
   //grade: UserGrade;
@@ -52,27 +61,9 @@ export class UserProfile {
   @Field()
   coalition: Coalition;
 
-  @Field({ nullable: true })
-  imgUrl?: string;
-
   @Field((_type) => [UserTitle], { nullable: 'items' })
   titles: UserTitle[];
 
   @Field((_type) => Float)
   level: number;
-
-  // @Field()
-  // beginAt: Date;
-
-  // @Field({ nullable: true })
-  // blackholedAt?: Date;
-
-  // @Field()
-  // wallet: number;
-
-  // @Field()
-  // correctionPoint: number;
-
-  // @Field()
-  // scoreInfo: UserScoreRank;
 }
