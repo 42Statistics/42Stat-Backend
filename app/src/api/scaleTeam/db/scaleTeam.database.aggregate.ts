@@ -1,4 +1,5 @@
 import type { PipelineStage } from 'mongoose';
+import { lookupStage } from 'src/common/db/common.db.aggregation';
 // eslint-disable-next-line
 import type { scale_team } from './scaleTeam.database.schema';
 
@@ -9,7 +10,7 @@ import type { scale_team } from './scaleTeam.database.schema';
  *
  * @returns
  * ```ts
- * type DocType = {
+ * type AddType = {
  *    scale_teams: scale_team[]
  * }
  * ```
@@ -20,22 +21,8 @@ export const lookupScaleTeams = (
   localField: string,
   foreignField: string,
   pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
-): PipelineStage => {
-  const lookupStage: PipelineStage.Lookup = {
-    $lookup: {
-      from: 'scale_teams',
-      localField,
-      foreignField,
-      as: 'scale_teams',
-    },
-  };
-
-  if (pipeline) {
-    lookupStage.$lookup.pipeline = pipeline;
-  }
-
-  return lookupStage;
-};
+): PipelineStage =>
+  lookupStage('scale_teams', localField, foreignField, pipeline);
 
 /**
  *

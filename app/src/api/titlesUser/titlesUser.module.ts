@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TitlesUserSchema, titles_user } from './db/titlesUser.database.schema';
-import { TitlesUserService } from './titlesUser.service';
 
 @Module({
   imports: [
@@ -9,8 +8,8 @@ import { TitlesUserService } from './titlesUser.service';
       { name: titles_user.name, schema: TitlesUserSchema },
     ]),
   ],
-  providers: [TitlesUserService],
-  exports: [MongooseModule, TitlesUserService],
+  providers: [],
+  exports: [MongooseModule],
 })
 // eslint-disable-next-line
 export class TitlesUserModule {}

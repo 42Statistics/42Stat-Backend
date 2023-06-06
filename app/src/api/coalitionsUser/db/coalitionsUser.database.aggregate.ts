@@ -1,9 +1,31 @@
-import type { UserRanking } from 'src/common/models/common.user.model';
-import type { CoalitionId } from 'src/api/score/db/score.database.aggregate';
+import { PipelineStage } from 'mongoose';
+import { lookupStage } from 'src/common/db/common.db.aggregation';
+// eslint-disable-next-line
+import type { coalitions_user } from './coalitionsUser.database.schema';
 
-export type UserRankingCoalitionId = UserRanking & CoalitionId;
 export type ScoreInfo = {
   coalitionId: number;
   userId: number;
   scores: number;
 };
+
+/**
+ *
+ * @description
+ * coalitions user 를 lookup 합니다.
+ *
+ * @returns
+ * ```ts
+ * type AddType = {
+ *    coalitions_users: coalitions_user[]
+ * }
+ * ```
+ *
+ * @see coalitions_user
+ */
+export const lookupCoalitionsUser = (
+  localField: string,
+  foreignField: string,
+  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+): ReturnType<typeof lookupStage> =>
+  lookupStage('coalitions_users', localField, foreignField, pipeline);

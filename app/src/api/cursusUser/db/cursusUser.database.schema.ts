@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type UserDocument = HydratedDocument<cursus_user>;
-export type CursusUserDatable = 'beginAt' | 'blackholedAt';
+export type CursusUserDocument = HydratedDocument<cursus_user>;
 
 @Schema()
 export class Skills {
@@ -37,7 +36,7 @@ export class Cursus {
 @Schema()
 export class Image {
   @Prop({ required: true })
-  link: string;
+  link?: string;
 }
 
 @Schema()
