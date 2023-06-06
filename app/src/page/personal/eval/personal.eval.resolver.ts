@@ -1,4 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
 import {
   Args,
   Context,
@@ -8,18 +7,18 @@ import {
   ResolveField,
   Resolver,
 } from '@nestjs/graphql';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import { PersonalEval } from './models/personal.eval.model';
-import { PersonalEvalService } from './personal.eval.service';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { PersonalUtilService } from '../util/personal.util.service';
+import { PersonalEval } from './models/personal.eval.model';
+import { PersonalEvalService } from './personal.eval.service';
 
 type PersonalEvalContext = { userId: number };
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
   constructor(
     private personalEvalService: PersonalEvalService,
-    private cursusUserService: CursusUserService,
+    private personalUtilService: PersonalUtilService,
   ) {}
 
   @Query((_returns) => PersonalEval)
@@ -28,19 +27,16 @@ export class PersonalEvalResolver {
     @Args('login', { nullable: true }) login: string,
     @Context() context: PersonalEvalContext,
   ) {
-    if (login) {
-      const cursusUser = await this.cursusUserService.findOneByLogin(login);
-      context.userId = cursusUser.user.id;
-    } else if (userId) {
-      context.userId = userId;
-    } else {
-      throw new BadRequestException();
-    }
+    const targetUserId = await this.personalUtilService.selectUserId(
+      context,
+      login,
+      userId,
+    );
 
-    const cursusUser = await this.cursusUserService.findOneByUserId(userId);
-    context.userId = cursusUser.user.id;
+    // todo: auth guard
+    context.userId = targetUserId;
 
-    return {};
+    return await this.personalEvalService.pesronalEvalProfile(targetUserId);
   }
 
   @ResolveField((_returns) => Int)

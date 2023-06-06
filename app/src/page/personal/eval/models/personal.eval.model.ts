@@ -44,5 +44,5 @@ export class PersonalEval {
   latestFeedback: string;
 
   @Field()
-  evalLogSearchLink: string;
+  evalLogSearchUrl: string;
 }
