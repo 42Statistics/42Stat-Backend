@@ -1,10 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model } from 'mongoose';
-import type {
-  AggrNumeric,
-  AggrNumericPerDate,
-} from 'src/common/db/common.db.aggregation';
+import type { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
 import type {
   UserPreview,
   UserRanking,
@@ -15,17 +12,16 @@ import type {
   ValuePerCircle,
 } from 'src/page/home/user/models/home.user.model';
 import { Time } from 'src/util';
+import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
+import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { lookupTitle } from '../title/db/title.database.aggregate';
+import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
+import { UserFullProfile } from './db/cursusUser.database.aggregate';
 import {
   CursusUserDocument,
   User,
   cursus_user,
 } from './db/cursusUser.database.schema';
-import { CoalitionsUserDocument } from '../coalitionsUser/db/coalitionsUser.database.schema';
-import { UserFullProfile } from './db/cursusUser.database.aggregate';
-import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
-import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
-import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import { lookupTitle } from '../title/db/title.database.aggregate';
 
 export const FT_CURSUS = 21;
 
@@ -216,7 +212,7 @@ export class CursusUserService {
   async rank(
     key: string,
     limit: number,
-    filter?: FilterQuery<CursusUserDocument>,
+    filter?: FilterQuery<cursus_user>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserModel.aggregate<UserRanking>();
 
