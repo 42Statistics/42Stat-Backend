@@ -2,10 +2,10 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { IntRate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
-import { ValueRecord } from '../../models/home.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 
 @ObjectType()
-export class ValuePerCircle {
+export class IntPerCircle {
   @Field()
   circle: number;
 
@@ -24,8 +24,8 @@ export class UserCountPerLevels {
 
 @ObjectType()
 export class HomeUser {
-  @Field((_type) => [ValueRecord])
-  activeUserCountRecords: ValueRecord[];
+  @Field((_type) => [IntRecord])
+  activeUserCountRecords: IntRecord[];
 
   @Field((_type) => [UserCountPerLevels])
   userCountPerLevels: UserCountPerLevels[];
@@ -39,8 +39,8 @@ export class HomeUser {
   @Field()
   blackholedCountByDateTemplate: IntDateRanged;
 
-  @Field((_type) => [ValuePerCircle])
-  blackholedCountPerCircles: ValuePerCircle[];
+  @Field((_type) => [IntPerCircle])
+  blackholedCountPerCircles: IntPerCircle[];
 
   @Field((_type) => [UserRanking])
   walletRanks: UserRanking[];
@@ -48,6 +48,6 @@ export class HomeUser {
   @Field((_type) => [UserRanking])
   correctionPointRanks: UserRanking[];
 
-  @Field((_type) => [ValuePerCircle])
-  averageCircleDurations: ValuePerCircle[];
+  @Field((_type) => [IntPerCircle])
+  averageCircleDurations: IntPerCircle[];
 }
