@@ -9,7 +9,7 @@ import type {
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   UserCountPerLevels,
-  ValuePerCircle,
+  IntPerCircle,
 } from 'src/page/home/user/models/home.user.model';
 import { Time } from 'src/util';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
@@ -237,8 +237,8 @@ export class CursusUserService {
   }
 
   // executionTimeMillisEstimate: 319
-  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
-    const aggregate = this.cursusUserModel.aggregate<ValuePerCircle>();
+  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
+    const aggregate = this.cursusUserModel.aggregate<IntPerCircle>();
 
     return await aggregate
       .match({

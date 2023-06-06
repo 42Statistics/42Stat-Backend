@@ -4,7 +4,7 @@ import type { FilterQuery, Model } from 'mongoose';
 import { score } from './db/score.database.schema';
 import type {
   ScoreRecordPerCoalition,
-  ValuePerCoalition,
+  IntPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class ScoreService {
     @InjectModel(score.name)
     private scoreModel: Model<score>,
   ) {}
-  async scoresPerCoalition(): Promise<ValuePerCoalition[]> {
-    const aggregate = this.scoreModel.aggregate<ValuePerCoalition>();
+  async scoresPerCoalition(): Promise<IntPerCoalition[]> {
+    const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
 
     return await aggregate
       .match({ coalitionsUserId: { $ne: null } })

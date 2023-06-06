@@ -5,15 +5,12 @@ import {
 } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import {
-  LevelGraphDateRanged,
+  LevelRecord,
   PersonalGeneral,
   PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
-import {
-  UserProfile,
-  UserScoreRank,
-} from './models/personal.general.userProfile.model';
+import { UserScoreRank } from './models/personal.general.userProfile.model';
 import { PersonalGeneralService } from './personal.general.service';
 
 export type PersonalGeneralContext = {
@@ -99,10 +96,10 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.teamInfo(context.userId);
   }
 
-  @ResolveField('levelGraphs', (_returns) => LevelGraphDateRanged)
-  async levelGraphs(
+  @ResolveField('levelRecords', (_returns) => [LevelRecord])
+  async levelRecords(
     @Context() context: PersonalGeneralContext,
-  ): Promise<LevelGraphDateRanged> {
-    return await this.personalGeneralService.levelHistroy(context.userId);
+  ): Promise<LevelRecord[]> {
+    return await this.personalGeneralService.levelRecords(context.userId);
   }
 }

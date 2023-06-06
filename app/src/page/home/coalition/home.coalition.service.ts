@@ -6,7 +6,7 @@ import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import type {
   ScoreRecordPerCoalition,
-  ValuePerCoalition,
+  IntPerCoalition,
 } from './models/home.coalition.model';
 
 @Injectable()
@@ -16,7 +16,7 @@ export class HomeCoalitionService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async totalScoresPerCoalition(): Promise<ValuePerCoalition[]> {
+  async totalScoresPerCoalition(): Promise<IntPerCoalition[]> {
     return await this.scoreService.scoresPerCoalition();
   }
 
@@ -36,7 +36,7 @@ export class HomeCoalitionService {
     });
   }
 
-  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
+  async tigCountPerCoalitions(): Promise<IntPerCoalition[]> {
     return [
       {
         coalition: {

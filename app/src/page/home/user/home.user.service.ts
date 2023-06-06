@@ -4,13 +4,13 @@ import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { IntRate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
+import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
-import type { ValueRecord } from '../models/home.model';
 import type {
   UserCountPerLevels,
-  ValuePerCircle,
+  IntPerCircle,
 } from './models/home.user.model';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class HomeUserService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async activeUserCountRecords(): Promise<ValueRecord[]> {
+  async activeUserCountRecords(): Promise<IntRecord[]> {
     const now = Time.now();
     const nextMonth = Time.moveMonth(Time.startOfMonth(now), 1);
     const lastYear = Time.moveYear(nextMonth, -1);
@@ -58,7 +58,7 @@ export class HomeUserService {
 
         return [valueRecords, currActiveUserCount] as const;
       },
-      [[], 0] as readonly [ValueRecord[], number],
+      [[], 0] as readonly [IntRecord[], number],
     )[0];
   }
 
@@ -106,7 +106,7 @@ export class HomeUserService {
     return await this.blackholedCountByDateRange(dateRange);
   }
 
-  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
     return await this.cursusUserService.blackholedCountPerCircles();
   }
 
@@ -118,7 +118,7 @@ export class HomeUserService {
     return await this.cursusUserService.rank('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+  async averageCircleDurations(): Promise<IntPerCircle[]> {
     return await this.questsUserService.averageCircleDurations();
   }
 }
