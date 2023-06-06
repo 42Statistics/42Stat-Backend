@@ -50,6 +50,7 @@ export class PersonalEvalService {
     return await this.scaleTeamService.evalCount({
       ...filter,
       'corrector.id': userId,
+      filledAt: { $ne: null },
     });
   }
 
@@ -59,7 +60,6 @@ export class PersonalEvalService {
   ): Promise<IntDateRanged> {
     const count = await this.count(userId, {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-      filledAt: { $ne: null },
     });
 
     return this.dateRangeService.toDateRanged(count, dateRange);
@@ -72,13 +72,6 @@ export class PersonalEvalService {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return await this.countByDateRange(userId, dateRange);
-  }
-
-  async totalCount(userId: number): Promise<number> {
-    return await this.scaleTeamService.evalCount({
-      'corrector.id': userId,
-      filledAt: { $ne: null },
-    });
   }
 
   // todo
