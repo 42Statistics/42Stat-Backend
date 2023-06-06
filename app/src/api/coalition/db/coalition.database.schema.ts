@@ -15,10 +15,10 @@ export class coalition {
   slug: string;
 
   @Prop({ required: true })
-  image_url?: string;
+  imageUrl?: string;
 
   @Prop({ required: true })
-  cover_url?: string;
+  coverUrl?: string;
 
   @Prop({ required: true })
   color?: string;
