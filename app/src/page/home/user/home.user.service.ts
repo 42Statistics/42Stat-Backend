@@ -7,10 +7,10 @@ import { UserRanking } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import type {
-  UserCountPerLevels,
   IntPerCircle,
+  UserCountPerLevels,
 } from './models/home.user.model';
 
 @Injectable()
@@ -22,13 +22,12 @@ export class HomeUserService {
   ) {}
 
   async activeUserCountRecords(): Promise<IntRecord[]> {
-    const now = Time.now();
-    const nextMonth = Time.moveMonth(Time.startOfMonth(now), 1);
-    const lastYear = Time.moveYear(nextMonth, -1);
+    const now = new StatDate();
+    const lastYear = now.startOfMonth().moveMonth(1).moveYear(-1);
 
     const dateRange: DateRange = {
       start: lastYear,
-      end: Time.now(),
+      end: now,
     };
 
     const newPromoCounts = await this.cursusUserService.countPerMonth(
@@ -41,12 +40,12 @@ export class HomeUserService {
       dateRange,
     );
 
-    const dates = Time.partitionByMonth(dateRange);
+    const dates = StatDate.partitionByMonth(dateRange);
 
     return dates.reduce(
       ([valueRecords, activeUserCount], date, index) => {
-        const newPromo = Time.getValueByDate(date, newPromoCounts);
-        const blackholed = Time.getValueByDate(date, blackholedCounts);
+        const newPromo = StatDate.getValueByDate(date, newPromoCounts);
+        const blackholed = StatDate.getValueByDate(date, blackholedCounts);
 
         const currActiveUserCount = activeUserCount + newPromo - blackholed;
 
@@ -80,7 +79,7 @@ export class HomeUserService {
     start,
     end,
   }: DateRange): Promise<IntDateRanged> {
-    const now = Time.now();
+    const now = new StatDate();
 
     const dateRange: DateRange = {
       start,
@@ -93,7 +92,7 @@ export class HomeUserService {
     );
 
     return this.dateRangeService.toDateRanged(
-      Time.getValueByDate(dateRange.start, blackholedCount),
+      StatDate.getValueByDate(dateRange.start, blackholedCount),
       dateRange,
     );
   }

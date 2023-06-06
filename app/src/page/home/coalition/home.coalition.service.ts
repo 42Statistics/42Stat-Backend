@@ -3,10 +3,10 @@ import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import type {
-  ScoreRecordPerCoalition,
   IntPerCoalition,
+  ScoreRecordPerCoalition,
 } from './models/home.coalition.model';
 
 @Injectable()
@@ -21,8 +21,8 @@ export class HomeCoalitionService {
   }
 
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
-    const currMonth = Time.startOfMonth(Time.now());
-    const lastYear = Time.moveYear(currMonth, -1);
+    const currMonth = new StatDate().startOfMonth();
+    const lastYear = currMonth.moveYear(-1);
 
     const dateRange: DateRange = {
       start: lastYear,

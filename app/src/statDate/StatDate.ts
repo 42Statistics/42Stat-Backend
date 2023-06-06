@@ -16,74 +16,82 @@ const WEEK = DAY * 7;
  * 모든 함수는 local time 기준 입니다.
  * 모든 함수는 원본을 변경하지 않습니다.
  */
-export const Time = {
-  SEC,
-  MIN,
-  HOUR,
-  DAY,
-  WEEK,
+export class StatDate extends Date {
+  static readonly SEC = SEC;
+  static readonly MIN = MIN;
+  static readonly HOUR = HOUR;
+  static readonly DAY = DAY;
+  static readonly WEEK = WEEK;
 
-  now: (): Date => new Date(),
+  constructor();
+  constructor(ms: number);
+  constructor(date: Date);
+  constructor(dateString: string);
+  constructor(arg?: number | Date | string) {
+    super(arg ?? new Date());
+  }
 
-  moveMs: (date: Date, ms: number): Date => new Date(date.getTime() + ms),
+  moveMs = (ms: number): StatDate => {
+    return new StatDate(super.getTime() + ms);
+  };
 
-  moveDate: (date: Date, count: number): Date => {
-    return new Date(date.getTime() + count * DAY);
-  },
+  moveDate = (count: number): StatDate => {
+    return new StatDate(super.getTime() + count * DAY);
+  };
 
-  moveWeek: (date: Date, count: number): Date => {
-    return new Date(date.getTime() + count * WEEK);
-  },
+  moveWeek = (count: number): StatDate => {
+    return new StatDate(super.getTime() + count * WEEK);
+  };
 
-  moveMonth: (date: Date, count: number): Date => {
-    const copy = new Date(date);
+  moveMonth = (count: number): StatDate => {
+    const copy = new StatDate(this);
     copy.setMonth(copy.getMonth() + count);
 
     return copy;
-  },
+  };
 
-  moveYear: (date: Date, count: number): Date => {
-    const copy = new Date(date);
+  moveYear = (count: number): StatDate => {
+    const copy = new StatDate(this);
     copy.setFullYear(copy.getFullYear() + count);
 
     return copy;
-  },
+  };
 
   /**
    *
    * @param date
    * @returns date가 속한 날의 00시 00분 00초 를 반환합니다.
    */
-  startOfDay: (date: Date): Date => {
-    const copy = new Date(date);
+  startOfDate = (): StatDate => {
+    const copy = new StatDate(this);
     copy.setHours(0, 0, 0, 0);
 
     return copy;
-  },
+  };
 
   /**
    *
    * @param date
    * @returns date가 속한 주의 일요일을 반환합니다.
    */
-  startOfWeek: (date: Date): Date => {
-    return Time.startOfDay(new Date(date.getTime() - date.getDay() * DAY));
-  },
+  startOfWeek = (): StatDate => {
+    return this.moveMs(this.getDay() * DAY * -1).startOfDate();
+  };
 
-  startOfMonth: (date: Date): Date => {
-    const copy = new Date(date);
+  startOfMonth = (): StatDate => {
+    const copy = new StatDate(this);
     copy.setDate(1);
 
-    return Time.startOfDay(copy);
-  },
+    return copy.startOfDate();
+  };
 
-  startOfYear: (date: Date): Date => {
-    const copy = new Date(date);
+  startOfYear = (): StatDate => {
+    const copy = new StatDate(this);
     copy.setMonth(0, 1);
     copy.setHours(0, 0, 0, 0);
 
     return copy;
-  },
+  };
 
   /**
    *
@@ -91,21 +99,21 @@ export const Time = {
    * start: 02-10, end: 04-20
    * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
    */
-  partitionByMonth: ({ start, end }: DateRangeArgs): Date[] => {
-    const partitioned = [new Date(0), start];
+  static partitionByMonth = ({ start, end }: DateRangeArgs): StatDate[] => {
+    const partitioned = [new StatDate(0), new StatDate(start)];
 
     for (
-      let currDate = Time.moveMonth(Time.startOfMonth(start), 1);
+      let currDate = new StatDate(start).startOfMonth().moveMonth(1);
       currDate < end;
-      currDate = Time.moveMonth(currDate, 1)
+      currDate = currDate.moveMonth(1)
     ) {
       partitioned.push(currDate);
     }
 
-    partitioned.push(end);
+    partitioned.push(new StatDate(end));
 
     return partitioned;
-  },
+  };
 
   /**
    *
@@ -120,8 +128,10 @@ export const Time = {
    *   { $dateToString: { date: 04-20, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
    * ]
    */
-  dateToBoundariesObject: (dateRange: DateRangeArgs): AggrDatePartition[] => {
-    const dates = Time.partitionByMonth(dateRange);
+  static dateToBoundariesObject = (
+    dateRange: DateRangeArgs,
+  ): AggrDatePartition[] => {
+    const dates = StatDate.partitionByMonth(dateRange);
 
     return dates.map((date) => ({
       $dateToString: {
@@ -129,7 +139,7 @@ export const Time = {
         format: '%Y-%m-%dT%H:%M:%S.%LZ',
       },
     }));
-  },
+  };
 
   /**
    *
@@ -139,10 +149,13 @@ export const Time = {
    *
    * find에 실패시 0을 반환
    */
-  getValueByDate: (date: Date, elements: AggrNumericPerDate[]): number => {
+  static getValueByDate = (
+    date: Date,
+    elements: AggrNumericPerDate[],
+  ): number => {
     return (
       elements.find((element) => element.date === date.toISOString())?.value ??
       0
     );
-  },
-} as const;
+  };
+}

@@ -10,7 +10,7 @@ import type {
 } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import type {
   LevelRecord,
   PersonalGeneral,
@@ -19,7 +19,6 @@ import type {
   TeamInfo,
 } from './models/personal.general.model';
 import type { UserScoreRank } from './models/personal.general.userProfile.model';
-import type { PersonalGeneralContext } from './personal.general.resolver';
 
 @Injectable()
 export class PersonalGeneralService {
@@ -251,9 +250,8 @@ export class PersonalGeneralService {
   }
 
   async scoreInfo(userId: number): Promise<UserScoreRank> {
-    const now = Time.now();
-    const startOfMonth = Time.startOfMonth(now);
-    const startOfNextMonth = Time.moveMonth(startOfMonth, 1);
+    const startOfMonth = new StatDate().startOfMonth();
+    const startOfNextMonth = startOfMonth.moveMonth(1);
 
     return await this.coalitionsUserService.userScoreRank(
       userId,
