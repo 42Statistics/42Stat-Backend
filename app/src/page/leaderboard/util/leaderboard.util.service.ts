@@ -1,16 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import type { UserRanking } from 'src/common/models/common.user.model';
-import type { LeaderboardElement } from '../models/leaderboard.model';
+import type {
+  LeaderboardElement,
+  LeaderboardRanking,
+} from '../models/leaderboard.model';
 
 @Injectable()
 export class LeaderboardUtilService {
-  userRankingToLeaderboardElement(
+  leaderboardRankingToLeaderboardElement(
     userId: number,
-    userRanking: UserRanking[],
+    leaderboardRanking: LeaderboardRanking[],
   ): LeaderboardElement {
     return {
-      me: userRanking.find(({ userPreview }) => userPreview.id === userId),
-      totalRanks: userRanking,
+      me: leaderboardRanking.find(
+        ({ userPreview }) => userPreview.id === userId,
+      ),
+      totalRanks: leaderboardRanking,
     };
   }
 }

@@ -10,6 +10,7 @@ import type {
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
+  LeaderboardRanking,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
@@ -25,11 +26,13 @@ export class LeaderboardEvalService {
     userId: number,
     filter?: FilterQuery<scale_team>,
   ): Promise<LeaderboardElement> {
-    const userRanking = await this.scaleTeamService.evalCountRank(filter);
+    const leaderboardRanking = (await this.scaleTeamService.evalCountRank(
+      filter,
+    )) as unknown as LeaderboardRanking[];
 
-    return this.leaderboardUtilService.userRankingToLeaderboardElement(
+    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
-      userRanking,
+      leaderboardRanking,
     );
   }
 
