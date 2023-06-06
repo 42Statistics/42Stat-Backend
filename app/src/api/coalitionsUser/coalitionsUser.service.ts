@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Aggregate, Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { UserScoreRank } from 'src/page/personal/general/models/personal.general.userProfile.model';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import { ScoreInfo } from './db/coalitionsUser.database.aggregate';
 import { coalitions_user } from './db/coalitionsUser.database.schema';
 
@@ -15,8 +15,8 @@ export class CoalitionsUserService {
   ) {}
 
   scoreInfo(
-    start: Date = Time.startOfMonth(Time.now()), //todo: 기본 기간 설정
-    end: Date = Time.startOfMonth(Time.moveMonth(Time.now(), 1)),
+    start: Date = new StatDate().startOfMonth(), //todo: 기본 기간 설정
+    end: Date = new StatDate().moveMonth(1).startOfMonth(),
     limit?: number,
   ): Aggregate<any> {
     //todo: aggregate type
@@ -34,7 +34,7 @@ export class CoalitionsUserService {
           { 'cursus_users.blackholedAt': null },
           {
             'cursus_users.blackholedAt': {
-              $gte: Time.now(),
+              $gte: new StatDate(),
             },
           },
         ],

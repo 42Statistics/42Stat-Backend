@@ -7,7 +7,7 @@ import type {
 } from 'src/common/db/common.db.aggregation';
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type { PreferredTime } from 'src/page/personal/general/models/personal.general.model';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import { location } from './db/location.database.schema';
 
 @Injectable()
@@ -113,7 +113,7 @@ export class LocationService {
               $ne: ['$beginAtFormatted', '$endAtFormatted'],
             },
             then: {
-              $add: ['$beginAt', Time.DAY],
+              $add: ['$beginAt', StatDate.DAY],
             },
             else: '$beginAt',
           },
@@ -137,14 +137,17 @@ export class LocationService {
         '18to24': { $sum: '$09to15' },
       })
       .project({
-        morning: { $floor: { $divide: ['$00to06', Time.HOUR] } },
+        morning: { $floor: { $divide: ['$00to06', StatDate.HOUR] } },
         daytime: {
           $floor: {
-            $divide: [{ $sum: { $add: ['$06to09', '$09to12'] } }, Time.HOUR],
+            $divide: [
+              { $sum: { $add: ['$06to09', '$09to12'] } },
+              StatDate.HOUR,
+            ],
           },
         },
-        evening: { $floor: { $divide: ['$12to18', Time.HOUR] } },
-        night: { $floor: { $divide: ['$18to24', Time.HOUR] } },
+        evening: { $floor: { $divide: ['$12to18', StatDate.HOUR] } },
+        night: { $floor: { $divide: ['$18to24', StatDate.HOUR] } },
       })
       .addFields({
         total: { $sum: ['$morning', '$daytime', '$evening', '$night'] },
@@ -241,7 +244,7 @@ export class LocationService {
         },
       })
       .addFields({
-        value: { $floor: { $divide: [{ $sum: '$duration' }, Time.HOUR] } },
+        value: { $floor: { $divide: [{ $sum: '$duration' }, StatDate.HOUR] } },
       })
       .project({
         _id: 0,

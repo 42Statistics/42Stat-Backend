@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import { DateRangeArgs, DateTemplate } from './dtos/dateRange.dto';
 import type { IDateRangedType } from './models/dateRange.model';
 
@@ -14,32 +14,33 @@ export class DateRangeService {
   }
 
   dateRangeFromTemplate(dateTemplate: DateTemplate): DateRangeArgs {
-    const now = Time.now();
+    const now = new StatDate();
 
     switch (dateTemplate) {
       case DateTemplate.CURR_WEEK:
         return {
-          start: Time.startOfWeek(now),
-          end: Time.moveWeek(Time.startOfWeek(now), 1),
+          start: now.startOfWeek(),
+          end: now.startOfWeek().moveWeek(1),
         };
       case DateTemplate.LAST_WEEK:
         return {
-          start: Time.moveWeek(Time.startOfWeek(now), -1),
-          end: Time.startOfWeek(now),
+          start: now.startOfWeek().moveWeek(-1),
+          end: now.startOfWeek(),
         };
       case DateTemplate.CURR_MONTH:
         return {
-          start: Time.startOfMonth(now),
-          end: Time.moveMonth(Time.startOfMonth(now), 1),
+          start: now.startOfMonth(),
+          end: now.startOfMonth().moveMonth(1),
         };
       case DateTemplate.LAST_MONTH:
         return {
-          start: Time.moveMonth(Time.startOfMonth(now), -1),
-          end: Time.startOfMonth(now),
+          start: now.startOfMonth().moveMonth(-1),
+          end: now.startOfMonth(),
         };
       case DateTemplate.LAST_YEAR:
-        const nextMonth = Time.startOfMonth(Time.moveMonth(now, 1));
-        const lastYear = Time.moveYear(nextMonth, -1);
+        const nextMonth = now.moveMonth(1).startOfMonth();
+        const lastYear = nextMonth.moveYear(-1);
+
         return {
           start: lastYear,
           end: nextMonth,

@@ -9,7 +9,7 @@ import type {
   UserCountPerLevels,
 } from 'src/page/home/user/models/home.user.model';
 import { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
-import { Time } from 'src/util';
+import { StatDate } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { rankEvalCount } from '../scaleTeam/db/scaleTeam.database.aggregate';
@@ -142,7 +142,7 @@ export class CursusUserService {
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
-    const dateObject = Time.dateToBoundariesObject(dateRange);
+    const dateObject = StatDate.dateToBoundariesObject(dateRange);
 
     const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
 
@@ -262,7 +262,7 @@ export class CursusUserService {
       .match({
         blackholedAt: {
           $ne: null,
-          $lt: Time.now(),
+          $lt: new StatDate(),
         },
       })
       .lookup({
