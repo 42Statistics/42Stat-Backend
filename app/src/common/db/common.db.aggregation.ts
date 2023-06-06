@@ -1,3 +1,4 @@
+import { PipelineStage } from 'mongoose';
 import type { ValueRecord } from 'src/page/home/models/home.model';
 
 export type AggrNumeric = { value: number };
@@ -11,4 +12,26 @@ export type AggrDatePartition = {
     date: Date;
     format: string;
   };
+};
+
+export const lookupStage = (
+  collection: string,
+  localField: string,
+  foreignField: string,
+  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+): PipelineStage.Lookup => {
+  const lookupStage: PipelineStage.Lookup = {
+    $lookup: {
+      from: collection,
+      localField,
+      foreignField,
+      as: collection,
+    },
+  };
+
+  if (pipeline) {
+    lookupStage.$lookup.pipeline = pipeline;
+  }
+
+  return lookupStage;
 };
