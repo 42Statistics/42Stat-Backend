@@ -2,13 +2,13 @@ import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { IntRate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
-import { ValueRecord } from '../models/home.model';
 import { HomeUserService } from './home.user.service';
 import {
   HomeUser,
   UserCountPerLevels,
-  ValuePerCircle,
+  IntPerCircle,
 } from './models/home.user.model';
 
 @Resolver((_of: unknown) => HomeUser)
@@ -20,8 +20,8 @@ export class HomeUserResolver {
     return {};
   }
 
-  @ResolveField('activeUserCountRecords', (_returns) => [ValueRecord])
-  async activeUserCountRecords(): Promise<ValueRecord[]> {
+  @ResolveField('activeUserCountRecords', (_returns) => [IntRecord])
+  async activeUserCountRecords(): Promise<IntRecord[]> {
     return await this.homeUserService.activeUserCountRecords();
   }
 
@@ -49,8 +49,8 @@ export class HomeUserResolver {
     );
   }
 
-  @ResolveField('blackholedCountPerCircles', (_returns) => [ValuePerCircle])
-  async blackholedCountPerCircles(): Promise<ValuePerCircle[]> {
+  @ResolveField('blackholedCountPerCircles', (_returns) => [IntPerCircle])
+  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
     return await this.homeUserService.blackholedCountPerCircles();
   }
 
@@ -68,8 +68,8 @@ export class HomeUserResolver {
     return await this.homeUserService.correctionPointRanks(limit);
   }
 
-  @ResolveField('averageCircleDurations', (_returns) => [ValuePerCircle])
-  async averageCircleDurations(): Promise<ValuePerCircle[]> {
+  @ResolveField('averageCircleDurations', (_returns) => [IntPerCircle])
+  async averageCircleDurations(): Promise<IntPerCircle[]> {
     return await this.homeUserService.averageCircleDurations();
   }
 }

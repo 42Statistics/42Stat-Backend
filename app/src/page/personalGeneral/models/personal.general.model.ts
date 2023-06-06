@@ -82,9 +82,9 @@ export class TeamInfo {
 }
 
 @ObjectType()
-export class LevelGraph {
+export class LevelRecord {
   @Field()
-  date: Date;
+  after: number;
 
   @Field((_type) => Float)
   userLevel: number;
@@ -92,9 +92,6 @@ export class LevelGraph {
   @Field((_type) => Float)
   averageLevel: number;
 }
-
-@ObjectType()
-export class LevelGraphDateRanged extends ArrayDateRanged(LevelGraph) {}
 
 @ObjectType()
 export class PersonalGeneral {
@@ -126,5 +123,5 @@ export class PersonalGeneral {
   teamInfo: TeamInfo;
 
   @Field()
-  levelGraphs: LevelGraphDateRanged;
+  levelRecords: LevelRecord[];
 }

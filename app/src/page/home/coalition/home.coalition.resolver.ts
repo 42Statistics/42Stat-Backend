@@ -3,7 +3,7 @@ import { HomeCoalitionService } from './home.coalition.service';
 import {
   HomeCoalition,
   ScoreRecordPerCoalition,
-  ValuePerCoalition,
+  IntPerCoalition,
 } from './models/home.coalition.model';
 
 @Resolver((_of: unknown) => HomeCoalition)
@@ -15,8 +15,8 @@ export class HomeCoalitionResolver {
     return {};
   }
 
-  @ResolveField('totalScoresPerCoalition', (_returns) => [ValuePerCoalition])
-  async totalScores(): Promise<ValuePerCoalition[]> {
+  @ResolveField('totalScoresPerCoalition', (_returns) => [IntPerCoalition])
+  async totalScores(): Promise<IntPerCoalition[]> {
     return await this.homeCoalitionService.totalScoresPerCoalition();
   }
 
@@ -27,8 +27,8 @@ export class HomeCoalitionResolver {
     return await this.homeCoalitionService.scoreRecordsPerCoalition();
   }
 
-  @ResolveField('tigCountPerCoalitions', (_returns) => [ValuePerCoalition])
-  async tigCountPerCoalitions(): Promise<ValuePerCoalition[]> {
+  @ResolveField('tigCountPerCoalitions', (_returns) => [IntPerCoalition])
+  async tigCountPerCoalitions(): Promise<IntPerCoalition[]> {
     return await this.homeCoalitionService.tigCountPerCoalitions();
   }
 }

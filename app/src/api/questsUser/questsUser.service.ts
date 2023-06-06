@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import type { ValuePerCircle } from 'src/page/home/user/models/home.user.model';
+import type { IntPerCircle } from 'src/page/home/user/models/home.user.model';
 import { quests_user } from './db/questsUser.database.schema';
 
 @Injectable()
@@ -11,8 +11,8 @@ export class QuestsUserService {
     private questUserModel: Model<quests_user>,
   ) {}
 
-  async firstCircleDuration(userId?: number): Promise<ValuePerCircle> {
-    const aggregate = this.questUserModel.aggregate<ValuePerCircle>();
+  async firstCircleDuration(userId?: number): Promise<IntPerCircle> {
+    const aggregate = this.questUserModel.aggregate<IntPerCircle>();
 
     if (userId) {
       aggregate.match({ 'user.id': userId });
@@ -70,15 +70,15 @@ export class QuestsUserService {
     return { circle: 0, value: firstCircle.length ? firstCircle[0].value : 0 };
   }
 
-  async averageCircleDurations(userId?: number): Promise<ValuePerCircle[]> {
+  async averageCircleDurations(userId?: number): Promise<IntPerCircle[]> {
     const questId = [44, 45, 46, 47, 48, 49, 37] as const;
 
-    const result: ValuePerCircle[] = [];
+    const result: IntPerCircle[] = [];
 
     result.push(await this.firstCircleDuration(userId));
 
     for (let i = 0; i < questId.length - 1; i++) {
-      const aggregate = this.questUserModel.aggregate<ValuePerCircle>();
+      const aggregate = this.questUserModel.aggregate<IntPerCircle>();
 
       if (userId) {
         aggregate.match({ 'user.id': userId });

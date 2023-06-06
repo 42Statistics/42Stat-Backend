@@ -13,16 +13,13 @@ import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { Time } from 'src/util';
 import type {
-  LevelGraphDateRanged,
+  LevelRecord,
   PersonalGeneral,
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
 } from './models/personal.general.model';
-import type {
-  UserProfile,
-  UserScoreRank,
-} from './models/personal.general.userProfile.model';
+import type { UserScoreRank } from './models/personal.general.userProfile.model';
 import type { PersonalGeneralContext } from './personal.general.resolver';
 
 @Injectable()
@@ -205,74 +202,84 @@ export class PersonalGeneralService {
     };
   }
 
-  async levelHistroy(userId: number): Promise<LevelGraphDateRanged> {
-    const levelGraph = [
+  async levelRecords(userId: number): Promise<LevelRecord[]> {
+    return [
       {
-        date: new Date('2022-01-01'),
+        after: 0,
         userLevel: 2,
-        averageLevel: 3,
+        averageLevel: 0,
       },
       {
-        date: new Date('2022-02-01'),
+        after: 50,
         userLevel: 3,
-        averageLevel: 3,
+        averageLevel: 1,
       },
       {
-        date: new Date('2022-03-01'),
+        after: 100,
+        userLevel: 3.34,
+        averageLevel: 1.5,
+      },
+      {
+        after: 150,
         userLevel: 3.34,
         averageLevel: 3,
       },
       {
-        date: new Date('2022-04-01'),
-        userLevel: 3.34,
-        averageLevel: 3,
-      },
-      {
-        date: new Date('2022-05-01'),
+        after: 200,
         userLevel: 4.1,
-        averageLevel: 3,
+        averageLevel: 3.5,
       },
       {
-        date: new Date('2022-06-01'),
+        after: 250,
         userLevel: 5,
-        averageLevel: 3,
+        averageLevel: 4,
       },
       {
-        date: new Date('2022-07-01'),
+        after: 300,
         userLevel: 6.3,
-        averageLevel: 3,
+        averageLevel: 4.2,
       },
       {
-        date: new Date('2022-08-01'),
+        after: 350,
         userLevel: 7,
-        averageLevel: 3,
+        averageLevel: 5,
       },
       {
-        date: new Date('2022-09-01'),
+        after: 400,
         userLevel: 7,
-        averageLevel: 3,
+        averageLevel: 6,
       },
       {
-        date: new Date('2022-10-01'),
+        after: 450,
         userLevel: 8,
-        averageLevel: 3,
+        averageLevel: 7,
       },
       {
-        date: new Date('2022-11-01'),
+        after: 500,
         userLevel: 8.8,
-        averageLevel: 3,
+        averageLevel: 8,
       },
       {
-        date: new Date('2022-12-01'),
+        after: 550,
         userLevel: 11.38,
-        averageLevel: 3,
+        averageLevel: 8.8,
+      },
+      {
+        after: 600,
+        userLevel: 11.38,
+        averageLevel: 10,
+      },
+      {
+        after: 650,
+        userLevel: 11.38,
+        averageLevel: 10.23,
+      },
+      {
+        after: 700,
+        userLevel: 11.38,
+        averageLevel: 11,
       },
     ];
-
-    return this.dateRangeService.toDateRanged(levelGraph, {
-      start: new Date('2022'),
-      end: new Date('2023'),
-    });
   }
 
   async scoreInfo(userId: number): Promise<UserScoreRank> {

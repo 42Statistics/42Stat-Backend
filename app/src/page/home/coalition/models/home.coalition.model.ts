@@ -1,9 +1,9 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Coalition } from 'src/api/coalition/models/coalition.model';
-import { ValueRecord } from '../../models/home.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 
 @ObjectType()
-export class ValuePerCoalition {
+export class IntPerCoalition {
   @Field()
   coalition: Coalition;
 
@@ -16,18 +16,18 @@ export class ScoreRecordPerCoalition {
   @Field()
   coalition: Coalition;
 
-  @Field((_type) => [ValueRecord], { nullable: 'items' })
-  records: ValueRecord[];
+  @Field((_type) => [IntRecord], { nullable: 'items' })
+  records: IntRecord[];
 }
 
 @ObjectType()
 export class HomeCoalition {
-  @Field((_type) => [ValuePerCoalition])
-  totalScoresPerCoalition: ValuePerCoalition[];
+  @Field((_type) => [IntPerCoalition])
+  totalScoresPerCoalition: IntPerCoalition[];
 
   @Field((_type) => [ScoreRecordPerCoalition])
   scoreRecordsPerCoalition: ScoreRecordPerCoalition[];
 
-  @Field((_type) => [ValuePerCoalition])
-  tigCountPerCoalitions: ValuePerCoalition[];
+  @Field((_type) => [IntPerCoalition])
+  tigCountPerCoalitions: IntPerCoalition[];
 }
