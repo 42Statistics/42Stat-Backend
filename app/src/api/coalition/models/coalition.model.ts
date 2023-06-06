@@ -23,6 +23,6 @@ export class Coalition {
   @Field()
   score: number;
 
-  @Field()
+  @Field({ description: '코알리숑 마스터의 user id 입니다.' })
   userId: number;
 }

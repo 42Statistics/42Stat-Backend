@@ -27,7 +27,7 @@ export class coalition {
   score: number;
 
   @Prop({ required: true })
-  user_id: number;
+  userId: number;
 }
 
 export const CoalitionSchema = SchemaFactory.createForClass(coalition);

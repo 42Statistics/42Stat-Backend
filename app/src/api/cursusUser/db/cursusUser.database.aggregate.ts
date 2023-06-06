@@ -1,16 +1,26 @@
 import type { PipelineStage } from 'mongoose';
-// eslint-disable-next-line
+import type { coalition } from 'src/api/coalition/db/coalition.database.schema';
+import type { title } from 'src/api/title/db/title.database.schema';
+import type { titles_user } from 'src/api/titlesUser/db/titlesUser.database.schema';
+import { lookupStage } from 'src/common/db/common.db.aggregation';
 import type { cursus_user } from './cursusUser.database.schema';
+
+export type UserFullProfile = {
+  cursusUser: cursus_user;
+  coalition: coalition;
+  titlesUsers: (titles_user & {
+    titles: title;
+  })[];
+};
 
 /**
  *
  * @description
  * cursus_users 를 lookup 합니다.
- * ```foreignField``` 를 제공하지 않으면 ```user.id``` 를 통해 lookup 합니다.
  *
  * @returns
  * ```ts
- * type DocType = {
+ * type AddType = {
  *    cursus_users: cursus_user[]
  * }
  * ```
@@ -19,15 +29,10 @@ import type { cursus_user } from './cursusUser.database.schema';
  */
 export const lookupCursusUser = (
   localField: string,
-  foreignField = 'user.id',
-): PipelineStage => ({
-  $lookup: {
-    from: 'cursus_users',
-    localField,
-    foreignField,
-    as: 'cursus_users',
-  },
-});
+  foreignField: string,
+  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+): ReturnType<typeof lookupStage> =>
+  lookupStage('cursus_users', localField, foreignField, pipeline);
 
 /**
  *
