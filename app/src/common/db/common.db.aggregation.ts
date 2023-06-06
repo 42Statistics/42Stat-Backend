@@ -1,8 +1,8 @@
 import { PipelineStage } from 'mongoose';
-import type { ValueRecord } from 'src/page/home/models/home.model';
+import type { IntRecord } from '../models/common.valueRecord.model';
 
 export type AggrNumeric = { value: number };
-export type AggrRecord = { records: ValueRecord[] };
+export type AggrRecord = { records: IntRecord[] };
 
 export type AggrNumericPerDate = { date: string } & AggrNumeric;
 export type AggrNumericPerCluster = { cluster: string } & AggrNumeric;
