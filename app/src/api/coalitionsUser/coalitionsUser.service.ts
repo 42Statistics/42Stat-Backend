@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Aggregate, Model } from 'mongoose';
 import { UserRanking } from 'src/common/models/common.user.model';
-import { UserScoreRank } from 'src/page/personalGeneral/models/personal.general.userProfile.model';
+import { UserScoreRank } from 'src/page/personal/general/models/personal.general.userProfile.model';
 import { Time } from 'src/util';
 import { ScoreInfo } from './db/coalitionsUser.database.aggregate';
 import { coalitions_user } from './db/coalitionsUser.database.schema';
