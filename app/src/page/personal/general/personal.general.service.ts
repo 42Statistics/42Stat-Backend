@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import * as fs from 'fs/promises';
 import type { FilterQuery } from 'mongoose';
 import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
@@ -31,41 +30,10 @@ export class PersonalGeneralService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async readTempLocation() {
-    const ret = JSON.parse(
-      await fs.readFile('/app/temp-data-store/jaham-location.json', {
-        encoding: 'utf-8',
-      }),
-    );
-    return ret;
-  }
-
   async findUserIdByLogin(login: string): Promise<number> {
     const cursusUser = await this.cursusUserService.findOneByLogin(login);
 
     return cursusUser.user.id;
-  }
-
-  async selectUserId({
-    context,
-    login,
-    userId,
-  }: {
-    context: PersonalGeneralContext;
-    login?: string;
-    userId?: number;
-  }): Promise<number> {
-    if (login) {
-      const cursusUser = await this.cursusUserService.findOneByLogin(login);
-
-      return cursusUser.user.id;
-    }
-
-    if (userId) {
-      return userId;
-    }
-
-    return context.userId;
   }
 
   async personalGeneralProfile(

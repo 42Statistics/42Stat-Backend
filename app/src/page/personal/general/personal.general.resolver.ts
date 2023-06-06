@@ -12,6 +12,7 @@ import {
 } from './models/personal.general.model';
 import { UserScoreRank } from './models/personal.general.userProfile.model';
 import { PersonalGeneralService } from './personal.general.service';
+import { PersonalUtilService } from '../util/personal.util.service';
 
 export type PersonalGeneralContext = {
   userId: number;
@@ -19,7 +20,10 @@ export type PersonalGeneralContext = {
 
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
-  constructor(private personalGeneralService: PersonalGeneralService) {}
+  constructor(
+    private personalGeneralService: PersonalGeneralService,
+    private personalUtilService: PersonalUtilService,
+  ) {}
 
   @Query((_returns) => PersonalGeneral)
   async getPersonalGeneralPage(
@@ -29,11 +33,11 @@ export class PersonalGeneralResolver {
   ): Promise<
     Pick<PersonalGeneral, 'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'>
   > {
-    const targetUserId = await this.personalGeneralService.selectUserId({
+    const targetUserId = await this.personalUtilService.selectUserId(
       context,
       login,
       userId,
-    });
+    );
 
     // todo: auth guard
     context.userId = targetUserId;
@@ -53,10 +57,10 @@ export class PersonalGeneralResolver {
   @ResolveField('logtimeByDateTemplate', (_returns) => IntDateRanged)
   async logtimeByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
-    @Context() { userId }: PersonalGeneralContext,
+    @Context() context: PersonalGeneralContext,
   ): Promise<IntDateRanged> {
     return await this.personalGeneralService.logtimeByDateTemplate(
-      userId,
+      context.userId,
       dateTemplate,
     );
   }

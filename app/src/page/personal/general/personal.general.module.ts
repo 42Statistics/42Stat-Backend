@@ -8,9 +8,12 @@ import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { PersonalGeneralResolver } from './personal.general.resolver';
 import { PersonalGeneralService } from './personal.general.service';
+import { PersonalUtilModule } from '../util/personal.util.module';
+import { PersonalUtilService } from '../util/personal.util.service';
 
 @Module({
   imports: [
+    PersonalUtilModule,
     CoalitionsUserModule,
     CursusUserModule,
     LocationModule,
@@ -19,6 +22,7 @@ import { PersonalGeneralService } from './personal.general.service';
   providers: [
     PersonalGeneralResolver,
     PersonalGeneralService,
+    PersonalUtilService,
     CursusUserService,
     CoalitionsUserService,
     DateRangeService,
