@@ -262,7 +262,6 @@ type PersonalEval {
   averageFeedbackLength: Int!
   averageCommentLength: Int!
   latestFeedback: String!
-  evalLogSearchLink: String!
   evalLogSearchUrl: String!
 }
 

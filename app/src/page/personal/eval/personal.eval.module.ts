@@ -9,12 +9,21 @@ import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { PersonalEvalResolver } from './personal.eval.resolver';
 import { PersonalEvalService } from './personal.eval.service';
+import { PersonalUtilModule } from '../util/personal.util.module';
+import { PersonalUtilService } from '../util/personal.util.service';
 
 @Module({
-  imports: [ScaleTeamModule, ScoreModule, CursusUserModule, DateRangeModule],
+  imports: [
+    PersonalUtilModule,
+    ScaleTeamModule,
+    ScoreModule,
+    CursusUserModule,
+    DateRangeModule,
+  ],
   providers: [
     PersonalEvalResolver,
     PersonalEvalService,
+    PersonalUtilService,
     ScaleTeamService,
     ScoreService,
     CursusUserService,
