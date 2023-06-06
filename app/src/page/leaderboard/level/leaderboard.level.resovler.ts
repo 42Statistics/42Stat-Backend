@@ -14,6 +14,6 @@ export class LeaderboardLevelResolver {
 
   @ResolveField('total', (_returns) => LeaderboardElement)
   async total(): Promise<LeaderboardElement> {
-    return await this.leaderboardLevelService.levelRank(99947, 50);
+    return await this.leaderboardLevelService.rank(99947, 50);
   }
 }
