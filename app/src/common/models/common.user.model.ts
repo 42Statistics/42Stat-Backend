@@ -1,6 +1,6 @@
 import { Field, Float, ObjectType, PickType } from '@nestjs/graphql';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
-import { UserProfile } from 'src/page/personalGeneral/models/personal.general.userProfile.model';
+import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
 
 @ObjectType()
 export class UserPreview extends PickType(UserProfile, [

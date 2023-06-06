@@ -122,6 +122,6 @@ export class PersonalGeneral {
   @Field()
   teamInfo: TeamInfo;
 
-  @Field()
+  @Field((_type) => [LevelRecord])
   levelRecords: LevelRecord[];
 }
