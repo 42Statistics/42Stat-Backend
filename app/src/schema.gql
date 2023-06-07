@@ -228,7 +228,7 @@ type HomeUser {
 
 type LeaderboardRanking {
   userPreview: UserPreview!
-  value: Float
+  value: Int!
   rank: Int!
 }
 
@@ -247,21 +247,21 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  total: LeaderboardElement!
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  total: LeaderboardElement!
+  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
 }
 
 type LeaderboardScore {
-  total: LeaderboardElement!
-  byDateTemplate(dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type PersonalEval {

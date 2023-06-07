@@ -5,6 +5,7 @@ import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
+import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -73,36 +74,41 @@ export class LeaderboardExpService {
 
   async rank(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     filter: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
-    const userRanking = tempResult;
+    const leaderboardRanking = tempResult;
 
     return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
-      userRanking,
+      leaderboardRanking,
+      paginationArgs,
+      leaderboardRanking.length,
     );
   }
 
   async rankByDateRange(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
       filledAt: { $ne: null },
     };
-
-    const evalCountRank = await this.rank(userId, dateFilter);
+    //todo: name
+    const evalCountRank = await this.rank(userId, paginationArgs, dateFilter);
 
     return this.dateRangeService.toDateRanged(evalCountRank, dateRange);
   }
 
   async rankByDateTemplate(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return await this.rankByDateRange(userId, dateRange);
+    return await this.rankByDateRange(userId, paginationArgs, dateRange);
   }
 }
