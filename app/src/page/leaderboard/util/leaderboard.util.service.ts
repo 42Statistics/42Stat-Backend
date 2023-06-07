@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import type {
   LeaderboardElement,
+  LeaderboardFloatElement,
+  LeaderboardFloatRanking,
   LeaderboardRanking,
 } from '../models/leaderboard.model';
 
@@ -16,6 +18,24 @@ export class LeaderboardUtilService {
     paginationArgs: PaginationIndexArgs,
     totalCount: number,
   ): LeaderboardElement {
+    return {
+      me: leaderboardRanking.find(
+        ({ userPreview }) => userPreview.id === userId,
+      ),
+      totalRanks: this.paginationIndexService.toPaginated(
+        leaderboardRanking,
+        totalCount,
+        paginationArgs,
+      ),
+    };
+  }
+
+  leaderboardFloatRankingToLeaderboardFloatElement(
+    userId: number,
+    leaderboardRanking: LeaderboardFloatRanking[],
+    paginationArgs: PaginationIndexArgs,
+    totalCount: number,
+  ): LeaderboardFloatElement {
     return {
       me: leaderboardRanking.find(
         ({ userPreview }) => userPreview.id === userId,

@@ -6,11 +6,9 @@ import {
 
 @ObjectType()
 export class LeaderboardEval {
-  // @Field((_type) => LeaderboardElement)
-  @Field()
+  @Field((_type) => LeaderboardElement)
   total: LeaderboardElement;
 
-  // @Field((_type) => LeaderboardElementDateRanged)
-  @Field()
+  @Field((_type) => LeaderboardElementDateRanged)
   byDateTemplate: LeaderboardElementDateRanged;
 }

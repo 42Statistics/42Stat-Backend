@@ -232,12 +232,40 @@ type LeaderboardRanking {
   rank: Int!
 }
 
+type LeaderboardFloatRanking {
+  userPreview: UserPreview!
+  value: Float!
+  rank: Int!
+}
+
+type LeaderboardRankingPaginated {
+  nodes: [LeaderboardRanking]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
+}
+
+type LeaderboardFloatRankingPaginated {
+  nodes: [LeaderboardFloatRanking]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
+}
+
 type LeaderboardElement {
   """내 랭킹 정보"""
   me: LeaderboardRanking
 
   """전체 랭킹 정보"""
-  totalRanks: [LeaderboardRanking!]!
+  totalRanks: LeaderboardRankingPaginated!
+}
+
+type LeaderboardFloatElement {
+  """내 랭킹 정보"""
+  me: LeaderboardFloatRanking
+
+  """전체 랭킹 정보"""
+  totalRanks: LeaderboardFloatRankingPaginated!
 }
 
 type LeaderboardElementDateRanged {
@@ -247,16 +275,16 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  byDateTemplate(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardFloatElement!
 }
 
 type LeaderboardScore {

@@ -14,12 +14,12 @@ export class LeaderboardScoreResolver {
 
   @Query((_returns) => LeaderboardScore)
   async getLeaderboardScore() {
+    //todo: 쿼리에서 인자 받게 하기
     return {};
   }
 
   @ResolveField('total', (_returns) => LeaderboardElement)
   async total(
-    // @Args({ type: () => PaginationIndexArgs }) paginationArgs: PaginationIndexArgs,
     @Args() paginationArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
     return await this.leaderboardScoreService.rank(99947, paginationArgs);

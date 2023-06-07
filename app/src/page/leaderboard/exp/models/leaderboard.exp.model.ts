@@ -3,7 +3,6 @@ import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
 
 @ObjectType()
 export class LeaderboardExp {
-  // @Field((_type) => LeaderboardElementDateRanged)
-  @Field()
+  @Field((_type) => LeaderboardElementDateRanged)
   byDateTemplate: LeaderboardElementDateRanged;
 }
