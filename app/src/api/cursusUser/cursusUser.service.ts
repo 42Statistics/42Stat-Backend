@@ -12,9 +12,13 @@ import { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.mode
 import { Time } from 'src/util';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { rankEvalCount } from '../scaleTeam/db/scaleTeam.database.aggregate';
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import { UserFullProfile } from './db/cursusUser.database.aggregate';
+import {
+  UserFullProfile,
+  addUserPreview,
+} from './db/cursusUser.database.aggregate';
 import {
   CursusUserDocument,
   User,
@@ -233,21 +237,21 @@ export class CursusUserService {
     aggregate
       .match({ 'user.active?': true })
       .match({ 'user.kind': 'student' })
-      .sort({ [`${key}`]: -1 });
+      .addFields({ value: `$${key}` });
 
     if (limit) {
       aggregate.limit(limit);
     }
 
-    return await aggregate.project({
-      _id: 0,
-      userPreview: {
-        id: '$user.id',
-        login: '$user.login',
-        imgUrl: '$user.image.link',
-      },
-      value: `$${key}`,
-    });
+    return await aggregate
+      .append(...rankEvalCount)
+      .append(addUserPreview('user'))
+      .project({
+        _id: 0,
+        userPreview: 1,
+        value: 1,
+        rank: 1,
+      });
   }
 
   // executionTimeMillisEstimate: 319

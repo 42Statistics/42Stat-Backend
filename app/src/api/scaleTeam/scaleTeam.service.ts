@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
-import type { UserRanking } from 'src/common/models/common.user.model';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
+import type { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import {
   addUserPreview,
@@ -50,8 +50,8 @@ export class ScaleTeamService {
   // total의 경우 5초, 기간 한정하는 경우 1초 이내
   async evalCountRank(
     filter?: FilterQuery<scale_team>,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserService.aggregate<UserRanking>();
+  ): Promise<LeaderboardRanking[]> {
+    const aggregate = this.cursusUserService.aggregate<LeaderboardRanking>();
 
     return await aggregate
       .append(
