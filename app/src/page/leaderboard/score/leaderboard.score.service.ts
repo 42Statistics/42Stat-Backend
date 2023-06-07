@@ -5,7 +5,7 @@ import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
-import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -78,14 +78,14 @@ export class LeaderboardScoreService {
     paginationArgs: PaginationIndexArgs,
     filter?: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
-    const leaderboardRanking: LeaderboardRanking[] = this.tempScores;
+    const scoreRanking: LeaderboardRanking[] = this.tempScores;
     //todo: 블랙홀유저의 value가 0으로 나오는지 확인 후 구분하기
 
     return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
-      leaderboardRanking,
+      scoreRanking,
       paginationArgs,
-      leaderboardRanking.length,
+      scoreRanking.length,
     );
   }
 
