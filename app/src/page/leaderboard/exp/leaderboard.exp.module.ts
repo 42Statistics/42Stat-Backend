@@ -5,6 +5,7 @@ import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardExpResolver } from './leaderboard.exp.resolver';
 import { LeaderboardExpService } from './leaderboard.exp.service';
+import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 
 @Module({
   imports: [LeaderboardUtilModule, DateRangeModule],
@@ -12,6 +13,7 @@ import { LeaderboardExpService } from './leaderboard.exp.service';
     LeaderboardExpResolver,
     LeaderboardExpService,
     LeaderboardUtilService,
+    PaginationIndexService,
     DateRangeService,
   ],
 })

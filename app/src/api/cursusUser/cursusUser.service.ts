@@ -2,15 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model } from 'mongoose';
 import type { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
-import type {
-  UserPreview,
-  UserRanking,
-} from 'src/common/models/common.user.model';
+import type { UserPreview } from 'src/common/models/common.user.model';
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
-  UserCountPerLevels,
   IntPerCircle,
+  UserCountPerLevels,
 } from 'src/page/home/user/models/home.user.model';
+import { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
 import { Time } from 'src/util';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
@@ -220,13 +218,13 @@ export class CursusUserService {
       .sort({ level: 1 });
   }
 
-  // todo: query
+  // todo: query, return type
   async rank(
     key: string,
     limit?: number,
     filter?: FilterQuery<cursus_user>,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserRanking>();
+  ): Promise<LeaderboardRanking[]> {
+    const aggregate = this.cursusUserModel.aggregate<LeaderboardRanking>();
 
     if (filter) {
       aggregate.match(filter);

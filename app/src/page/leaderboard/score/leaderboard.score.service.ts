@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import type { UserRanking } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
   DateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
+import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -75,6 +75,7 @@ export class LeaderboardScoreService {
 
   async rank(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     filter?: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
     const leaderboardRanking: LeaderboardRanking[] = this.tempScores;
@@ -83,11 +84,14 @@ export class LeaderboardScoreService {
     return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
       userId,
       leaderboardRanking,
+      paginationArgs,
+      leaderboardRanking.length,
     );
   }
 
   async rankByDateRange(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
@@ -96,17 +100,18 @@ export class LeaderboardScoreService {
       },
     };
 
-    const scoreRanking = await this.rank(userId, dateFilter);
+    const scoreRanking = await this.rank(userId, paginationArgs, dateFilter);
 
     return this.dateRangeService.toDateRanged(scoreRanking, dateRange);
   }
 
   async rankByDateTemplate(
     userId: number,
+    paginationArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.rankByDateRange(userId, dateRange);
+    return this.rankByDateRange(userId, paginationArgs, dateRange);
   }
 }
