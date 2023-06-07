@@ -1,8 +1,8 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.dto.args';
+import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dtos';
 
 @ArgsType()
-export class GetEvalLogsArgs extends PaginationIndexArgs {
+export class GetEvalLogsArgs extends PaginationCursorArgs {
   @Field({ nullable: true })
   corrector?: string;
 

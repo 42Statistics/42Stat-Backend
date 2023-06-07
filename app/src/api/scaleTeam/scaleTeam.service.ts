@@ -3,13 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import type { UserRanking } from 'src/common/models/common.user.model';
-import type {
-  EvalLog,
-  EvalLogsPaginated,
-} from 'src/page/evalLog/models/evalLog.model';
-import { PaginationCursorService } from 'src/pagination/cursor/pagination.cursor.service';
+import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
-import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
+import {
+  addUserPreview,
+  lookupCursusUser,
+} from '../cursusUser/db/cursusUser.database.aggregate';
 import {
   lookupScaleTeams,
   rankEvalCount,
@@ -22,7 +21,6 @@ export class ScaleTeamService {
     @InjectModel(scale_team.name)
     private scaleTeamModel: Model<scale_team>,
     private cursusUserService: CursusUserService,
-    private paginationService: PaginationCursorService,
   ) {}
 
   // async find(
@@ -148,103 +146,76 @@ export class ScaleTeamService {
   }
 
   async evalLogs(
-    pageSize: number,
-    pageNumber: number,
+    limit: number,
     filter?: FilterQuery<scale_team>,
-  ): Promise<EvalLogsPaginated> {
+  ): Promise<EvalLog[]> {
     const aggregate = this.scaleTeamModel.aggregate<EvalLog>();
 
-    const evalLogsAggr = await aggregate
-      // todo: 평가 취소인 경우에 대한 처리를 할 수 있음
+    return await aggregate
       .match({ ...filter, feedback: { $ne: null }, comment: { $ne: null } })
-      .facet({
-        slicedData: [
-          // { $match: {} },
-          { $sort: { beginAt: -1 } },
-          { $skip: (pageNumber - 1) * pageSize },
-          { $limit: pageSize },
-        ],
-        totalCount: [{ $group: { _id: null, count: { $count: {} } } }],
-      })
-      .unwind({ path: '$slicedData' })
+      .sort({ beginAt: -1, id: -1 })
+      .limit(limit)
       .lookup({
         from: 'projects',
-        localField: 'slicedData.team.projectId',
+        localField: 'team.projectId',
         foreignField: 'id',
-        as: 'projectPreview',
+        as: 'projects',
       })
-      .addFields({ projectPreview: { $first: '$projectPreview' } })
-      .lookup({
-        from: 'users',
-        localField: 'slicedData.corrector.id',
-        foreignField: 'id',
-        as: 'joinedCorrector',
+      .append(lookupCursusUser('corrector.id', 'user.id'))
+      .addFields({
+        project: { $first: '$projects' },
+        corrector: { $first: '$cursus_users' },
       })
       .project({
         _id: 0,
+        id: '$id',
         header: {
           corrector: {
-            id: '$slicedData.corrector.id',
-            login: '$slicedData.corrector.login',
-            imgUrl: { $first: '$joinedCorrector.image.link' },
+            id: '$corrector.user.id',
+            login: '$corrector.user.login',
+            imgUrl: '$corrector.user.image.link',
           },
           teamPreview: {
-            id: '$slicedDatateam.id',
-            name: '$slicedData.team.name',
+            id: '$team.id',
+            name: '$team.name',
             url: {
               $concat: [
                 'https://projects.intra.42.fr/projects/',
-                { $toString: '$projectPreview.id' },
+                { $toString: '$project.id' },
                 '/projects_users/',
                 {
                   $toString: {
-                    $first: '$slicedData.team.users.projectsUserId',
+                    $first: '$team.users.projectsUserId',
                   },
                 },
               ],
             },
           },
-          beginAt: '$slicedData.beginAt',
+          beginAt: '$beginAt',
           projectPreview: {
-            id: '$projectPreview.id',
-            name: '$projectPreview.name',
+            id: '$project.id',
+            name: '$project.name',
             url: {
               $concat: [
                 'https://projects.intra.42.fr/projects/',
-                { $toString: '$projectPreview.id' },
+                { $toString: '$project.id' },
               ],
             },
           },
           flag: {
-            id: '$slicedData.flag.id',
-            name: '$slicedData.flag.name',
-            isPositive: '$slicedData.flag.positive',
+            id: '$flag.id',
+            name: '$flag.name',
+            isPositive: '$flag.positive',
           },
         },
         correctorReview: {
-          mark: '$slicedData.finalMark',
-          review: '$slicedData.comment',
+          mark: '$finalMark',
+          review: '$comment',
         },
         correctedsReview: {
-          mark: { $max: '$slicedData.feedbacks.rating' },
-          review: '$slicedData.feedback',
+          mark: { $max: '$feedbacks.rating' },
+          review: '$feedback',
         },
       });
-
-    const totalCount = await this.scaleTeamModel.count({
-      ...filter,
-      feedback: { $ne: null },
-      comment: { $ne: null },
-    });
-
-    return this.paginationService.generatePage<EvalLog>(
-      evalLogsAggr,
-      totalCount,
-      {
-        pageSize,
-        pageNumber,
-      },
-      'header',
-    );
   }
 }

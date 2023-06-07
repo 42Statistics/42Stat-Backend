@@ -11,9 +11,7 @@ type Coalition {
   color: String
   score: Int!
 
-  """
-  코알리숑 마스터의 user id 입니다.
-  """
+  """코알리숑 마스터의 user id 입니다."""
   userId: Int!
 }
 
@@ -70,6 +68,12 @@ A field whose value conforms to the standard URL format as specified in RFC3986:
 """
 scalar URL
 
+type CursorPageInfo {
+  totalCount: Int!
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
 type TeamPreview {
   id: Int!
   name: String!
@@ -96,16 +100,13 @@ type EvalReview {
 }
 
 type EvalLog {
+  id: Int!
   header: EvalLogHeader!
 
-  """
-  평가자가 부여한 점수와 리뷰 입니다.
-  """
+  """평가자가 부여한 점수와 리뷰 입니다."""
   correctorReview: EvalReview!
 
-  """
-  피평가자가 부여한 점수와 리뷰 입니다.
-  """
+  """피평가자가 부여한 점수와 리뷰 입니다."""
   correctedsReview: EvalReview!
 }
 
@@ -116,15 +117,7 @@ type EvalLogEdge {
 
 type EvalLogsPaginated {
   edges: [EvalLogEdge]!
-  totalCount: Int!
-  pageSize: Int!
-  pageNumber: Int!
-  pageInfo: CursorPageInfoType
-}
-
-type CursorPageInfoType {
-  hasNextPage: Boolean!
-  endCursor: String
+  pageInfo: CursorPageInfo
 }
 
 type IntRecord {
@@ -202,9 +195,7 @@ type ExamResultDateRanged {
 type HomeTeam {
   currRegisteredCountRank: [ProjectRanking!]!
 
-  """
-  HOME 직전 회차 시험 Rank별 통과율
-  """
+  """HOME 직전 회차 시험 Rank별 통과율"""
   lastExamResult: ExamResultDateRanged!
 }
 
@@ -242,14 +233,10 @@ type LeaderboardRanking {
 }
 
 type LeaderboardElement {
-  """
-  내 랭킹 정보
-  """
+  """내 랭킹 정보"""
   me: LeaderboardRanking
 
-  """
-  전체 랭킹 정보
-  """
+  """전체 랭킹 정보"""
   totalRanks: [LeaderboardRanking!]!
 }
 
@@ -269,7 +256,7 @@ type LeaderboardExp {
 }
 
 type LeaderboardLevel {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElementPaginated!
+  total: LeaderboardElement!
 }
 
 type LeaderboardScore {
@@ -298,54 +285,36 @@ type TempTeam {
   occurrence: Int!
   finalMark: Int!
 
-  """
-  레지스터
-  """
+  """레지스터"""
   createdAt: DateTime!
 
-  """
-  팀 빌딩
-  """
+  """팀 빌딩"""
   lockedAt: DateTime!
 
-  """
-  제출
-  """
+  """제출"""
   closedAt: DateTime!
   isValidated: Boolean!
 
-  """
-  평가완료날
-  """
+  """평가완료날"""
   finishedAt: DateTime!
 
-  """
-  상태: 팀빌딩, 진행중, 평가중, 완료
-  """
+  """상태: 팀빌딩, 진행중, 평가중, 완료"""
   status: String!
 }
 
 type PreferredTime {
   total: Int!
 
-  """
-  06 ~ 12
-  """
+  """06 ~ 12"""
   morning: Int!
 
-  """
-  12 ~ 18
-  """
+  """12 ~ 18"""
   daytime: Int!
 
-  """
-  18 ~ 24
-  """
+  """18 ~ 24"""
   evening: Int!
 
-  """
-  24 ~ 06
-  """
+  """24 ~ 06"""
   night: Int!
 }
 
@@ -374,9 +343,7 @@ type PersonalGeneral {
   wallet: Int!
   scoreInfo: UserScoreRank!
   logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  preferredTimeByDateTemplate(
-    dateTemplate: DateTemplate!
-  ): PreferredTimeDateRanged!
+  preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
   teamInfo: TeamInfo!
   levelRecords: [LevelRecord!]!
@@ -400,9 +367,7 @@ type ProjectInfo {
   difficulty: Int!
   ongoingTeamCount: Int!
 
-  """
-  총 제출 횟수 입니다.
-  """
+  """총 제출 횟수 입니다."""
   closedTeamCount: Int!
   averagePassFinalmark: Int!
   evalInfo: ProjectEvalInfo!
@@ -421,30 +386,6 @@ type Query {
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
-  IndexPagination(
-    pageSize: Int! = 10
-    pageNumber: Int! = 1
-  ): IndexPaginatedType!
   getLeaderboardScore: LeaderboardScore!
-  getEvalLogs(
-    pageSize: Int! = 10
-    pageNumber: Int! = 1
-    corrector: String
-    corrected: String
-    projectName: String
-    outstandingOnly: Boolean! = false
-  ): EvalLogsPaginated!
-}
-
-type CursorPaginatedType {
-  edges: [UserRankingEdge]!
-  totalCount: Int!
-  pageSize: Int!
-  pageNumber: Int!
-  pageInfo: CursorPageInfoType
-}
-
-input PaginationArgs {
-  pageSize: Int! = 10
-  pageNumber: Int! = 1
+  getEvalLogs(after: String, first: Int!, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
 }
