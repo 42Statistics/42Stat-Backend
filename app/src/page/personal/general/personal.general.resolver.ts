@@ -47,14 +47,14 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField('scoreInfo', (_returns) => UserScoreRank)
+  @ResolveField((_returns) => UserScoreRank)
   async scoreInfo(
     @Context() context: PersonalGeneralContext,
-  ): Promise<UserScoreRank> {
+  ): Promise<UserScoreRank | null> {
     return await this.personalGeneralService.scoreInfo(context.userId);
   }
 
-  @ResolveField('logtimeByDateTemplate', (_returns) => IntDateRanged)
+  @ResolveField((_returns) => IntDateRanged)
   async logtimeByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
     @Context() context: PersonalGeneralContext,
@@ -65,10 +65,7 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField(
-    'preferredTimeByDateTemplate',
-    (_returns) => PreferredTimeDateRanged,
-  )
+  @ResolveField((_returns) => PreferredTimeDateRanged)
   async preferredTimeByDateTemplate(
     @Context() context: PersonalGeneralContext,
     @Args() { dateTemplate }: DateTemplateArgs,
@@ -79,10 +76,7 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField(
-    'preferredClusterByDateTemplate',
-    (_returns) => StringDateRanged,
-  )
+  @ResolveField((_returns) => StringDateRanged)
   async preferredClusterByDateTemplate(
     @Context() context: PersonalGeneralContext,
     @Args() { dateTemplate }: DateTemplateArgs,
@@ -93,14 +87,14 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField('teamInfo', (_returns) => TeamInfo)
+  @ResolveField((_returns) => TeamInfo)
   async teamInfo(
     @Context() context: PersonalGeneralContext,
   ): Promise<TeamInfo> {
     return await this.personalGeneralService.teamInfo(context.userId);
   }
 
-  @ResolveField('levelRecords', (_returns) => [LevelRecord])
+  @ResolveField((_returns) => [LevelRecord])
   async levelRecords(
     @Context() context: PersonalGeneralContext,
   ): Promise<LevelRecord[]> {

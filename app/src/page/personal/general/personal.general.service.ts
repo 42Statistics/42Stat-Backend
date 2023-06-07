@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUser.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
+import { ScoreService } from 'src/api/score/score.service';
 import type {
   IntDateRanged,
   StringDateRanged,
@@ -24,8 +24,8 @@ import type { UserScoreRank } from './models/personal.general.userProfile.model'
 export class PersonalGeneralService {
   constructor(
     private cursusUserService: CursusUserService,
-    private coalitionsUserService: CoalitionsUserService,
     private locationService: LocationService,
+    private scoreService: ScoreService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -66,6 +66,37 @@ export class PersonalGeneralService {
       beginAt: cursusUser.beginAt,
       blackholedAt: cursusUser.blackholedAt,
       wallet: cursusUser.user.wallet,
+    };
+  }
+
+  // byDateRange, byDateTemplate 적용 가능
+  async scoreInfo(userId: number): Promise<UserScoreRank> {
+    const startOfMonth = new StatDate().startOfMonth();
+    const nextMonth = startOfMonth.moveMonth(1);
+
+    const dateRangeFilter = {
+      createdAt: this.dateRangeService.aggrFilterFromDateRange({
+        start: startOfMonth,
+        end: nextMonth,
+      }),
+    };
+
+    const scoreRank = await this.scoreService.scoreRank(dateRangeFilter);
+
+    const me = scoreRank.find(({ userPreview }) => userPreview.id === userId);
+    if (!me) {
+      throw new NotFoundException();
+    }
+
+    const coalitionRank =
+      scoreRank
+        .filter(({ coalitionId }) => coalitionId === me?.coalitionId)
+        .findIndex(({ userPreview }) => userPreview.id === userId) + 1;
+
+    return {
+      value: me.value,
+      rankInTotal: me.rank,
+      rankInCoalition: coalitionRank,
     };
   }
 
@@ -247,16 +278,5 @@ export class PersonalGeneralService {
         averageLevel: 11,
       },
     ];
-  }
-
-  async scoreInfo(userId: number): Promise<UserScoreRank> {
-    const startOfMonth = new StatDate().startOfMonth();
-    const startOfNextMonth = startOfMonth.moveMonth(1);
-
-    return await this.coalitionsUserService.userScoreRank(
-      userId,
-      startOfMonth,
-      startOfNextMonth,
-    );
   }
 }

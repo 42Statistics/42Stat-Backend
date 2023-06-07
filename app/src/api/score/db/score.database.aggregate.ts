@@ -1,8 +1,8 @@
-import type {
-  AggrNumeric,
-  AggrRecord,
-} from 'src/common/db/common.db.aggregation';
+import type { PipelineStage } from 'mongoose';
+import { lookupStage } from 'src/common/db/common.db.aggregation';
 
-export type CoalitionId = { coalitionId: number };
-export type CoalitionScore = CoalitionId & AggrNumeric;
-export type CoalitionScoreRecords = CoalitionId & AggrRecord;
+export const lookupScores = (
+  localField: string,
+  foreignField: string,
+  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+) => lookupStage('scores', localField, foreignField, pipeline);
