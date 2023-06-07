@@ -57,6 +57,9 @@ export class EvalReview {
 @ObjectType()
 export class EvalLog {
   @Field()
+  id: number;
+
+  @Field()
   header: EvalLogHeader;
 
   @Field({ description: '평가자가 부여한 점수와 리뷰 입니다.' })

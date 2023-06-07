@@ -3,15 +3,7 @@ import { Type } from '@nestjs/common';
 
 export interface ICursorPaginatedType<T> {
   edges: ICursorEdge<T>[];
-  totalCount: number;
-  pageSize: number;
-  pageNumber: number;
-  pageInfo: ICursorPageInfo<T>;
-}
-
-export interface ICursorPageInfo<T> {
-  hasNextPage: boolean;
-  endCursor: keyof T | null;
+  pageInfo: CursorPageInfo;
 }
 
 export interface ICursorEdge<T> {
@@ -19,13 +11,16 @@ export interface ICursorEdge<T> {
   cursor: string;
 }
 
-@ObjectType({ isAbstract: true })
-abstract class CursorPageInfoType<T> implements ICursorPageInfo<T> {
+@ObjectType()
+export class CursorPageInfo {
+  @Field()
+  totalCount: number;
+
   @Field()
   hasNextPage: boolean;
 
-  @Field((_type) => String, { nullable: true })
-  endCursor: keyof T | null;
+  @Field({ nullable: true })
+  endCursor?: string;
 }
 
 export function CursorPaginated<T>(
@@ -45,17 +40,8 @@ export function CursorPaginated<T>(
     @Field((_type) => [CursorEdgeType], { nullable: 'items' })
     edges: CursorEdgeType[];
 
-    @Field()
-    totalCount: number;
-
-    @Field()
-    pageSize: number;
-
-    @Field()
-    pageNumber: number;
-
-    @Field((_type) => CursorPageInfoType, { nullable: true })
-    pageInfo: ICursorPageInfo<T>;
+    @Field((_type) => CursorPageInfo, { nullable: true })
+    pageInfo: CursorPageInfo;
   }
 
   return CursorPaginatedType as Type<ICursorPaginatedType<T>>;

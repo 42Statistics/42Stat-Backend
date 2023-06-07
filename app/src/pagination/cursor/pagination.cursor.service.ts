@@ -1,48 +1,48 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationIndexArgs } from '../index/dto/pagination.dto.args';
-import {
+import type {
+  CursorPageInfo,
   ICursorEdge,
-  ICursorPageInfo,
   ICursorPaginatedType,
 } from './models/pagination.cursor.model';
 
+export type CursorExtractor<T> = (doc: T) => string;
+export type FieldExtractor<T> = (cursor: string) => T;
+
 @Injectable()
 export class PaginationCursorService {
-  generatePage<T>(
+  toPaginated<T>(
     nodes: T[],
     totalCount: number,
-    { pageSize, pageNumber }: PaginationIndexArgs,
-    cursorField: keyof T,
+    hasNextPage: boolean,
+    toCursor: CursorExtractor<T>,
   ): ICursorPaginatedType<T> {
-    //todo: pagination로직, scaleteam service에 aggregate를 통한 로직이 있음
-    const startIndex = (pageNumber - 1) * pageSize;
-    const endIndex = pageNumber * pageSize;
-    const paginatedData = nodes.slice(startIndex, endIndex);
-
-    const lastItem = paginatedData[paginatedData.length - 1];
-    // const lastItem = nodes[nodes.length - 1];
-    const endCursor: keyof T | null = lastItem
-      ? (lastItem[cursorField] as keyof T)
-      : null;
-
-    const pageInfo: ICursorPageInfo<T> = {
-      hasNextPage: endIndex < totalCount,
-      endCursor,
-    };
-
-    // const edges: ICursorEdge<T>[] = nodes.map((node) => ({
-    const edges: ICursorEdge<T>[] = paginatedData.map((node) => ({
+    const edges: ICursorEdge<T>[] = nodes.map((node) => ({
       node,
-      cursor: node[cursorField] as string,
+      cursor: encodeCursor(toCursor(node)),
     }));
 
-    return {
-      // nodes: paginatedData,
-      edges,
+    const pageInfo: CursorPageInfo = {
       totalCount,
-      pageSize,
-      pageNumber,
+      hasNextPage,
+      endCursor: edges.at(-1)?.cursor,
+    };
+
+    return {
+      edges,
       pageInfo,
     };
   }
+
+  toFields<Fields extends any[]>(
+    cursor: string,
+    extractor: FieldExtractor<Fields>,
+  ): Fields {
+    return extractor(decodeCursor(cursor));
+  }
 }
+
+const encodeCursor = (cursor: string): string =>
+  Buffer.from(cursor, 'utf-8').toString('base64');
+
+const decodeCursor = (encodedCursor: string): string =>
+  Buffer.from(encodedCursor, 'base64').toString('utf-8');
