@@ -69,7 +69,6 @@ export class PersonalGeneralService {
     };
   }
 
-  // byDateRange, byDateTemplate 적용 가능
   async scoreInfo(userId: number): Promise<UserScoreInfo> {
     const startOfMonth = new StatDate().startOfMonth();
     const nextMonth = startOfMonth.moveMonth(1);
@@ -127,8 +126,8 @@ export class PersonalGeneralService {
     dateRange: DateRange,
   ): Promise<PreferredTimeDateRanged> {
     const dateFilter: FilterQuery<location> = {
-      beginAt: { $lt: dateRange.start },
-      endAt: { $gte: dateRange.end },
+      beginAt: { $lt: dateRange.end },
+      endAt: { $gte: dateRange.start },
     };
 
     const preferredTime = await this.locationService.preferredTime(

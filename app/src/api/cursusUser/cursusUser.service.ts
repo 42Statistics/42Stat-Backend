@@ -241,21 +241,19 @@ export class CursusUserService {
     aggregate
       .match({ 'user.active?': true })
       .match({ 'user.kind': 'student' })
-      .addFields({ value: `$${key}` });
+      .addFields({ value: `$${key}` })
+      .append(addRank());
 
     if (limit) {
       aggregate.limit(limit);
     }
 
-    return await aggregate
-      .append(addRank())
-      .append(addUserPreview('user'))
-      .project({
-        _id: 0,
-        userPreview: 1,
-        value: 1,
-        rank: 1,
-      });
+    return await aggregate.append(addUserPreview('user')).project({
+      _id: 0,
+      userPreview: 1,
+      value: 1,
+      rank: 1,
+    });
   }
 
   // executionTimeMillisEstimate: 319
