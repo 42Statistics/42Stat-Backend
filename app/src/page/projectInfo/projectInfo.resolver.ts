@@ -21,9 +21,9 @@ export class ProjectInfoResolver {
       maxUserCount: 1,
       duration: 24,
       difficulty: 462,
-      ongoingTeamCount: 100,
+      currRegisteredTeamCount: 100,
       closedTeamCount: 1000,
-      averagePassFinalmark: 109,
+      averagePassFinalMark: 109,
       evalInfo: { totalEvalCount: 990, passCount: 550, failCount: 440 },
     };
   }

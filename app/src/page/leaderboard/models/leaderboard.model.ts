@@ -11,7 +11,7 @@ export class LeaderboardElement {
   me?: UserRanking;
 
   @Field({ description: '전체 랭킹 정보' })
-  totalRanks: UserRankingIndexPaginated;
+  totalRanking: UserRankingIndexPaginated;
 }
 
 @ObjectType()

@@ -17,8 +17,8 @@ import type {
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
+  UserScoreInfo,
 } from './models/personal.general.model';
-import type { UserScoreRank } from './models/personal.general.userProfile.model';
 
 @Injectable()
 export class PersonalGeneralService {
@@ -70,7 +70,7 @@ export class PersonalGeneralService {
   }
 
   // byDateRange, byDateTemplate 적용 가능
-  async scoreInfo(userId: number): Promise<UserScoreRank> {
+  async scoreInfo(userId: number): Promise<UserScoreInfo> {
     const startOfMonth = new StatDate().startOfMonth();
     const nextMonth = startOfMonth.moveMonth(1);
 

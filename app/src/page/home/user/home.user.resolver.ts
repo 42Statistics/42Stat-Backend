@@ -8,7 +8,7 @@ import { HomeUserService } from './home.user.service';
 import {
   HomeUser,
   IntPerCircle,
-  UserCountPerLevels,
+  UserCountPerLevel,
 } from './models/home.user.model';
 
 @Resolver((_of: unknown) => HomeUser)
@@ -25,8 +25,8 @@ export class HomeUserResolver {
     return await this.homeUserService.activeUserCountRecords();
   }
 
-  @ResolveField((_returns) => [UserCountPerLevels])
-  async userCountPerLevel(): Promise<UserCountPerLevels[]> {
+  @ResolveField((_returns) => [UserCountPerLevel])
+  async userCountPerLevel(): Promise<UserCountPerLevel[]> {
     return await this.homeUserService.userCountPerLevels();
   }
 
@@ -50,26 +50,26 @@ export class HomeUserResolver {
   }
 
   @ResolveField((_returns) => [IntPerCircle])
-  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
-    return await this.homeUserService.blackholedCountPerCircles();
+  async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
+    return await this.homeUserService.blackholedCountPerCircle();
   }
 
   @ResolveField((_returns) => [UserRanking])
-  async walletRanks(
+  async walletRanking(
     @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
     return await this.homeUserService.walletRanks(limit);
   }
 
   @ResolveField((_returns) => [UserRanking])
-  async correctionPointRanks(
+  async correctionPointRanking(
     @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
-    return await this.homeUserService.correctionPointRanks(limit);
+    return await this.homeUserService.correctionPointRanking(limit);
   }
 
   @ResolveField((_returns) => [IntPerCircle])
-  async averageCircleDurations(): Promise<IntPerCircle[]> {
-    return await this.homeUserService.averageCircleDurations();
+  async averageDurationPerCircle(): Promise<IntPerCircle[]> {
+    return await this.homeUserService.averageDuerationPerCircle();
   }
 }

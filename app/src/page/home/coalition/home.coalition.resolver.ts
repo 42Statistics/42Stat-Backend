@@ -15,20 +15,18 @@ export class HomeCoalitionResolver {
     return {};
   }
 
-  @ResolveField('totalScoresPerCoalition', (_returns) => [IntPerCoalition])
-  async totalScores(): Promise<IntPerCoalition[]> {
+  @ResolveField((_returns) => [IntPerCoalition])
+  async totalScoresPerCoalition(): Promise<IntPerCoalition[]> {
     return await this.homeCoalitionService.totalScoresPerCoalition();
   }
 
-  @ResolveField('scoreRecordsPerCoalition', (_returns) => [
-    ScoreRecordPerCoalition,
-  ])
+  @ResolveField((_returns) => [ScoreRecordPerCoalition])
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
     return await this.homeCoalitionService.scoreRecordsPerCoalition();
   }
 
-  @ResolveField('tigCountPerCoalitions', (_returns) => [IntPerCoalition])
-  async tigCountPerCoalitions(): Promise<IntPerCoalition[]> {
-    return await this.homeCoalitionService.tigCountPerCoalitions();
+  @ResolveField((_returns) => [IntPerCoalition])
+  async tigCountPerCoalition(): Promise<IntPerCoalition[]> {
+    return await this.homeCoalitionService.tigCountPerCoalition();
   }
 }

@@ -14,13 +14,13 @@ export class LeaderboardUtilService {
 
   toLeaderboardElement(
     me: UserRanking | undefined,
-    totalRanks: UserRanking[],
+    totalRanking: UserRanking[],
     paginationIndexArgs: PaginationIndexArgs,
   ): LeaderboardElement {
     return {
       me,
-      totalRanks: this.paginationIndexService.toPaginated(
-        totalRanks,
+      totalRanking: this.paginationIndexService.toPaginated(
+        totalRanking,
         paginationIndexArgs,
       ),
     };

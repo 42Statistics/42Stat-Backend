@@ -70,7 +70,7 @@ export class QuestsUserService {
     return { circle: 0, value: firstCircle.length ? firstCircle[0].value : 0 };
   }
 
-  async averageCircleDurations(userId?: number): Promise<IntPerCircle[]> {
+  async averageDuartionPerCircle(userId?: number): Promise<IntPerCircle[]> {
     const questId = [44, 45, 46, 47, 48, 49, 37] as const;
 
     const result: IntPerCircle[] = [];

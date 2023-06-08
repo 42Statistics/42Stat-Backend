@@ -21,7 +21,10 @@ export class LeaderboardScoreResolver {
   async total(
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardScoreService.rank(99947, paginationIndexArgs);
+    return await this.leaderboardScoreService.ranking(
+      99947,
+      paginationIndexArgs,
+    );
   }
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
@@ -29,7 +32,7 @@ export class LeaderboardScoreResolver {
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ) {
-    return await this.leaderboardScoreService.rankByDateTemplate(
+    return await this.leaderboardScoreService.rankingByDateTemplate(
       99947,
       paginationIndexArgs,
       dateTemplate,

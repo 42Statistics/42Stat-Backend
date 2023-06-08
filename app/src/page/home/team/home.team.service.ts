@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class HomeTeamService {
   async temp() {
     return {
-      currRegisteredCountRank: [
+      currRegisteredCountRanking: [
         {
           projectPreview: {
             id: '1',

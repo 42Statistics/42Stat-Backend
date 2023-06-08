@@ -22,12 +22,12 @@ export class LeaderboardEvalService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async rank(
+  async ranking(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     filter?: FilterQuery<scale_team>,
   ): Promise<LeaderboardElement> {
-    const evalRanking = await this.scaleTeamService.evalCountRank(filter);
+    const evalRanking = await this.scaleTeamService.evalCountRanking(filter);
 
     const me = this.leaderboardUtilService.findUser(evalRanking, userId);
 
@@ -38,7 +38,7 @@ export class LeaderboardEvalService {
     );
   }
 
-  async rankByDateRange(
+  async rankingByDateRange(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
@@ -48,7 +48,7 @@ export class LeaderboardEvalService {
       filledAt: { $ne: null },
     };
 
-    const evalRanking = await this.rank(
+    const evalRanking = await this.ranking(
       userId,
       paginationIndexArgs,
       dateFilter,
@@ -57,13 +57,13 @@ export class LeaderboardEvalService {
     return this.dateRangeService.toDateRanged(evalRanking, dateRange);
   }
 
-  async rankByDateTemplate(
+  async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.rankByDateRange(userId, paginationIndexArgs, dateRange);
+    return this.rankingByDateRange(userId, paginationIndexArgs, dateRange);
   }
 }

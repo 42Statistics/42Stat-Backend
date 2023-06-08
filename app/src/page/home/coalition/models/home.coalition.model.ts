@@ -29,5 +29,5 @@ export class HomeCoalition {
   scoreRecordsPerCoalition: ScoreRecordPerCoalition[];
 
   @Field((_type) => [IntPerCoalition])
-  tigCountPerCoalitions: IntPerCoalition[];
+  tigCountPerCoalition: IntPerCoalition[];
 }

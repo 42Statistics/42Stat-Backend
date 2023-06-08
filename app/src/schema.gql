@@ -28,12 +28,6 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
-type UserScoreRank {
-  value: Int!
-  rankInCoalition: Int!
-  rankInTotal: Int!
-}
-
 type UserProfile {
   id: Int!
   login: String!
@@ -145,7 +139,7 @@ type ScoreRecordPerCoalition {
 type HomeCoalition {
   totalScoresPerCoalition: [IntPerCoalition!]!
   scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
-  tigCountPerCoalitions: [IntPerCoalition!]!
+  tigCountPerCoalition: [IntPerCoalition!]!
 }
 
 type IntDateRanged {
@@ -200,7 +194,7 @@ type ExamResultDateRanged {
 }
 
 type HomeTeam {
-  currRegisteredCountRank: [ProjectRanking!]!
+  currRegisteredCountRanking: [ProjectRanking!]!
 
   """HOME 직전 회차 시험 Rank별 통과율"""
   lastExamResult: ExamResultDateRanged!
@@ -216,22 +210,21 @@ type IntPerCircle {
   value: Int!
 }
 
-type UserCountPerLevels {
+type UserCountPerLevel {
   userCount: Int!
   level: Int!
 }
 
 type HomeUser {
   activeUserCountRecords: [IntRecord!]!
-  userCountPerLevels: [UserCountPerLevels!]!
+  userCountPerLevel: [UserCountPerLevel!]!
   memberRate: IntRate!
   blackholedRate: IntRate!
   blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  blackholedCountPerCircles: [IntPerCircle!]!
-  walletRanks(limit: Int! = 5): [UserRanking!]!
-  correctionPointRanks(limit: Int! = 5): [UserRanking!]!
-  averageCircleDurations: [IntPerCircle!]!
-  userCountPerLevel: [UserCountPerLevels!]!
+  blackholedCountPerCircle: [IntPerCircle!]!
+  walletRanking(limit: Int! = 5): [UserRanking!]!
+  correctionPointRanking(limit: Int! = 5): [UserRanking!]!
+  averageDurationPerCircle: [IntPerCircle!]!
 }
 
 type LeaderboardElement {
@@ -239,7 +232,7 @@ type LeaderboardElement {
   me: UserRanking
 
   """전체 랭킹 정보"""
-  totalRanks: UserRankingIndexPaginated!
+  totalRanking: UserRankingIndexPaginated!
 }
 
 type LeaderboardElementDateRanged {
@@ -249,16 +242,16 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
-  byDateTemplate(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  byDateTemplate(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
 }
 
 type LeaderboardScore {
@@ -338,12 +331,18 @@ type LevelRecord {
   averageLevel: Float!
 }
 
+type UserScoreInfo {
+  value: Int!
+  rankInCoalition: Int!
+  rankInTotal: Int!
+}
+
 type PersonalGeneral {
   userProfile: UserProfile!
   beginAt: DateTime!
   blackholedAt: DateTime
   wallet: Int!
-  scoreInfo: UserScoreRank!
+  scoreInfo: UserScoreInfo!
   logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
@@ -367,11 +366,11 @@ type ProjectInfo {
   maxUserCount: Int!
   duration: Int!
   difficulty: Int!
-  ongoingTeamCount: Int!
+  currRegisteredTeamCount: Int!
 
   """총 제출 횟수 입니다."""
   closedTeamCount: Int!
-  averagePassFinalmark: Int!
+  averagePassFinalMark: Int!
   evalInfo: ProjectEvalInfo!
 }
 
