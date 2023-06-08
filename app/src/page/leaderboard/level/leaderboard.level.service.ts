@@ -13,13 +13,13 @@ export class LeaderboardLevelService {
     private cursusUserService: CursusUserService,
   ) {}
 
-  async rank(
+  async ranking(
     userId: number,
     limit: number,
     paginationIndexArgs: PaginationIndexArgs,
     filter?: FilterQuery<cursus_user>,
   ): Promise<LeaderboardElement> {
-    const levelRanking = await this.cursusUserService.rank(
+    const levelRanking = await this.cursusUserService.ranking(
       'level',
       limit,
       filter,

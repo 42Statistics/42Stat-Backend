@@ -16,12 +16,11 @@ export class LeaderboardExpResolver {
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @Args('userId') userId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
-    return await this.leaderboardExpService.rankByDateTemplate(
-      userId,
+    return await this.leaderboardExpService.rankingByDateTemplate(
+      99947,
       paginationIndexArgs,
       dateTemplate,
     );

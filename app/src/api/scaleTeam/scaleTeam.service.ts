@@ -45,7 +45,7 @@ export class ScaleTeamService {
   }
 
   // total의 경우 5초, 기간 한정하는 경우 1초 이내
-  async evalCountRank(
+  async evalCountRanking(
     filter?: FilterQuery<scale_team>,
   ): Promise<UserRanking[]> {
     const aggregate = this.cursusUserService.aggregate<UserRanking>();

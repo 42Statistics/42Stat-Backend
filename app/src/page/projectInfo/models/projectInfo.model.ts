@@ -42,13 +42,13 @@ export class ProjectInfo {
   difficulty: number;
 
   @Field()
-  ongoingTeamCount: number;
+  currRegisteredTeamCount: number;
 
   @Field({ description: '총 제출 횟수 입니다.' })
   closedTeamCount: number;
 
   @Field()
-  averagePassFinalmark: number;
+  averagePassFinalMark: number;
 
   @Field()
   evalInfo: ProjectEvalInfo;

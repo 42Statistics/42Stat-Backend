@@ -21,7 +21,7 @@ export class LeaderboardScoreService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async rank(
+  async ranking(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     filter?: FilterQuery<unknown>,
@@ -38,7 +38,7 @@ export class LeaderboardScoreService {
     );
   }
 
-  async rankByDateRange(
+  async rankingByDateRange(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
@@ -49,7 +49,7 @@ export class LeaderboardScoreService {
       },
     };
 
-    const scoreRanking = await this.rank(
+    const scoreRanking = await this.ranking(
       userId,
       paginationIndexArgs,
       dateFilter,
@@ -58,13 +58,13 @@ export class LeaderboardScoreService {
     return this.dateRangeService.toDateRanged(scoreRanking, dateRange);
   }
 
-  async rankByDateTemplate(
+  async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.rankByDateRange(userId, paginationIndexArgs, dateRange);
+    return this.rankingByDateRange(userId, paginationIndexArgs, dateRange);
   }
 }

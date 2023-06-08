@@ -29,7 +29,7 @@ export class ExamResultDateRanged extends ArrayDateRanged(ExamResult) {}
 @ObjectType()
 export class HomeTeam {
   @Field((_type) => [ProjectRanking])
-  currRegisteredCountRank: ProjectRanking[];
+  currRegisteredCountRanking: ProjectRanking[];
 
   @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
   lastExamResult: ExamResultDateRanged;

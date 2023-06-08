@@ -4,10 +4,7 @@ import {
   StringDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
-import {
-  UserProfile,
-  UserScoreRank,
-} from './personal.general.userProfile.model';
+import { UserProfile } from './personal.general.userProfile.model';
 
 @ObjectType()
 export class TempTeam {
@@ -91,6 +88,18 @@ export class LevelRecord {
 }
 
 @ObjectType()
+export class UserScoreInfo {
+  @Field()
+  value: number;
+
+  @Field()
+  rankInCoalition: number;
+
+  @Field()
+  rankInTotal: number;
+}
+
+@ObjectType()
 export class PersonalGeneral {
   @Field()
   userProfile: UserProfile;
@@ -105,7 +114,7 @@ export class PersonalGeneral {
   wallet: number;
 
   @Field()
-  scoreInfo: UserScoreRank;
+  scoreInfo: UserScoreInfo;
 
   @Field()
   logtimeByDateTemplate: IntDateRanged;

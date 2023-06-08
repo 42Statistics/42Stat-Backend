@@ -8,10 +8,7 @@ import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
-import type {
-  IntPerCircle,
-  UserCountPerLevels,
-} from './models/home.user.model';
+import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
 
 @Injectable()
 export class HomeUserService {
@@ -61,7 +58,7 @@ export class HomeUserService {
     )[0];
   }
 
-  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
+  async userCountPerLevels(): Promise<UserCountPerLevel[]> {
     return await this.cursusUserService.userCountPerLevels();
   }
 
@@ -105,19 +102,19 @@ export class HomeUserService {
     return await this.blackholedCountByDateRange(dateRange);
   }
 
-  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
-    return await this.cursusUserService.blackholedCountPerCircles();
+  async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
+    return await this.cursusUserService.blackholedCountPerCircle();
   }
 
   async walletRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.rank('user.wallet', limit);
+    return await this.cursusUserService.ranking('user.wallet', limit);
   }
 
-  async correctionPointRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.rank('user.correctionPoint', limit);
+  async correctionPointRanking(limit: number): Promise<UserRanking[]> {
+    return await this.cursusUserService.ranking('user.correctionPoint', limit);
   }
 
-  async averageCircleDurations(): Promise<IntPerCircle[]> {
-    return await this.questsUserService.averageCircleDurations();
+  async averageDuerationPerCircle(): Promise<IntPerCircle[]> {
+    return await this.questsUserService.averageDuartionPerCircle();
   }
 }

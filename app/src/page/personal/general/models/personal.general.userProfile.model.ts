@@ -20,27 +20,6 @@ export class UserTitle {
 }
 
 @ObjectType()
-export class UserScoreRank {
-  @Field()
-  value: number;
-
-  @Field()
-  rankInCoalition: number;
-
-  @Field()
-  rankInTotal: number;
-}
-
-export enum UserGrade {
-  LEARNER = 'learner',
-  MEMBER = 'member',
-}
-
-registerEnumType(UserGrade, {
-  name: 'UserGrade',
-});
-
-@ObjectType()
 export class UserProfile {
   @Field()
   id: number;
@@ -53,7 +32,6 @@ export class UserProfile {
 
   @Field()
   grade: string;
-  //grade: UserGrade;
 
   @Field()
   displayname: string;

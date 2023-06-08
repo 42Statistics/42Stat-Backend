@@ -36,7 +36,7 @@ export class HomeCoalitionService {
     });
   }
 
-  async tigCountPerCoalitions(): Promise<IntPerCoalition[]> {
+  async tigCountPerCoalition(): Promise<IntPerCoalition[]> {
     const currMonth = new StatDate().startOfMonth();
     const nextMonth = currMonth.moveMonth(1);
 

@@ -19,20 +19,21 @@ export class LeaderboardEvalResolver {
 
   @ResolveField((_returns) => LeaderboardElement)
   async total(
-    @Args('userId') userId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardEvalService.rank(userId, paginationIndexArgs);
+    return await this.leaderboardEvalService.ranking(
+      99947,
+      paginationIndexArgs,
+    );
   }
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @Args('userId') userId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
-    return await this.leaderboardEvalService.rankByDateTemplate(
-      userId,
+    return await this.leaderboardEvalService.rankingByDateTemplate(
+      99947,
       paginationIndexArgs,
       dateTemplate,
     );

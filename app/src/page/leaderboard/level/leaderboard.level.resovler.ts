@@ -15,11 +15,10 @@ export class LeaderboardLevelResolver {
 
   @ResolveField((_returns) => LeaderboardElement)
   async total(
-    @Args('userId') userId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardLevelService.rank(
-      userId,
+    return await this.leaderboardLevelService.ranking(
+      99947,
       3000, //todo: limit
       paginationIndexArgs,
     );

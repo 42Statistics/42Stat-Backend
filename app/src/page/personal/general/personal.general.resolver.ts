@@ -4,15 +4,15 @@ import {
   StringDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { PersonalUtilService } from '../util/personal.util.service';
 import {
   LevelRecord,
   PersonalGeneral,
   PreferredTimeDateRanged,
   TeamInfo,
+  UserScoreInfo,
 } from './models/personal.general.model';
-import { UserScoreRank } from './models/personal.general.userProfile.model';
 import { PersonalGeneralService } from './personal.general.service';
-import { PersonalUtilService } from '../util/personal.util.service';
 
 export type PersonalGeneralContext = {
   userId: number;
@@ -47,10 +47,10 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField((_returns) => UserScoreRank)
+  @ResolveField((_returns) => UserScoreInfo)
   async scoreInfo(
     @Context() context: PersonalGeneralContext,
-  ): Promise<UserScoreRank | null> {
+  ): Promise<UserScoreInfo | null> {
     return await this.personalGeneralService.scoreInfo(context.userId);
   }
 

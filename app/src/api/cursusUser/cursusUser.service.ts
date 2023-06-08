@@ -12,7 +12,7 @@ import type {
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   IntPerCircle,
-  UserCountPerLevels,
+  UserCountPerLevel,
 } from 'src/page/home/user/models/home.user.model';
 import { StatDate } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
@@ -209,8 +209,8 @@ export class CursusUserService {
     return cursusUserProfile;
   }
 
-  async userCountPerLevels(): Promise<UserCountPerLevels[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevels>();
+  async userCountPerLevels(): Promise<UserCountPerLevel[]> {
+    const aggregate = this.cursusUserModel.aggregate<UserCountPerLevel>();
 
     return await aggregate
       .addFields({ floorLevel: { $floor: '$level' } })
@@ -227,7 +227,7 @@ export class CursusUserService {
   }
 
   // todo: query, return type
-  async rank(
+  async ranking(
     key: string,
     limit?: number,
     filter?: FilterQuery<cursus_user>,
@@ -259,7 +259,7 @@ export class CursusUserService {
   }
 
   // executionTimeMillisEstimate: 319
-  async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
+  async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
     const aggregate = this.cursusUserModel.aggregate<IntPerCircle>();
 
     return await aggregate

@@ -14,7 +14,7 @@ export class IntPerCircle {
 }
 
 @ObjectType()
-export class UserCountPerLevels {
+export class UserCountPerLevel {
   @Field()
   userCount: number;
 
@@ -27,8 +27,8 @@ export class HomeUser {
   @Field((_type) => [IntRecord])
   activeUserCountRecords: IntRecord[];
 
-  @Field((_type) => [UserCountPerLevels])
-  userCountPerLevels: UserCountPerLevels[];
+  @Field((_type) => [UserCountPerLevel])
+  userCountPerLevel: UserCountPerLevel[];
 
   @Field()
   memberRate: IntRate;
@@ -40,14 +40,14 @@ export class HomeUser {
   blackholedCountByDateTemplate: IntDateRanged;
 
   @Field((_type) => [IntPerCircle])
-  blackholedCountPerCircles: IntPerCircle[];
+  blackholedCountPerCircle: IntPerCircle[];
 
   @Field((_type) => [UserRanking])
-  walletRanks: UserRanking[];
+  walletRanking: UserRanking[];
 
   @Field((_type) => [UserRanking])
-  correctionPointRanks: UserRanking[];
+  correctionPointRanking: UserRanking[];
 
   @Field((_type) => [IntPerCircle])
-  averageCircleDurations: IntPerCircle[];
+  averageDurationPerCircle: IntPerCircle[];
 }
