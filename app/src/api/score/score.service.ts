@@ -1,17 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
+import type { UserRanking } from 'src/common/models/common.user.model';
 import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
-import type { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
 import { lookupScores } from './db/score.database.aggregate';
 import { score } from './db/score.database.schema';
+import { addRank } from 'src/common/db/common.db.aggregation';
 
 @Injectable()
 export class ScoreService {
@@ -24,9 +25,9 @@ export class ScoreService {
 
   async scoreRank(
     filter?: FilterQuery<score>,
-  ): Promise<(LeaderboardRanking & { coalitionId: number })[]> {
+  ): Promise<(UserRanking & { coalitionId: number })[]> {
     const aggregate = this.cursusUserService.aggregate<
-      LeaderboardRanking & { coalitionId: number }
+      UserRanking & { coalitionId: number }
     >();
 
     return await aggregate
@@ -40,24 +41,17 @@ export class ScoreService {
         ),
       )
       .addFields({
-        scores: {
+        value: {
           $sum: '$scores.value',
         },
       })
-      .append({
-        $setWindowFields: {
-          sortBy: { scores: -1 },
-          output: {
-            rank: { $rank: {} },
-          },
-        },
-      })
+      .append(addRank())
       .append(addUserPreview('user'))
       .project({
         _id: 0,
         userPreview: 1,
         coalitionId: '$coalitions_users.coalitionId',
-        value: '$scores',
+        value: 1,
         rank: 1,
       });
   }

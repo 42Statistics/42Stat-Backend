@@ -17,23 +17,23 @@ export class LeaderboardEvalResolver {
     return {};
   }
 
-  @ResolveField('total', (_returns) => LeaderboardElement)
+  @ResolveField((_returns) => LeaderboardElement)
   async total(
     @Args('userId') userId: number,
-    @Args() paginationArgs: PaginationIndexArgs,
+    @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardEvalService.rank(userId, paginationArgs);
+    return await this.leaderboardEvalService.rank(userId, paginationIndexArgs);
   }
 
-  @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
+  @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
     @Args('userId') userId: number,
-    @Args() paginationArgs: PaginationIndexArgs,
+    @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     return await this.leaderboardEvalService.rankByDateTemplate(
       userId,
-      paginationArgs,
+      paginationIndexArgs,
       dateTemplate,
     );
   }

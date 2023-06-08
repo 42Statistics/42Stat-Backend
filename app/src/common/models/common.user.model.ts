@@ -1,6 +1,7 @@
 import { Field, Float, ObjectType, PickType } from '@nestjs/graphql';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
+import { IndexPaginated } from 'src/pagination/index/models/pagination.index.model';
 
 @ObjectType()
 export class UserPreview extends PickType(UserProfile, [
@@ -14,12 +15,12 @@ export class UserRanking {
   @Field((_type) => UserPreview)
   userPreview: UserPreview;
 
-  @Field((_type) => Float, { nullable: true })
-  value?: number;
+  @Field((_type) => Float)
+  value: number;
 
-  @Field({ nullable: true })
-  rank?: number;
+  @Field()
+  rank: number;
 }
 
 @ObjectType()
-export class UserRankingDateRanged extends ArrayDateRanged(UserRanking) {}
+export class UserRankingIndexPaginated extends IndexPaginated(UserRanking) {}

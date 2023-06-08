@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { LeaderboardFloatElement } from '../../models/leaderboard.model';
+import { LeaderboardElement } from '../../models/leaderboard.model';
 
 @ObjectType()
 export class LeaderboardLevel {
-  @Field((_type) => LeaderboardFloatElement)
-  total: LeaderboardFloatElement;
+  @Field((_type) => LeaderboardElement)
+  total: LeaderboardElement;
 }

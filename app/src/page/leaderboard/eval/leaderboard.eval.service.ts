@@ -11,7 +11,6 @@ import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.in
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
-  LeaderboardRanking,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
@@ -25,23 +24,23 @@ export class LeaderboardEvalService {
 
   async rank(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     filter?: FilterQuery<scale_team>,
   ): Promise<LeaderboardElement> {
-    const evalRanking: LeaderboardRanking[] =
-      await this.scaleTeamService.evalCountRank(filter);
+    const evalRanking = await this.scaleTeamService.evalCountRank(filter);
 
-    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
-      userId,
+    const me = this.leaderboardUtilService.findUser(evalRanking, userId);
+
+    return this.leaderboardUtilService.toLeaderboardElement(
+      me,
       evalRanking,
-      paginationArgs,
-      evalRanking.length,
+      paginationIndexArgs,
     );
   }
 
   async rankByDateRange(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<scale_team> = {
@@ -49,18 +48,22 @@ export class LeaderboardEvalService {
       filledAt: { $ne: null },
     };
 
-    const evalRanking = await this.rank(userId, paginationArgs, dateFilter);
+    const evalRanking = await this.rank(
+      userId,
+      paginationIndexArgs,
+      dateFilter,
+    );
 
     return this.dateRangeService.toDateRanged(evalRanking, dateRange);
   }
 
   async rankByDateTemplate(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.rankByDateRange(userId, paginationArgs, dateRange);
+    return this.rankByDateRange(userId, paginationIndexArgs, dateRange);
   }
 }

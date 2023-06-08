@@ -3,7 +3,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { IntRate } from 'src/common/models/common.rate.model';
-import { UserRanking } from 'src/common/models/common.user.model';
+import type { UserRanking } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';

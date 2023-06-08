@@ -1,10 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Aggregate, Model } from 'mongoose';
-import { UserRanking } from 'src/common/models/common.user.model';
-import { UserScoreRank } from 'src/page/personal/general/models/personal.general.userProfile.model';
 import { StatDate } from 'src/statDate/StatDate';
-import { ScoreInfo } from './db/coalitionsUser.database.aggregate';
 import { coalitions_user } from './db/coalitionsUser.database.schema';
 
 @Injectable()
@@ -66,64 +63,5 @@ export class CoalitionsUserService {
     }
 
     return aggregate;
-  }
-
-  async scoreRank(
-    start: Date,
-    end: Date,
-    limit: number = Number.MAX_SAFE_INTEGER,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.scoreInfo(start, end, limit);
-
-    return await aggregate
-      .lookup({
-        from: 'users',
-        localField: 'userId',
-        foreignField: 'id',
-        as: 'user',
-      })
-      .project({
-        _id: 0,
-        userPreview: {
-          id: '$userId',
-          login: { $first: '$user.login' },
-          imgUrl: { $first: '$user.image.link' },
-        },
-        value: '$scores',
-      });
-  }
-
-  async userScoreRank(
-    userId: number,
-    start: Date,
-    end: Date,
-  ): Promise<UserScoreRank> {
-    const rankInTotalArr: ScoreInfo[] = await this.scoreInfo(start, end);
-
-    const userRanking = rankInTotalArr.find(
-      (rankInTotal: ScoreInfo) => rankInTotal.userId === userId,
-    );
-    const coalitionId = userRanking?.coalitionId;
-    const value = userRanking?.scores;
-
-    const rankInCoalitionArr: ScoreInfo[] = rankInTotalArr.filter(
-      (rankInTotal: ScoreInfo) => rankInTotal.coalitionId === coalitionId,
-    );
-
-    const rankInCoalition =
-      rankInCoalitionArr.findIndex((rank) => rank.userId === userId) + 1;
-
-    const rankInTotal =
-      rankInTotalArr.findIndex((rank) => rank.userId === userId) + 1;
-
-    if (value === undefined) {
-      throw new NotFoundException();
-    }
-
-    return {
-      value,
-      rankInCoalition,
-      rankInTotal,
-    };
   }
 }

@@ -7,8 +7,8 @@ import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HomeUserService } from './home.user.service';
 import {
   HomeUser,
-  UserCountPerLevels,
   IntPerCircle,
+  UserCountPerLevels,
 } from './models/home.user.model';
 
 @Resolver((_of: unknown) => HomeUser)
@@ -20,27 +20,27 @@ export class HomeUserResolver {
     return {};
   }
 
-  @ResolveField('activeUserCountRecords', (_returns) => [IntRecord])
+  @ResolveField((_returns) => [IntRecord])
   async activeUserCountRecords(): Promise<IntRecord[]> {
     return await this.homeUserService.activeUserCountRecords();
   }
 
-  @ResolveField('userCountPerLevels', (_returns) => [UserCountPerLevels])
+  @ResolveField((_returns) => [UserCountPerLevels])
   async userCountPerLevel(): Promise<UserCountPerLevels[]> {
     return await this.homeUserService.userCountPerLevels();
   }
 
-  @ResolveField('memberRate', (_returns) => IntRate)
+  @ResolveField((_returns) => IntRate)
   async memberRate(): Promise<IntRate> {
     return await this.homeUserService.memberRate();
   }
 
-  @ResolveField('blackholedRate', (_returns) => IntRate)
+  @ResolveField((_returns) => IntRate)
   async blackholedRate(): Promise<IntRate> {
     return await this.homeUserService.blackholedRate();
   }
 
-  @ResolveField('blackholedCountByDateTemplate', (_returns) => IntDateRanged)
+  @ResolveField((_returns) => IntDateRanged)
   async blackholedCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ) {
@@ -49,26 +49,26 @@ export class HomeUserResolver {
     );
   }
 
-  @ResolveField('blackholedCountPerCircles', (_returns) => [IntPerCircle])
+  @ResolveField((_returns) => [IntPerCircle])
   async blackholedCountPerCircles(): Promise<IntPerCircle[]> {
     return await this.homeUserService.blackholedCountPerCircles();
   }
 
-  @ResolveField('walletRanks', (_returns) => [UserRanking])
+  @ResolveField((_returns) => [UserRanking])
   async walletRanks(
     @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
     return await this.homeUserService.walletRanks(limit);
   }
 
-  @ResolveField('correctionPointRanks', (_returns) => [UserRanking])
+  @ResolveField((_returns) => [UserRanking])
   async correctionPointRanks(
     @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRanking[]> {
     return await this.homeUserService.correctionPointRanks(limit);
   }
 
-  @ResolveField('averageCircleDurations', (_returns) => [IntPerCircle])
+  @ResolveField((_returns) => [IntPerCircle])
   async averageCircleDurations(): Promise<IntPerCircle[]> {
     return await this.homeUserService.averageCircleDurations();
   }

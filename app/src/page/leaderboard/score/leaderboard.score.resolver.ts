@@ -14,25 +14,24 @@ export class LeaderboardScoreResolver {
 
   @Query((_returns) => LeaderboardScore)
   async getLeaderboardScore() {
-    //todo: 쿼리에서 인자 받게 하기
     return {};
   }
 
-  @ResolveField('total', (_returns) => LeaderboardElement)
+  @ResolveField((_returns) => LeaderboardElement)
   async total(
-    @Args() paginationArgs: PaginationIndexArgs,
+    @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardScoreService.rank(99947, paginationArgs);
+    return await this.leaderboardScoreService.rank(99947, paginationIndexArgs);
   }
 
-  @ResolveField('byDateTemplate', (_returns) => LeaderboardElementDateRanged)
+  @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @Args() paginationArgs: PaginationIndexArgs,
+    @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ) {
     return await this.leaderboardScoreService.rankByDateTemplate(
       99947,
-      paginationArgs,
+      paginationIndexArgs,
       dateTemplate,
     );
   }
