@@ -1,24 +1,66 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import { score } from './db/score.database.schema';
 import type {
-  ScoreRecordPerCoalition,
   IntPerCoalition,
+  ScoreRecordPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
-import { UserRanking } from 'src/common/models/common.user.model';
-import { CursusUserService } from '../cursusUser/cursusUser.service';
-import { lookupScores } from './db/score.database.aggregate';
+import type { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
+import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
+import { lookupScores } from './db/score.database.aggregate';
+import { score } from './db/score.database.schema';
 
 @Injectable()
 export class ScoreService {
   constructor(
     @InjectModel(score.name)
     private scoreModel: Model<score>,
+    private coalitionService: CoalitionService,
     private cursusUserService: CursusUserService,
   ) {}
+
+  async scoreRank(
+    filter?: FilterQuery<score>,
+  ): Promise<(LeaderboardRanking & { coalitionId: number })[]> {
+    const aggregate = this.cursusUserService.aggregate<
+      LeaderboardRanking & { coalitionId: number }
+    >();
+
+    return await aggregate
+      .append(lookupCoalitionsUser('user.id', 'userId'))
+      .addFields({ coalitions_users: { $first: '$coalitions_users' } })
+      .append(
+        lookupScores(
+          'coalitions_users.id',
+          'coalitionsUserId',
+          filter ? [{ $match: filter }] : undefined,
+        ),
+      )
+      .addFields({
+        scores: {
+          $sum: '$scores.value',
+        },
+      })
+      .append({
+        $setWindowFields: {
+          sortBy: { scores: -1 },
+          output: {
+            rank: { $rank: {} },
+          },
+        },
+      })
+      .append(addUserPreview('user'))
+      .project({
+        _id: 0,
+        userPreview: 1,
+        coalitionId: '$coalitions_users.coalitionId',
+        value: '$scores',
+        rank: 1,
+      });
+  }
 
   async scoresPerCoalition(): Promise<IntPerCoalition[]> {
     const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
@@ -79,39 +121,32 @@ export class ScoreService {
       .project({ _id: 0, coalition: { $first: '$coalition' }, records: 1 });
   }
 
-  // 전체 범위 가져올때 3초
-  async scoreRank(filter?: FilterQuery<score>): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserService.aggregate<UserRanking>();
+  async tigCountPerCoalition(
+    targetCoalitionId: readonly number[],
+    filter?: FilterQuery<score>,
+  ): Promise<IntPerCoalition[]> {
+    const aggregate = this.coalitionService.aggregate<IntPerCoalition>();
 
     return await aggregate
-      .append(lookupCoalitionsUser('user.id', 'userId'))
-      .addFields({ coalitions_users: { $first: '$coalitions_users' } })
-      .append(
-        lookupScores(
-          'coalitions_users.id',
-          'coalitionsUserId',
-          filter ? [{ $match: filter }] : undefined,
-        ),
-      )
+      .match({ id: { $in: targetCoalitionId } })
       .addFields({
-        scores: {
-          $sum: '$scores.value',
-        },
+        coalition: '$$ROOT',
       })
-      .append({
-        $setWindowFields: {
-          sortBy: { scores: -1 },
-          output: {
-            rank: { $rank: {} },
+      .append(
+        lookupScores('id', 'coalitionId', [
+          {
+            $match: {
+              ...filter,
+              coalitionsUserId: { $ne: null },
+              value: { $lt: 0 },
+            },
           },
-        },
-      })
-      .append(addUserPreview('user'))
+        ]),
+      )
       .project({
         _id: 0,
-        userProfile: 1,
-        value: '$scores',
-        rank: 1,
+        coalition: 1,
+        value: { $size: '$scores' },
       });
   }
 }
