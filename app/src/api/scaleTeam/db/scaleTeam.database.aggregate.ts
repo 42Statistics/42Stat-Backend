@@ -23,29 +23,3 @@ export const lookupScaleTeams = (
   pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
 ): PipelineStage =>
   lookupStage('scale_teams', localField, foreignField, pipeline);
-
-/**
- *
- * @description
- * 평가자 id 로 묶은 다음, 평가 횟수로 정렬하여 반환합니다.
- *
- * @returns
- * ```ts
- * type DocType = {
- *    _id: number;
- *    login: string;
- *    value: number;
- *    rank: number;
- * };
- * ```
- */
-export const rankEvalCount: PipelineStage[] = [
-  {
-    $setWindowFields: {
-      sortBy: { value: -1 },
-      output: {
-        rank: { $rank: {} },
-      },
-    },
-  },
-];

@@ -53,8 +53,15 @@ type UserPreview {
 
 type UserRanking {
   userPreview: UserPreview!
-  value: Float
-  rank: Int
+  value: Float!
+  rank: Int!
+}
+
+type UserRankingIndexPaginated {
+  nodes: [UserRanking]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
 }
 
 type ProjectPreview {
@@ -224,48 +231,15 @@ type HomeUser {
   walletRanks(limit: Int! = 5): [UserRanking!]!
   correctionPointRanks(limit: Int! = 5): [UserRanking!]!
   averageCircleDurations: [IntPerCircle!]!
-}
-
-type LeaderboardRanking {
-  userPreview: UserPreview!
-  value: Int!
-  rank: Int!
-}
-
-type LeaderboardFloatRanking {
-  userPreview: UserPreview!
-  value: Float!
-  rank: Int!
-}
-
-type LeaderboardRankingPaginated {
-  nodes: [LeaderboardRanking]!
-  totalCount: Int!
-  pageSize: Int!
-  pageNumber: Int!
-}
-
-type LeaderboardFloatRankingPaginated {
-  nodes: [LeaderboardFloatRanking]!
-  totalCount: Int!
-  pageSize: Int!
-  pageNumber: Int!
+  userCountPerLevel: [UserCountPerLevels!]!
 }
 
 type LeaderboardElement {
   """내 랭킹 정보"""
-  me: LeaderboardRanking
+  me: UserRanking
 
   """전체 랭킹 정보"""
-  totalRanks: LeaderboardRankingPaginated!
-}
-
-type LeaderboardFloatElement {
-  """내 랭킹 정보"""
-  me: LeaderboardFloatRanking
-
-  """전체 랭킹 정보"""
-  totalRanks: LeaderboardFloatRankingPaginated!
+  totalRanks: UserRankingIndexPaginated!
 }
 
 type LeaderboardElementDateRanged {
@@ -284,7 +258,7 @@ type LeaderboardExp {
 }
 
 type LeaderboardLevel {
-  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardFloatElement!
+  total(userId: Int!, pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
 }
 
 type LeaderboardScore {

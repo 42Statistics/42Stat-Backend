@@ -1,6 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
-import { LeaderboardFloatElement } from '../models/leaderboard.model';
+import { LeaderboardElement } from '../models/leaderboard.model';
 import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevel } from './models/leaderboard.level.model';
 
@@ -13,15 +13,15 @@ export class LeaderboardLevelResolver {
     return {};
   }
 
-  @ResolveField('total', (_returns) => LeaderboardFloatElement)
+  @ResolveField((_returns) => LeaderboardElement)
   async total(
     @Args('userId') userId: number,
-    @Args() paginationArgs: PaginationIndexArgs,
-  ): Promise<LeaderboardFloatElement> {
+    @Args() paginationIndexArgs: PaginationIndexArgs,
+  ): Promise<LeaderboardElement> {
     return await this.leaderboardLevelService.rank(
       userId,
       3000, //todo: limit
-      paginationArgs,
+      paginationIndexArgs,
     );
   }
 }

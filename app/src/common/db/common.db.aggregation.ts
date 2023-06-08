@@ -35,3 +35,26 @@ export const lookupStage = (
 
   return lookupStage;
 };
+
+/**
+ *
+ * @description
+ * value 로 정렬하여 rank 를 추가합니다.
+ *
+ * @returns
+ * ```ts
+ * type AddType = {
+ *    rank: number;
+ * };
+ * ```
+ */
+export const addRank = (
+  sortBy?: PipelineStage.SetWindowFields['$setWindowFields']['sortBy'],
+): PipelineStage.SetWindowFields => ({
+  $setWindowFields: {
+    sortBy: sortBy ?? { value: -1 },
+    output: {
+      rank: { $rank: {} },
+    },
+  },
+});

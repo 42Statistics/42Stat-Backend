@@ -23,22 +23,24 @@ export class LeaderboardScoreService {
 
   async rank(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     filter?: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
     const scoreRanking = await this.scoreService.scoreRank(filter);
 
-    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
-      userId,
-      scoreRanking,
-      paginationArgs,
-      scoreRanking.length,
+    const me = this.leaderboardUtilService.findUser(scoreRanking, userId);
+    const totalRanks = scoreRanking.filter(({ value }) => value >= 0);
+
+    return this.leaderboardUtilService.toLeaderboardElement(
+      me,
+      totalRanks,
+      paginationIndexArgs,
     );
   }
 
   async rankByDateRange(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
@@ -47,18 +49,22 @@ export class LeaderboardScoreService {
       },
     };
 
-    const scoreRanking = await this.rank(userId, paginationArgs, dateFilter);
+    const scoreRanking = await this.rank(
+      userId,
+      paginationIndexArgs,
+      dateFilter,
+    );
 
     return this.dateRangeService.toDateRanged(scoreRanking, dateRange);
   }
 
   async rankByDateTemplate(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return this.rankByDateRange(userId, paginationArgs, dateRange);
+    return this.rankByDateRange(userId, paginationIndexArgs, dateRange);
   }
 }

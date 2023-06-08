@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { UserRanking } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
@@ -9,7 +10,6 @@ import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.in
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
-  LeaderboardRanking,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
@@ -74,40 +74,41 @@ export class LeaderboardExpService {
 
   async rank(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     filter: FilterQuery<unknown>,
   ): Promise<LeaderboardElement> {
-    const expRanking: LeaderboardRanking[] = this.tempResult;
+    const expRanking: UserRanking[] = this.tempResult;
 
-    return this.leaderboardUtilService.leaderboardRankingToLeaderboardElement(
-      userId,
+    const me = this.leaderboardUtilService.findUser(expRanking, userId);
+
+    return this.leaderboardUtilService.toLeaderboardElement(
+      me,
       expRanking,
-      paginationArgs,
-      expRanking.length,
+      paginationIndexArgs,
     );
   }
 
   async rankByDateRange(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRangeArgs,
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<unknown> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
       filledAt: { $ne: null },
     };
-    const expRanking = await this.rank(userId, paginationArgs, dateFilter);
+    const expRanking = await this.rank(userId, paginationIndexArgs, dateFilter);
 
     return this.dateRangeService.toDateRanged(expRanking, dateRange);
   }
 
   async rankByDateTemplate(
     userId: number,
-    paginationArgs: PaginationIndexArgs,
+    paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    return await this.rankByDateRange(userId, paginationArgs, dateRange);
+    return await this.rankByDateRange(userId, paginationIndexArgs, dateRange);
   }
 }

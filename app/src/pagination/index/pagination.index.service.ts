@@ -6,7 +6,6 @@ import { IIndexPaginatedType } from './models/pagination.index.model';
 export class PaginationIndexService {
   toPaginated<T>(
     nodes: T[],
-    totalCount: number,
     { pageSize, pageNumber }: PaginationIndexArgs,
   ): IIndexPaginatedType<T> {
     const startIndex = (pageNumber - 1) * pageSize;
@@ -15,7 +14,7 @@ export class PaginationIndexService {
 
     return {
       nodes: paginatedData,
-      totalCount,
+      totalCount: nodes.length,
       pageSize,
       pageNumber,
     };

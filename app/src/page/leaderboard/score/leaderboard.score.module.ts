@@ -3,7 +3,6 @@ import { ScoreModule } from 'src/api/score/score.module';
 import { ScoreService } from 'src/api/score/score.service';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardScoreResolver } from './leaderboard.score.resolver';
@@ -16,7 +15,6 @@ import { LeaderboardScoreService } from './leaderboard.score.service';
     LeaderboardScoreService,
     LeaderboardUtilService,
     ScoreService,
-    PaginationIndexService,
     DateRangeService,
   ],
 })

@@ -1,18 +1,22 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model } from 'mongoose';
-import type { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
-import type { UserPreview } from 'src/common/models/common.user.model';
+import {
+  AggrNumericPerDate,
+  addRank,
+} from 'src/common/db/common.db.aggregation';
+import type {
+  UserPreview,
+  UserRanking,
+} from 'src/common/models/common.user.model';
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   IntPerCircle,
   UserCountPerLevels,
 } from 'src/page/home/user/models/home.user.model';
-import { LeaderboardRanking } from 'src/page/leaderboard/models/leaderboard.model';
 import { StatDate } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
-import { rankEvalCount } from '../scaleTeam/db/scaleTeam.database.aggregate';
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import {
@@ -227,8 +231,8 @@ export class CursusUserService {
     key: string,
     limit?: number,
     filter?: FilterQuery<cursus_user>,
-  ): Promise<LeaderboardRanking[]> {
-    const aggregate = this.cursusUserModel.aggregate<LeaderboardRanking>();
+  ): Promise<UserRanking[]> {
+    const aggregate = this.cursusUserModel.aggregate<UserRanking>();
 
     if (filter) {
       aggregate.match(filter);
@@ -244,7 +248,7 @@ export class CursusUserService {
     }
 
     return await aggregate
-      .append(...rankEvalCount)
+      .append(addRank())
       .append(addUserPreview('user'))
       .project({
         _id: 0,
