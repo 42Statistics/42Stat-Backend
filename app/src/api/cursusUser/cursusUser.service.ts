@@ -1,10 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { Aggregate, FilterQuery, Model } from 'mongoose';
-import {
-  AggrNumericPerDate,
-  addRank,
-} from 'src/common/db/common.db.aggregation';
+import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
+import { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
+import type { QueryArg } from 'src/common/db/common.db.query';
 import type {
   UserPreview,
   UserRanking,
@@ -17,30 +15,29 @@ import type {
 import { StatDate } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import {
-  UserFullProfile,
-  addUserPreview,
-} from './db/cursusUser.database.aggregate';
+import { UserFullProfile } from './db/cursusUser.database.aggregate';
 import {
   CursusUserDocument,
   User,
   cursus_user,
 } from './db/cursusUser.database.schema';
 
-export const FT_CURSUS = 21;
+export const FT_CURSUS_ID = 21;
 
-//todo: common database
-// type QueryArg<Schema> = {
-//   filter?: FilterQuery<Schema>;
-//   limit?: number;
-//   sort: {
-//     key: keyof Schema;
-//     value: 1 | -1;
-//   };
-//   projection?: {};
-// };
+// todo: quest 목록 적절한 곳 찾아주기
+export const COMMON_CORE_QUEST_ID = 37;
+export const INNER_QUEST_IDS = [
+  COMMON_CORE_QUEST_ID,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+] as const;
 
 @Injectable()
 export class CursusUserService {
@@ -54,13 +51,23 @@ export class CursusUserService {
   }
 
   async findAll(
-    filter: FilterQuery<CursusUserDocument> = {},
+    queryArg?: Partial<QueryArg<cursus_user>>,
   ): Promise<CursusUserDocument[]> {
-    return await this.cursusUserModel.find(filter);
+    const query = this.cursusUserModel.find(queryArg?.filter ?? {});
+
+    if (queryArg?.sort) {
+      query.sort(queryArg.sort);
+    }
+
+    if (queryArg?.limit) {
+      query.limit(queryArg.limit);
+    }
+
+    return await query;
   }
 
   async findOne(
-    filter: FilterQuery<CursusUserDocument> = {},
+    filter: FilterQuery<cursus_user> = {},
   ): Promise<CursusUserDocument> {
     const cursusUser = await this.cursusUserModel.findOne(filter);
 
@@ -134,6 +141,39 @@ export class CursusUserService {
     return [...result.values()];
   }
 
+  async userFullProfile(userId: number): Promise<UserFullProfile> {
+    const aggregate = this.cursusUserModel.aggregate<UserFullProfile>();
+
+    const [cursusUserProfile] = await aggregate
+      .match({ 'user.id': userId, 'cursus.id': FT_CURSUS_ID })
+      .addFields({
+        cursusUser: '$$ROOT',
+      })
+      .append(
+        lookupCoalitionsUser('user.id', 'userId', [
+          lookupCoalition('coalitionId', 'id'),
+          { $addFields: { coalitions: { $first: '$coalitions' } } },
+        ]),
+      )
+      .append(
+        lookupTitlesUser('user.id', 'userId', [
+          lookupTitle('titleId', 'id'),
+          { $addFields: { titles: { $first: '$titles' } } },
+        ]),
+      )
+      .project({
+        cursusUser: 1,
+        coalition: { $first: '$coalitions_users.coalitions' },
+        titlesUsers: '$titles_users',
+      });
+
+    if (!cursusUserProfile) {
+      throw new NotFoundException();
+    }
+
+    return cursusUserProfile;
+  }
+
   async userCount(filter?: FilterQuery<CursusUserDocument>): Promise<number> {
     if (!filter) {
       return await this.cursusUserModel.estimatedDocumentCount();
@@ -142,7 +182,7 @@ export class CursusUserService {
     return await this.cursusUserModel.countDocuments(filter);
   }
 
-  async countPerMonth(
+  async userCountPerMonth(
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
@@ -176,39 +216,6 @@ export class CursusUserService {
       });
   }
 
-  async userFullProfile(userId: number): Promise<UserFullProfile> {
-    const aggregate = this.cursusUserModel.aggregate<UserFullProfile>();
-
-    const [cursusUserProfile] = await aggregate
-      .match({ 'user.id': userId, 'cursus.id': FT_CURSUS })
-      .addFields({
-        cursusUser: '$$ROOT',
-      })
-      .append(
-        lookupCoalitionsUser('user.id', 'userId', [
-          lookupCoalition('coalitionId', 'id'),
-          { $addFields: { coalitions: { $first: '$coalitions' } } },
-        ]),
-      )
-      .append(
-        lookupTitlesUser('user.id', 'userId', [
-          lookupTitle('titleId', 'id'),
-          { $addFields: { titles: { $first: '$titles' } } },
-        ]),
-      )
-      .project({
-        cursusUser: 1,
-        coalition: { $first: '$coalitions_users.coalitions' },
-        titlesUsers: '$titles_users',
-      });
-
-    if (!cursusUserProfile) {
-      throw new NotFoundException();
-    }
-
-    return cursusUserProfile;
-  }
-
   async userCountPerLevels(): Promise<UserCountPerLevel[]> {
     const aggregate = this.cursusUserModel.aggregate<UserCountPerLevel>();
 
@@ -226,102 +233,81 @@ export class CursusUserService {
       .sort({ level: 1 });
   }
 
-  // todo: query, return type
-  async ranking(
-    key: string,
-    limit?: number,
+  /**
+   *
+   * @example
+   *
+   * ```ts
+   * userCountPerCircle(blackholedFilter);
+   * userCountPerCircle(aliveFilter);
+   * ```
+   */
+  async userCountPerCircle(
     filter?: FilterQuery<cursus_user>,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserRanking>();
+  ): Promise<IntPerCircle[]> {
+    const aggregate = this.cursusUserModel.aggregate<{
+      _id: number | null;
+      value: number;
+    }>();
 
     if (filter) {
       aggregate.match(filter);
     }
 
-    aggregate
-      .match({ 'user.active?': true })
-      .match({ 'user.kind': 'student' })
-      .addFields({ value: `$${key}` })
-      .append(addRank());
-
-    if (limit) {
-      aggregate.limit(limit);
-    }
-
-    return await aggregate.append(addUserPreview('user')).project({
-      _id: 0,
-      userPreview: 1,
-      value: 1,
-      rank: 1,
-    });
-  }
-
-  // executionTimeMillisEstimate: 319
-  async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
-    const aggregate = this.cursusUserModel.aggregate<IntPerCircle>();
-
-    return await aggregate
-      .match({
-        blackholedAt: {
-          $ne: null,
-          $lt: new StatDate(),
-        },
-      })
-      .lookup({
-        from: 'quests_users',
-        localField: 'user.id',
-        foreignField: 'user.id',
-        pipeline: [
+    const countPerCircle = await aggregate
+      .append(
+        lookupQuestsUser('user.id', 'user.id', [
           {
             $match: {
-              validatedAt: {
-                $ne: null,
-              },
-              'quest.slug': {
-                $ne: 'exam-rank-06',
-              },
+              'quest.id': { $in: INNER_QUEST_IDS },
+              validatedAt: { $ne: null },
             },
           },
           {
-            $project: {
-              validatedAt: 1,
-              slug: '$quest.slug',
-            },
+            $sort: { validatedAt: -1 },
           },
-        ],
-        as: 'quests_users',
-      })
-      .unwind({
-        path: '$quests_users',
-        preserveNullAndEmptyArrays: true,
-      })
+        ]),
+      )
       .group({
-        _id: '$user.id',
-        slug: {
-          $addToSet: '$quests_users.slug',
-        },
+        _id: { $first: '$quests_users.quest.id' },
+        value: { $count: {} },
       })
-      .addFields({
-        size: {
-          $size: '$slug',
-        },
-      })
-      .group({
-        _id: '$size',
-        value: {
-          $count: {},
-        },
-      })
-      .addFields({
-        circle: '$_id',
-      })
-      .project({
-        _id: 0,
-        circle: 1,
-        value: 1,
-      })
-      .sort({
-        circle: 1,
-      });
+      .sort({ _id: 1 });
+
+    const commonCoreIndex = countPerCircle.findIndex(
+      ({ _id }) => _id === COMMON_CORE_QUEST_ID,
+    );
+
+    if (commonCoreIndex !== -1) {
+      countPerCircle.push(...countPerCircle.splice(commonCoreIndex, 1));
+    }
+
+    return countPerCircle.map(({ value }, index) => ({
+      circle: index,
+      value,
+    }));
+  }
+
+  async ranking(
+    {
+      filter,
+      sort,
+      limit,
+    }: Omit<QueryArg<cursus_user>, 'sort'> & {
+      sort: Record<string, SortValues>;
+    },
+    valueExtractor: (doc: CursusUserDocument) => UserRanking['value'],
+  ): Promise<UserRanking[]> {
+    const rawRanking = await this.findAll({ filter, sort, limit });
+
+    return rawRanking.map((rawRank, index) => ({
+      userPreview: {
+        id: rawRank.user.id,
+        login: rawRank.user.login,
+        imgUrl: rawRank.user.image.link,
+      },
+      value: valueExtractor(rawRank),
+      rank: index + 1,
+    }));
   }
 }

@@ -19,7 +19,6 @@ export class LeaderboardLevelResolver {
   ): Promise<LeaderboardElement> {
     return await this.leaderboardLevelService.ranking(
       99947,
-      3000, //todo: limit
       paginationIndexArgs,
     );
   }
