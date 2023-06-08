@@ -1,5 +1,7 @@
-import { PipelineStage } from 'mongoose';
-import { lookupStage } from 'src/common/db/common.db.aggregation';
+import {
+  CollectionLookup,
+  lookupStage,
+} from 'src/common/db/common.db.aggregation';
 // eslint-disable-next-line
 import type { title } from './title.database.schema';
 
@@ -17,9 +19,9 @@ import type { title } from './title.database.schema';
  *
  * @see title
  */
-export const lookupTitle = (
-  localField: string,
-  foreignField: string,
-  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+export const lookupTitle: CollectionLookup = (
+  localField,
+  foreignField,
+  pipeline,
 ): ReturnType<typeof lookupStage> =>
   lookupStage('titles', localField, foreignField, pipeline);
