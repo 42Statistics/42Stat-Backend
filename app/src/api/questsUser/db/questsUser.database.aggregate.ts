@@ -1,6 +1,10 @@
-//import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
+import {
+  CollectionLookup,
+  lookupStage,
+} from 'src/common/db/common.db.aggregation';
 
-//type Circle = { circle: number };
-//export type ValuePerCircle = Circle & AggrNumeric;
-//type Promo = { promo: string };
-//export type ValuePerCircleByPromo = ValuePerCircle & Promo;
+export const lookupQuestsUser: CollectionLookup = (
+  localField,
+  foreignField,
+  pipeline,
+) => lookupStage('quests_users', localField, foreignField, pipeline);

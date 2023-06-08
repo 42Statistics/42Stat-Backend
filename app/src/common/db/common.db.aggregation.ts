@@ -14,6 +14,12 @@ export type AggrDatePartition = {
   };
 };
 
+export type CollectionLookup = (
+  localField: string,
+  foreignField: string,
+  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
+) => ReturnType<typeof lookupStage>;
+
 export const lookupStage = (
   collection: string,
   localField: string,

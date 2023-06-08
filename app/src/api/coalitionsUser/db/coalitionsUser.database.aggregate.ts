@@ -1,5 +1,7 @@
-import { PipelineStage } from 'mongoose';
-import { lookupStage } from 'src/common/db/common.db.aggregation';
+import {
+  CollectionLookup,
+  lookupStage,
+} from 'src/common/db/common.db.aggregation';
 // eslint-disable-next-line
 import type { coalitions_user } from './coalitionsUser.database.schema';
 
@@ -23,9 +25,8 @@ export type ScoreInfo = {
  *
  * @see coalitions_user
  */
-export const lookupCoalitionsUser = (
-  localField: string,
-  foreignField: string,
-  pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
-): ReturnType<typeof lookupStage> =>
-  lookupStage('coalitions_users', localField, foreignField, pipeline);
+export const lookupCoalitionsUser: CollectionLookup = (
+  localField,
+  foreignField,
+  pipeline,
+) => lookupStage('coalitions_users', localField, foreignField, pipeline);
