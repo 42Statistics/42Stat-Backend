@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType, PickType } from '@nestjs/graphql';
-import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
 import { IndexPaginated } from 'src/pagination/index/models/pagination.index.model';
 

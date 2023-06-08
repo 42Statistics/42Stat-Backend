@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { IntRate } from 'src/common/models/common.rate.model';
@@ -9,6 +10,10 @@ import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
+import {
+  aliveUserFilter,
+  blackholedUserFilter,
+} from 'src/api/cursusUser/db/cursusUser.database.query';
 
 @Injectable()
 export class HomeUserService {
@@ -27,12 +32,12 @@ export class HomeUserService {
       end: now,
     };
 
-    const newPromoCounts = await this.cursusUserService.countPerMonth(
+    const newPromoCounts = await this.cursusUserService.userCountPerMonth(
       'beginAt',
       dateRange,
     );
 
-    const blackholedCounts = await this.cursusUserService.countPerMonth(
+    const blackholedCounts = await this.cursusUserService.userCountPerMonth(
       'blackholedAt',
       dateRange,
     );
@@ -83,7 +88,7 @@ export class HomeUserService {
       end: now < end ? now : end,
     };
 
-    const blackholedCount = await this.cursusUserService.countPerMonth(
+    const blackholedCount = await this.cursusUserService.userCountPerMonth(
       'blackholedAt',
       dateRange,
     );
@@ -103,15 +108,27 @@ export class HomeUserService {
   }
 
   async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
-    return await this.cursusUserService.blackholedCountPerCircle();
+    return await this.cursusUserService.userCountPerCircle(
+      blackholedUserFilter,
+    );
   }
 
   async walletRanks(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.ranking('user.wallet', limit);
+    return await this.cursusUserService.ranking(
+      { sort: { 'user.wallet': -1 }, limit },
+      (doc: CursusUserDocument) => doc.user.wallet,
+    );
   }
 
   async correctionPointRanking(limit: number): Promise<UserRanking[]> {
-    return await this.cursusUserService.ranking('user.correctionPoint', limit);
+    return await this.cursusUserService.ranking(
+      {
+        filter: aliveUserFilter,
+        sort: { 'user.correctionPoint': -1 },
+        limit,
+      },
+      (doc: CursusUserDocument) => doc.user.correctionPoint,
+    );
   }
 
   async averageDuerationPerCircle(): Promise<IntPerCircle[]> {

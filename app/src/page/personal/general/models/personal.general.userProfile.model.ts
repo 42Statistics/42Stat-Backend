@@ -1,4 +1,4 @@
-import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { Coalition } from 'src/api/coalition/models/coalition.model';
 
 @ObjectType()
