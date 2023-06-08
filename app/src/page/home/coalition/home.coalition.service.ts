@@ -37,63 +37,19 @@ export class HomeCoalitionService {
   }
 
   async tigCountPerCoalitions(): Promise<IntPerCoalition[]> {
-    return [
-      {
-        coalition: {
-          id: 85,
-          name: 'Gun',
-          slug: 'gun',
-          imageUrl:
-            'https://cdn.intra.42.fr/coalition/image/85/gun-svg-svg.svg',
-          coverUrl: 'https://cdn.intra.42.fr/coalition/cover/85/gun_cover.jpg',
-          color: '#ffc221',
-          score: 73891,
-          userId: 107096,
-        },
-        value: 5,
-      },
-      {
-        coalition: {
-          id: 86,
-          name: 'Gon',
-          slug: 'gon',
-          imageUrl:
-            'https://cdn.intra.42.fr/coalition/image/86/gon-svg-svg.svg',
-          coverUrl: 'https://cdn.intra.42.fr/coalition/cover/86/gon_cover.jpg',
-          color: '#559f7a',
-          score: 71588,
-          userId: 99953,
-        },
-        value: 10,
-      },
-      {
-        coalition: {
-          id: 87,
-          name: 'Gam',
-          slug: 'gam',
-          imageUrl:
-            'https://cdn.intra.42.fr/coalition/image/87/gam-svg-svg__3_.svg',
-          coverUrl: 'https://cdn.intra.42.fr/coalition/cover/87/gam_cover.jpg',
-          color: '#4c83a4',
-          score: 56873,
-          userId: 103943,
-        },
-        value: 15,
-      },
-      {
-        coalition: {
-          id: 88,
-          name: 'Lee',
-          slug: 'lee',
-          imageUrl:
-            'https://cdn.intra.42.fr/coalition/image/88/lee-svg-svg_1_.svg',
-          coverUrl: 'https://cdn.intra.42.fr/coalition/cover/88/lee_cover.jpg',
-          color: '#bb4140',
-          score: 58545,
-          userId: 99733,
-        },
-        value: 20,
-      },
-    ];
+    const currMonth = new StatDate().startOfMonth();
+    const nextMonth = currMonth.moveMonth(1);
+
+    const dateFilter = {
+      createdAt: this.dateRangeService.aggrFilterFromDateRange({
+        start: currMonth,
+        end: nextMonth,
+      }),
+    };
+
+    return await this.scoreService.tigCountPerCoalition(
+      SEOUL_COALITION_ID,
+      dateFilter,
+    );
   }
 }
