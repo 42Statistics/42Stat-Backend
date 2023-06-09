@@ -1,35 +1,13 @@
 import { Injectable } from '@nestjs/common';
+import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
+import { ProjectRanking } from './models/home.team.model';
 
 @Injectable()
 export class HomeTeamService {
+  constructor(private projectsUserService: ProjectsUserService) {}
+
   async temp() {
     return {
-      currRegisteredCountRanking: [
-        {
-          projectPreview: {
-            id: '1',
-            name: 'ft_ping',
-            url: 'https://projects.intra.42.fr/projects/1',
-          },
-          value: 320,
-        },
-        {
-          projectPreview: {
-            id: '2',
-            name: 'libft',
-            url: 'https://projects.intra.42.fr/projects/1',
-          },
-          value: 280,
-        },
-        {
-          projectPreview: {
-            id: '3',
-            name: 'get_next_line',
-            url: 'https://projects.intra.42.fr/projects/1',
-          },
-          value: 220,
-        },
-      ],
       lastExamResult: {
         data: [
           { rank: 2, passCount: 9, totalCount: 20 },
@@ -42,5 +20,9 @@ export class HomeTeamService {
         end: new Date(),
       },
     };
+  }
+
+  async currRegisteredCountRanking(): Promise<ProjectRanking[]> {
+    return await this.projectsUserService.currRegisteredCountRanking();
   }
 }

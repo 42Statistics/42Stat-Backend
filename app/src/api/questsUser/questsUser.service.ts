@@ -22,7 +22,7 @@ export const INNER_QUEST_IDS = [
 export class QuestsUserService {
   constructor(
     @InjectModel(quests_user.name)
-    private questUserModel: Model<quests_user>,
+    private questUserModel: Model<quests_user>, //todo: s
   ) {}
 
   async findOne(
