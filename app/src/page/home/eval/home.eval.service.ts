@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import { aliveUserFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import type {
@@ -13,6 +15,7 @@ import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 export class HomeEvalService {
   constructor(
     private scaleTeamService: ScaleTeamService,
+    private cursusUserService: CursusUserService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -42,7 +45,19 @@ export class HomeEvalService {
   async averageEvalCountByDateRange(
     dateRange: DateRange,
   ): Promise<FloatDateRanged> {
-    return this.dateRangeService.toDateRanged(1.11, dateRange);
+    const evalCount = await this.evalCount({
+      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
+      filledAt: { $ne: null },
+    });
+
+    const activeUserCount = await this.cursusUserService.userCount(
+      aliveUserFilter,
+    );
+
+    return this.dateRangeService.toDateRanged(
+      Math.floor((evalCount / activeUserCount) * 100) / 100,
+      dateRange,
+    );
   }
 
   async averageEvalCountByDateTemplate(
