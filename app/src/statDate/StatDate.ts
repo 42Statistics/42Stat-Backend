@@ -1,8 +1,5 @@
-import {
-  AggrDatePartition,
-  AggrNumericPerDate,
-} from 'src/common/db/common.db.aggregation';
-import { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import type { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 
 const SEC = 1000;
 const MIN = SEC * 60;
@@ -100,7 +97,7 @@ export class StatDate extends Date {
    * start: 02-10, end: 04-20
    * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
    */
-  static partitionByMonth = ({ start, end }: DateRangeArgs): StatDate[] => {
+  static partitionByMonth = ({ start, end }: DateRange): StatDate[] => {
     const partitioned = [new StatDate(0), new StatDate(start)];
 
     for (
