@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
-import { CustomAuthGuard } from 'src/auth/customAuthGuard';
-import { CustomContext } from 'src/auth/customContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { MyContext } from 'src/auth/myContext';
 import {
   IntDateRanged,
   StringDateRanged,
@@ -18,7 +18,7 @@ import {
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
 
-@UseGuards(CustomAuthGuard)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
   constructor(
@@ -28,7 +28,7 @@ export class PersonalGeneralResolver {
 
   @Query((_returns) => PersonalGeneral)
   async getPersonalGeneralPage(
-    @CustomContext() myId: number,
+    @MyContext() myId: number,
     @Args('login', { nullable: true }) login?: string,
     @Args('userId', { nullable: true }) userId?: number,
   ): Promise<PersonalGeneralRoot> {

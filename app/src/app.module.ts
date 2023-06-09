@@ -5,12 +5,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
+import { StatAuthGuard } from './auth/statAuthGuard';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { HomeModule } from './page/home/home.module';
 import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
-import { CustomAuthGuard } from './auth/customAuthGuard';
 
 @Module({
   imports: [
@@ -33,6 +33,6 @@ import { CustomAuthGuard } from './auth/customAuthGuard';
       context: ({ req }) => ({ user: req.user }),
     }),
   ],
-  providers: [CustomAuthGuard],
+  providers: [StatAuthGuard],
 })
 export class AppModule {}
