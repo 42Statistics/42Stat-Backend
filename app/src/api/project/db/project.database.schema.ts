@@ -3,9 +3,8 @@ import { HydratedDocument } from 'mongoose';
 
 export type ProjectDocument = HydratedDocument<project>;
 
-// todo: 현재는 project base 기준, 추후 확장시 더 가져와야 함.
 @Schema()
-export class project {
+export class ProjectBase {
   @Prop({ required: true })
   id: number;
 
@@ -14,7 +13,11 @@ export class project {
 
   @Prop({ required: true })
   slug: string;
+}
 
+// todo: 현재는 project base 기준, 추후 확장시 더 가져와야 함.
+@Schema()
+export class project extends ProjectBase {
   @Prop({ required: false, type: Number })
   difficulty?: number;
 
