@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model } from 'mongoose';
+import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
+import type { QueryArgs } from 'src/common/db/common.db.query';
 import type { UserRanking } from 'src/common/models/common.user.model';
+import { EvalLogSortOrder } from 'src/page/evalLog/dto/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import {
@@ -10,7 +12,7 @@ import {
   lookupCursusUser,
 } from '../cursusUser/db/cursusUser.database.aggregate';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
-import { scale_team } from './db/scaleTeam.database.schema';
+import { ScaleTeamDocument, scale_team } from './db/scaleTeam.database.schema';
 
 @Injectable()
 export class ScaleTeamService {
@@ -20,21 +22,21 @@ export class ScaleTeamService {
     private cursusUserService: CursusUserService,
   ) {}
 
-  // async find(
-  //   filter: FilterQuery<scale_team> = {},
-  //   pageSize: number = 10,
-  //   pageNumber: number = 10,
-  // ): Promise<scale_team[]> {
-  //   if (pageSize < 1 || pageNumber < 1) {
-  //     throw new InternalServerErrorException();
-  //   }
+  async findAll(
+    queryArgs?: QueryArgs<scale_team>,
+  ): Promise<ScaleTeamDocument[]> {
+    const query = this.scaleTeamModel.find(queryArgs?.filter ?? {});
 
-  //   return await this.scaleTeamModel
-  //     .find(filter)
-  //     .sort({ beginAt: -1 })
-  //     .skip((pageNumber - 1) * pageSize)
-  //     .limit(pageSize);
-  // }
+    if (queryArgs?.sort) {
+      query.sort(queryArgs.sort);
+    }
+
+    if (queryArgs?.limit) {
+      query.limit(queryArgs.limit);
+    }
+
+    return await query;
+  }
 
   async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     if (!filter) {
@@ -112,12 +114,18 @@ export class ScaleTeamService {
     return reviewAggr?.value ?? 0;
   }
 
-  async averageDurationMinute(
+  /**
+   *
+   * @returns [총 평가 시간, 총 평가 횟수]
+   */
+  async durationInfo(
     filter?: FilterQuery<scale_team>,
-  ): Promise<number> {
-    const aggregate = this.scaleTeamModel.aggregate<AggrNumeric>();
+  ): Promise<[number, number]> {
+    const aggregate = this.scaleTeamModel.aggregate<
+      AggrNumeric & { count: number }
+    >();
 
-    const [sumOfDuration] = await aggregate
+    const [durationInfo] = await aggregate
       .match({
         filledAt: { $ne: null },
         ...filter,
@@ -125,7 +133,7 @@ export class ScaleTeamService {
       .group({
         _id: 'result',
         value: {
-          $avg: {
+          $sum: {
             $dateDiff: {
               startDate: '$beginAt',
               endDate: '$filledAt',
@@ -133,24 +141,22 @@ export class ScaleTeamService {
             },
           },
         },
-      })
-      .project({
-        _id: 0,
-        value: { $round: '$value' },
+        count: { $count: {} },
       });
 
-    return sumOfDuration?.value ?? 0;
+    return durationInfo ? [durationInfo.value, durationInfo.count] : [0, 0];
   }
 
   async evalLogs(
     limit: number,
+    sortOrder: EvalLogSortOrder,
     filter?: FilterQuery<scale_team>,
   ): Promise<EvalLog[]> {
     const aggregate = this.scaleTeamModel.aggregate<EvalLog>();
 
     return await aggregate
       .match({ ...filter, feedback: { $ne: null }, comment: { $ne: null } })
-      .sort({ beginAt: -1, id: -1 })
+      .sort(evalLogSort(sortOrder))
       .limit(limit)
       .lookup({
         from: 'projects',
@@ -216,3 +222,20 @@ export class ScaleTeamService {
       });
   }
 }
+
+const evalLogSort = (
+  sortOrder: EvalLogSortOrder,
+): Record<string, SortOrder> => {
+  switch (sortOrder) {
+    case EvalLogSortOrder.BEGIN_AT_ASC:
+      return {
+        beginAt: 1,
+        id: 1,
+      };
+    case EvalLogSortOrder.BEGIN_AT_DESC:
+      return {
+        beginAt: -1,
+        id: -1,
+      };
+  }
+};

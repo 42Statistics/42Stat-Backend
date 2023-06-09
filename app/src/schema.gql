@@ -388,5 +388,10 @@ type Query {
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
-  getEvalLogs(after: String, first: Int!, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false): EvalLogsPaginated!
+  getEvalLogs(after: String, first: Int!, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
+}
+
+enum EvalLogSortOrder {
+  BEGIN_AT_ASC
+  BEGIN_AT_DESC
 }
