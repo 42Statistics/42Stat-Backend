@@ -84,9 +84,9 @@ export class PersonalEvalResolver {
     );
   }
 
-  @ResolveField((_returns) => String)
-  async latestFeedback(@Root() root: PersonalEvalRoot): Promise<string> {
-    return await this.personalEvalService.latestFeedback(root.userProfile.id);
+  @ResolveField((_returns) => String, { nullable: true })
+  async lastComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
+    return await this.personalEvalService.lastComment(root.userProfile.id);
   }
 
   @ResolveField((_returns) => String)

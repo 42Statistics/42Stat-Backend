@@ -1,8 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import {
-  IntDateRanged,
-  StringDateRanged,
-} from 'src/common/models/common.dateRanaged.model';
+import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
@@ -62,6 +59,15 @@ export class PreferredTime {
 
 @ObjectType()
 export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
+
+@ObjectType()
+export class PreferredCluster {
+  @Field((_type) => String, { nullable: true })
+  name: string | null;
+}
+
+@ObjectType()
+export class PreferredClusterDateRanged extends DateRanged(PreferredCluster) {}
 
 @ObjectType()
 export class TeamInfo {
@@ -128,7 +134,7 @@ export class PersonalGeneral {
   preferredTimeByDateTemplate: PreferredTimeDateRanged;
 
   @Field()
-  preferredClusterByDateTemplate: StringDateRanged;
+  preferredClusterByDateTemplate: PreferredClusterDateRanged;
 
   @Field()
   teamInfo: TeamInfo;

@@ -139,15 +139,12 @@ export class LocationService {
       .project({
         morning: {
           $floor: {
-            $divide: [
-              { $sum: { $add: ['$06to09', '$09to12'] } },
-              StatDate.HOUR,
-            ],
+            $divide: [{ $sum: { $add: ['$06to09', '$09to12'] } }, StatDate.MIN],
           },
         },
-        daytime: { $floor: { $divide: ['$12to18', StatDate.HOUR] } },
-        evening: { $floor: { $divide: ['$18to24', StatDate.HOUR] } },
-        night: { $floor: { $divide: ['$00to06', StatDate.HOUR] } },
+        daytime: { $floor: { $divide: ['$12to18', StatDate.MIN] } },
+        evening: { $floor: { $divide: ['$18to24', StatDate.MIN] } },
+        night: { $floor: { $divide: ['$00to06', StatDate.MIN] } },
       })
       .addFields({
         total: { $sum: ['$morning', '$daytime', '$evening', '$night'] },
@@ -167,7 +164,7 @@ export class LocationService {
   async preferredCluster(
     userId: number,
     filter?: FilterQuery<location>,
-  ): Promise<string> {
+  ): Promise<string | null> {
     const aggregate = this.locationModel.aggregate<AggrNumericPerCluster>();
 
     aggregate.match({ 'user.id': userId });
@@ -195,23 +192,21 @@ export class LocationService {
                 $dateDiff: {
                   startDate: '$beginAt',
                   endDate: '$endAt',
-                  unit: 'hour',
+                  unit: 'millisecond',
                 },
               },
             },
           },
         },
       })
-      .project({ value: { $sum: '$duration' } })
-      .addFields({ value: '$value', cluster: '$_id' })
-      .project({ _id: 0 })
+      .addFields({
+        value: { $sum: '$duration' },
+        cluster: '$_id',
+      })
+      .project({ _id: 0, value: 1, cluster: 1 })
       .sort({ value: -1 });
 
-    if (!durationTimePerCluster) {
-      return 'null';
-    }
-
-    return durationTimePerCluster.cluster;
+    return durationTimePerCluster?.cluster ?? null;
   }
 
   async logtime(
@@ -244,7 +239,7 @@ export class LocationService {
         },
       })
       .addFields({
-        value: { $floor: { $divide: [{ $sum: '$duration' }, StatDate.HOUR] } },
+        value: { $floor: { $divide: [{ $sum: '$duration' }, StatDate.MIN] } },
       })
       .project({
         _id: 0,
