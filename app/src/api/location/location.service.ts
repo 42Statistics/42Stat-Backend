@@ -137,8 +137,7 @@ export class LocationService {
         '18to24': { $sum: '$09to15' },
       })
       .project({
-        morning: { $floor: { $divide: ['$00to06', StatDate.HOUR] } },
-        daytime: {
+        morning: {
           $floor: {
             $divide: [
               { $sum: { $add: ['$06to09', '$09to12'] } },
@@ -146,8 +145,9 @@ export class LocationService {
             ],
           },
         },
-        evening: { $floor: { $divide: ['$12to18', StatDate.HOUR] } },
-        night: { $floor: { $divide: ['$18to24', StatDate.HOUR] } },
+        daytime: { $floor: { $divide: ['$12to18', StatDate.HOUR] } },
+        evening: { $floor: { $divide: ['$18to24', StatDate.HOUR] } },
+        night: { $floor: { $divide: ['$00to06', StatDate.HOUR] } },
       })
       .addFields({
         total: { $sum: ['$morning', '$daytime', '$evening', '$night'] },

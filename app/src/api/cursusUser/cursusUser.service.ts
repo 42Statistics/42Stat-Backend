@@ -19,7 +19,10 @@ import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import { UserFullProfile } from './db/cursusUser.database.aggregate';
-import { blackholedUserFilter } from './db/cursusUser.database.query';
+import {
+  aliveUserFilter,
+  blackholedUserFilter,
+} from './db/cursusUser.database.query';
 import {
   CursusUserDocument,
   User,
@@ -218,6 +221,7 @@ export class CursusUserService {
     const aggregate = this.cursusUserModel.aggregate<UserCountPerLevel>();
 
     return await aggregate
+      .match(aliveUserFilter)
       .addFields({ floorLevel: { $floor: '$level' } })
       .group({
         _id: '$floorLevel',
