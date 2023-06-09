@@ -8,6 +8,11 @@ import { UserProfile } from 'src/page/personal/general/models/personal.general.u
 //   score: number;
 // }
 
+export type PersonalEvalRoot = Pick<
+  PersonalEval,
+  'userProfile' | 'correctionPoint'
+>;
+
 @ObjectType()
 export class PersonalEval {
   @Field((_type) => UserProfile)

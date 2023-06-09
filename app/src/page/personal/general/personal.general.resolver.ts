@@ -1,4 +1,11 @@
-import { Args, Context, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Context,
+  Query,
+  ResolveField,
+  Resolver,
+  Root,
+} from '@nestjs/graphql';
 import {
   IntDateRanged,
   StringDateRanged,
@@ -8,6 +15,7 @@ import { PersonalUtilService } from '../util/personal.util.service';
 import {
   LevelRecord,
   PersonalGeneral,
+  PersonalGeneralRoot,
   PreferredTimeDateRanged,
   TeamInfo,
   UserScoreInfo,
@@ -30,17 +38,12 @@ export class PersonalGeneralResolver {
     @Context() context: PersonalGeneralContext,
     @Args('login', { nullable: true }) login?: string,
     @Args('userId', { nullable: true }) userId?: number,
-  ): Promise<
-    Pick<PersonalGeneral, 'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'>
-  > {
+  ): Promise<PersonalGeneralRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
       context,
       login,
       userId,
     );
-
-    // todo: auth guard
-    context.userId = targetUserId;
 
     return await this.personalGeneralService.personalGeneralProfile(
       targetUserId,
@@ -49,55 +52,53 @@ export class PersonalGeneralResolver {
 
   @ResolveField((_returns) => UserScoreInfo)
   async scoreInfo(
-    @Context() context: PersonalGeneralContext,
+    @Root() root: PersonalGeneralRoot,
   ): Promise<UserScoreInfo | null> {
-    return await this.personalGeneralService.scoreInfo(context.userId);
+    return await this.personalGeneralService.scoreInfo(root.userProfile.id);
   }
 
   @ResolveField((_returns) => IntDateRanged)
   async logtimeByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
-    @Context() context: PersonalGeneralContext,
+    @Root() root: PersonalGeneralRoot,
   ): Promise<IntDateRanged> {
     return await this.personalGeneralService.logtimeByDateTemplate(
-      context.userId,
+      root.userProfile.id,
       dateTemplate,
     );
   }
 
   @ResolveField((_returns) => PreferredTimeDateRanged)
   async preferredTimeByDateTemplate(
-    @Context() context: PersonalGeneralContext,
+    @Root() root: PersonalGeneralRoot,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<PreferredTimeDateRanged> {
     return await this.personalGeneralService.preferredTimeByDateTemplate(
-      context.userId,
+      root.userProfile.id,
       dateTemplate,
     );
   }
 
   @ResolveField((_returns) => StringDateRanged)
   async preferredClusterByDateTemplate(
-    @Context() context: PersonalGeneralContext,
+    @Root() root: PersonalGeneralRoot,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<StringDateRanged> {
     return await this.personalGeneralService.preferredClusterByDateTemplate(
-      context.userId,
+      root.userProfile.id,
       dateTemplate,
     );
   }
 
   @ResolveField((_returns) => TeamInfo)
-  async teamInfo(
-    @Context() context: PersonalGeneralContext,
-  ): Promise<TeamInfo> {
-    return await this.personalGeneralService.teamInfo(context.userId);
+  async teamInfo(@Root() root: PersonalGeneralRoot): Promise<TeamInfo> {
+    return await this.personalGeneralService.teamInfo(root.userProfile.id);
   }
 
   @ResolveField((_returns) => [LevelRecord])
   async levelRecords(
-    @Context() context: PersonalGeneralContext,
+    @Root() root: PersonalGeneralRoot,
   ): Promise<LevelRecord[]> {
-    return await this.personalGeneralService.levelRecords(context.userId);
+    return await this.personalGeneralService.levelRecords(root.userProfile.id);
   }
 }
