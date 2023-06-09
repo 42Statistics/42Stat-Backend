@@ -67,14 +67,18 @@ export class HomeUserService {
     return await this.cursusUserService.userCountPerLevels();
   }
 
-  //todo: description: 비활성화 유저도 직전 상태로 포함
   async memberRate(): Promise<IntRate> {
-    return { total: 2038, value: 240 };
+    const total = await this.cursusUserService.userCount();
+    const value = await this.cursusUserService.userCount({ grade: 'Member' });
+
+    return { total, value };
   }
 
-  //todo: description: 비활성화 유저도 직전 상태로 포함
   async blackholedRate(): Promise<IntRate> {
-    return { total: 2038, value: 1038 };
+    const total = await this.cursusUserService.userCount();
+    const value = await this.cursusUserService.userCount(blackholedUserFilter);
+
+    return { total, value };
   }
 
   async blackholedCountByDateRange({

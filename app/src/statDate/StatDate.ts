@@ -93,6 +93,7 @@ export class StatDate extends Date {
     return copy;
   };
 
+  // todo: cursus user 로 이동?
   /**
    *
    * @example
@@ -113,32 +114,6 @@ export class StatDate extends Date {
     partitioned.push(new StatDate(end));
 
     return partitioned;
-  };
-
-  /**
-   *
-   * @example
-   * start: 02-10, end: 04-20
-   * return:
-   * [
-   *   { $dateToString: { date: 1970-01-01T00:00:00.000Z, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: 02-10, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: 03-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: 04-01, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   *   { $dateToString: { date: 04-20, format: '%Y-%m-%dT%H:%M:%S.%LZ' } },
-   * ]
-   */
-  static dateToBoundariesObject = (
-    dateRange: DateRangeArgs,
-  ): AggrDatePartition[] => {
-    const dates = StatDate.partitionByMonth(dateRange);
-
-    return dates.map((date) => ({
-      $dateToString: {
-        date,
-        format: '%Y-%m-%dT%H:%M:%S.%LZ',
-      },
-    }));
   };
 
   /**
