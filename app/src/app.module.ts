@@ -10,6 +10,7 @@ import { HomeModule } from './page/home/home.module';
 import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
+import { CustomAuthGuard } from './auth/customAuthGuard';
 
 @Module({
   imports: [
@@ -29,7 +30,9 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
         numberScalarMode: 'integer',
       },
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+      context: ({ req }) => ({ user: req.user }),
     }),
   ],
+  providers: [CustomAuthGuard],
 })
 export class AppModule {}

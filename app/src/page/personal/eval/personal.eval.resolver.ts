@@ -1,6 +1,6 @@
+import { UseGuards } from '@nestjs/common';
 import {
   Args,
-  Context,
   Float,
   Int,
   Query,
@@ -8,13 +8,15 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
+import { CustomAuthGuard } from 'src/auth/customAuthGuard';
+import { CustomContext } from 'src/auth/customContext';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
-type PersonalEvalContext = { userId: number };
+@UseGuards(CustomAuthGuard)
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
   constructor(
@@ -24,14 +26,14 @@ export class PersonalEvalResolver {
 
   @Query((_returns) => PersonalEval)
   async getPersonalEvalPage(
+    @CustomContext() myId: number,
     @Args('userId', { nullable: true }) userId: number,
     @Args('login', { nullable: true }) login: string,
-    @Context() context: PersonalEvalContext,
   ): Promise<PersonalEvalRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
-      context,
-      login,
+      myId,
       userId,
+      login,
     );
 
     return await this.personalEvalService.pesronalEvalProfile(targetUserId);

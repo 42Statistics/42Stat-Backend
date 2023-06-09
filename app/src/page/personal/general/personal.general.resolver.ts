@@ -1,11 +1,7 @@
-import {
-  Args,
-  Context,
-  Query,
-  ResolveField,
-  Resolver,
-  Root,
-} from '@nestjs/graphql';
+import { UseGuards } from '@nestjs/common';
+import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
+import { CustomAuthGuard } from 'src/auth/customAuthGuard';
+import { CustomContext } from 'src/auth/customContext';
 import {
   IntDateRanged,
   StringDateRanged,
@@ -22,10 +18,7 @@ import {
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
 
-export type PersonalGeneralContext = {
-  userId: number;
-};
-
+@UseGuards(CustomAuthGuard)
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
   constructor(
@@ -35,14 +28,14 @@ export class PersonalGeneralResolver {
 
   @Query((_returns) => PersonalGeneral)
   async getPersonalGeneralPage(
-    @Context() context: PersonalGeneralContext,
+    @CustomContext() myId: number,
     @Args('login', { nullable: true }) login?: string,
     @Args('userId', { nullable: true }) userId?: number,
   ): Promise<PersonalGeneralRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
-      context,
-      login,
+      myId,
       userId,
+      login,
     );
 
     return await this.personalGeneralService.personalGeneralProfile(
