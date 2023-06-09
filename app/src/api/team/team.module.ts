@@ -10,4 +10,5 @@ import { TeamService } from './team.service';
   providers: [TeamService],
   exports: [MongooseModule, TeamService],
 })
+// eslint-disable-next-line
 export class TeamModule {}

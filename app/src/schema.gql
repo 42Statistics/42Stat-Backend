@@ -273,28 +273,22 @@ type PersonalEval {
   lastComment: String
 }
 
-type TempTeam {
+type UserTeam {
   id: Int!
-  teamName: String!
-  projectName: String!
+  name: String!
   occurrence: Int!
-  finalMark: Int!
+  projectPreview: ProjectPreview!
+  status: TeamStatus!
+  lastEventTime: DateTime!
+  isValidated: Boolean
+  finalMark: Int
+}
 
-  """레지스터"""
-  createdAt: DateTime!
-
-  """팀 빌딩"""
-  lockedAt: DateTime!
-
-  """제출"""
-  closedAt: DateTime!
-  isValidated: Boolean!
-
-  """평가완료날"""
-  finishedAt: DateTime!
-
-  """상태: 팀빌딩, 진행중, 평가중, 완료"""
-  status: String!
+enum TeamStatus {
+  REGISTERED
+  IN_PROGRESS
+  WAITING_FOR_CORRECTION
+  FINISHED
 }
 
 type PreferredTime {
@@ -331,8 +325,8 @@ type PreferredClusterDateRanged {
 
 type TeamInfo {
   lastRegistered: String
-  lastPass: String
-  teams: [TempTeam]!
+  lastPassed: String
+  teams: [UserTeam]!
 }
 
 type LevelRecord {

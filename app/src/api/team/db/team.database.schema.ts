@@ -80,8 +80,12 @@ export class TeamBase {
   @Prop({ required: true })
   users: TeamUser[];
 
-  @Prop({ required: true })
-  status: string;
+  @Prop({ required: true, type: String })
+  status:
+    | 'creating_group'
+    | 'finished'
+    | 'in_progress'
+    | 'waiting_for_correction';
 
   @Prop()
   terminatingAt?: Date;

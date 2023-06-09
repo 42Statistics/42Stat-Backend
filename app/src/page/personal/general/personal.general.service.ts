@@ -4,6 +4,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
 import { ScoreService } from 'src/api/score/score.service';
+import { TeamService } from 'src/api/team/team.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
@@ -25,6 +26,7 @@ export class PersonalGeneralService {
     private cursusUserService: CursusUserService,
     private locationService: LocationService,
     private scoreService: ScoreService,
+    private teamService: TeamService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -177,24 +179,20 @@ export class PersonalGeneralService {
   }
 
   async teamInfo(userId: number): Promise<TeamInfo> {
+    const userTeams = await this.teamService.userTeams(userId);
+
+    const lastRegistered = userTeams
+      .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+      .at(-1)?.projectPreview.name;
+
+    const lastPassed = userTeams
+      .filter((team) => team.isValidated === true)
+      .at(-1)?.projectPreview.name;
+
     return {
-      lastRegistered: 'avaj-launcher',
-      lastPass: 'avaj-launcher',
-      teams: [
-        {
-          id: 2966047,
-          projectName: 'avaj-launcher',
-          teamName: `jaham's team`,
-          occurrence: 0,
-          finalMark: 125,
-          createdAt: new Date('2022-10-20T04:06:32.437Z'),
-          lockedAt: new Date('2022-10-20T04:06:32.437Z'),
-          closedAt: new Date('2022-10-20T16:26:30.317Z'),
-          isValidated: true,
-          finishedAt: new Date(),
-          status: '완료',
-        },
-      ],
+      lastRegistered,
+      lastPassed,
+      teams: userTeams,
     };
   }
 

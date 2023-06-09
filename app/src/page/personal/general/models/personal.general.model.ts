@@ -1,42 +1,43 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { ProjectPreview } from 'src/api/project/models/project.preview';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
+export enum TeamStatus {
+  REGISTERED,
+  IN_PROGRESS,
+  WAITING_FOR_CORRECTION,
+  FINISHED,
+}
+
+registerEnumType(TeamStatus, { name: 'TeamStatus' });
+
 @ObjectType()
-export class TempTeam {
+export class UserTeam {
   @Field()
   id: number;
 
   @Field()
-  teamName: string;
-
-  @Field() //todo: projectId 를 통해 구하기
-  projectName: string;
+  name: string;
 
   @Field()
   occurrence: number;
 
   @Field()
-  finalMark?: number;
+  projectPreview: ProjectPreview;
 
-  @Field({ description: '레지스터' })
-  createdAt: Date;
-
-  @Field({ description: '팀 빌딩' })
-  lockedAt?: Date;
-
-  @Field({ description: '제출' })
-  closedAt?: Date;
+  @Field((_type) => TeamStatus)
+  status: TeamStatus;
 
   @Field()
+  lastEventTime: Date;
+
+  @Field({ nullable: true })
   isValidated?: boolean;
 
-  @Field({ description: '평가완료날' }) //todo: teamsUploads.createdAt
-  finishedAt?: Date;
-
-  @Field({ description: '상태: 팀빌딩, 진행중, 평가중, 완료' })
-  status: string;
+  @Field({ nullable: true })
+  finalMark?: number;
 }
 
 @ObjectType()
@@ -75,10 +76,10 @@ export class TeamInfo {
   lastRegistered?: string;
 
   @Field({ nullable: true })
-  lastPass?: string;
+  lastPassed?: string;
 
-  @Field((_type) => [TempTeam], { nullable: 'items' })
-  teams: TempTeam[];
+  @Field((_type) => [UserTeam], { nullable: 'items' })
+  teams: UserTeam[];
 }
 
 @ObjectType()
