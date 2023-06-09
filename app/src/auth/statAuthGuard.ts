@@ -2,8 +2,7 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
-//export class CustomAuthGuard extends AuthGuard('jwt') {
-export class CustomAuthGuard implements CanActivate {
+export class StatAuthGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const isAuthenticated = true;
 
