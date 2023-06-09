@@ -127,10 +127,7 @@ export class StatDate extends Date {
   static getValueByDate = (
     date: Date,
     elements: AggrNumericPerDate[],
-  ): number => {
-    return (
-      elements.find((element) => element.date === date.toISOString())?.value ??
-      0
-    );
-  };
+  ): number =>
+    elements.find((element) => element.date.getTime() === date.getTime())
+      ?.value ?? 0;
 }
