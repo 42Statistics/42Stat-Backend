@@ -187,9 +187,7 @@ export class CursusUserService {
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
-    const dateStrings = StatDate.partitionByMonth(dateRange).map((date) =>
-      date.toISOString(),
-    );
+    const dates = StatDate.partitionByMonth(dateRange);
 
     const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
 
@@ -200,10 +198,8 @@ export class CursusUserService {
     return await aggregate
       .append({
         $bucket: {
-          groupBy: {
-            $dateToString: { date: `$${key}` },
-          },
-          boundaries: dateStrings,
+          groupBy: `$${key}`,
+          boundaries: dates,
           default: 'defalut',
         },
       })
