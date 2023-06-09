@@ -1,5 +1,12 @@
-import { ArgsType, Field } from '@nestjs/graphql';
+import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
 import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dtos';
+
+export enum EvalLogSortOrder {
+  BEGIN_AT_ASC,
+  BEGIN_AT_DESC,
+}
+
+registerEnumType(EvalLogSortOrder, { name: 'EvalLogSortOrder' });
 
 @ArgsType()
 export class GetEvalLogsArgs extends PaginationCursorArgs {
@@ -14,4 +21,9 @@ export class GetEvalLogsArgs extends PaginationCursorArgs {
 
   @Field({ defaultValue: false })
   outstandingOnly: boolean;
+
+  @Field((_type) => EvalLogSortOrder, {
+    defaultValue: EvalLogSortOrder.BEGIN_AT_DESC,
+  })
+  sortOrder: EvalLogSortOrder;
 }

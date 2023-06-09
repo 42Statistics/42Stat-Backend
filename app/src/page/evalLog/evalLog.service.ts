@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
+import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { ProjectService } from 'src/api/project/project.service';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -8,7 +9,10 @@ import {
   FieldExtractor,
   PaginationCursorService,
 } from 'src/pagination/cursor/pagination.cursor.service';
-import { GetEvalLogsArgs } from './dto/evalLog.dto.getEvalLog';
+import {
+  EvalLogSortOrder,
+  GetEvalLogsArgs,
+} from './dto/evalLog.dto.getEvalLog';
 import { EvalLog, EvalLogsPaginated } from './models/evalLog.model';
 
 type EvalLogCursorField = [number, Date];
@@ -18,6 +22,7 @@ export class EvalLogService {
   constructor(
     private scaleTeamService: ScaleTeamService,
     private projectService: ProjectService,
+    private cursusUserService: CursusUserService,
     private paginationCursorService: PaginationCursorService,
   ) {}
 
@@ -26,6 +31,7 @@ export class EvalLogService {
     corrected,
     projectName,
     outstandingOnly,
+    sortOrder,
     after,
     first,
   }: GetEvalLogsArgs): Promise<EvalLogsPaginated> {
@@ -55,11 +61,19 @@ export class EvalLogService {
     }
 
     if (corrector) {
-      filter['corrector.login'] = corrector;
+      const correctorDocument = await this.cursusUserService.findOneByLogin(
+        corrector,
+      );
+
+      filter['corrector.id'] = correctorDocument.user.id;
     }
 
     if (corrected) {
-      filter['correcteds.login'] = corrected;
+      const correctedDocument = await this.cursusUserService.findOneByLogin(
+        corrected,
+      );
+
+      filter['correcteds.id'] = correctedDocument.user.id;
     }
 
     if (outstandingOnly) {
@@ -78,13 +92,27 @@ export class EvalLogService {
       const [id, beginAt]: EvalLogCursorField =
         this.paginationCursorService.toFields(after, fieldExtractor);
 
-      filter.$or = [
-        { beginAt: { $lt: beginAt } },
-        { beginAt, id: { $lt: id } },
-      ];
+      switch (sortOrder) {
+        case EvalLogSortOrder.BEGIN_AT_ASC:
+          filter.$or = [
+            { beginAt: { $gt: beginAt } },
+            { beginAt, id: { $gt: id } },
+          ];
+          break;
+        case EvalLogSortOrder.BEGIN_AT_DESC:
+          filter.$or = [
+            { beginAt: { $lt: beginAt } },
+            { beginAt, id: { $lt: id } },
+          ];
+          break;
+      }
     }
 
-    const evalLogs = await this.scaleTeamService.evalLogs(first + 1, filter);
+    const evalLogs = await this.scaleTeamService.evalLogs(
+      first + 1,
+      sortOrder,
+      filter,
+    );
 
     return this.paginationCursorService.toPaginated(
       evalLogs.slice(0, first),

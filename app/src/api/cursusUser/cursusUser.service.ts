@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
 import { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
-import type { QueryArg } from 'src/common/db/common.db.query';
+import type { QueryArgs } from 'src/common/db/common.db.query';
 import type {
   UserPreview,
   UserRanking,
@@ -51,16 +51,16 @@ export class CursusUserService {
   }
 
   async findAll(
-    queryArg?: Partial<QueryArg<cursus_user>>,
+    queryArgs?: Partial<QueryArgs<cursus_user>>,
   ): Promise<CursusUserDocument[]> {
-    const query = this.cursusUserModel.find(queryArg?.filter ?? {});
+    const query = this.cursusUserModel.find(queryArgs?.filter ?? {});
 
-    if (queryArg?.sort) {
-      query.sort(queryArg.sort);
+    if (queryArgs?.sort) {
+      query.sort(queryArgs.sort);
     }
 
-    if (queryArg?.limit) {
-      query.limit(queryArg.limit);
+    if (queryArgs?.limit) {
+      query.limit(queryArgs.limit);
     }
 
     return await query;
@@ -293,7 +293,7 @@ export class CursusUserService {
       filter,
       sort,
       limit,
-    }: Omit<QueryArg<cursus_user>, 'sort'> & {
+    }: Omit<QueryArgs<cursus_user>, 'sort'> & {
       sort: Record<string, SortValues>;
     },
     valueExtractor: (doc: CursusUserDocument) => UserRanking['value'],

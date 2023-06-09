@@ -6,7 +6,7 @@ import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import type { PersonalEval } from './models/personal.eval.model';
+import type { PersonalEvalRoot } from './models/personal.eval.model';
 
 @Injectable()
 export class PersonalEvalService {
@@ -16,9 +16,7 @@ export class PersonalEvalService {
     private cursusUserSevice: CursusUserService,
   ) {}
 
-  async pesronalEvalProfile(
-    userId: number,
-  ): Promise<Pick<PersonalEval, 'userProfile' | 'correctionPoint'>> {
+  async pesronalEvalProfile(userId: number): Promise<PersonalEvalRoot> {
     const { cursusUser, coalition, titlesUsers } =
       await this.cursusUserSevice.userFullProfile(userId);
 
@@ -74,15 +72,20 @@ export class PersonalEvalService {
     return await this.countByDateRange(userId, dateRange);
   }
 
-  // todo
   async totalDuration(userId: number): Promise<number> {
-    return 12345;
+    const [totalDuration] = await this.scaleTeamService.durationInfo({
+      'corrector.id': userId,
+    });
+
+    return totalDuration;
   }
 
   async averageDuration(userId: number): Promise<number> {
-    return await this.scaleTeamService.averageDurationMinute({
+    const [totalDuration, count] = await this.scaleTeamService.durationInfo({
       'corrector.id': userId,
     });
+
+    return Math.floor(totalDuration / count);
   }
 
   async averageFinalMark(userId: number): Promise<number> {
@@ -101,13 +104,23 @@ export class PersonalEvalService {
     });
   }
 
-  // todo
   async latestFeedback(userId: number): Promise<string> {
-    return 'feedback';
+    const scaleTeams = await this.scaleTeamService.findAll({
+      filter: {
+        'correcteds.id': userId,
+        feedback: { $ne: null },
+      },
+      sort: { beginAt: -1, id: -1 },
+      limit: 1,
+    });
+
+    return scaleTeams.at(0)?.feedback ?? '';
   }
 
-  // todo
+  // todo: 필요한지 확인
   async evalLogSearchUrl(userId: number): Promise<string> {
-    return `https://stat.42seoul.kr/evallog?corrector=jaham`;
+    const cursusUser = await this.cursusUserSevice.findOneByUserId(userId);
+
+    return `https://stat.42seoul.kr/evallog?corrector=${cursusUser.user.login}`;
   }
 }

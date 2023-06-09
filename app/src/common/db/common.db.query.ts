@@ -1,6 +1,6 @@
 import type { FilterQuery, SortValues } from 'mongoose';
 
-export type QueryArg<T> = Partial<{
+export type QueryArgs<T> = Partial<{
   filter: FilterQuery<T>;
   sort: Record<string, SortValues>;
   limit: number;
