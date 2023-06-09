@@ -1,4 +1,7 @@
+import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { CustomAuthGuard } from 'src/auth/customAuthGuard';
+import { CustomContext } from 'src/auth/customContext';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import {
@@ -8,6 +11,7 @@ import {
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
 
+@UseGuards(CustomAuthGuard)
 @Resolver((_of: unknown) => LeaderboardScore)
 export class LeaderboardScoreResolver {
   constructor(private leaderboardScoreService: LeaderboardScoreService) {}
@@ -19,21 +23,23 @@ export class LeaderboardScoreResolver {
 
   @ResolveField((_returns) => LeaderboardElement)
   async total(
+    @CustomContext() myId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
     return await this.leaderboardScoreService.ranking(
-      99947,
+      myId,
       paginationIndexArgs,
     );
   }
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
+    @CustomContext() myId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ) {
     return await this.leaderboardScoreService.rankingByDateTemplate(
-      99947,
+      myId,
       paginationIndexArgs,
       dateTemplate,
     );

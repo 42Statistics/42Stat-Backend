@@ -5,10 +5,10 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 export class PersonalUtilService {
   constructor(private cursusUserService: CursusUserService) {}
 
-  async selectUserId<T extends { userId: number }>(
-    context: T,
-    login?: string,
+  async selectUserId(
+    myId: number,
     userId?: number,
+    login?: string,
   ): Promise<number> {
     if (login) {
       const cursusUser = await this.cursusUserService.findOneByLogin(login);
@@ -20,6 +20,6 @@ export class PersonalUtilService {
       return userId;
     }
 
-    return context.userId;
+    return myId;
   }
 }
