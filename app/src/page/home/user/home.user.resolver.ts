@@ -1,6 +1,6 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import { IntRate } from 'src/common/models/common.rate.model';
+import { Rate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
@@ -30,13 +30,13 @@ export class HomeUserResolver {
     return await this.homeUserService.userCountPerLevels();
   }
 
-  @ResolveField((_returns) => IntRate)
-  async memberRate(): Promise<IntRate> {
+  @ResolveField((_returns) => Rate)
+  async memberRate(): Promise<Rate> {
     return await this.homeUserService.memberRate();
   }
 
-  @ResolveField((_returns) => IntRate)
-  async blackholedRate(): Promise<IntRate> {
+  @ResolveField((_returns) => Rate)
+  async blackholedRate(): Promise<Rate> {
     return await this.homeUserService.blackholedRate();
   }
 

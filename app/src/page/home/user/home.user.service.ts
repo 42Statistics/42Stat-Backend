@@ -3,7 +3,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import type { IntRate } from 'src/common/models/common.rate.model';
+import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRanking } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -67,18 +67,42 @@ export class HomeUserService {
     return await this.cursusUserService.userCountPerLevels();
   }
 
-  async memberRate(): Promise<IntRate> {
+  async memberRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
     const value = await this.cursusUserService.userCount({ grade: 'Member' });
 
-    return { total, value };
+    return {
+      total,
+      fields: [
+        {
+          key: 'member',
+          value,
+        },
+        {
+          key: 'others',
+          value: total - value,
+        },
+      ],
+    };
   }
 
-  async blackholedRate(): Promise<IntRate> {
+  async blackholedRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
     const value = await this.cursusUserService.userCount(blackholedUserFilter);
 
-    return { total, value };
+    return {
+      total,
+      fields: [
+        {
+          key: 'blackholed',
+          value,
+        },
+        {
+          key: 'alive',
+          value: total - value,
+        },
+      ],
+    };
   }
 
   async blackholedCountByDateRange({

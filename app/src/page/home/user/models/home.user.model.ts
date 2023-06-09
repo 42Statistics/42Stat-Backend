@@ -1,6 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import { IntRate } from 'src/common/models/common.rate.model';
+import { Rate } from 'src/common/models/common.rate.model';
 import { UserRanking } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 
@@ -31,10 +31,10 @@ export class HomeUser {
   userCountPerLevel: UserCountPerLevel[];
 
   @Field()
-  memberRate: IntRate;
+  memberRate: Rate;
 
   @Field()
-  blackholedRate: IntRate;
+  blackholedRate: Rate;
 
   @Field()
   blackholedCountByDateTemplate: IntDateRanged;
