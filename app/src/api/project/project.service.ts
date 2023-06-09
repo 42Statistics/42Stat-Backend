@@ -4,6 +4,13 @@ import { FilterQuery, Model } from 'mongoose';
 import { project } from './db/project.database.schema';
 import { ProjectPreview } from './models/project.preview';
 
+export const NETWHAT_PREVIEW: ProjectPreview = {
+  id: 1318,
+  name: 'netwhat',
+  url: 'https://api.intra.42.fr/v2/projects/1318',
+};
+
+// todo: refactor all
 @Injectable()
 export class ProjectService {
   constructor(

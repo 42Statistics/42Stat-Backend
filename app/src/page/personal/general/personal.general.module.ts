@@ -4,6 +4,8 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { LocationModule } from 'src/api/location/location.module';
 import { ScoreModule } from 'src/api/score/score.module';
 import { ScoreService } from 'src/api/score/score.service';
+import { TeamModule } from 'src/api/team/team.module';
+import { TeamService } from 'src/api/team/team.service';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { PersonalUtilModule } from '../util/personal.util.module';
@@ -17,6 +19,7 @@ import { PersonalGeneralService } from './personal.general.service';
     ScoreModule,
     CursusUserModule,
     LocationModule,
+    TeamModule,
     DateRangeModule,
   ],
   providers: [
@@ -25,6 +28,7 @@ import { PersonalGeneralService } from './personal.general.service';
     PersonalUtilService,
     ScoreService,
     CursusUserService,
+    TeamService,
     DateRangeService,
   ],
 })
