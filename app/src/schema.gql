@@ -154,12 +154,6 @@ type FloatDateRanged {
   end: DateTime!
 }
 
-type StringDateRanged {
-  data: String!
-  start: DateTime!
-  end: DateTime!
-}
-
 type HomeEval {
   totalEvalCount: Int!
   evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
@@ -200,9 +194,14 @@ type HomeTeam {
   lastExamResult: ExamResultDateRanged!
 }
 
-type IntRate {
-  total: Int!
+type Pair {
+  key: String!
   value: Int!
+}
+
+type Rate {
+  total: Int!
+  fields: [Pair!]!
 }
 
 type IntPerCircle {
@@ -218,8 +217,8 @@ type UserCountPerLevel {
 type HomeUser {
   activeUserCountRecords: [IntRecord!]!
   userCountPerLevel: [UserCountPerLevel!]!
-  memberRate: IntRate!
-  blackholedRate: IntRate!
+  memberRate: Rate!
+  blackholedRate: Rate!
   blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   blackholedCountPerCircle: [IntPerCircle!]!
   walletRanking(limit: Int! = 5): [UserRanking!]!
@@ -271,6 +270,7 @@ type PersonalEval {
   averageCommentLength: Int!
   latestFeedback: String!
   evalLogSearchUrl: String!
+  lastComment: String
 }
 
 type TempTeam {
@@ -319,6 +319,16 @@ type PreferredTimeDateRanged {
   end: DateTime!
 }
 
+type PreferredCluster {
+  name: String
+}
+
+type PreferredClusterDateRanged {
+  data: PreferredCluster!
+  start: DateTime!
+  end: DateTime!
+}
+
 type TeamInfo {
   lastRegistered: String
   lastPass: String
@@ -345,7 +355,7 @@ type PersonalGeneral {
   scoreInfo: UserScoreInfo!
   logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
-  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): StringDateRanged!
+  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
   teamInfo: TeamInfo!
   levelRecords: [LevelRecord!]!
 }

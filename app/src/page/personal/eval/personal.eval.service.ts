@@ -104,17 +104,17 @@ export class PersonalEvalService {
     });
   }
 
-  async latestFeedback(userId: number): Promise<string> {
+  async lastComment(userId: number): Promise<string | null> {
     const scaleTeams = await this.scaleTeamService.findAll({
       filter: {
-        'correcteds.id': userId,
-        feedback: { $ne: null },
+        'corrector.id': userId,
+        filledAt: { $ne: null },
       },
       sort: { beginAt: -1, id: -1 },
       limit: 1,
     });
 
-    return scaleTeams.at(0)?.feedback ?? '';
+    return scaleTeams.at(0)?.comment ?? null;
   }
 
   // todo: 필요한지 확인

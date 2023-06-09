@@ -15,6 +15,3 @@ export class FloatDateRanged {
   @Field()
   end: Date;
 }
-
-@ObjectType()
-export class StringDateRanged extends DateRanged(String) {}

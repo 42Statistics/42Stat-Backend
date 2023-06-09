@@ -1,17 +1,15 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyContext } from 'src/auth/myContext';
-import {
-  IntDateRanged,
-  StringDateRanged,
-} from 'src/common/models/common.dateRanaged.model';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
 import {
   LevelRecord,
   PersonalGeneral,
   PersonalGeneralRoot,
+  PreferredClusterDateRanged,
   PreferredTimeDateRanged,
   TeamInfo,
   UserScoreInfo,
@@ -72,11 +70,11 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField((_returns) => StringDateRanged)
+  @ResolveField((_returns) => PreferredClusterDateRanged)
   async preferredClusterByDateTemplate(
     @Root() root: PersonalGeneralRoot,
     @Args() { dateTemplate }: DateTemplateArgs,
-  ): Promise<StringDateRanged> {
+  ): Promise<PreferredClusterDateRanged> {
     return await this.personalGeneralService.preferredClusterByDateTemplate(
       root.userProfile.id,
       dateTemplate,

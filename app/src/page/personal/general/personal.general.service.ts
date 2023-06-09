@@ -4,16 +4,15 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
 import { ScoreService } from 'src/api/score/score.service';
-import type {
-  IntDateRanged,
-  StringDateRanged,
-} from 'src/common/models/common.dateRanaged.model';
+import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
   LevelRecord,
   PersonalGeneralRoot,
+  PreferredCluster,
+  PreferredClusterDateRanged,
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
@@ -143,23 +142,27 @@ export class PersonalGeneralService {
     return await this.preferredTimeByDateRange(userId, dateRange);
   }
 
-  async preferredCluster(userId: number): Promise<string> {
-    return await this.locationService.preferredCluster(userId);
+  async preferredCluster(
+    userId: number,
+    filter?: FilterQuery<location>,
+  ): Promise<PreferredCluster> {
+    const cluster = await this.locationService.preferredCluster(userId, filter);
+
+    return {
+      name: cluster,
+    };
   }
 
   async preferredClusterByDateRange(
     userId: number,
     dateRange: DateRange,
-  ): Promise<StringDateRanged> {
+  ): Promise<PreferredClusterDateRanged> {
     const dateFilter: FilterQuery<location> = {
       beginAt: { $lt: dateRange.end },
       endAt: { $gt: dateRange.start },
     };
 
-    const preferredCluster = await this.locationService.preferredCluster(
-      userId,
-      dateFilter,
-    );
+    const preferredCluster = await this.preferredCluster(userId, dateFilter);
 
     return this.dateRangeService.toDateRanged(preferredCluster, dateRange);
   }
@@ -167,7 +170,7 @@ export class PersonalGeneralService {
   async preferredClusterByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
-  ): Promise<StringDateRanged> {
+  ): Promise<PreferredClusterDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return await this.preferredClusterByDateRange(userId, dateRange);
