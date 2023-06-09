@@ -6,11 +6,12 @@ import {
   Query,
   ResolveField,
   Resolver,
+  Root,
 } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
-import { PersonalEval } from './models/personal.eval.model';
+import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
 type PersonalEvalContext = { userId: number };
@@ -26,81 +27,68 @@ export class PersonalEvalResolver {
     @Args('userId', { nullable: true }) userId: number,
     @Args('login', { nullable: true }) login: string,
     @Context() context: PersonalEvalContext,
-  ) {
+  ): Promise<PersonalEvalRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
       context,
       login,
       userId,
     );
 
-    // todo: auth guard
-    context.userId = targetUserId;
-
     return await this.personalEvalService.pesronalEvalProfile(targetUserId);
   }
 
   @ResolveField((_returns) => Int)
-  async totalCount(@Context() context: PersonalEvalContext): Promise<number> {
-    return await this.personalEvalService.count(context.userId);
+  async totalCount(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.count(root.userProfile.id);
   }
 
   @ResolveField((_returns) => IntDateRanged)
   async countByDateTemplate(
-    @Context() context: PersonalEvalContext,
+    @Root() root: PersonalEvalRoot,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<IntDateRanged> {
     return await this.personalEvalService.countByDateTemplate(
-      context.userId,
+      root.userProfile.id,
       dateTemplate,
     );
   }
 
   @ResolveField((_returns) => Int)
-  async totalDuration(
-    @Context() context: PersonalEvalContext,
-  ): Promise<number> {
-    return await this.personalEvalService.totalDuration(context.userId);
+  async totalDuration(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.totalDuration(root.userProfile.id);
   }
 
   @ResolveField((_returns) => Int)
-  async averageDuration(
-    @Context() context: PersonalEvalContext,
-  ): Promise<number> {
-    return this.personalEvalService.averageDuration(context.userId);
+  async averageDuration(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.averageDuration(root.userProfile.id);
   }
 
   @ResolveField((_returns) => Float)
-  async averageFinalMark(
-    @Context() context: PersonalEvalContext,
-  ): Promise<number> {
-    return this.personalEvalService.averageFinalMark(context.userId);
+  async averageFinalMark(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.averageFinalMark(root.userProfile.id);
   }
 
   @ResolveField((_returns) => Int)
-  async averageFeedbackLength(
-    @Context() context: PersonalEvalContext,
-  ): Promise<number> {
-    return this.personalEvalService.averageFeedbackLength(context.userId);
+  async averageFeedbackLength(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.averageFeedbackLength(
+      root.userProfile.id,
+    );
   }
 
   @ResolveField((_returns) => Int)
-  async averageCommentLength(
-    @Context() context: PersonalEvalContext,
-  ): Promise<number> {
-    return this.personalEvalService.averageCommentLength(context.userId);
+  async averageCommentLength(@Root() root: PersonalEvalRoot): Promise<number> {
+    return await this.personalEvalService.averageCommentLength(
+      root.userProfile.id,
+    );
   }
 
   @ResolveField((_returns) => String)
-  async latestFeedback(
-    @Context() context: PersonalEvalContext,
-  ): Promise<string> {
-    return this.personalEvalService.latestFeedback(context.userId);
+  async latestFeedback(@Root() root: PersonalEvalRoot): Promise<string> {
+    return await this.personalEvalService.latestFeedback(root.userProfile.id);
   }
 
   @ResolveField((_returns) => String)
-  async evalLogSearchUrl(
-    @Context() context: PersonalEvalContext,
-  ): Promise<string> {
-    return this.personalEvalService.evalLogSearchUrl(context.userId);
+  async evalLogSearchUrl(@Root() root: PersonalEvalRoot): Promise<string> {
+    return await this.personalEvalService.evalLogSearchUrl(root.userProfile.id);
   }
 }

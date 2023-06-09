@@ -99,6 +99,11 @@ export class UserScoreInfo {
   rankInTotal: number;
 }
 
+export type PersonalGeneralRoot = Pick<
+  PersonalGeneral,
+  'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'
+>;
+
 @ObjectType()
 export class PersonalGeneral {
   @Field()

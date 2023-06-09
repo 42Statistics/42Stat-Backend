@@ -13,7 +13,7 @@ import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
   LevelRecord,
-  PersonalGeneral,
+  PersonalGeneralRoot,
   PreferredTime,
   PreferredTimeDateRanged,
   TeamInfo,
@@ -35,11 +35,7 @@ export class PersonalGeneralService {
     return cursusUser.user.id;
   }
 
-  async personalGeneralProfile(
-    userId: number,
-  ): Promise<
-    Pick<PersonalGeneral, 'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'>
-  > {
+  async personalGeneralProfile(userId: number): Promise<PersonalGeneralRoot> {
     const userFullProfile = await this.cursusUserService.userFullProfile(
       userId,
     );
