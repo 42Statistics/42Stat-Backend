@@ -19,6 +19,7 @@ import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import { UserFullProfile } from './db/cursusUser.database.aggregate';
+import { blackholedUserFilter } from './db/cursusUser.database.query';
 import {
   CursusUserDocument,
   User,
@@ -186,20 +187,23 @@ export class CursusUserService {
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDate[]> {
-    const dateObject = StatDate.dateToBoundariesObject(dateRange);
+    const dateStrings = StatDate.partitionByMonth(dateRange).map((date) =>
+      date.toISOString(),
+    );
 
     const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
+
+    if (key === 'blackholedAt') {
+      aggregate.match(blackholedUserFilter);
+    }
 
     return await aggregate
       .append({
         $bucket: {
           groupBy: {
-            $dateToString: {
-              date: `$${key}`,
-              format: '%Y-%m-%dT%H:%M:%S.%LZ',
-            },
+            $dateToString: { date: `$${key}` },
           },
-          boundaries: dateObject,
+          boundaries: dateStrings,
           default: 'defalut',
         },
       })
@@ -207,12 +211,10 @@ export class CursusUserService {
         date: '$_id',
         value: '$count',
       })
+      .sort({ date: 1 })
       .project({
         _id: 0,
         count: 0,
-      })
-      .sort({
-        date: 1,
       });
   }
 
@@ -238,8 +240,8 @@ export class CursusUserService {
    * @example
    *
    * ```ts
-   * userCountPerCircle(blackholedFilter);
-   * userCountPerCircle(aliveFilter);
+   * userCountPerCircle(blackholedUserFilter);
+   * userCountPerCircle(aliveUserFilter);
    * ```
    */
   async userCountPerCircle(
