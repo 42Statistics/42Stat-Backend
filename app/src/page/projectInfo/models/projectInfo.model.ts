@@ -1,19 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Rate } from 'src/common/models/common.rate.model';
 
 @ObjectType()
-export class ProjectEvalInfo {
-  @Field()
-  totalEvalCount: number;
-
-  @Field()
-  passCount: number;
-
-  @Field()
-  failCount: number;
-}
-
-@ObjectType()
-export class ProjectInfo {
+export class Project {
   @Field()
   id: number;
 
@@ -22,9 +11,6 @@ export class ProjectInfo {
 
   @Field((_type) => [String], { nullable: 'items' })
   skills: string[];
-
-  @Field((_type) => [String], { nullable: 'items' })
-  keywords: string[];
 
   @Field()
   description: string;
@@ -35,8 +21,8 @@ export class ProjectInfo {
   @Field()
   maxUserCount: number;
 
-  @Field()
-  duration: number;
+  @Field((_type) => Int, { nullable: true })
+  duration: number | null;
 
   @Field()
   difficulty: number;
@@ -51,5 +37,5 @@ export class ProjectInfo {
   averagePassFinalMark: number;
 
   @Field()
-  evalInfo: ProjectEvalInfo;
+  evalInfo: Rate;
 }
