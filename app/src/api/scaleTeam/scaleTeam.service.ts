@@ -54,11 +54,14 @@ export class ScaleTeamService {
 
     return await aggregate
       .append(
-        lookupScaleTeams(
-          'user.id',
-          'corrector.id',
-          filter ? [{ $match: filter }] : undefined,
-        ),
+        lookupScaleTeams('user.id', 'corrector.id', [
+          {
+            $match: {
+              ...filter,
+              filledAt: { $ne: null },
+            },
+          },
+        ]),
       )
       .addFields({ value: { $size: '$scale_teams' } })
       .append(addRank())
