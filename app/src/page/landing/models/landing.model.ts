@@ -1,26 +1,19 @@
-// import { Field, ObjectType } from '@nestjs/graphql';
-// import { ProjectPreview } from 'src/api/project/models/project.preview';
+import { Field, ObjectType } from '@nestjs/graphql';
 
-// @ObjectType()
-// export class valuePerProject {
-//   @Field()
-//   projectPreview: ProjectPreview;
+@ObjectType({ description: '누적 데이터 기준입니다.' })
+export class Landing {
+  @Field()
+  daysAfterBeginAt: number;
 
-//   @Field()
-//   value: number;
-// }
+  @Field()
+  aliveCount: number;
 
-// @ObjectType()
-// export class Landing {
-//   @Field()
-//   durationDate: number;
+  @Field()
+  blackholedCount: number;
 
-//   @Field()
-//   activeUserCount: number;
+  @Field()
+  memberCount: number;
 
-//   @Field()
-//   blackholedCount: number;
-
-//   @Field((_type) => valuePerProject)
-//   popularProject: valuePerProject;
-// }
+  @Field()
+  evalCount: number;
+}
