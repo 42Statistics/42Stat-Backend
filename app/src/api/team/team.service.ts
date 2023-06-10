@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
+import { Rate } from 'src/common/models/common.rate.model';
 import {
   TeamStatus,
   UserTeam,
@@ -139,6 +140,43 @@ export class TeamService {
       .group({ _id: '$users.id', value: { $count: {} } })
       .match({ _id: { $ne: targetUid } })
       .project({ _id: 0, userId: '$_id', value: 1 });
+  }
+
+  async averagePassFinalMark(projectName: string): Promise<number> {
+    const aggregate = this.teamModel.aggregate<{ finalMark: number }>();
+
+    const [averagePassFinalMark] = await aggregate
+      .match({
+        projectId: 1314,
+        status: 'finished',
+        'validated?': true,
+      })
+      .group({
+        _id: '$status',
+        finalMark: { $avg: '$finalMark' },
+      })
+      .project({
+        _id: 0,
+        finalMark: { $floor: '$finalMark' },
+      });
+    return averagePassFinalMark.finalMark;
+  }
+
+  async evalInfo(projectName: string): Promise<Rate> {
+    const teamResult = await this.teamResult({
+      projectId: 1314,
+      status: 'finished',
+    });
+
+    const evalInfo: Rate = {
+      total: teamResult[0] + teamResult[1],
+      fields: [
+        { key: 'pass', value: teamResult[0] },
+        { key: 'fail', value: teamResult[1] },
+      ],
+    };
+
+    return evalInfo;
   }
 }
 
