@@ -10,7 +10,7 @@ export class UserPreview extends PickType(UserProfile, [
 ]) {}
 
 @ObjectType()
-export class UserRanking {
+export class UserRank {
   @Field((_type) => UserPreview)
   userPreview: UserPreview;
 
@@ -22,4 +22,4 @@ export class UserRanking {
 }
 
 @ObjectType()
-export class UserRankingIndexPaginated extends IndexPaginated(UserRanking) {}
+export class UserRankingIndexPaginated extends IndexPaginated(UserRank) {}

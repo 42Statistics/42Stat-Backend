@@ -45,14 +45,14 @@ type UserPreview {
   imgUrl: String
 }
 
-type UserRanking {
+type UserRank {
   userPreview: UserPreview!
   value: Float!
   rank: Int!
 }
 
 type UserRankingIndexPaginated {
-  nodes: [UserRanking]!
+  nodes: [UserRank]!
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
@@ -221,14 +221,14 @@ type HomeUser {
   blackholedRate: Rate!
   blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   blackholedCountPerCircle: [IntPerCircle!]!
-  walletRanking(limit: Int! = 5): [UserRanking!]!
-  correctionPointRanking(limit: Int! = 5): [UserRanking!]!
+  walletRanking(limit: Int! = 5): [UserRank!]!
+  correctionPointRanking(limit: Int! = 5): [UserRank!]!
   averageDurationPerCircle: [IntPerCircle!]!
 }
 
 type LeaderboardElement {
   """내 랭킹 정보"""
-  me: UserRanking
+  me: UserRank
 
   """전체 랭킹 정보"""
   totalRanking: UserRankingIndexPaginated!
@@ -256,21 +256,6 @@ type LeaderboardLevel {
 type LeaderboardScore {
   total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
-}
-
-type PersonalEval {
-  userProfile: UserProfile!
-  correctionPoint: Int!
-  totalCount: Int!
-  countByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  totalDuration: Int!
-  averageDuration: Int!
-  averageFinalMark: Float!
-  averageFeedbackLength: Int!
-  averageCommentLength: Int!
-  latestFeedback: String!
-  evalLogSearchUrl: String!
-  lastComment: String
 }
 
 type UserTeam {
@@ -354,6 +339,31 @@ type PersonalGeneral {
   levelRecords: [LevelRecord!]!
 }
 
+type MyInfo {
+  userPreview: UserPreview!
+  isNewMember: Boolean!
+  recentProject: UserTeam
+  blackholedAt: DateTime
+  experienceRank: Int!
+  scoreRank: Int!
+  evalCountRank: Int!
+}
+
+type PersonalEval {
+  userProfile: UserProfile!
+  correctionPoint: Int!
+  totalCount: Int!
+  countByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  totalDuration: Int!
+  averageDuration: Int!
+  averageFinalMark: Float!
+  averageFeedbackLength: Int!
+  averageCommentLength: Int!
+  latestFeedback: String!
+  evalLogSearchUrl: String!
+  lastComment: String
+}
+
 type ProjectEvalInfo {
   totalEvalCount: Int!
   passCount: Int!
@@ -381,6 +391,7 @@ type ProjectInfo {
 type Query {
   findUserPreview(login: String! = "", limit: Int! = 10): [UserPreview]!
   findProjectPreview(name: String! = ""): [ProjectPreview]!
+  getMyInfo: MyInfo!
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!
   getHomeCoalition: HomeCoalition!

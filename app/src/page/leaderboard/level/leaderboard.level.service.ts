@@ -5,6 +5,7 @@ import type {
   CursusUserDocument,
   cursus_user,
 } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { findUserRank } from 'src/common/findUserRank';
 import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type { LeaderboardElement } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
@@ -26,7 +27,7 @@ export class LeaderboardLevelService {
       (doc: CursusUserDocument) => doc.level,
     );
 
-    const me = this.leaderboardUtilService.findUser(levelRanking, userId);
+    const me = findUserRank(levelRanking, userId);
 
     return this.leaderboardUtilService.toLeaderboardElement(
       me,

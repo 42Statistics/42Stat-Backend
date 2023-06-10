@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { experience_user } from './db/experienceUser.database.schema';
 import { FilterQuery, Model } from 'mongoose';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { lookupExperienceUsers } from './db/experiecneUser.database.aggregate';
 import { addRank } from 'src/common/db/common.db.aggregation';
@@ -19,8 +19,8 @@ export class ExperienceUserService {
 
   async increamentRanking(
     filter?: FilterQuery<experience_user>,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserService.aggregate<UserRanking>();
+  ): Promise<UserRank[]> {
+    const aggregate = this.cursusUserService.aggregate<UserRank>();
 
     return await aggregate
       .append(

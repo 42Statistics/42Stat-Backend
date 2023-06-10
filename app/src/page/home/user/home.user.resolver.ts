@@ -1,7 +1,7 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HomeUserService } from './home.user.service';
@@ -54,17 +54,17 @@ export class HomeUserResolver {
     return await this.homeUserService.blackholedCountPerCircle();
   }
 
-  @ResolveField((_returns) => [UserRanking])
+  @ResolveField((_returns) => [UserRank])
   async walletRanking(
     @Args('limit', { defaultValue: 5 }) limit: number,
-  ): Promise<UserRanking[]> {
+  ): Promise<UserRank[]> {
     return await this.homeUserService.walletRanks(limit);
   }
 
-  @ResolveField((_returns) => [UserRanking])
+  @ResolveField((_returns) => [UserRank])
   async correctionPointRanking(
     @Args('limit', { defaultValue: 5 }) limit: number,
-  ): Promise<UserRanking[]> {
+  ): Promise<UserRank[]> {
     return await this.homeUserService.correctionPointRanking(limit);
   }
 

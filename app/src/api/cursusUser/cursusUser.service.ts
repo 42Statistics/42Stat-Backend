@@ -5,7 +5,7 @@ import { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import type {
   UserPreview,
-  UserRanking,
+  UserRank,
 } from 'src/common/models/common.user.model';
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
@@ -298,8 +298,8 @@ export class CursusUserService {
     }: Omit<QueryArgs<cursus_user>, 'sort'> & {
       sort: Record<string, SortValues>;
     },
-    valueExtractor: (doc: CursusUserDocument) => UserRanking['value'],
-  ): Promise<UserRanking[]> {
+    valueExtractor: (doc: CursusUserDocument) => UserRank['value'],
+  ): Promise<UserRank[]> {
     const rawRanking = await this.findAll({ filter, sort, limit });
 
     return rawRanking.map((rawRank, index) => ({

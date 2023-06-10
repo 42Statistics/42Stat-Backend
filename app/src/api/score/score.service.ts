@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import type { UserRanking } from 'src/common/models/common.user.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
@@ -25,9 +25,9 @@ export class ScoreService {
 
   async scoreRank(
     filter?: FilterQuery<score>,
-  ): Promise<(UserRanking & { coalitionId: number })[]> {
+  ): Promise<(UserRank & { coalitionId: number })[]> {
     const aggregate = this.cursusUserService.aggregate<
-      UserRanking & { coalitionId: number }
+      UserRank & { coalitionId: number }
     >();
 
     return await aggregate

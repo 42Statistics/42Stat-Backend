@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { ScoreService } from 'src/api/score/score.service';
+import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
@@ -28,7 +29,7 @@ export class LeaderboardScoreService {
   ): Promise<LeaderboardElement> {
     const scoreRanking = await this.scoreService.scoreRank(filter);
 
-    const me = this.leaderboardUtilService.findUser(scoreRanking, userId);
+    const me = findUserRank(scoreRanking, userId);
     const totalRanks = scoreRanking.filter(({ value }) => value >= 0);
 
     return this.leaderboardUtilService.toLeaderboardElement(
