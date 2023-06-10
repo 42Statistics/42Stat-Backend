@@ -25,7 +25,7 @@ export class PersonalEvalResolver {
   ) {}
 
   @Query((_returns) => PersonalEval)
-  async getPersonalEvalPage(
+  async getPersonalEval(
     @MyContext() myId: number,
     @Args('userId', { nullable: true }) userId: number,
     @Args('login', { nullable: true }) login: string,
@@ -87,10 +87,5 @@ export class PersonalEvalResolver {
   @ResolveField((_returns) => String, { nullable: true })
   async lastComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
     return await this.personalEvalService.lastComment(root.userProfile.id);
-  }
-
-  @ResolveField((_returns) => String)
-  async evalLogSearchUrl(@Root() root: PersonalEvalRoot): Promise<string> {
-    return await this.personalEvalService.evalLogSearchUrl(root.userProfile.id);
   }
 }

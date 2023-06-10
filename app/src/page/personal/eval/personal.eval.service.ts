@@ -116,11 +116,4 @@ export class PersonalEvalService {
 
     return scaleTeams.at(0)?.comment ?? null;
   }
-
-  // todo: 필요한지 확인
-  async evalLogSearchUrl(userId: number): Promise<string> {
-    const cursusUser = await this.cursusUserSevice.findOneByUserId(userId);
-
-    return `https://stat.42seoul.kr/evallog?corrector=${cursusUser.user.login}`;
-  }
 }

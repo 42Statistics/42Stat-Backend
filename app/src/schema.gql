@@ -386,7 +386,7 @@ type Query {
   getHomeCoalition: HomeCoalition!
   getHomeTeam: HomeTeam!
   getPersonalGeneralPage(login: String, userId: Int): PersonalGeneral!
-  getPersonalEvalPage(userId: Int, login: String): PersonalEval!
+  getPersonalEval(userId: Int, login: String): PersonalEval!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
