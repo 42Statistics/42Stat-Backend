@@ -1,8 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { Model } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
 import type { IntPerCircle } from 'src/page/home/user/models/home.user.model';
-import { quests_user } from './db/questsUser.database.schema';
+import {
+  QuestsUserDocument,
+  quests_user,
+} from './db/questsUser.database.schema';
+
+export const COMMON_CORE_QUEST_ID = 37;
+export const INNER_QUEST_IDS = [
+  COMMON_CORE_QUEST_ID,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+] as const;
 
 @Injectable()
 export class QuestsUserService {
@@ -10,6 +24,18 @@ export class QuestsUserService {
     @InjectModel(quests_user.name)
     private questUserModel: Model<quests_user>,
   ) {}
+
+  async findOne(
+    filter?: FilterQuery<quests_user>,
+  ): Promise<QuestsUserDocument> {
+    const questsUser = await this.questUserModel.findOne(filter ?? {});
+
+    if (!questsUser) {
+      throw new NotFoundException();
+    }
+
+    return questsUser;
+  }
 
   async firstCircleDuration(userId?: number): Promise<IntPerCircle> {
     const aggregate = this.questUserModel.aggregate<IntPerCircle>();

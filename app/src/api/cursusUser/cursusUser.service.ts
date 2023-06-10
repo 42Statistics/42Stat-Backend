@@ -16,6 +16,10 @@ import { StatDate } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
+import {
+  COMMON_CORE_QUEST_ID,
+  INNER_QUEST_IDS,
+} from '../questsUser/questsUser.service';
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import { UserFullProfile } from './db/cursusUser.database.aggregate';
@@ -30,18 +34,6 @@ import {
 } from './db/cursusUser.database.schema';
 
 export const FT_CURSUS_ID = 21;
-
-// todo: quest 목록 적절한 곳 찾아주기
-export const COMMON_CORE_QUEST_ID = 37;
-export const INNER_QUEST_IDS = [
-  COMMON_CORE_QUEST_ID,
-  44,
-  45,
-  46,
-  47,
-  48,
-  49,
-] as const;
 
 @Injectable()
 export class CursusUserService {

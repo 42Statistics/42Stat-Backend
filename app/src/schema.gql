@@ -342,11 +342,11 @@ type PersonalGeneral {
 type MyInfo {
   userPreview: UserPreview!
   isNewMember: Boolean!
-  recentProject: UserTeam
+  recentValidatedTeam: UserTeam
   blackholedAt: DateTime
-  experienceRank: Int!
-  scoreRank: Int!
-  evalCountRank: Int!
+  experienceRank: Int
+  scoreRank: Int
+  evalCountRank: Int
 }
 
 type PersonalEval {
