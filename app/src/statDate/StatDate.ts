@@ -127,4 +127,13 @@ export class StatDate extends Date {
   ): number =>
     elements.find((element) => element.date.getTime() === date.getTime())
       ?.value ?? 0;
+
+  /**
+   *
+   * @description
+   * 두 날짜 사이의 시간 차를 millisecond 단위로 반환
+   */
+  static dateGap = (a: Date, b: Date): number => {
+    return a.getTime() - b.getTime();
+  };
 }
