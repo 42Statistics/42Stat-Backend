@@ -226,6 +226,15 @@ type HomeUser {
   averageDurationPerCircle: [IntPerCircle!]!
 }
 
+"""누적 데이터 기준입니다."""
+type Landing {
+  daysAfterBeginAt: Int!
+  aliveCount: Int!
+  blackholedCount: Int!
+  memberCount: Int!
+  evalCount: Int!
+}
+
 type LeaderboardElement {
   """내 랭킹 정보"""
   me: UserRank
@@ -391,6 +400,7 @@ type ProjectInfo {
 type Query {
   findUserPreview(login: String! = "", limit: Int! = 10): [UserPreview]!
   findProjectPreview(name: String! = ""): [ProjectPreview]!
+  getLanding: Landing!
   getMyInfo: MyInfo!
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!
