@@ -181,13 +181,13 @@ export class PersonalGeneralService {
   async teamInfo(userId: number): Promise<TeamInfo> {
     const userTeams = await this.teamService.userTeams(userId);
 
-    const lastRegistered = userTeams
+    const lastRegistered = [...userTeams]
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
       .at(-1)?.projectPreview.name;
 
     const lastPassed = userTeams
       .filter((team) => team.isValidated === true)
-      .at(-1)?.projectPreview.name;
+      .at(0)?.projectPreview.name;
 
     return {
       lastRegistered,

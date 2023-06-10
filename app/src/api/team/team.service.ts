@@ -81,7 +81,7 @@ export class TeamService {
         finalMark: 1,
         createdAt: 1,
       })
-      .sort({ lastEventTime: 1 });
+      .sort({ lastEventTime: -1 });
 
     return teamsAggr.map((team) => ({
       ...team,
