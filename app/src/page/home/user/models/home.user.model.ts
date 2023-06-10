@@ -1,7 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
-import { UserRanking } from 'src/common/models/common.user.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 
 @ObjectType()
@@ -42,11 +42,11 @@ export class HomeUser {
   @Field((_type) => [IntPerCircle])
   blackholedCountPerCircle: IntPerCircle[];
 
-  @Field((_type) => [UserRanking])
-  walletRanking: UserRanking[];
+  @Field((_type) => [UserRank])
+  walletRanking: UserRank[];
 
-  @Field((_type) => [UserRanking])
-  correctionPointRanking: UserRanking[];
+  @Field((_type) => [UserRank])
+  correctionPointRanking: UserRank[];
 
   @Field((_type) => [IntPerCircle])
   averageDurationPerCircle: IntPerCircle[];

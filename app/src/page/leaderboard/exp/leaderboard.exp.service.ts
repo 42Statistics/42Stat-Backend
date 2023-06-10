@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
+import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
@@ -31,7 +32,7 @@ export class LeaderboardExpService {
       filter,
     );
 
-    const me = this.leaderboardUtilService.findUser(expRanking, userId);
+    const me = findUserRank(expRanking, userId);
 
     return this.leaderboardUtilService.toLeaderboardElement(
       me,

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
-import type { UserRanking } from 'src/common/models/common.user.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dto/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -49,8 +49,8 @@ export class ScaleTeamService {
   // total의 경우 5초, 기간 한정하는 경우 1초 이내
   async evalCountRanking(
     filter?: FilterQuery<scale_team>,
-  ): Promise<UserRanking[]> {
-    const aggregate = this.cursusUserService.aggregate<UserRanking>();
+  ): Promise<UserRank[]> {
+    const aggregate = this.cursusUserService.aggregate<UserRank>();
 
     return await aggregate
       .append(

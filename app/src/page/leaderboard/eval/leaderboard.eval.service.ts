@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type {
   DateRangeArgs,
@@ -29,7 +30,7 @@ export class LeaderboardEvalService {
   ): Promise<LeaderboardElement> {
     const evalRanking = await this.scaleTeamService.evalCountRanking(filter);
 
-    const me = this.leaderboardUtilService.findUser(evalRanking, userId);
+    const me = findUserRank(evalRanking, userId);
 
     return this.leaderboardUtilService.toLeaderboardElement(
       me,

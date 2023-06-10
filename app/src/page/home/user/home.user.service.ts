@@ -4,7 +4,7 @@ import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.databa
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { Rate } from 'src/common/models/common.rate.model';
-import type { UserRanking } from 'src/common/models/common.user.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
@@ -141,14 +141,14 @@ export class HomeUserService {
     );
   }
 
-  async walletRanks(limit: number): Promise<UserRanking[]> {
+  async walletRanks(limit: number): Promise<UserRank[]> {
     return await this.cursusUserService.ranking(
       { sort: { 'user.wallet': -1 }, limit },
       (doc: CursusUserDocument) => doc.user.wallet,
     );
   }
 
-  async correctionPointRanking(limit: number): Promise<UserRanking[]> {
+  async correctionPointRanking(limit: number): Promise<UserRank[]> {
     return await this.cursusUserService.ranking(
       {
         filter: aliveUserFilter,
