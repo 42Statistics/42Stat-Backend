@@ -46,7 +46,6 @@ export class LeaderboardEvalService {
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<scale_team> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-      filledAt: { $ne: null },
     };
 
     const evalRanking = await this.ranking(
