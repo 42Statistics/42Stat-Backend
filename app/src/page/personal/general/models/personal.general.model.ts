@@ -85,13 +85,10 @@ export class TeamInfo {
 @ObjectType()
 export class LevelRecord {
   @Field()
-  after: number;
+  monthsPassed: number;
 
   @Field((_type) => Float)
-  userLevel: number;
-
-  @Field((_type) => Float)
-  averageLevel: number;
+  level: number;
 }
 
 @ObjectType()
@@ -140,6 +137,9 @@ export class PersonalGeneral {
   @Field()
   teamInfo: TeamInfo;
 
+  @Field((_type) => [LevelRecord], { nullable: 'items' })
+  userLevelRecords: LevelRecord[];
+
   @Field((_type) => [LevelRecord])
-  levelRecords: LevelRecord[];
+  memberLevelRecords: LevelRecord[];
 }

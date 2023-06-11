@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import { ExperienceUserModule } from 'src/api/experienceUser/experienceUser.module';
+import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import { LocationModule } from 'src/api/location/location.module';
 import { ScoreModule } from 'src/api/score/score.module';
 import { ScoreService } from 'src/api/score/score.service';
@@ -20,6 +22,7 @@ import { PersonalGeneralService } from './personal.general.service';
     CursusUserModule,
     LocationModule,
     TeamModule,
+    ExperienceUserModule,
     DateRangeModule,
   ],
   providers: [
@@ -29,6 +32,7 @@ import { PersonalGeneralService } from './personal.general.service';
     ScoreService,
     CursusUserService,
     TeamService,
+    ExperienceUserService,
     DateRangeService,
   ],
 })
