@@ -1,4 +1,4 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { HomeTeamService } from './home.team.service';
 import { HomeTeam, ProjectRanking } from './models/home.team.model';
 
@@ -12,7 +12,8 @@ export class HomeTeamResolver {
   }
 
   @ResolveField((_returns) => [ProjectRanking])
-  async currRegisteredCountRanking(): Promise<ProjectRanking[]> {
-    return await this.homeTeamService.currRegisteredCountRanking();
+  async currRegisteredCountRanking(
+    @Args('limit', { defaultValue: 3 }) limit: number,): Promise<ProjectRanking[]> {
+    return await this.homeTeamService.currRegisteredCountRanking(limit);
   }
 }

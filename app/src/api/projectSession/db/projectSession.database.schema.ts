@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
-export type ProjectSerssionsDocument = HydratedDocument<project_session>;
+export type ProjectSerssionDocument = HydratedDocument<project_session>;
 
 @Schema()
 export class project_session {
@@ -11,5 +11,5 @@ export class project_session {
   //...
 }
 
-export const ProjectSessionsSchema =
+export const ProjectSessionSchema =
   SchemaFactory.createForClass(project_session);

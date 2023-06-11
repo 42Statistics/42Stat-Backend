@@ -11,7 +11,7 @@ export class ProjectsUserService {
     private projectsUserModel: Model<projects_user>,
   ) {}
 
-  async currRegisteredCountRanking(): Promise<ProjectRanking[]> {
+  async currRegisteredCountRanking(limit: number): Promise<ProjectRanking[]> {
     const aggregate = this.projectsUserModel.aggregate<ProjectRanking>();
 
     return await aggregate
@@ -35,6 +35,6 @@ export class ProjectsUserService {
         value: '$value',
       })
       .sort({ value: -1 })
-      .limit(3);
+      .limit(limit);
   }
 }

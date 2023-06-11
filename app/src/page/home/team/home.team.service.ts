@@ -22,7 +22,7 @@ export class HomeTeamService {
     };
   }
 
-  async currRegisteredCountRanking(): Promise<ProjectRanking[]> {
-    return await this.projectsUserService.currRegisteredCountRanking();
+  async currRegisteredCountRanking(limit: number): Promise<ProjectRanking[]> {
+    return await this.projectsUserService.currRegisteredCountRanking(limit);
   }
 }
