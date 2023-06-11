@@ -188,7 +188,7 @@ type ExamResultDateRanged {
 }
 
 type HomeTeam {
-  currRegisteredCountRanking: [ProjectRanking!]!
+  currRegisteredCountRanking(limit: Int! = 3): [ProjectRanking!]!
 
   """HOME 직전 회차 시험 Rank별 통과율"""
   lastExamResult: ExamResultDateRanged!
@@ -380,7 +380,7 @@ type Project {
   description: String!
   minUserCount: Int!
   maxUserCount: Int!
-  duration: Int
+  estimateTime: String
   difficulty: Int!
   currRegisteredTeamCount: Int!
 
