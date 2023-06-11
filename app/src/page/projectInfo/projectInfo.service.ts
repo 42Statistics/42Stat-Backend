@@ -17,13 +17,14 @@ export class ProjectInfoService {
     private teamService: TeamService,
   ) {}
   async projectInfo(projectName: string): Promise<Project> {
-    const projectId = 1314;
+    const [project] = await this.projectService.findByName(projectName);
+    const projectId = project.id;
 
     const teamCount = await this.teamCount(projectId);
     const teamMemberCount = await this.teamMemberCount(projectId);
     const projectSessionsInfo = await this.projectSessionInfo(projectId);
     return {
-      name: projectName,
+      name: project.name,
       ...teamCount,
       ...teamMemberCount,
       ...projectSessionsInfo,
