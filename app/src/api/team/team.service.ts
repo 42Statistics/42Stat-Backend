@@ -159,7 +159,8 @@ export class TeamService {
         _id: 0,
         finalMark: { $floor: '$finalMark' },
       });
-    return averagePassFinalMark.finalMark;
+
+    return averagePassFinalMark?.finalMark ?? 0;
   }
 
   async evalInfo(projectId: number): Promise<Rate> {
