@@ -142,12 +142,12 @@ export class TeamService {
       .project({ _id: 0, userId: '$_id', value: 1 });
   }
 
-  async averagePassFinalMark(projectName: string): Promise<number> {
+  async averagePassFinalMark(projectId: number): Promise<number> {
     const aggregate = this.teamModel.aggregate<{ finalMark: number }>();
 
     const [averagePassFinalMark] = await aggregate
       .match({
-        projectId: 1314,
+        projectId: projectId,
         status: 'finished',
         'validated?': true,
       })
@@ -159,20 +159,21 @@ export class TeamService {
         _id: 0,
         finalMark: { $floor: '$finalMark' },
       });
-    return averagePassFinalMark.finalMark;
+
+    return averagePassFinalMark?.finalMark ?? 0;
   }
 
-  async evalInfo(projectName: string): Promise<Rate> {
-    const teamResult = await this.teamResult({
-      projectId: 1314,
+  async evalInfo(projectId: number): Promise<Rate> {
+    const [passCount, failCount] = await this.teamResult({
+      projectId: projectId,
       status: 'finished',
     });
 
     const evalInfo: Rate = {
-      total: teamResult[0] + teamResult[1],
+      total: passCount + failCount,
       fields: [
-        { key: 'pass', value: teamResult[0] },
-        { key: 'fail', value: teamResult[1] },
+        { key: 'pass', value: passCount },
+        { key: 'fail', value: failCount },
       ],
     };
 
