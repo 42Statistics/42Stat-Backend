@@ -25,7 +25,7 @@ export class PersonalGeneralResolver {
   ) {}
 
   @Query((_returns) => PersonalGeneral)
-  async getPersonalGeneralPage(
+  async getPersonalGeneral(
     @MyContext() myId: number,
     @Args('login', { nullable: true }) login?: string,
     @Args('userId', { nullable: true }) userId?: number,
@@ -86,10 +86,17 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.teamInfo(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => [LevelRecord])
-  async levelRecords(
+  @ResolveField((_returns) => [LevelRecord], { nullable: 'items' })
+  async userLevelRecords(
     @Root() root: PersonalGeneralRoot,
   ): Promise<LevelRecord[]> {
-    return await this.personalGeneralService.levelRecords(root.userProfile.id);
+    return await this.personalGeneralService.userLevelRecords(
+      root.userProfile.id,
+    );
+  }
+
+  @ResolveField((_returns) => [LevelRecord])
+  async memberLevelRecords(): Promise<LevelRecord[]> {
+    return await this.personalGeneralService.memberLevelRecords();
   }
 }

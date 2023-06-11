@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
 import { ScoreService } from 'src/api/score/score.service';
@@ -27,6 +29,7 @@ export class PersonalGeneralService {
     private locationService: LocationService,
     private scoreService: ScoreService,
     private teamService: TeamService,
+    private experineceUserService: ExperienceUserService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -196,83 +199,17 @@ export class PersonalGeneralService {
     };
   }
 
-  async levelRecords(userId: number): Promise<LevelRecord[]> {
-    return [
-      {
-        after: 0,
-        userLevel: 2,
-        averageLevel: 0,
-      },
-      {
-        after: 50,
-        userLevel: 3,
-        averageLevel: 1,
-      },
-      {
-        after: 100,
-        userLevel: 3.34,
-        averageLevel: 1.5,
-      },
-      {
-        after: 150,
-        userLevel: 3.34,
-        averageLevel: 3,
-      },
-      {
-        after: 200,
-        userLevel: 4.1,
-        averageLevel: 3.5,
-      },
-      {
-        after: 250,
-        userLevel: 5,
-        averageLevel: 4,
-      },
-      {
-        after: 300,
-        userLevel: 6.3,
-        averageLevel: 4.2,
-      },
-      {
-        after: 350,
-        userLevel: 7,
-        averageLevel: 5,
-      },
-      {
-        after: 400,
-        userLevel: 7,
-        averageLevel: 6,
-      },
-      {
-        after: 450,
-        userLevel: 8,
-        averageLevel: 7,
-      },
-      {
-        after: 500,
-        userLevel: 8.8,
-        averageLevel: 8,
-      },
-      {
-        after: 550,
-        userLevel: 11.38,
-        averageLevel: 8.8,
-      },
-      {
-        after: 600,
-        userLevel: 11.38,
-        averageLevel: 10,
-      },
-      {
-        after: 650,
-        userLevel: 11.38,
-        averageLevel: 10.23,
-      },
-      {
-        after: 700,
-        userLevel: 11.38,
-        averageLevel: 11,
-      },
-    ];
+  async levelRecords(
+    filter?: FilterQuery<cursus_user>,
+  ): Promise<LevelRecord[]> {
+    return await this.experineceUserService.levelRecords(filter);
+  }
+
+  async userLevelRecords(userId: number): Promise<LevelRecord[]> {
+    return await this.levelRecords({ 'user.id': userId });
+  }
+
+  async memberLevelRecords(): Promise<LevelRecord[]> {
+    return await this.levelRecords({ grade: 'Member' });
   }
 }

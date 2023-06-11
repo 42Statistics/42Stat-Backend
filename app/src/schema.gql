@@ -324,9 +324,8 @@ type TeamInfo {
 }
 
 type LevelRecord {
-  after: Int!
-  userLevel: Float!
-  averageLevel: Float!
+  monthsPassed: Int!
+  level: Float!
 }
 
 type UserScoreInfo {
@@ -345,7 +344,8 @@ type PersonalGeneral {
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
   teamInfo: TeamInfo!
-  levelRecords: [LevelRecord!]!
+  userLevelRecords: [LevelRecord]!
+  memberLevelRecords: [LevelRecord!]!
 }
 
 type MyInfo {
@@ -406,7 +406,7 @@ type Query {
   getHomeEval: HomeEval!
   getHomeCoalition: HomeCoalition!
   getHomeTeam: HomeTeam!
-  getPersonalGeneralPage(login: String, userId: Int): PersonalGeneral!
+  getPersonalGeneral(login: String, userId: Int): PersonalGeneral!
   getPersonalEval(userId: Int, login: String): PersonalEval!
   getProjectInfo(projectName: String! = "libft"): ProjectInfo!
   getLeaderboardLevel: LeaderboardLevel!
