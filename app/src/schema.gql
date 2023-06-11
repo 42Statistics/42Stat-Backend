@@ -380,7 +380,7 @@ type Project {
   description: String!
   minUserCount: Int!
   maxUserCount: Int!
-  duration: Int
+  estimateTime: String
   difficulty: Int!
   currRegisteredTeamCount: Int!
 

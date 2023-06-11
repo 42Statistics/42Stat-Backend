@@ -142,12 +142,12 @@ export class TeamService {
       .project({ _id: 0, userId: '$_id', value: 1 });
   }
 
-  async averagePassFinalMark(projectName: string): Promise<number> {
+  async averagePassFinalMark(projectId: number): Promise<number> {
     const aggregate = this.teamModel.aggregate<{ finalMark: number }>();
 
     const [averagePassFinalMark] = await aggregate
       .match({
-        projectId: 1314,
+        projectId: projectId,
         status: 'finished',
         'validated?': true,
       })
@@ -162,9 +162,9 @@ export class TeamService {
     return averagePassFinalMark.finalMark;
   }
 
-  async evalInfo(projectName: string): Promise<Rate> {
+  async evalInfo(projectId: number): Promise<Rate> {
     const teamResult = await this.teamResult({
-      projectId: 1314,
+      projectId: projectId,
       status: 'finished',
     });
 

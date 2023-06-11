@@ -1,64 +1,59 @@
 import { Injectable } from '@nestjs/common';
 import { ProjectService } from 'src/api/project/project.service';
+import { projectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
-import { Rate } from 'src/common/models/common.rate.model';
-import { Project } from './models/projectInfo.model';
+import {
+  Project,
+  ProjectSessionInfo,
+  TeamCount,
+  TeamMemberCount,
+} from './models/projectInfo.model';
 
 @Injectable()
 export class ProjectInfoService {
   constructor(
     private projectService: ProjectService,
+    private projectSesstionService: projectSessionService,
     private teamService: TeamService,
   ) {}
   async projectInfo(projectName: string): Promise<Project> {
-    const projectSessionsInfo = await this.projectSessionsInfo(projectName);
-    const teamMemberCount = await this.teamMemberCount(projectName);
-    const teamCount = await this.teamCount(projectName);
+    const projectId = 1314;
+
+    const teamCount = await this.teamCount(projectId);
+    const teamMemberCount = await this.teamMemberCount(projectId);
+    const projectSessionsInfo = await this.projectSessionInfo(projectId);
     return {
+      name: projectName,
       ...teamCount,
       ...teamMemberCount,
       ...projectSessionsInfo,
     };
   }
 
-  async projectSessionsInfo(projectName: string): Promise<{
-    id: number;
-    name: string;
-    skills: string[];
-    description: string;
-    duration: number | null;
-    difficulty: number;
-  }> {
-    return await this.projectService.projectSessionsInfo(projectName);
+  async projectSessionInfo(projectId: number): Promise<ProjectSessionInfo> {
+    return await this.projectSesstionService.projectSessionInfo(projectId);
   }
 
-  async teamMemberCount(
-    projectName: string,
-  ): Promise<{ minUserCount: number; maxUserCount: number }> {
-    return await this.projectService.teamMemberCount(projectName);
+  async teamMemberCount(projectId: number): Promise<TeamMemberCount> {
+    return await this.projectService.teamMemberCount(projectId);
   }
 
-  async teamCount(projectName: string): Promise<{
-    averagePassFinalMark: number;
-    currRegisteredTeamCount: number;
-    closedTeamCount: number;
-    evalInfo: Rate;
-  }> {
+  async teamCount(projectId: number): Promise<TeamCount> {
     const currRegisteredTeamCount = await this.teamService.teamCount({
-      projectId: 1314,
+      projectId: projectId,
       status: 'in_progress',
     });
 
     const closedTeamCount = await this.teamService.teamCount({
-      projectId: 1314,
+      projectId: projectId,
       $or: [{ status: 'waiting_for_correction' }, { status: 'finished' }],
     });
 
     const averagePassFinalMark = await this.teamService.averagePassFinalMark(
-      projectName,
+      projectId,
     );
 
-    const evalInfo = await this.teamService.evalInfo(projectName);
+    const evalInfo = await this.teamService.evalInfo(projectId);
 
     return {
       averagePassFinalMark,
