@@ -1,164 +1,94 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type {
   AggrNumeric,
   AggrNumericPerCluster,
 } from 'src/common/db/common.db.aggregation';
-import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PreferredTime } from 'src/page/personal/general/models/personal.general.model';
 import { StatDate } from 'src/statDate/StatDate';
 import { location } from './db/location.database.schema';
 
+const enum PartitionState {
+  NIGHT,
+  MORNING,
+  DAYTIME,
+  EVENING,
+  __STATE_COUNT__,
+}
+
 @Injectable()
 export class LocationService {
-  // as const 는 mongoose 의 타입으로 인해 사용할 수 없습니다.
-  clusterList = [
-    'c1',
-    'c10',
-    'c2',
-    'c3',
-    'c4',
-    'c5',
-    'c6',
-    'c7',
-    'c8',
-    'c9',
-    'cx1',
-    'cx2',
-    'cx3',
-  ];
-
   constructor(
     @InjectModel(location.name)
     private locationModel: Model<location>,
   ) {}
 
-  dateDiff(start: string, end: string) {
-    return {
-      $dateDiff: {
-        startDate: {
-          $max: [
-            '$beginAt',
-            {
-              $dateFromString: {
-                dateString: {
-                  $dateToString: {
-                    format: `%Y-%m-%dT${start}:00:00.000Z`,
-                    date: '$nextday',
-                  },
-                },
-              },
-            },
-          ],
-        },
-        endDate: {
-          $min: [
-            '$endAt',
-            {
-              $dateFromString: {
-                dateString: {
-                  $dateToString: {
-                    format: `%Y-%m-%dT${end}:00:00.000Z`,
-                    date: '$endAt',
-                  },
-                },
-              },
-            },
-          ],
-        },
-        unit: 'millisecond',
-        timezone: 'Asia/Seoul',
-      },
-    };
-  }
-
   async preferredTime(
     userId: number,
     filter?: FilterQuery<location>,
   ): Promise<PreferredTime> {
-    const aggregate = this.locationModel.aggregate<PreferredTime>();
-
-    const to00 = this.dateDiff('21', '00');
-    const to03 = this.dateDiff('00', '03');
-    const to09 = this.dateDiff('03', '09');
-    const to15 = this.dateDiff('09', '15');
-    const to21 = this.dateDiff('15', '21');
-
-    aggregate.match({ 'user.id': userId });
-
-    if (filter) {
-      aggregate.match(filter);
-    }
-
-    const [preferredTime] = await aggregate
-      .addFields({
-        beginAtFormatted: {
-          $dateToString: {
-            format: '%Y-%m-%d',
-            date: '$beginAt',
-          },
-        },
-        endAtFormatted: {
-          $dateToString: {
-            format: '%Y-%m-%d',
-            date: '$endAt',
-          },
-        },
+    const locations = await this.locationModel
+      .find<{ beginAt: Date; endAt: Date }>({
+        'user.id': userId,
+        ...filter,
       })
-      .addFields({
-        nextday: {
-          $cond: {
-            if: {
-              $ne: ['$beginAtFormatted', '$endAtFormatted'],
-            },
-            then: {
-              $add: ['$beginAt', StatDate.DAY],
-            },
-            else: '$beginAt',
-          },
-        },
-      })
-      .append({
-        $project: {
-          '15to21': { $sum: { $cond: [{ $gte: [to21, 0] }, to21, 0] } },
-          '21to00': { $sum: { $cond: [{ $gte: [to00, 0] }, to00, 0] } },
-          '00to03': { $sum: { $cond: [{ $gte: [to03, 0] }, to03, 0] } },
-          '03to09': { $sum: { $cond: [{ $gte: [to09, 0] }, to09, 0] } },
-          '09to15': { $sum: { $cond: [{ $gte: [to15, 0] }, to15, 0] } },
-        },
-      })
-      .group({
-        _id: 0,
-        '00to06': { $sum: '$15to21' },
-        '06to09': { $sum: '$21to00' },
-        '09to12': { $sum: '$00to03' },
-        '12to18': { $sum: '$03to09' },
-        '18to24': { $sum: '$09to15' },
-      })
-      .project({
-        morning: {
-          $floor: {
-            $divide: [{ $sum: { $add: ['$06to09', '$09to12'] } }, StatDate.MIN],
-          },
-        },
-        daytime: { $floor: { $divide: ['$12to18', StatDate.MIN] } },
-        evening: { $floor: { $divide: ['$18to24', StatDate.MIN] } },
-        night: { $floor: { $divide: ['$00to06', StatDate.MIN] } },
-      })
-      .addFields({
-        total: { $sum: ['$morning', '$daytime', '$evening', '$night'] },
-      });
+      .select({ beginAt: 1, endAt: 1 });
 
-    return (
-      preferredTime ?? {
+    // 이제부터 날짜를 전부 millisecond 로 사용합니다
+    const { total, morning, daytime, evening, night } = locations.reduce(
+      (acc, { beginAt, endAt }) => {
+        const end = (endAt ?? new Date()).getTime();
+
+        let state = initPartitionStateByHour(beginAt);
+        let partitionPoint = initPartitionPoint(beginAt, state);
+
+        for (let curr = beginAt.getTime(); curr < end; curr = partitionPoint) {
+          partitionPoint = toNextPartitionPoint(partitionPoint);
+
+          const amount = Math.min(end, partitionPoint) - curr;
+
+          switch (state) {
+            case PartitionState.NIGHT:
+              acc.night += amount;
+              break;
+            case PartitionState.MORNING:
+              acc.morning += amount;
+              break;
+            case PartitionState.DAYTIME:
+              acc.daytime += amount;
+              break;
+            case PartitionState.EVENING:
+              acc.evening += amount;
+              break;
+            default:
+              throw new InternalServerErrorException();
+          }
+
+          acc.total += amount;
+
+          state = toNextPartitionState(state);
+        }
+
+        return acc;
+      },
+      {
         total: 0,
         morning: 0,
         daytime: 0,
         evening: 0,
         night: 0,
-      }
+      },
     );
+
+    return {
+      total: Math.floor(total / 1000 / 60),
+      morning: Math.floor(morning / 1000 / 60),
+      daytime: Math.floor(daytime / 1000 / 60),
+      evening: Math.floor(evening / 1000 / 60),
+      night: Math.floor(night / 1000 / 60),
+    };
   }
 
   async preferredCluster(
@@ -173,79 +103,103 @@ export class LocationService {
       aggregate.match(filter);
     }
 
-    const [durationTimePerCluster] = await aggregate
-      .project({
-        _id: 0,
-        beginAt: 1,
-        endAt: 1,
-        host: 1,
-        substring: { $substr: ['$host', 0, { $indexOfCP: ['$host', 'r'] }] },
-      })
-      .append({
-        $bucket: {
-          groupBy: '$substring',
-          boundaries: this.clusterList,
-          default: 'defalut',
-          output: {
-            duration: {
-              $sum: {
-                $dateDiff: {
-                  startDate: '$beginAt',
-                  endDate: '$endAt',
-                  unit: 'millisecond',
-                },
-              },
-            },
+    const [durationTimePerCluster] = await aggregate.group({
+      _id: {
+        $substrCP: ['$host', 0, { $indexOfCP: ['$host', 'r'] }],
+      },
+      value: {
+        $sum: {
+          $dateDiff: {
+            startDate: '$beginAt',
+            endDate: '$endAt',
+            unit: 'millisecond',
           },
         },
-      })
-      .addFields({
-        value: { $sum: '$duration' },
-        cluster: '$_id',
-      })
-      .project({ _id: 0, value: 1, cluster: 1 })
-      .sort({ value: -1 });
+      },
+    });
 
     return durationTimePerCluster?.cluster ?? null;
   }
 
-  async logtime(
-    userId: number,
-    { start, end }: DateRangeArgs,
+  async logtimeByDateRange(
+    { start, end }: DateRange,
+    filter?: FilterQuery<location>,
   ): Promise<number> {
-    const aggregate = this.locationModel.aggregate<AggrNumeric>();
+    const aggregate = this.locationModel.aggregate<
+      AggrNumeric & {
+        first: location;
+        last: location;
+      }
+    >();
 
     const [logtime] = await aggregate
-      .match({ 'user.id': userId })
       .match({
+        ...filter,
         $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: end } }],
       })
+      .sort({ beginAt: 1 })
       .group({
-        _id: 0,
-        duration: {
-          $push: {
-            $cond: [
-              { $lt: ['$beginAt', start] },
-              { $subtract: ['$endAt', start] },
-              {
-                $cond: [
-                  { $lt: [end, '$endAt'] },
-                  { $subtract: [end, '$beginAt'] },
-                  { $subtract: ['$endAt', '$beginAt'] },
-                ],
-              },
-            ],
+        _id: 'result',
+        value: {
+          $sum: {
+            $dateDiff: {
+              startDate: '$beginAt',
+              endDate: '$endAt',
+              unit: 'millisecond',
+            },
           },
         },
-      })
-      .addFields({
-        value: { $floor: { $divide: [{ $sum: '$duration' }, StatDate.MIN] } },
-      })
-      .project({
-        _id: 0,
-        duration: 0,
+        first: { $first: '$$ROOT' },
+        last: { $last: '$$ROOT' },
       });
 
-    return logtime?.value ?? 0;
+    if (!logtime) {
+      return 0;
+    }
+
+    if (logtime.first.beginAt < start) {
+      logtime.value -= StatDate.dateGap(start, logtime.first.beginAt);
+    }
+
+    if (!logtime.last.endAt) {
+      logtime.value += StatDate.dateGap(end, logtime.last.beginAt);
+    }
+
+    if (logtime.last.endAt && end < logtime.last.endAt) {
+      logtime.value -= StatDate.dateGap(logtime.last.endAt, end);
+    }
+
+    return Math.floor(logtime.value / StatDate.MIN);
   }
 }
+
+const initPartitionStateByHour = (date: Date): PartitionState => {
+  const currHour = date.getHours();
+
+  if (currHour < 6) {
+    return PartitionState.NIGHT;
+  }
+
+  if (currHour < 12) {
+    return PartitionState.MORNING;
+  }
+
+  if (currHour < 18) {
+    return PartitionState.DAYTIME;
+  }
+
+  return PartitionState.EVENING;
+};
+
+const toNextPartitionState = (state: PartitionState): PartitionState =>
+  ((state + 1) % PartitionState.__STATE_COUNT__) as PartitionState;
+
+const initPartitionPoint = (date: Date, state: PartitionState) => {
+  const beginPoint = new Date(date);
+  beginPoint.setHours(state * 6, 0, 0, 0);
+
+  return beginPoint.getTime();
+};
+
+const toNextPartitionPoint = (partitionPoint: number): number =>
+  partitionPoint + 1000 * 3600 * 6;
