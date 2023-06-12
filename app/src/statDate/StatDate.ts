@@ -136,4 +136,12 @@ export class StatDate extends Date {
   static dateGap = (a: Date, b: Date): number => {
     return a.getTime() - b.getTime();
   };
+
+  static currMonth = (): StatDate => new StatDate().startOfMonth();
+  static lastMonth = (): StatDate => StatDate.currMonth().moveMonth(-1);
+  static nextMonth = (): StatDate => StatDate.currMonth().moveMonth(1);
+
+  static currWeek = (): StatDate => new StatDate().startOfWeek();
+  static lastWeek = (): StatDate => StatDate.currWeek().moveWeek(-1);
+  static nextWeek = (): StatDate => StatDate.currWeek().moveWeek(1);
 }
