@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyContext } from 'src/auth/myContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import {
@@ -26,7 +26,10 @@ export class LeaderboardEvalResolver {
     @MyContext() myId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardEvalService.ranking(myId, paginationIndexArgs);
+    return await this.leaderboardEvalService.rankingTotal(
+      myId,
+      paginationIndexArgs,
+    );
   }
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
