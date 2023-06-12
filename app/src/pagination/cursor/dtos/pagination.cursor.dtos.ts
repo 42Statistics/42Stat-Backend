@@ -6,7 +6,7 @@ export class PaginationCursorArgs {
   @Field({ nullable: true })
   after?: string;
 
-  @Field()
+  @Field({ defaultValue: 20 })
   @Min(1)
   @Max(100)
   first: number;
