@@ -11,14 +11,17 @@ const EVAL_COUNT_RANK = 'evalCountRank';
 export const EVAL_COUNT_RANK_TOTAL = EVAL_COUNT_RANK + ':total';
 export const EVAL_COUNT_RANK_MONTHLY = EVAL_COUNT_RANK + ':monthly';
 export const EVAL_COUNT_RANK_WEEKLY = EVAL_COUNT_RANK + ':weekly';
+export const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
+export const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
 
 export type EvalCountRankCacheKey =
   | typeof EVAL_COUNT_RANK_TOTAL
   | typeof EVAL_COUNT_RANK_MONTHLY
   | typeof EVAL_COUNT_RANK_WEEKLY;
 
-const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
-const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
+export type AverageReviewLengthKey =
+  | typeof AVERAGE_COMMENT_LENGTH
+  | typeof AVERAGE_FEEDBACK_LENGTH;
 
 @Injectable()
 export class ScaleTeamCacheService {
@@ -45,15 +48,27 @@ export class ScaleTeamCacheService {
   async getEvalCountRankCache(
     key: EvalCountRankCacheKey,
   ): Promise<ReturnType<ScaleTeamService['evalCountRanking']> | undefined> {
-    const caches = await this.redisClient.get(key);
+    const cached = await this.redisClient.get(key);
 
-    if (!caches) {
+    if (!cached) {
       return undefined;
     }
 
-    return JSON.parse(caches) as ReturnType<
+    return JSON.parse(cached) as ReturnType<
       ScaleTeamService['evalCountRanking']
     >;
+  }
+
+  async getAverageReviewLengthCache(
+    key: AverageReviewLengthKey,
+  ): Promise<ReturnType<ScaleTeamService['averageReviewLength']> | undefined> {
+    const cached = await this.redisClient.get(key);
+
+    if (!cached) {
+      return undefined;
+    }
+
+    return parseInt(JSON.parse(cached));
   }
 
   async getEvalCountRankCacheByDateTemplate(
@@ -71,14 +86,20 @@ export class ScaleTeamCacheService {
   // todo: prod 때 빈도 줄이기
   @Cron(CronExpression.EVERY_MINUTE)
   async updateScaleTeamCache(): Promise<void> {
-    console.log('enter at', new Date().toLocaleString());
+    console.debug('enter scaleTeamCache at', new Date().toLocaleString());
 
     // todo: 이거 어떻게 안되나...
     try {
       await this.updateEvalCountRankCache();
+      console.debug('evalCountRank done');
     } catch {}
 
-    console.log('leaving at', new Date().toLocaleString());
+    try {
+      await this.updateAverageReviewLength();
+      console.debug('averageReviewLength done');
+    } catch {}
+
+    console.debug('leaving scaleTeamCache at', new Date().toLocaleString());
   }
 
   private async updateEvalCountRankCache(): Promise<void> {
@@ -111,6 +132,25 @@ export class ScaleTeamCacheService {
       this.redisClient,
       EVAL_COUNT_RANK_WEEKLY,
       weekly,
+    );
+  }
+
+  private async updateAverageReviewLength(): Promise<void> {
+    const averageCommentLength =
+      await this.scaleTeamService.averageReviewLength('comment');
+    const averageFeedbackLength =
+      await this.scaleTeamService.averageReviewLength('feedback');
+
+    await this.redisUtilService.replaceKey(
+      this.redisClient,
+      AVERAGE_COMMENT_LENGTH,
+      averageCommentLength.toString(),
+    );
+
+    await this.redisUtilService.replaceKey(
+      this.redisClient,
+      AVERAGE_FEEDBACK_LENGTH,
+      averageFeedbackLength.toString(),
     );
   }
 }

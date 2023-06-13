@@ -3,6 +3,11 @@ import type { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { aliveUserFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
+import {
+  AVERAGE_COMMENT_LENGTH,
+  AVERAGE_FEEDBACK_LENGTH,
+  ScaleTeamCacheService,
+} from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import type {
   FloatDateRanged,
@@ -15,6 +20,7 @@ import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 export class HomeEvalService {
   constructor(
     private scaleTeamService: ScaleTeamService,
+    private scaleTeamCacheService: ScaleTeamCacheService,
     private cursusUserService: CursusUserService,
     private dateRangeService: DateRangeService,
   ) {}
@@ -67,10 +73,26 @@ export class HomeEvalService {
   }
 
   async averageFeedbackLength(): Promise<number> {
-    return await this.scaleTeamService.averageReviewLength('feedback');
+    const cachedLength =
+      await this.scaleTeamCacheService.getAverageReviewLengthCache(
+        AVERAGE_FEEDBACK_LENGTH,
+      );
+
+    return (
+      cachedLength ??
+      (await this.scaleTeamService.averageReviewLength('feedback'))
+    );
   }
 
   async averageCommentLength(): Promise<number> {
-    return await this.scaleTeamService.averageReviewLength('comment');
+    const cachedLength =
+      await this.scaleTeamCacheService.getAverageReviewLengthCache(
+        AVERAGE_COMMENT_LENGTH,
+      );
+
+    return (
+      cachedLength ??
+      (await this.scaleTeamService.averageReviewLength('comment'))
+    );
   }
 }
