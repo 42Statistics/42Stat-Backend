@@ -7,17 +7,17 @@ import { RedisUtilService } from 'src/redis/redis.util.service';
 import { StatDate } from 'src/statDate/StatDate';
 import { ScaleTeamService } from './scaleTeam.service';
 
-const EVAL_COUNT_RANK = 'evalCountRank';
-export const EVAL_COUNT_RANK_TOTAL = EVAL_COUNT_RANK + ':total';
-export const EVAL_COUNT_RANK_MONTHLY = EVAL_COUNT_RANK + ':monthly';
-export const EVAL_COUNT_RANK_WEEKLY = EVAL_COUNT_RANK + ':weekly';
+const EVAL_COUNT_RANKING = 'evalCountRanking';
+export const EVAL_COUNT_RANKING_TOTAL = EVAL_COUNT_RANKING + ':total';
+export const EVAL_COUNT_RANKING_MONTHLY = EVAL_COUNT_RANKING + ':monthly';
+export const EVAL_COUNT_RANKING_WEEKLY = EVAL_COUNT_RANKING + ':weekly';
 export const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
 export const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
 
-export type EvalCountRankCacheKey =
-  | typeof EVAL_COUNT_RANK_TOTAL
-  | typeof EVAL_COUNT_RANK_MONTHLY
-  | typeof EVAL_COUNT_RANK_WEEKLY;
+export type EvalCountRankingCacheKey =
+  | typeof EVAL_COUNT_RANKING_TOTAL
+  | typeof EVAL_COUNT_RANKING_MONTHLY
+  | typeof EVAL_COUNT_RANKING_WEEKLY;
 
 export type AverageReviewLengthKey =
   | typeof AVERAGE_COMMENT_LENGTH
@@ -32,21 +32,8 @@ export class ScaleTeamCacheService {
     private redisUtilService: RedisUtilService,
   ) {}
 
-  selectCacheKeyByDateTemplate = (
-    dateTemplate: DateTemplate,
-  ): EvalCountRankCacheKey | undefined => {
-    switch (dateTemplate) {
-      case DateTemplate.CURR_MONTH:
-        return EVAL_COUNT_RANK_MONTHLY;
-      case DateTemplate.CURR_WEEK:
-        return EVAL_COUNT_RANK_WEEKLY;
-      default:
-        return undefined;
-    }
-  };
-
-  async getEvalCountRankCache(
-    key: EvalCountRankCacheKey,
+  async getEvalCountRankingCache(
+    key: EvalCountRankingCacheKey,
   ): Promise<ReturnType<ScaleTeamService['evalCountRanking']> | undefined> {
     const cached = await this.redisClient.get(key);
 
@@ -54,8 +41,8 @@ export class ScaleTeamCacheService {
       return undefined;
     }
 
-    return JSON.parse(cached) as ReturnType<
-      ScaleTeamService['evalCountRanking']
+    return JSON.parse(cached) as Awaited<
+      ReturnType<ScaleTeamService['evalCountRanking']>
     >;
   }
 
@@ -71,27 +58,28 @@ export class ScaleTeamCacheService {
     return parseInt(JSON.parse(cached));
   }
 
-  async getEvalCountRankCacheByDateTemplate(
+  async getEvalCountRankingCacheByDateTemplate(
     dateTemplate: DateTemplate,
   ): Promise<ReturnType<ScaleTeamService['evalCountRanking']> | undefined> {
-    const cacheKey = this.selectCacheKeyByDateTemplate(dateTemplate);
+    const cacheKey = selectEvalCountRankingCacheKeyByDateTemplate(dateTemplate);
 
     if (!cacheKey) {
       return undefined;
     }
 
-    return await this.getEvalCountRankCache(cacheKey);
+    return await this.getEvalCountRankingCache(cacheKey);
   }
 
   // todo: prod 때 빈도 줄이기
   @Cron(CronExpression.EVERY_MINUTE)
-  async updateScaleTeamCache(): Promise<void> {
+  // eslint-disable-next-line
+  private async updateScaleTeamCache(): Promise<void> {
     console.debug('enter scaleTeamCache at', new Date().toLocaleString());
 
     // todo: 이거 어떻게 안되나...
     try {
-      await this.updateEvalCountRankCache();
-      console.debug('evalCountRank done');
+      await this.updateEvalCountRankingCache();
+      console.debug('evalCountRanking done');
     } catch {}
 
     try {
@@ -102,7 +90,7 @@ export class ScaleTeamCacheService {
     console.debug('leaving scaleTeamCache at', new Date().toLocaleString());
   }
 
-  private async updateEvalCountRankCache(): Promise<void> {
+  private async updateEvalCountRankingCache(): Promise<void> {
     const currMonth = StatDate.currMonth();
     const nextMonth = StatDate.nextMonth();
     const currWeek = StatDate.currWeek();
@@ -118,19 +106,19 @@ export class ScaleTeamCacheService {
 
     await this.redisUtilService.replaceKey(
       this.redisClient,
-      EVAL_COUNT_RANK_TOTAL,
+      EVAL_COUNT_RANKING_TOTAL,
       total,
     );
 
     await this.redisUtilService.replaceKey(
       this.redisClient,
-      EVAL_COUNT_RANK_MONTHLY,
+      EVAL_COUNT_RANKING_MONTHLY,
       monthly,
     );
 
     await this.redisUtilService.replaceKey(
       this.redisClient,
-      EVAL_COUNT_RANK_WEEKLY,
+      EVAL_COUNT_RANKING_WEEKLY,
       weekly,
     );
   }
@@ -154,3 +142,16 @@ export class ScaleTeamCacheService {
     );
   }
 }
+
+const selectEvalCountRankingCacheKeyByDateTemplate = (
+  dateTemplate: DateTemplate,
+): EvalCountRankingCacheKey | undefined => {
+  switch (dateTemplate) {
+    case DateTemplate.CURR_MONTH:
+      return EVAL_COUNT_RANKING_MONTHLY;
+    case DateTemplate.CURR_WEEK:
+      return EVAL_COUNT_RANKING_WEEKLY;
+    default:
+      return undefined;
+  }
+};

@@ -18,6 +18,7 @@ import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
 import type { MyInfoRoot } from './models/myInfo.model';
+import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 
 @Injectable()
 export class MyInfoService {
@@ -28,6 +29,7 @@ export class MyInfoService {
     private experienceUserService: ExperienceUserService,
     private scoreService: ScoreService,
     private scaleTeamService: ScaleTeamService,
+    private scaleTeamCacheService: ScaleTeamCacheService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -106,6 +108,11 @@ export class MyInfoService {
   }
 
   async evalCountRank(userId: number): Promise<number | undefined> {
+    const cachedRanking =
+      await this.scaleTeamCacheService.getEvalCountRankingCacheByDateTemplate(
+        DateTemplate.CURR_WEEK,
+      );
+
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
     );
@@ -114,8 +121,10 @@ export class MyInfoService {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const ranking = await this.scaleTeamService.evalCountRanking(dateFilter);
+    const evalCountRanking =
+      cachedRanking ??
+      (await this.scaleTeamService.evalCountRanking(dateFilter));
 
-    return findUserRank(ranking, userId)?.rank;
+    return findUserRank(evalCountRanking, userId)?.rank;
   }
 }
