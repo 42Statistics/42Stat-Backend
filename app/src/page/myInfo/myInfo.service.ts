@@ -11,13 +11,13 @@ import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema'
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import type { score } from 'src/api/score/db/score.database.schema';
 import { ScoreService } from 'src/api/score/score.service';
+import { TeamService } from 'src/api/team/team.service';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
 import type { MyInfoRoot } from './models/myInfo.model';
-import { TeamService } from 'src/api/team/team.service';
 
 @Injectable()
 export class MyInfoService {
