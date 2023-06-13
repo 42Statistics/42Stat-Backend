@@ -8,8 +8,10 @@ import {
   QuestsUserService,
 } from 'src/api/questsUser/questsUser.service';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
+import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import type { score } from 'src/api/score/db/score.database.schema';
+import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import { findUserRank } from 'src/common/findUserRank';
@@ -18,7 +20,6 @@ import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
 import type { MyInfoRoot } from './models/myInfo.model';
-import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 
 @Injectable()
 export class MyInfoService {
@@ -28,6 +29,7 @@ export class MyInfoService {
     private teamService: TeamService,
     private experienceUserService: ExperienceUserService,
     private scoreService: ScoreService,
+    private scoreCacheService: ScoreCacheService,
     private scaleTeamService: ScaleTeamService,
     private scaleTeamCacheService: ScaleTeamCacheService,
     private dateRangeService: DateRangeService,
@@ -94,6 +96,11 @@ export class MyInfoService {
   }
 
   async scoreRank(userId: number): Promise<number | undefined> {
+    const cachedRanking =
+      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
+        DateTemplate.CURR_WEEK,
+      );
+
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
     );
@@ -102,7 +109,8 @@ export class MyInfoService {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const ranking = await this.scoreService.scoreRanking(dateFilter);
+    const ranking =
+      cachedRanking ?? (await this.scoreService.scoreRanking(dateFilter));
 
     return findUserRank(ranking, userId)?.rank;
   }
