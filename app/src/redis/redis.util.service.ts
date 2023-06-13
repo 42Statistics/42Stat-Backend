@@ -3,14 +3,14 @@ import { RedisClientType } from 'redis';
 
 @Injectable()
 export class RedisUtilService {
-  async replaceKey<T>(
+  async replaceKey(
     redisClient: RedisClientType,
     key: string,
-    datas: T[],
+    data: unknown,
   ): Promise<void> {
     const tempKey = 'temp:' + key;
 
-    await redisClient.set(tempKey, JSON.stringify(datas));
+    await redisClient.set(tempKey, JSON.stringify(data));
     await redisClient.rename(tempKey, key);
   }
 }
