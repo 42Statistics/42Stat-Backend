@@ -33,9 +33,7 @@ export class LandingService {
       grade: 'Member',
     });
 
-    const evalCount = await this.scaleTeamService.evalCount({
-      filledAt: { $ne: null },
-    });
+    const evalCount = await this.scaleTeamService.evalCount();
 
     return {
       daysAfterBeginAt,
