@@ -22,7 +22,7 @@ export class LeaderboardLevelResolver {
     @MyContext() myId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardLevelService.ranking(
+    return await this.leaderboardLevelService.rankingTotal(
       myId,
       paginationIndexArgs,
     );
