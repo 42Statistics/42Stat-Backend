@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import type { RedisClientType } from 'redis';
-import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { REDIS_CLIENT } from 'src/redis/redis.module';
 import { RedisUtilService } from 'src/redis/redis.util.service';
 import { StatDate } from 'src/statDate/StatDate';
+import { ScaleTeamService } from './scaleTeam.service';
 
 const EVAL_COUNT_RANK = 'evalCountRank';
 export const EVAL_COUNT_RANK_TOTAL = EVAL_COUNT_RANK + ':total';
@@ -16,14 +17,30 @@ export type EvalCountRankCacheKey =
   | typeof EVAL_COUNT_RANK_MONTHLY
   | typeof EVAL_COUNT_RANK_WEEKLY;
 
+const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
+const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
+
 @Injectable()
-export class LeaderboardEvalCacheService {
+export class ScaleTeamCacheService {
   constructor(
     private scaleTeamService: ScaleTeamService,
     @Inject(REDIS_CLIENT)
     private redisClient: RedisClientType,
     private redisUtilService: RedisUtilService,
   ) {}
+
+  selectCacheKeyByDateTemplate = (
+    dateTemplate: DateTemplate,
+  ): EvalCountRankCacheKey | undefined => {
+    switch (dateTemplate) {
+      case DateTemplate.CURR_MONTH:
+        return EVAL_COUNT_RANK_MONTHLY;
+      case DateTemplate.CURR_WEEK:
+        return EVAL_COUNT_RANK_WEEKLY;
+      default:
+        return undefined;
+    }
+  };
 
   async getEvalCountRankCache(
     key: EvalCountRankCacheKey,
@@ -39,9 +56,32 @@ export class LeaderboardEvalCacheService {
     >;
   }
 
-  // todo: prod 때 빈도 늘리기
+  async getEvalCountRankCacheByDateTemplate(
+    dateTemplate: DateTemplate,
+  ): Promise<ReturnType<ScaleTeamService['evalCountRanking']> | undefined> {
+    const cacheKey = this.selectCacheKeyByDateTemplate(dateTemplate);
+
+    if (!cacheKey) {
+      return undefined;
+    }
+
+    return await this.getEvalCountRankCache(cacheKey);
+  }
+
+  // todo: prod 때 빈도 줄이기
   @Cron(CronExpression.EVERY_MINUTE)
-  async updateEvalCountRankCache(): Promise<void> {
+  async updateScaleTeamCache(): Promise<void> {
+    console.log('enter at', new Date().toLocaleString());
+
+    // todo: 이거 어떻게 안되나...
+    try {
+      await this.updateEvalCountRankCache();
+    } catch {}
+
+    console.log('leaving at', new Date().toLocaleString());
+  }
+
+  private async updateEvalCountRankCache(): Promise<void> {
     const currMonth = StatDate.currMonth();
     const nextMonth = StatDate.nextMonth();
     const currWeek = StatDate.currWeek();
