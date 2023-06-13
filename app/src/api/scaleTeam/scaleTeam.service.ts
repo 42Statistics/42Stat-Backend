@@ -54,14 +54,11 @@ export class ScaleTeamService {
 
     return await aggregate
       .append(
-        lookupScaleTeams('user.id', 'corrector.id', [
-          {
-            $match: {
-              ...filter,
-              filledAt: { $ne: null },
-            },
-          },
-        ]),
+        lookupScaleTeams(
+          'user.id',
+          'corrector.id',
+          filter ? [{ $match: filter }] : undefined,
+        ),
       )
       .addFields({ value: { $size: '$scale_teams' } })
       .append(addRank())
@@ -128,24 +125,23 @@ export class ScaleTeamService {
       AggrNumeric & { count: number }
     >();
 
-    const [durationInfo] = await aggregate
-      .match({
-        filledAt: { $ne: null },
-        ...filter,
-      })
-      .group({
-        _id: 'result',
-        value: {
-          $sum: {
-            $dateDiff: {
-              startDate: '$beginAt',
-              endDate: '$filledAt',
-              unit: 'minute',
-            },
+    if (filter) {
+      aggregate.match(filter);
+    }
+
+    const [durationInfo] = await aggregate.group({
+      _id: 'result',
+      value: {
+        $sum: {
+          $dateDiff: {
+            startDate: '$beginAt',
+            endDate: '$filledAt',
+            unit: 'minute',
           },
         },
-        count: { $count: {} },
-      });
+      },
+      count: { $count: {} },
+    });
 
     return durationInfo ? [durationInfo.value, durationInfo.count] : [0, 0];
   }

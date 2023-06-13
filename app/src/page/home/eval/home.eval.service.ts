@@ -26,7 +26,6 @@ export class HomeEvalService {
   async evalCountByDateRange(dateRange: DateRange): Promise<IntDateRanged> {
     const evalFilter: FilterQuery<scale_team> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-      filledAt: { $ne: null },
     };
 
     const evalCount = await this.evalCount(evalFilter);
@@ -47,7 +46,6 @@ export class HomeEvalService {
   ): Promise<FloatDateRanged> {
     const evalCount = await this.evalCount({
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-      filledAt: { $ne: null },
     });
 
     const activeUserCount = await this.cursusUserService.userCount(

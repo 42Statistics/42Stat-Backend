@@ -48,7 +48,6 @@ export class PersonalEvalService {
     return await this.scaleTeamService.evalCount({
       ...filter,
       'corrector.id': userId,
-      filledAt: { $ne: null },
     });
   }
 
@@ -106,10 +105,7 @@ export class PersonalEvalService {
 
   async lastComment(userId: number): Promise<string | null> {
     const scaleTeams = await this.scaleTeamService.findAll({
-      filter: {
-        'corrector.id': userId,
-        filledAt: { $ne: null },
-      },
+      filter: { 'corrector.id': userId },
       sort: { beginAt: -1, id: -1 },
       limit: 1,
     });
