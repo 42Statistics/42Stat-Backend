@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CursusUserModule } from '../cursusUser/cursusUser.module';
-import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { LevelModule } from '../level/level.module';
-import { LevelService } from '../level/level.service';
 import {
   ExperienceSchema,
   experience_user,
@@ -18,7 +16,7 @@ import { ExperienceUserService } from './experienceUser.service';
     CursusUserModule,
     LevelModule,
   ],
-  providers: [ExperienceUserService, CursusUserService, LevelService],
+  providers: [ExperienceUserService],
   exports: [
     MongooseModule,
     ExperienceUserService,
