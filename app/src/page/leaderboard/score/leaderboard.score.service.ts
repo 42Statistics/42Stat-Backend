@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { score } from 'src/api/score/db/score.database.schema';
+import {
+  SCORE_RANKING_TOTAL,
+  ScoreCacheService,
+} from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { findUserRank } from 'src/common/findUserRank';
 import type { UserRankWithCoalitionId } from 'src/common/models/common.user.model';
@@ -13,13 +17,6 @@ import type {
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
-import {
-  LeaderboardScoreCacheService,
-  SCORE_RANK_MONTHLY,
-  SCORE_RANK_TOTAL,
-  SCORE_RANK_WEEKLY,
-  ScoreRankCacheKey,
-} from './leaderboard.score.cache.service';
 
 // 나중에 코알리숑별로 나눌때 활용할 여지가 있다고 생각하여 남겨둡니다
 type ScoreRankingArgs = Omit<RankingArgs<score>, 'cachedRanking'> & {
@@ -29,9 +26,9 @@ type ScoreRankingArgs = Omit<RankingArgs<score>, 'cachedRanking'> & {
 @Injectable()
 export class LeaderboardScoreService {
   constructor(
-    private leaderboardScoreCacheService: LeaderboardScoreCacheService,
     private leaderboardUtilService: LeaderboardUtilService,
     private scoreService: ScoreService,
+    private scoreCacheService: ScoreCacheService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -55,10 +52,9 @@ export class LeaderboardScoreService {
   }
 
   async rankingTotal(userId: number, paginationIndexArgs: PaginationIndexArgs) {
-    const cachedRanking =
-      await this.leaderboardScoreCacheService.getScoreRankCache(
-        SCORE_RANK_TOTAL,
-      );
+    const cachedRanking = await this.scoreCacheService.getScoreRankingCache(
+      SCORE_RANKING_TOTAL,
+    );
 
     return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
   }
@@ -88,29 +84,18 @@ export class LeaderboardScoreService {
     paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
+    const cachedRanking =
+      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
+        dateTemplate,
+      );
+
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-    const cacheKey = selectCacheKeyByDateTemplate(dateTemplate);
 
     return this.rankingByDateRange(
       userId,
       paginationIndexArgs,
       dateRange,
-      cacheKey
-        ? await this.leaderboardScoreCacheService.getScoreRankCache(cacheKey)
-        : undefined,
+      cachedRanking,
     );
   }
 }
-
-const selectCacheKeyByDateTemplate = (
-  dateTemplate: DateTemplate,
-): ScoreRankCacheKey | undefined => {
-  switch (dateTemplate) {
-    case DateTemplate.CURR_MONTH:
-      return SCORE_RANK_MONTHLY;
-    case DateTemplate.CURR_WEEK:
-      return SCORE_RANK_WEEKLY;
-    default:
-      return undefined;
-  }
-};

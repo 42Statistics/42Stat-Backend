@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
+import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
@@ -13,14 +14,21 @@ import type {
 export class HomeCoalitionService {
   constructor(
     private scoreService: ScoreService,
+    private scoreCacheService: ScoreCacheService,
     private dateRangeService: DateRangeService,
   ) {}
 
   async totalScoresPerCoalition(): Promise<IntPerCoalition[]> {
-    return await this.scoreService.scoresPerCoalition();
+    const cachedTotalScores =
+      await this.scoreCacheService.getTotalScoresPerCoalitionCache();
+
+    return cachedTotalScores ?? (await this.scoreService.scoresPerCoalition());
   }
 
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
+    const cachedScoreRecords =
+      await this.scoreCacheService.getScoreRecordsCache();
+
     const currMonth = new StatDate().startOfMonth();
     const lastYear = currMonth.moveYear(-1);
 
@@ -29,11 +37,14 @@ export class HomeCoalitionService {
       end: currMonth,
     };
 
-    return await this.scoreService.scoreRecordsPerCoalition({
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-      coalitionsUserId: { $ne: null },
-      coalitionId: { $in: SEOUL_COALITION_ID },
-    });
+    return (
+      cachedScoreRecords ??
+      (await this.scoreService.scoreRecordsPerCoalition({
+        createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
+        coalitionsUserId: { $ne: null },
+        coalitionId: { $in: SEOUL_COALITION_ID },
+      }))
+    );
   }
 
   async tigCountPerCoalition(): Promise<IntPerCoalition[]> {
