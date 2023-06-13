@@ -80,7 +80,7 @@ export class PersonalGeneralService {
       }),
     };
 
-    const scoreRank = await this.scoreService.scoreRank(dateRangeFilter);
+    const scoreRank = await this.scoreService.scoreRanking(dateRangeFilter);
 
     const me = scoreRank.find(({ userPreview }) => userPreview.id === userId);
     if (!me) {

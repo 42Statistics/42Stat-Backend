@@ -26,7 +26,7 @@ export class LeaderboardScoreResolver {
     @MyContext() myId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    return await this.leaderboardScoreService.ranking(
+    return await this.leaderboardScoreService.rankingTotal(
       myId,
       paginationIndexArgs,
     );
