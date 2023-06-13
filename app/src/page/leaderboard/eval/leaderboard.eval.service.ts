@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
-  EVAL_COUNT_RANK_TOTAL,
+  EVAL_COUNT_RANKING_TOTAL,
   ScaleTeamCacheService,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -50,8 +50,8 @@ export class LeaderboardEvalService {
     paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
     const cachedRanking =
-      await this.scaleTeamCacheService.getEvalCountRankCache(
-        EVAL_COUNT_RANK_TOTAL,
+      await this.scaleTeamCacheService.getEvalCountRankingCache(
+        EVAL_COUNT_RANKING_TOTAL,
       );
 
     return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
@@ -82,12 +82,12 @@ export class LeaderboardEvalService {
     paginationIndexArgs: PaginationIndexArgs,
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
     const cachedRanking =
-      await this.scaleTeamCacheService.getEvalCountRankCacheByDateTemplate(
+      await this.scaleTeamCacheService.getEvalCountRankingCacheByDateTemplate(
         dateTemplate,
       );
+
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return this.rankingByDateRange(
       userId,
