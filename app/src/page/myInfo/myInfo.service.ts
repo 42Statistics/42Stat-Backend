@@ -100,7 +100,7 @@ export class MyInfoService {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const ranking = await this.scoreService.scoreRank(dateFilter);
+    const ranking = await this.scoreService.scoreRanking(dateFilter);
 
     return findUserRank(ranking, userId)?.rank;
   }

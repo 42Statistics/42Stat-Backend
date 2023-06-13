@@ -39,6 +39,7 @@ export class LeaderboardEvalCacheService {
     >;
   }
 
+  // todo: prod 때 빈도 늘리기
   @Cron(CronExpression.EVERY_MINUTE)
   async updateEvalCountRankCache(): Promise<void> {
     const currMonth = StatDate.currMonth();

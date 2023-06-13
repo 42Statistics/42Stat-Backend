@@ -32,6 +32,7 @@ export class LeaderboardLevelCacheService {
     return JSON.parse(caches) as ReturnType<CursusUserService['ranking']>;
   }
 
+  // todo: prod 때 빈도 늘리기
   @Cron(CronExpression.EVERY_MINUTE)
   async updateEvalCountRankCache(): Promise<void> {
     const total = await this.cursusUserService.ranking(
