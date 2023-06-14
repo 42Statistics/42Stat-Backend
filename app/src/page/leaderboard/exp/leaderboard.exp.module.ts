@@ -3,7 +3,6 @@ import { ExperienceUserModule } from 'src/api/experienceUser/experienceUser.modu
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { RedisModule } from 'src/redis/redis.module';
 import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
-import { LeaderboardExpCacheService } from './leaderboard.exp.cache.service';
 import { LeaderboardExpResolver } from './leaderboard.exp.resolver';
 import { LeaderboardExpService } from './leaderboard.exp.service';
 
@@ -14,11 +13,7 @@ import { LeaderboardExpService } from './leaderboard.exp.service';
     DateRangeModule,
     RedisModule,
   ],
-  providers: [
-    LeaderboardExpResolver,
-    LeaderboardExpService,
-    LeaderboardExpCacheService,
-  ],
+  providers: [LeaderboardExpResolver, LeaderboardExpService],
 })
 // eslint-disable-next-line
 export class LeaderboardExpModule {}

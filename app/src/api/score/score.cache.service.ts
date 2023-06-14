@@ -108,7 +108,7 @@ export class ScoreCacheService {
       console.debug('scoreRecords done');
     } catch {}
 
-    console.debug('end scoreCache at', new Date().toLocaleString());
+    console.debug('leavning scoreCache at', new Date().toLocaleString());
   }
 
   private async updateScoreRankingCache(): Promise<void> {

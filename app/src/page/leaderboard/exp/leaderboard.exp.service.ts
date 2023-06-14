@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
+import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import { findUserRank } from 'src/common/findUserRank';
 import type { UserRank } from 'src/common/models/common.user.model';
@@ -13,19 +14,13 @@ import type {
   LeaderboardElementDateRanged,
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
-import {
-  EXP_INCREAMENT_RANK_MONTHLY,
-  EXP_INCREAMENT_RANK_WEEKLY,
-  ExpInceamentRankCacheKey,
-  LeaderboardExpCacheService,
-} from './leaderboard.exp.cache.service';
 
 @Injectable()
 export class LeaderboardExpService {
   constructor(
-    private leaderboardExpCacheService: LeaderboardExpCacheService,
     private leaderboardUtilService: LeaderboardUtilService,
     private experienceUserService: ExperienceUserService,
+    private experienceUserCacheService: ExperienceUserCacheService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -74,30 +69,14 @@ export class LeaderboardExpService {
     dateTemplate: DateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-    const cacheKey = selectCacheKeyByDateTemplate(dateTemplate);
 
     return await this.rankingByDateRange(
       userId,
       paginationIndexArgs,
       dateRange,
-      cacheKey
-        ? await this.leaderboardExpCacheService.getExpIncreamentRankCache(
-            cacheKey,
-          )
-        : undefined,
+      await this.experienceUserCacheService.getExpIncreamentRankingCacheByDateTemplate(
+        dateTemplate,
+      ),
     );
   }
 }
-
-const selectCacheKeyByDateTemplate = (
-  dateTemplate: DateTemplate,
-): ExpInceamentRankCacheKey | undefined => {
-  switch (dateTemplate) {
-    case DateTemplate.CURR_MONTH:
-      return EXP_INCREAMENT_RANK_MONTHLY;
-    case DateTemplate.CURR_WEEK:
-      return EXP_INCREAMENT_RANK_WEEKLY;
-    default:
-      return undefined;
-  }
-};
