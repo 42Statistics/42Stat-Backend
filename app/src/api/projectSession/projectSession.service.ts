@@ -6,8 +6,10 @@ import {
   TeamMemberCount,
 } from 'src/page/projectInfo/models/projectInfo.model';
 import { SEOUL_CAMPUS_ID } from '../project/project.service';
+import { lookupProjectSessionsSkill } from '../projectSessionsSkill/db/projectSessionsSkill.database.aggregate';
+import { lookupSkill } from '../skill/db/skill.database.aggregate';
 import {
-  ProjectSerssionDocument,
+  ProjectSessionDocument,
   project_session,
 } from './db/projectSession.database.schema';
 
@@ -21,7 +23,7 @@ export class projectSessionService {
   async findOneByCampusId(
     campusId: number,
     filter: FilterQuery<project_session> = {},
-  ): Promise<ProjectSerssionDocument> {
+  ): Promise<ProjectSessionDocument> {
     const [projectSession] = await this.projectSessionModel
       .find({ $or: [{ campusId: campusId }, { campusId: null }] }, filter)
       .sort({ campusId: -1 });
@@ -49,9 +51,7 @@ export class projectSessionService {
     return aggregate;
   }
 
-  async findOneByProjectId(
-    projectId: number,
-  ): Promise<ProjectSerssionDocument> {
+  async findOneByProjectId(projectId: number): Promise<ProjectSessionDocument> {
     return await this.findOneByCampusId(SEOUL_CAMPUS_ID, {
       projectId: projectId,
     });
@@ -69,18 +69,8 @@ export class projectSessionService {
       //.match({ $or: [{ campusId: SEOUL_CAMPUS_ID }, { campusId: null }] })
       //.match({ projectId: projectId })
       //.sort({ campusId: -1 })
-      .lookup({
-        from: 'project_sessions_skills',
-        localField: 'id',
-        foreignField: 'projectSessionId',
-        as: 'project_sessions_skills',
-      })
-      .lookup({
-        from: 'skills',
-        localField: 'project_sessions_skills.skillId',
-        foreignField: 'id',
-        as: 'skills',
-      })
+      .append(lookupProjectSessionsSkill('id', 'projectSessionId'))
+      .append(lookupSkill('project_sessions_skills.skillId', 'id'))
       .project({
         id: 1,
         campusId: 1,
