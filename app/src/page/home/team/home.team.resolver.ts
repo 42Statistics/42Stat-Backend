@@ -13,7 +13,8 @@ export class HomeTeamResolver {
 
   @ResolveField((_returns) => [ProjectRanking])
   async currRegisteredCountRanking(
-    @Args('limit', { defaultValue: 3 }) limit: number,): Promise<ProjectRanking[]> {
+    @Args('limit', { defaultValue: 3 }) limit: number,
+  ): Promise<ProjectRanking[]> {
     return await this.homeTeamService.currRegisteredCountRanking(limit);
   }
 }
