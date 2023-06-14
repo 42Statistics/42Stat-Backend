@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
-import { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
+import { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import type {
   UserPreview,
@@ -181,10 +181,11 @@ export class CursusUserService {
   async userCountPerMonth(
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
-  ): Promise<AggrNumericPerDate[]> {
+  ): Promise<AggrNumericPerDateBucket[]> {
     const dates = StatDate.partitionByMonth(dateRange);
 
-    const aggregate = this.cursusUserModel.aggregate<AggrNumericPerDate>();
+    const aggregate =
+      this.cursusUserModel.aggregate<AggrNumericPerDateBucket>();
 
     if (key === 'blackholedAt') {
       aggregate.match(blackholedUserFilter);
@@ -195,7 +196,7 @@ export class CursusUserService {
         $bucket: {
           groupBy: `$${key}`,
           boundaries: dates,
-          default: 'defalut',
+          default: 'default',
         },
       })
       .addFields({

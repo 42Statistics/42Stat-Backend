@@ -4,7 +4,7 @@ import type { IntRecord } from '../models/common.valueRecord.model';
 export type AggrNumeric = { value: number };
 export type AggrRecord = { records: IntRecord[] };
 
-export type AggrNumericPerDate = { date: Date } & AggrNumeric;
+export type AggrNumericPerDateBucket = { date: Date | 'default' } & AggrNumeric;
 export type AggrNumericPerCluster = { cluster: string } & AggrNumeric;
 
 export type AggrDatePartition = {
