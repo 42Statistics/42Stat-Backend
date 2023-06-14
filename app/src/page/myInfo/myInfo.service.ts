@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
+import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import {
   COMMON_CORE_QUEST_ID,
@@ -28,6 +29,7 @@ export class MyInfoService {
     private questsUserService: QuestsUserService,
     private teamService: TeamService,
     private experienceUserService: ExperienceUserService,
+    private experienceUserCacheService: ExperienceUserCacheService,
     private scoreService: ScoreService,
     private scoreCacheService: ScoreCacheService,
     private scaleTeamService: ScaleTeamService,
@@ -80,6 +82,11 @@ export class MyInfoService {
   }
 
   async experienceRank(userId: number): Promise<number | undefined> {
+    const cachedRanking =
+      await this.experienceUserCacheService.getExpIncreamentRankingCacheByDateTemplate(
+        DateTemplate.CURR_WEEK,
+      );
+
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
     );
@@ -88,11 +95,11 @@ export class MyInfoService {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const ranking = await this.experienceUserService.increamentRanking(
-      dateFilter,
-    );
+    const expIncreamentRanking =
+      cachedRanking ??
+      (await this.experienceUserService.increamentRanking(dateFilter));
 
-    return findUserRank(ranking, userId)?.rank;
+    return findUserRank(expIncreamentRanking, userId)?.rank;
   }
 
   async scoreRank(userId: number): Promise<number | undefined> {

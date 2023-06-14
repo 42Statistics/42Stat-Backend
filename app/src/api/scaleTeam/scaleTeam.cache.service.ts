@@ -63,11 +63,7 @@ export class ScaleTeamCacheService {
   ): Promise<ReturnType<ScaleTeamService['evalCountRanking']> | undefined> {
     const cacheKey = selectEvalCountRankingCacheKeyByDateTemplate(dateTemplate);
 
-    if (!cacheKey) {
-      return undefined;
-    }
-
-    return await this.getEvalCountRankingCache(cacheKey);
+    return cacheKey ? await this.getEvalCountRankingCache(cacheKey) : undefined;
   }
 
   // todo: prod 때 빈도 줄이기
