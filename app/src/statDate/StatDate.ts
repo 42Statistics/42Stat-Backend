@@ -1,4 +1,4 @@
-import type { AggrNumericPerDate } from 'src/common/db/common.db.aggregation';
+import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 
 const SEC = 1000;
@@ -123,10 +123,12 @@ export class StatDate extends Date {
    */
   static getValueByDate = (
     date: Date,
-    elements: AggrNumericPerDate[],
+    elements: AggrNumericPerDateBucket[],
   ): number =>
-    elements.find((element) => element.date.getTime() === date.getTime())
-      ?.value ?? 0;
+    elements.find(
+      (element) =>
+        element.date !== 'default' && element.date.getTime() === date.getTime(),
+    )?.value ?? 0;
 
   /**
    *
