@@ -95,18 +95,21 @@ export class ScoreCacheService {
 
     try {
       await this.updateScoreRankingCache();
-      console.debug('scoreRanking done');
-    } catch {}
+    } catch (e) {
+      console.error('scoreRanking', e);
+    }
 
     try {
       await this.updateTotalScoresPerCoalitionCache();
-      console.debug('totalScoresPerCoalition done');
-    } catch {}
+    } catch (e) {
+      console.error('totalScoresPerCoalition', e);
+    }
 
     try {
       await this.updateScoreRecordsCache();
-      console.debug('scoreRecords done');
-    } catch {}
+    } catch (e) {
+      console.error('scoreRecords', e);
+    }
 
     console.debug('leavning scoreCache at', new Date().toLocaleString());
   }

@@ -75,13 +75,15 @@ export class ScaleTeamCacheService {
     // todo: 이거 어떻게 안되나...
     try {
       await this.updateEvalCountRankingCache();
-      console.debug('evalCountRanking done');
-    } catch {}
+    } catch (e) {
+      console.error('evalCountRanking', e);
+    }
 
     try {
       await this.updateAverageReviewLength();
-      console.debug('averageReviewLength done');
-    } catch {}
+    } catch (e) {
+      console.error('averageReviewLength', e);
+    }
 
     console.debug('leaving scaleTeamCache at', new Date().toLocaleString());
   }
