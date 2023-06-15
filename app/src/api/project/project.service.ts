@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model } from 'mongoose';
-import { project } from './db/project.database.schema';
+import { ProjectDocument, project } from './db/project.database.schema';
 import { ProjectPreview } from './models/project.preview';
 
 export const NETWHAT_PREVIEW: ProjectPreview = {
@@ -22,6 +22,16 @@ export class ProjectService {
 
   async findAll(filter: FilterQuery<project> = {}): Promise<project[]> {
     return await this.projectModel.find(filter);
+  }
+
+  async findOne(filter?: FilterQuery<project>): Promise<ProjectDocument> {
+    const project = await this.projectModel.findOne(filter);
+
+    if (!project) {
+      throw new NotFoundException();
+    }
+
+    return project;
   }
 
   async findByName(name: string): Promise<project[]> {

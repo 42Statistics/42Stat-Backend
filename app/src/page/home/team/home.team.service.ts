@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { FilterQuery } from 'mongoose';
-import { projects_user } from 'src/api/projectsUser/db/projectsUser.database.schema';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
-import { ProjectRanking } from './models/home.team.model';
+import type { ProjectRanking } from './models/home.team.model';
 
 @Injectable()
 export class HomeTeamService {
@@ -24,13 +22,7 @@ export class HomeTeamService {
     };
   }
 
-  async currRegisteredCountRanking(
-    limit: number,
-    filter?: FilterQuery<projects_user>,
-  ): Promise<ProjectRanking[]> {
-    return await this.projectsUserService.currRegisteredCountRanking(
-      limit,
-      filter,
-    );
+  async currRegisteredCountRanking(limit: number): Promise<ProjectRanking[]> {
+    return await this.projectsUserService.currRegisteredCountRanking(limit);
   }
 }
