@@ -1,5 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import {
+  CursusUserCacheService,
+  USER_CORRECTION_POINT_RANKING,
+  USER_WALLET_RANKING,
+} from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import {
+  aliveUserFilter,
+  blackholedUserFilter,
+} from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
@@ -10,15 +19,12 @@ import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
-import {
-  aliveUserFilter,
-  blackholedUserFilter,
-} from 'src/api/cursusUser/db/cursusUser.database.query';
 
 @Injectable()
 export class HomeUserService {
   constructor(
     private cursusUserService: CursusUserService,
+    private cursusUserCacheService: CursusUserCacheService,
     private questsUserService: QuestsUserService,
     private dateRangeService: DateRangeService,
   ) {}
@@ -141,21 +147,36 @@ export class HomeUserService {
     );
   }
 
-  async walletRanks(limit: number): Promise<UserRank[]> {
-    return await this.cursusUserService.ranking(
-      { sort: { 'user.wallet': -1 }, limit },
-      (doc: CursusUserDocument) => doc.user.wallet,
+  async walletRanking(limit: number): Promise<UserRank[]> {
+    const cachedRanking = await this.cursusUserCacheService.getUserRanking(
+      USER_WALLET_RANKING,
     );
+
+    const walletRanking =
+      cachedRanking?.slice(0, limit) ??
+      (await this.cursusUserService.ranking(
+        { sort: { 'user.wallet': -1 }, limit },
+        (doc: CursusUserDocument) => doc.user.wallet,
+      ));
+
+    return walletRanking;
   }
 
   async correctionPointRanking(limit: number): Promise<UserRank[]> {
-    return await this.cursusUserService.ranking(
-      {
-        filter: aliveUserFilter,
-        sort: { 'user.correctionPoint': -1 },
-        limit,
-      },
-      (doc: CursusUserDocument) => doc.user.correctionPoint,
+    const cachedRanking = await this.cursusUserCacheService.getUserRanking(
+      USER_CORRECTION_POINT_RANKING,
+    );
+
+    return (
+      cachedRanking ??
+      (await this.cursusUserService.ranking(
+        {
+          filter: aliveUserFilter,
+          sort: { 'user.correctionPoint': -1 },
+          limit,
+        },
+        (doc: CursusUserDocument) => doc.user.correctionPoint,
+      ))
     );
   }
 

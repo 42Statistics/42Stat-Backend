@@ -1,16 +1,17 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
+import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   LevelRecord,
   PersonalGeneralRoot,
@@ -26,8 +27,10 @@ import type {
 export class PersonalGeneralService {
   constructor(
     private cursusUserService: CursusUserService,
+    private cursusUserCacheService: CursusUserCacheService,
     private locationService: LocationService,
     private scoreService: ScoreService,
+    private scoreCacheService: ScoreCacheService,
     private teamService: TeamService,
     private experineceUserService: ExperienceUserService,
     private dateRangeService: DateRangeService,
@@ -40,9 +43,12 @@ export class PersonalGeneralService {
   }
 
   async personalGeneralProfile(userId: number): Promise<PersonalGeneralRoot> {
-    const userFullProfile = await this.cursusUserService.userFullProfile(
-      userId,
-    );
+    const cachedUserFullProfile =
+      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+
+    const userFullProfile =
+      cachedUserFullProfile ??
+      (await this.cursusUserService.findOneUserFullProfilebyUserId(userId));
 
     const { cursusUser, coalition, titlesUsers } = userFullProfile;
 
@@ -70,25 +76,31 @@ export class PersonalGeneralService {
   }
 
   async scoreInfo(userId: number): Promise<UserScoreInfo> {
-    const startOfMonth = new StatDate().startOfMonth();
-    const nextMonth = startOfMonth.moveMonth(1);
+    const dateTemplate = DateTemplate.CURR_MONTH;
 
-    const dateRangeFilter = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange({
-        start: startOfMonth,
-        end: nextMonth,
-      }),
+    const cachedScoreRanking =
+      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
+        dateTemplate,
+      );
+
+    const dateFilter = {
+      createdAt: this.dateRangeService.aggrFilterFromDateRange(
+        this.dateRangeService.dateRangeFromTemplate(dateTemplate),
+      ),
     };
 
-    const scoreRank = await this.scoreService.scoreRanking(dateRangeFilter);
+    const scoreRanking =
+      cachedScoreRanking ?? (await this.scoreService.scoreRanking(dateFilter));
 
-    const me = scoreRank.find(({ userPreview }) => userPreview.id === userId);
+    const me = scoreRanking.find(
+      ({ userPreview }) => userPreview.id === userId,
+    );
     if (!me) {
       throw new NotFoundException();
     }
 
     const coalitionRank =
-      scoreRank
+      scoreRanking
         .filter(({ coalitionId }) => coalitionId === me?.coalitionId)
         .findIndex(({ userPreview }) => userPreview.id === userId) + 1;
 

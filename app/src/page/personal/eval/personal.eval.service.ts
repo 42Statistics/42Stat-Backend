@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -14,11 +15,16 @@ export class PersonalEvalService {
     private scaleTeamService: ScaleTeamService,
     private dateRangeService: DateRangeService,
     private cursusUserSevice: CursusUserService,
+    private cursusUserCacheService: CursusUserCacheService,
   ) {}
 
   async pesronalEvalProfile(userId: number): Promise<PersonalEvalRoot> {
+    const cachedUserFullProfile =
+      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+
     const { cursusUser, coalition, titlesUsers } =
-      await this.cursusUserSevice.userFullProfile(userId);
+      cachedUserFullProfile ??
+      (await this.cursusUserSevice.findOneUserFullProfilebyUserId(userId));
 
     return {
       userProfile: {

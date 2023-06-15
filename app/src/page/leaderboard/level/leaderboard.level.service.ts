@@ -1,4 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import {
+  CursusUserCacheService,
+  USER_LEVEL_RANKING,
+} from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type {
   CursusUserDocument,
@@ -9,17 +13,13 @@ import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.in
 import type { RankingArgs } from '../leaderboard.ranking.args';
 import type { LeaderboardElement } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
-import {
-  LEVEL_RANK_TOTAL,
-  LeaderboardLevelCacheService,
-} from './leaderboard.level.cache.service';
 
 @Injectable()
 export class LeaderboardLevelService {
   constructor(
-    private leaderboardLevelCacheService: LeaderboardLevelCacheService,
     private leaderboardUtilService: LeaderboardUtilService,
     private cursusUserService: CursusUserService,
+    private cursusUserCacheService: CursusUserCacheService,
   ) {}
 
   async ranking({
@@ -48,10 +48,9 @@ export class LeaderboardLevelService {
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
-    const cachedRanking =
-      await this.leaderboardLevelCacheService.getLevelRankCache(
-        LEVEL_RANK_TOTAL,
-      );
+    const cachedRanking = await this.cursusUserCacheService.getUserRanking(
+      USER_LEVEL_RANKING,
+    );
 
     return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
   }
