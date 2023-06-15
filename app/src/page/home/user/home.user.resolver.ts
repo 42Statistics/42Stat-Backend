@@ -58,7 +58,7 @@ export class HomeUserResolver {
   async walletRanking(
     @Args('limit', { defaultValue: 5 }) limit: number,
   ): Promise<UserRank[]> {
-    return await this.homeUserService.walletRanks(limit);
+    return await this.homeUserService.walletRanking(limit);
   }
 
   @ResolveField((_returns) => [UserRank])

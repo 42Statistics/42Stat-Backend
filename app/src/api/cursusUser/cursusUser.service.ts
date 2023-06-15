@@ -33,8 +33,6 @@ import {
   cursus_user,
 } from './db/cursusUser.database.schema';
 
-export const FT_CURSUS_ID = 21;
-
 @Injectable()
 export class CursusUserService {
   constructor(
@@ -137,11 +135,16 @@ export class CursusUserService {
     return [...result.values()];
   }
 
-  async userFullProfile(userId: number): Promise<UserFullProfile> {
+  async userFullProfile(
+    filter?: FilterQuery<cursus_user>,
+  ): Promise<UserFullProfile[]> {
     const aggregate = this.cursusUserModel.aggregate<UserFullProfile>();
 
-    const [cursusUserProfile] = await aggregate
-      .match({ 'user.id': userId, 'cursus.id': FT_CURSUS_ID })
+    if (filter) {
+      aggregate.match(filter);
+    }
+
+    const userFullProfiles = await aggregate
       .addFields({
         cursusUser: '$$ROOT',
       })
@@ -163,11 +166,21 @@ export class CursusUserService {
         titlesUsers: '$titles_users',
       });
 
-    if (!cursusUserProfile) {
+    return userFullProfiles;
+  }
+
+  async findOneUserFullProfilebyUserId(
+    userId: number,
+  ): Promise<UserFullProfile> {
+    const [userFullProfiles] = await this.userFullProfile({
+      'user.id': userId,
+    });
+
+    if (!userFullProfiles) {
       throw new NotFoundException();
     }
 
-    return cursusUserProfile;
+    return userFullProfiles;
   }
 
   async userCount(filter?: FilterQuery<CursusUserDocument>): Promise<number> {

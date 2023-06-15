@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
@@ -26,6 +27,7 @@ import type { MyInfoRoot } from './models/myInfo.model';
 export class MyInfoService {
   constructor(
     private cursusUserService: CursusUserService,
+    private cursusUserCacheService: CursusUserCacheService,
     private questsUserService: QuestsUserService,
     private teamService: TeamService,
     private experienceUserService: ExperienceUserService,
@@ -38,7 +40,12 @@ export class MyInfoService {
   ) {}
 
   async myInfoRoot(userId: number): Promise<MyInfoRoot> {
-    const cursusUser = await this.cursusUserService.findOneByUserId(userId);
+    const cachedUserFullProfile =
+      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+
+    const cursusUser =
+      cachedUserFullProfile?.cursusUser ??
+      (await this.cursusUserService.findOneByUserId(userId));
 
     return {
       userPreview: {
