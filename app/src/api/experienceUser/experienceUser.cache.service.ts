@@ -60,8 +60,9 @@ export class ExperienceUserCacheService {
 
     try {
       await this.updateExpIncreamentRankingCache();
-      console.debug('done expIncreamentRanking');
-    } catch {}
+    } catch (e) {
+      console.error('ExpIncreamentRankingCache', e);
+    }
 
     console.debug('leaving experienceUserCache', new Date().toLocaleString());
   }
