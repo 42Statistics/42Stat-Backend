@@ -13,7 +13,7 @@ import { projectSessionService } from './projectSession.service';
     ]),
   ],
   providers: [projectSessionService],
-  exports: [MongooseModule],
+  exports: [MongooseModule, projectSessionService],
 })
 // eslint-disable-next-line
 export class ProjectSessionModule {}

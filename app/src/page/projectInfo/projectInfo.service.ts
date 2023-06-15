@@ -3,10 +3,9 @@ import { ProjectService } from 'src/api/project/project.service';
 import { projectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import {
-  Project,
+  ProjectInfo,
   ProjectSessionInfo,
-  TeamCount,
-  TeamMemberCount,
+  ProjectTeamInfo,
 } from './models/projectInfo.model';
 
 @Injectable()
@@ -16,17 +15,17 @@ export class ProjectInfoService {
     private projectSessionService: projectSessionService,
     private teamService: TeamService,
   ) {}
-  async projectInfo(projectName: string): Promise<Project> {
-    const [project] = await this.projectService.findByName(projectName);
+  async projectInfo(projectName: string): Promise<ProjectInfo> {
+    const project = await this.projectService.findOne({
+      name: projectName,
+    });
     const projectId = project.id;
 
-    const teamCount = await this.teamCount(projectId);
-    const teamMemberCount = await this.teamMemberCount(projectId);
+    const projectTeamInfo = await this.projectTeamInfo(projectId);
     const projectSessionsInfo = await this.projectSessionInfo(projectId);
     return {
       name: project.name,
-      ...teamCount,
-      ...teamMemberCount,
+      ...projectTeamInfo,
       ...projectSessionsInfo,
     };
   }
@@ -35,11 +34,7 @@ export class ProjectInfoService {
     return await this.projectSessionService.projectSessionInfo(projectId);
   }
 
-  async teamMemberCount(projectId: number): Promise<TeamMemberCount> {
-    return await this.projectSessionService.teamMemberCount(projectId);
-  }
-
-  async teamCount(projectId: number): Promise<TeamCount> {
+  async projectTeamInfo(projectId: number): Promise<ProjectTeamInfo> {
     const currRegisteredTeamCount = await this.teamService.teamCount({
       projectId: projectId,
       status: 'in_progress',
@@ -54,13 +49,15 @@ export class ProjectInfoService {
       projectId,
     );
 
-    const evalInfo = await this.teamService.evalInfo(projectId);
+    const validatedRate = await this.teamService.validatedRate({
+      projectId: projectId,
+    });
 
     return {
       averagePassFinalMark,
       currRegisteredTeamCount,
       closedTeamCount,
-      evalInfo,
+      validatedRate,
     };
   }
 }

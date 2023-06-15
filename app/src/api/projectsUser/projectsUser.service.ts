@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import { ProjectRanking } from 'src/page/home/team/models/home.team.model';
+import type { ProjectRanking } from 'src/page/home/team/models/home.team.model';
 import { projects_user } from './db/projectsUser.database.schema';
 
 @Injectable()
@@ -17,12 +17,8 @@ export class ProjectsUserService {
   ): Promise<ProjectRanking[]> {
     const aggregate = this.projectsUserModel.aggregate<ProjectRanking>();
 
-    if (filter) {
-      aggregate.match(filter);
-    }
-
     return await aggregate
-      .match({ status: { $eq: 'in_progress' } })
+      .match({ ...filter, status: 'in_progress' })
       .group({
         _id: '$project.id',
         name: { $first: '$project.name' },

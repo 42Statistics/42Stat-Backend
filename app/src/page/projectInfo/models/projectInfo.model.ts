@@ -2,22 +2,26 @@ import { Field, ObjectType } from '@nestjs/graphql';
 import { Rate } from 'src/common/models/common.rate.model';
 
 export type ProjectSessionInfo = Pick<
-  Project,
-  'id' | 'skills' | 'description' | 'estimateTime' | 'difficulty'
+  ProjectInfo,
+  | 'id'
+  | 'skills'
+  | 'description'
+  | 'estimateTime'
+  | 'difficulty'
+  | 'minUserCount'
+  | 'maxUserCount'
 >;
 
-export type TeamMemberCount = Pick<Project, 'minUserCount' | 'maxUserCount'>;
-
-export type TeamCount = Pick<
-  Project,
+export type ProjectTeamInfo = Pick<
+  ProjectInfo,
   | 'averagePassFinalMark'
   | 'currRegisteredTeamCount'
   | 'closedTeamCount'
-  | 'evalInfo'
+  | 'validatedRate'
 >;
 
 @ObjectType()
-export class Project {
+export class ProjectInfo {
   @Field()
   id: number;
 
@@ -36,8 +40,8 @@ export class Project {
   @Field()
   maxUserCount: number;
 
-  @Field((_type) => String, { nullable: true })
-  estimateTime: string | null;
+  @Field({ nullable: true })
+  estimateTime?: string;
 
   @Field()
   difficulty: number;
@@ -52,5 +56,5 @@ export class Project {
   averagePassFinalMark: number;
 
   @Field()
-  evalInfo: Rate;
+  validatedRate: Rate;
 }

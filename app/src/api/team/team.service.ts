@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
-import { Rate } from 'src/common/models/common.rate.model';
+import type { Rate } from 'src/common/models/common.rate.model';
 import {
   TeamStatus,
   UserTeam,
@@ -97,19 +97,27 @@ export class TeamService {
    *
    * @return number[] 0번째에 pass, 1번째에 fail 숫자를 담은 배열을 반환합니다.
    */
-  async teamResult(filter?: FilterQuery<team>): Promise<[number, number]> {
+  async validatedRate(filter?: FilterQuery<team>): Promise<Rate> {
     const aggregate = this.teamModel.aggregate<
       { _id: boolean } & AggrNumeric
     >();
 
-    const teamResultAggr = await aggregate
+    const validatedRateAggr = await aggregate
       .match({ ...filter, status: 'finished' })
       .group({ _id: '$validated?', value: { $count: {} } });
 
-    const pass = teamResultAggr.find(({ _id }) => _id === true)?.value ?? 0;
-    const fail = teamResultAggr.find(({ _id }) => _id === false)?.value ?? 0;
+    const pass = validatedRateAggr.find(({ _id }) => _id === true)?.value ?? 0;
+    const fail = validatedRateAggr.find(({ _id }) => _id === false)?.value ?? 0;
 
-    return [pass, fail];
+    const validatedRate: Rate = {
+      total: pass + fail,
+      fields: [
+        { key: 'pass', value: pass },
+        { key: 'fail', value: fail },
+      ],
+    };
+
+    return validatedRate;
   }
 
   async registeredCount(filter?: FilterQuery<team>): Promise<number> {
@@ -143,7 +151,7 @@ export class TeamService {
   }
 
   async averagePassFinalMark(projectId: number): Promise<number> {
-    const aggregate = this.teamModel.aggregate<{ finalMark: number }>();
+    const aggregate = this.teamModel.aggregate<AggrNumeric>();
 
     const [averagePassFinalMark] = await aggregate
       .match({
@@ -152,32 +160,15 @@ export class TeamService {
         'validated?': true,
       })
       .group({
-        _id: '$status',
-        finalMark: { $avg: '$finalMark' },
+        _id: 'result',
+        value: { $avg: '$finalMark' },
       })
       .project({
         _id: 0,
-        finalMark: { $floor: '$finalMark' },
+        value: { $floor: '$value' },
       });
 
-    return averagePassFinalMark?.finalMark ?? 0;
-  }
-
-  async evalInfo(projectId: number): Promise<Rate> {
-    const [passCount, failCount] = await this.teamResult({
-      projectId: projectId,
-      status: 'finished',
-    });
-
-    const evalInfo: Rate = {
-      total: passCount + failCount,
-      fields: [
-        { key: 'pass', value: passCount },
-        { key: 'fail', value: failCount },
-      ],
-    };
-
-    return evalInfo;
+    return averagePassFinalMark?.value ?? 0;
   }
 }
 

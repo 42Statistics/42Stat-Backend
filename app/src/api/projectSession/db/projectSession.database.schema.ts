@@ -5,13 +5,13 @@ import { project } from 'src/api/project/db/project.database.schema';
 export type ProjectSessionDocument = HydratedDocument<project_session>;
 
 @Schema()
-export class Evaluation {
+export class ProjectSessionEvaluation {
   id: number;
   kind: string;
 }
 
 @Schema()
-export class RuleParam {
+export class ProjectSessionRuleParam {
   id: number;
   paramId: number;
   projectSessionsRuleId: number;
@@ -21,11 +21,11 @@ export class RuleParam {
 }
 
 @Schema()
-export class Rule {
+export class ProjectSessionRule {
   id: number;
   required: boolean;
   position: number;
-  params: RuleParam[];
+  params: ProjectSessionRuleParam[];
   rule: {
     id: number;
     kind: string;
@@ -39,18 +39,15 @@ export class Rule {
 }
 
 @Schema()
-export class Scale {
+export class ProjectSessionScale {
   id: number;
-
   correctionNumber?: number;
-
   isPrimary: boolean;
 }
 
 @Schema()
-export class Upload {
+export class ProjectSessionUpload {
   id: number;
-
   name: string;
 }
 
@@ -108,10 +105,10 @@ export class project_session {
   isSubscriptable?: boolean;
 
   @Prop()
-  scales: Scale[];
+  scales: ProjectSessionScale[];
 
   @Prop()
-  uploads: Upload[];
+  uploads: ProjectSessionUpload[];
 
   @Prop()
   teamBehaviour: string;
@@ -119,17 +116,17 @@ export class project_session {
   @Prop()
   commit?: string;
 
-  @Prop()
+  @Prop({ required: true })
   project: project;
 
   // campus?: campus;
   // cursus?: cursus;
 
   @Prop()
-  evaluations: Evaluation[];
+  evaluations: ProjectSessionEvaluation[];
 
   @Prop()
-  projectSessionsRules: Rule;
+  projectSessionsRules: ProjectSessionRule;
 }
 
 export const ProjectSessionSchema =
