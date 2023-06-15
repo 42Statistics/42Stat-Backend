@@ -373,7 +373,7 @@ type PersonalEval {
   lastComment: String
 }
 
-type Project {
+type ProjectInfo {
   id: Int!
   name: String!
   skills: [String]!
@@ -387,7 +387,7 @@ type Project {
   """총 제출 횟수 입니다."""
   closedTeamCount: Int!
   averagePassFinalMark: Int!
-  evalInfo: Rate!
+  validatedRate: Rate!
 }
 
 type Query {
@@ -401,7 +401,7 @@ type Query {
   getHomeTeam: HomeTeam!
   getPersonalGeneral(login: String, userId: Int): PersonalGeneral!
   getPersonalEval(userId: Int, login: String): PersonalEval!
-  getProjectInfo(projectName: String! = "Libft"): Project!
+  getProjectInfo(projectName: String! = "Libft"): ProjectInfo!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!

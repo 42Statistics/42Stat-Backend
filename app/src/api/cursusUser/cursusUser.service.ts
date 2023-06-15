@@ -63,7 +63,7 @@ export class CursusUserService {
   }
 
   async findOne(
-    filter: FilterQuery<cursus_user> = {},
+    filter?: FilterQuery<cursus_user>,
   ): Promise<CursusUserDocument> {
     const cursusUser = await this.cursusUserModel.findOne(filter);
 

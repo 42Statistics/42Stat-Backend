@@ -1,15 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Aggregate, FilterQuery, Model } from 'mongoose';
-import {
-  ProjectSessionInfo,
-  TeamMemberCount,
-} from 'src/page/projectInfo/models/projectInfo.model';
+import type { Model } from 'mongoose';
+import type { ProjectSessionInfo } from 'src/page/projectInfo/models/projectInfo.model';
 import { SEOUL_CAMPUS_ID } from '../project/project.service';
 import { lookupProjectSessionsSkill } from '../projectSessionsSkill/db/projectSessionsSkill.database.aggregate';
 import { lookupSkill } from '../skill/db/skill.database.aggregate';
 import {
-  ProjectSessionDocument,
+  ProjectSessionRule,
   project_session,
 } from './db/projectSession.database.schema';
 
@@ -20,90 +17,62 @@ export class projectSessionService {
     private projectSessionModel: Model<project_session>,
   ) {}
 
-  async findOneByCampusId(
-    campusId: number,
-    filter: FilterQuery<project_session> = {},
-  ): Promise<ProjectSessionDocument> {
-    const [projectSession] = await this.projectSessionModel
-      .find({ $or: [{ campusId: campusId }, { campusId: null }] }, filter)
-      .sort({ campusId: -1 });
-
-    if (!projectSession) {
-      throw new NotFoundException();
-    }
-
-    return projectSession;
-  }
-
-  findOneAggregateByCampusId(
-    campusId: number,
-    filter: FilterQuery<project_session> = {},
-  ): Aggregate<any> {
-    //todo: aggregate type
-    const aggregate = this.projectSessionModel.aggregate();
-
-    aggregate
-      .match({ $or: [{ campusId: campusId }, { campusId: null }] })
-      .match(filter)
-      .sort({ campusId: -1 })
-      .limit(1);
-
-    return aggregate;
-  }
-
-  async findOneByProjectId(projectId: number): Promise<ProjectSessionDocument> {
-    return await this.findOneByCampusId(SEOUL_CAMPUS_ID, {
-      projectId: projectId,
-    });
-  }
-
-  //todo: 방식 정하기
   async projectSessionInfo(projectId: number): Promise<ProjectSessionInfo> {
-    //const aggregate = this.projectSessionModel.aggregate<ProjectSessionInfo>();
-
-    const aggregate = this.findOneAggregateByCampusId(SEOUL_CAMPUS_ID, {
-      projectId: projectId,
-    });
+    const aggregate = this.projectSessionModel.aggregate<
+      ProjectSessionInfo & {
+        projectSessionsRules: ProjectSessionRule[];
+      }
+    >();
 
     const [projectSessionInfo] = await aggregate
-      //.match({ $or: [{ campusId: SEOUL_CAMPUS_ID }, { campusId: null }] })
-      //.match({ projectId: projectId })
-      //.sort({ campusId: -1 })
+      .match({
+        $or: [{ 'campus.id': SEOUL_CAMPUS_ID }, { 'campus.id': null }],
+        'project.id': projectId,
+      })
+      .sort({ 'campus.id': -1 })
       .append(lookupProjectSessionsSkill('id', 'projectSessionId'))
       .append(lookupSkill('project_sessions_skills.skillId', 'id'))
       .project({
         id: 1,
-        campusId: 1,
+        projectSessionsRules: 1,
         skills: '$skills.name',
         description: '$description',
         estimateTime: '$estimateTime',
         difficulty: '$difficulty',
       });
 
-    return projectSessionInfo;
-  }
+    if (!projectSessionInfo) {
+      throw new NotFoundException();
+    }
 
-  async teamMemberCount(projectId: number): Promise<TeamMemberCount> {
-    const aggregate = this.findOneAggregateByCampusId(SEOUL_CAMPUS_ID, {
-      projectId: projectId,
-    });
+    const [minUserCount, maxUserCount] = teamUserCount(
+      projectSessionInfo.projectSessionsRules,
+    );
 
-    const [teamMemberCount] = await aggregate
-      .unwind({ path: '$projectSessionsRules' })
-      .match({ 'projectSessionsRules.rule.id': 3 })
-      .addFields({
-        minUserCount: {
-          $toInt: { $first: '$projectSessionsRules.params.value' },
-        },
-        maxUserCount: {
-          $toInt: { $last: '$projectSessionsRules.params.value' },
-        },
-      })
-      .project({
-        minUserCount: 1,
-        maxUserCount: 1,
-      });
-
-    return teamMemberCount ?? { minUserCount: 1, maxUserCount: 1 };
+    return {
+      id: projectSessionInfo.id,
+      skills: projectSessionInfo.skills,
+      description: projectSessionInfo.description,
+      estimateTime: projectSessionInfo.estimateTime,
+      difficulty: projectSessionInfo.difficulty,
+      minUserCount,
+      maxUserCount,
+    };
   }
 }
+
+const teamUserCount = (
+  projectSessionsRules: ProjectSessionRule[],
+): [number, number] => {
+  const groupValidationRule = projectSessionsRules.filter(
+    (projectSessionsRule) => projectSessionsRule.rule.id === 3,
+  );
+
+  const params = groupValidationRule.at(0)?.params;
+
+  if (params) {
+    return [parseInt(params[0].value), parseInt(params[1].value)];
+  }
+
+  return [1, 1];
+};
