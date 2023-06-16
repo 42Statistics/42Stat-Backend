@@ -9,7 +9,7 @@ import {
   Root,
 } from '@nestjs/graphql';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { MyContext } from 'src/auth/myContext';
+import { MyUserId } from 'src/auth/myContext';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
@@ -26,12 +26,12 @@ export class PersonalEvalResolver {
 
   @Query((_returns) => PersonalEval)
   async getPersonalEval(
-    @MyContext() myId: number,
+    @MyUserId() myUserId: number,
     @Args('userId', { nullable: true }) userId: number,
     @Args('login', { nullable: true }) login: string,
   ): Promise<PersonalEvalRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
-      myId,
+      myUserId,
       userId,
       login,
     );
@@ -85,7 +85,7 @@ export class PersonalEvalResolver {
   }
 
   @ResolveField((_returns) => String, { nullable: true })
-  async lastComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
-    return await this.personalEvalService.lastComment(root.userProfile.id);
+  async recentComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
+    return await this.personalEvalService.recentComment(root.userProfile.id);
   }
 }

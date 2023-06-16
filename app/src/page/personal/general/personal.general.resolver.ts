@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
-import { MyContext } from 'src/auth/myContext';
+import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
@@ -26,12 +26,12 @@ export class PersonalGeneralResolver {
 
   @Query((_returns) => PersonalGeneral)
   async getPersonalGeneral(
-    @MyContext() myId: number,
+    @MyUserId() myUserId: number,
     @Args('login', { nullable: true }) login?: string,
     @Args('userId', { nullable: true }) userId?: number,
   ): Promise<PersonalGeneralRoot> {
     const targetUserId = await this.personalUtilService.selectUserId(
-      myId,
+      myUserId,
       userId,
       login,
     );

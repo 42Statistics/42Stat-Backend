@@ -2,6 +2,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
@@ -13,7 +14,6 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,7 +36,6 @@ import { ScheduleModule } from '@nestjs/schedule';
         numberScalarMode: 'integer',
       },
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-      context: ({ req }) => ({ user: req.user }),
     }),
   ],
   providers: [StatAuthGuard],

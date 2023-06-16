@@ -1,16 +1,17 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
+import type { MyContext } from './myContext';
 
 @Injectable()
 export class StatAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  canActivate(executionContext: ExecutionContext): boolean {
     const isAuthenticated = true;
 
     if (isAuthenticated) {
-      const gqlContext = GqlExecutionContext.create(context);
-      const req = gqlContext.getContext().req;
+      const gqlExecutionContext = GqlExecutionContext.create(executionContext);
+      const context = gqlExecutionContext.getContext<MyContext>();
 
-      req.user = { userId: 81730 };
+      context.userId = 81730;
 
       return true;
     }

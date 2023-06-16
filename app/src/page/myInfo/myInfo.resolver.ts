@@ -1,6 +1,6 @@
 import { UseGuards } from '@nestjs/common';
 import { Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { MyContext } from 'src/auth/myContext';
+import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyInfo, MyInfoRoot } from './models/myInfo.model';
 import { MyInfoService } from './myInfo.service';
@@ -12,20 +12,20 @@ export class MyInfoResolver {
   constructor(private myInfoService: MyInfoService) {}
 
   @Query((_returns) => MyInfo)
-  async getMyInfo(@MyContext('userId') userId: number): Promise<MyInfoRoot> {
-    return await this.myInfoService.myInfoRoot(userId);
+  async getMyInfo(@MyUserId() myUserId: number): Promise<MyInfoRoot> {
+    return await this.myInfoService.myInfoRoot(myUserId);
   }
 
   @ResolveField((_returns) => Boolean)
-  async isNewMember(@MyContext('userId') userId: number): Promise<boolean> {
-    return await this.myInfoService.isNewMember(userId);
+  async isNewMember(@MyUserId() myUserId: number): Promise<boolean> {
+    return await this.myInfoService.isNewMember(myUserId);
   }
 
   @ResolveField((_returns) => UserTeam, { nullable: true })
   async recentValidatedTeam(
-    @MyContext('userId') userId: number,
+    @MyUserId() myUserId: number,
   ): Promise<UserTeam | null> {
-    return this.myInfoService.recentValidatedTeam(userId);
+    return this.myInfoService.recentValidatedTeam(myUserId);
   }
 
   @ResolveField((_returns) => Int, {
@@ -33,19 +33,17 @@ export class MyInfoResolver {
     nullable: true,
   })
   async experienceRank(
-    @MyContext('userId') userId: number,
+    @MyUserId() myUserId: number,
   ): Promise<number | undefined> {
-    return await this.myInfoService.experienceRank(userId);
+    return await this.myInfoService.experienceRank(myUserId);
   }
 
   @ResolveField((_returns) => Int, {
     description: '이번 주 기준 입니다',
     nullable: true,
   })
-  async scoreRank(
-    @MyContext('userId') userId: number,
-  ): Promise<number | undefined> {
-    return await this.myInfoService.scoreRank(userId);
+  async scoreRank(@MyUserId() myUserId: number): Promise<number | undefined> {
+    return await this.myInfoService.scoreRank(myUserId);
   }
 
   @ResolveField((_returns) => Int, {
@@ -53,8 +51,8 @@ export class MyInfoResolver {
     nullable: true,
   })
   async evalCountRank(
-    @MyContext('userId') userId: number,
+    @MyUserId() myUserId: number,
   ): Promise<number | undefined> {
-    return await this.myInfoService.evalCountRank(userId);
+    return await this.myInfoService.evalCountRank(myUserId);
   }
 }
