@@ -84,12 +84,6 @@ export class QuestsUserService {
         avgValue: { $avg: '$duration' },
       })
       .addFields({
-        date: {
-          $dateToString: {
-            format: '%Y-%m',
-            date: { $toDate: new Date() },
-          },
-        },
         value: { $round: ['$avgValue'] },
       });
 

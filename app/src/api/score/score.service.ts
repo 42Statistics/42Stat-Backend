@@ -8,6 +8,7 @@ import type {
   ScoreRecordPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
 import { CoalitionService } from '../coalition/coalition.service';
+import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
@@ -99,19 +100,19 @@ export class ScoreService {
         _id: '$_id.coalitionId',
         records: {
           $push: {
-            at: { $dateFromString: { dateString: '$_id.at' } },
+            at: {
+              $dateFromString: {
+                dateString: '$_id.at',
+                timezone: process.env.TZ,
+              },
+            },
             value: '$value',
           },
         },
       })
-      .sort({ coalitionId: 1 })
-      .lookup({
-        from: 'coalitions',
-        localField: '_id',
-        foreignField: 'id',
-        as: 'coalition',
-      })
-      .project({ _id: 0, coalition: { $first: '$coalition' }, records: 1 });
+      .sort({ _id: 1 })
+      .append(lookupCoalition('_id', 'id'))
+      .project({ _id: 0, coalition: { $first: '$coalitions' }, records: 1 });
   }
 
   async tigCountPerCoalition(
