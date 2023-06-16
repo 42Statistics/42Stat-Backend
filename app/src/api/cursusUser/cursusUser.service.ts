@@ -231,12 +231,12 @@ export class CursusUserService {
       .addFields({ floorLevel: { $floor: '$level' } })
       .group({
         _id: '$floorLevel',
-        userCount: { $count: {} },
+        value: { $count: {} },
       })
       .project({
         _id: 0,
         level: '$_id',
-        userCount: '$userCount',
+        value: '$value',
       })
       .sort({ level: 1 });
   }

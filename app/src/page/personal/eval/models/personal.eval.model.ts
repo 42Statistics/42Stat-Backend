@@ -45,9 +45,6 @@ export class PersonalEval {
   // @Field((_types) => [DestinyUser], { nullable: 'items' })
   // destinyUsers: DestinyUser[];
 
-  @Field()
-  latestFeedback: string;
-
-  @Field()
-  evalLogSearchUrl: string;
+  @Field({ nullable: true })
+  recentComment?: string;
 }
