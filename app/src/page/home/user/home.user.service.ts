@@ -29,7 +29,7 @@ export class HomeUserService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  async activeUserCountRecords(): Promise<IntRecord[]> {
+  async aliveUserCountRecords(): Promise<IntRecord[]> {
     const now = new StatDate();
     const lastYear = now.startOfMonth().moveMonth(1).moveYear(-1);
 
@@ -51,19 +51,19 @@ export class HomeUserService {
     const dates = StatDate.partitionByMonth(dateRange);
 
     return dates.reduce(
-      ([valueRecords, activeUserCount], date, index) => {
+      ([valueRecords, aliveUserCount], date, index) => {
         const newPromo = StatDate.getValueByDate(date, newPromoCounts);
         const blackholed = StatDate.getValueByDate(date, blackholedCounts);
 
-        const currActiveUserCount = activeUserCount + newPromo - blackholed;
+        const currAliveUserCount = aliveUserCount + newPromo - blackholed;
 
         const at = dates.at(index + 1);
 
         if (at) {
-          valueRecords.push({ at, value: currActiveUserCount });
+          valueRecords.push({ at, value: currAliveUserCount });
         }
 
-        return [valueRecords, currActiveUserCount] as const;
+        return [valueRecords, currAliveUserCount] as const;
       },
       [[], 0] as readonly [IntRecord[], number],
     )[0];

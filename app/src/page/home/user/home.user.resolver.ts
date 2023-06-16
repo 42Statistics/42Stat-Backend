@@ -21,8 +21,8 @@ export class HomeUserResolver {
   }
 
   @ResolveField((_returns) => [IntRecord])
-  async activeUserCountRecords(): Promise<IntRecord[]> {
-    return await this.homeUserService.activeUserCountRecords();
+  async aliveUserCountRecords(): Promise<IntRecord[]> {
+    return await this.homeUserService.aliveUserCountRecords();
   }
 
   @ResolveField((_returns) => [UserCountPerLevel])

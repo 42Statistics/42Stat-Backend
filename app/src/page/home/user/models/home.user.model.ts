@@ -16,7 +16,7 @@ export class IntPerCircle {
 @ObjectType()
 export class UserCountPerLevel {
   @Field()
-  userCount: number;
+  value: number;
 
   @Field()
   level: number;
@@ -25,7 +25,7 @@ export class UserCountPerLevel {
 @ObjectType()
 export class HomeUser {
   @Field((_type) => [IntRecord])
-  activeUserCountRecords: IntRecord[];
+  aliveUserCountRecords: IntRecord[];
 
   @Field((_type) => [UserCountPerLevel])
   userCountPerLevel: UserCountPerLevel[];

@@ -54,12 +54,12 @@ export class HomeEvalService {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     });
 
-    const activeUserCount = await this.cursusUserService.userCount(
+    const aliveUserCount = await this.cursusUserService.userCount(
       aliveUserFilter,
     );
 
     return this.dateRangeService.toDateRanged(
-      Math.floor((evalCount / activeUserCount) * 100) / 100,
+      Math.floor((evalCount / aliveUserCount) * 100) / 100,
       dateRange,
     );
   }

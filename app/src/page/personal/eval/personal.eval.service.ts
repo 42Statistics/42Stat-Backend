@@ -109,7 +109,7 @@ export class PersonalEvalService {
     });
   }
 
-  async lastComment(userId: number): Promise<string | null> {
+  async recentComment(userId: number): Promise<string | null> {
     const scaleTeams = await this.scaleTeamService.findAll({
       filter: { 'corrector.id': userId },
       sort: { beginAt: -1, id: -1 },
