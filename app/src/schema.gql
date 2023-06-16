@@ -210,12 +210,12 @@ type IntPerCircle {
 }
 
 type UserCountPerLevel {
-  userCount: Int!
+  value: Int!
   level: Int!
 }
 
 type HomeUser {
-  activeUserCountRecords: [IntRecord!]!
+  aliveUserCountRecords: [IntRecord!]!
   userCountPerLevel: [UserCountPerLevel!]!
   memberRate: Rate!
   blackholedRate: Rate!
@@ -368,14 +368,13 @@ type PersonalEval {
   averageFinalMark: Float!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
-  latestFeedback: String!
-  evalLogSearchUrl: String!
-  lastComment: String
+  recentComment: String
 }
 
 type ProjectInfo {
   id: Int!
   name: String!
+  objectives: [String]!
   skills: [String]!
   description: String!
   minUserCount: Int!

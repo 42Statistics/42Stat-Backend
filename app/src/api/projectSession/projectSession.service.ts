@@ -35,6 +35,7 @@ export class projectSessionService {
       .project({
         id: 1,
         projectSessionsRules: 1,
+        objectives: 1,
         skills: '$skills.name',
         description: '$description',
         estimateTime: '$estimateTime',
@@ -51,7 +52,8 @@ export class projectSessionService {
 
     return {
       id: projectSessionInfo.id,
-      skills: projectSessionInfo.skills,
+      objectives: projectSessionInfo.objectives ?? [],
+      skills: projectSessionInfo.skills ?? [],
       description: projectSessionInfo.description,
       estimateTime: projectSessionInfo.estimateTime,
       difficulty: projectSessionInfo.difficulty,
