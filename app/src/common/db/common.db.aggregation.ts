@@ -7,13 +7,6 @@ export type AggrRecord = { records: IntRecord[] };
 export type AggrNumericPerDateBucket = { date: Date | 'default' } & AggrNumeric;
 export type AggrNumericPerCluster = { cluster: string } & AggrNumeric;
 
-export type AggrDatePartition = {
-  $dateToString: {
-    date: Date;
-    format: string;
-  };
-};
-
 export type CollectionLookup = (
   localField: string,
   foreignField: string,
