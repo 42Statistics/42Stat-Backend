@@ -1,7 +1,7 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { MyContext } from 'src/auth/myContext';
+import { MyUserId } from 'src/auth/myContext';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import { LeaderboardElement } from '../models/leaderboard.model';
 import { LeaderboardLevelService } from './leaderboard.level.service';
@@ -19,11 +19,11 @@ export class LeaderboardLevelResolver {
 
   @ResolveField((_returns) => LeaderboardElement)
   async total(
-    @MyContext() myId: number,
+    @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
   ): Promise<LeaderboardElement> {
     return await this.leaderboardLevelService.rankingTotal(
-      myId,
+      myUserId,
       paginationIndexArgs,
     );
   }
