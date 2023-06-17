@@ -1,9 +1,11 @@
-import { Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HomeCoalitionService } from './home.coalition.service';
 import {
   HomeCoalition,
-  ScoreRecordPerCoalition,
   IntPerCoalition,
+  IntPerCoalitionDateRanged,
+  ScoreRecordPerCoalition,
 } from './models/home.coalition.model';
 
 @Resolver((_of: unknown) => HomeCoalition)
@@ -25,8 +27,12 @@ export class HomeCoalitionResolver {
     return await this.homeCoalitionService.scoreRecordsPerCoalition();
   }
 
-  @ResolveField((_returns) => [IntPerCoalition])
-  async tigCountPerCoalition(): Promise<IntPerCoalition[]> {
-    return await this.homeCoalitionService.tigCountPerCoalition();
+  @ResolveField((_returns) => IntPerCoalitionDateRanged)
+  async tigCountPerCoalitionByDateTemplate(
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<IntPerCoalitionDateRanged> {
+    return await this.homeCoalitionService.tigCountPerCoalitionByDateTemplate(
+      dateTemplate,
+    );
   }
 }

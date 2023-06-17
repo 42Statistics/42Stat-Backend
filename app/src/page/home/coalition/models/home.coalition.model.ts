@@ -1,6 +1,7 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { Coalition } from 'src/api/coalition/models/coalition.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 
 @ObjectType()
 export class IntPerCoalition {
@@ -10,6 +11,11 @@ export class IntPerCoalition {
   @Field()
   value: number;
 }
+
+@ObjectType()
+export class IntPerCoalitionDateRanged extends ArrayDateRanged(
+  IntPerCoalition,
+) {}
 
 @ObjectType()
 export class ScoreRecordPerCoalition {
@@ -28,6 +34,6 @@ export class HomeCoalition {
   @Field((_type) => [ScoreRecordPerCoalition])
   scoreRecordsPerCoalition: ScoreRecordPerCoalition[];
 
-  @Field((_type) => [IntPerCoalition])
-  tigCountPerCoalition: IntPerCoalition[];
+  @Field()
+  tigCountPerCoalitionByDateTemplate: IntPerCoalitionDateRanged;
 }
