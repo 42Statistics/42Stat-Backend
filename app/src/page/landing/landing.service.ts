@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import {
   aliveUserFilter,
-  blackholedUserFilter,
+  blackholedUserFilterByDateRange,
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -28,7 +28,7 @@ export class LandingService {
     const aliveCount = await this.cursusUserService.userCount(aliveUserFilter);
 
     const blackholedCount = await this.cursusUserService.userCount(
-      blackholedUserFilter,
+      blackholedUserFilterByDateRange(),
     );
 
     const memberCount = await this.cursusUserService.userCount({

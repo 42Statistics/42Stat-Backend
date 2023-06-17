@@ -7,7 +7,7 @@ import {
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import {
   aliveUserFilter,
-  blackholedUserFilter,
+  blackholedUserFilterByDateRange,
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
@@ -94,7 +94,9 @@ export class HomeUserService {
 
   async blackholedRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
-    const value = await this.cursusUserService.userCount(blackholedUserFilter);
+    const value = await this.cursusUserService.userCount(
+      blackholedUserFilterByDateRange(),
+    );
 
     return {
       total,
@@ -122,15 +124,12 @@ export class HomeUserService {
       end: now < end ? now : end,
     };
 
-    const blackholedCount = await this.cursusUserService.userCountPerMonth(
-      'blackholedAt',
-      dateRange,
+    const blackholedCount = await this.cursusUserService.userCount(
+      blackholedUserFilterByDateRange(dateRange),
     );
 
-    return this.dateRangeService.toDateRanged(
-      StatDate.getValueByDate(dateRange.start, blackholedCount),
-      dateRange,
-    );
+    // todo: 현재 시간 / 갱신 시간
+    return this.dateRangeService.toDateRanged(blackholedCount, { start, end });
   }
 
   async blackholedCountByDateTemplate(
@@ -143,7 +142,7 @@ export class HomeUserService {
 
   async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
     return await this.cursusUserService.userCountPerCircle(
-      blackholedUserFilter,
+      blackholedUserFilterByDateRange(),
     );
   }
 
