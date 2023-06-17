@@ -131,6 +131,12 @@ type IntPerCoalition {
   value: Int!
 }
 
+type IntPerCoalitionDateRanged {
+  data: [IntPerCoalition!]!
+  start: DateTime!
+  end: DateTime!
+}
+
 type ScoreRecordPerCoalition {
   coalition: Coalition!
   records: [IntRecord]!
@@ -139,7 +145,15 @@ type ScoreRecordPerCoalition {
 type HomeCoalition {
   totalScoresPerCoalition: [IntPerCoalition!]!
   scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
-  tigCountPerCoalition: [IntPerCoalition!]!
+  tigCountPerCoalitionByDateTemplate(dateTemplate: DateTemplate!): IntPerCoalitionDateRanged!
+}
+
+enum DateTemplate {
+  CURR_WEEK
+  LAST_WEEK
+  CURR_MONTH
+  LAST_MONTH
+  LAST_YEAR
 }
 
 type IntDateRanged {
@@ -160,14 +174,6 @@ type HomeEval {
   averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
-}
-
-enum DateTemplate {
-  CURR_WEEK
-  LAST_WEEK
-  CURR_MONTH
-  LAST_MONTH
-  LAST_YEAR
 }
 
 type ProjectRanking {

@@ -3,10 +3,11 @@ import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
   IntPerCoalition,
+  IntPerCoalitionDateRanged,
   ScoreRecordPerCoalition,
 } from './models/home.coalition.model';
 
@@ -47,20 +48,20 @@ export class HomeCoalitionService {
     );
   }
 
-  async tigCountPerCoalition(): Promise<IntPerCoalition[]> {
-    const currMonth = new StatDate().startOfMonth();
-    const nextMonth = currMonth.moveMonth(1);
+  async tigCountPerCoalitionByDateTemplate(
+    dateTemplate: DateTemplate,
+  ): Promise<IntPerCoalitionDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     const dateFilter = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange({
-        start: currMonth,
-        end: nextMonth,
-      }),
+      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    return await this.scoreService.tigCountPerCoalition(
+    const tigCountPerCoalition = await this.scoreService.tigCountPerCoalition(
       SEOUL_COALITION_ID,
       dateFilter,
     );
+
+    return this.dateRangeService.toDateRanged(tigCountPerCoalition, dateRange);
   }
 }
