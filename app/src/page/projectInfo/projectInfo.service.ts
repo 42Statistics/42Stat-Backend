@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ProjectService } from 'src/api/project/project.service';
-import { projectSessionService } from 'src/api/projectSession/projectSession.service';
+import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import {
   ProjectInfo,
@@ -12,7 +12,7 @@ import {
 export class ProjectInfoService {
   constructor(
     private projectService: ProjectService,
-    private projectSessionService: projectSessionService,
+    private projectSessionService: ProjectSessionService,
     private teamService: TeamService,
   ) {}
   async projectInfo(projectName: string): Promise<ProjectInfo> {

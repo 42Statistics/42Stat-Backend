@@ -4,7 +4,7 @@ import {
   ProjectSessionSchema,
   project_session,
 } from './db/projectSession.database.schema';
-import { projectSessionService } from './projectSession.service';
+import { ProjectSessionService } from './projectSession.service';
 
 @Module({
   imports: [
@@ -12,8 +12,8 @@ import { projectSessionService } from './projectSession.service';
       { name: project_session.name, schema: ProjectSessionSchema },
     ]),
   ],
-  providers: [projectSessionService],
-  exports: [MongooseModule, projectSessionService],
+  providers: [ProjectSessionService],
+  exports: [MongooseModule, ProjectSessionService],
 })
 // eslint-disable-next-line
 export class ProjectSessionModule {}

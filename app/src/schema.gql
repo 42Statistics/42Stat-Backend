@@ -176,9 +176,10 @@ type HomeEval {
   averageCommentLength: Int!
 }
 
-type ProjectRanking {
+type ProjectRank {
   projectPreview: ProjectPreview!
   value: Int!
+  rank: Int!
 }
 
 type ExamResult {
@@ -194,7 +195,7 @@ type ExamResultDateRanged {
 }
 
 type HomeTeam {
-  currRegisteredCountRanking(limit: Int! = 3): [ProjectRanking!]!
+  currRegisteredCountRanking(limit: Int! = 3): [ProjectRank!]!
 
   """HOME 직전 회차 시험 Rank별 통과율"""
   lastExamResult: ExamResultDateRanged!
@@ -239,6 +240,7 @@ type Landing {
   blackholedCount: Int!
   memberCount: Int!
   evalCount: Int!
+  trendingProject: ProjectRank!
 }
 
 type LeaderboardElement {

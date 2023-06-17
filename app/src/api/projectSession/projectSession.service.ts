@@ -11,7 +11,7 @@ import {
 } from './db/projectSession.database.schema';
 
 @Injectable()
-export class projectSessionService {
+export class ProjectSessionService {
   constructor(
     @InjectModel(project_session.name)
     private projectSessionModel: Model<project_session>,

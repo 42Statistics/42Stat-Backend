@@ -4,6 +4,7 @@ import {
   aliveUserFilter,
   blackholedUserFilter,
 } from 'src/api/cursusUser/db/cursusUser.database.query';
+import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { StatDate } from 'src/statDate/StatDate';
 import type { Landing } from './models/landing.model';
@@ -13,6 +14,7 @@ export class LandingService {
   constructor(
     private cursusUserService: CursusUserService,
     private scaleTeamService: ScaleTeamService,
+    private projectsUserService: ProjectsUserService,
   ) {}
 
   async landing(): Promise<Landing> {
@@ -35,12 +37,16 @@ export class LandingService {
 
     const evalCount = await this.scaleTeamService.evalCount();
 
+    const [trendingProject] =
+      await this.projectsUserService.currRegisteredCountRanking(1);
+
     return {
       daysAfterBeginAt,
       aliveCount,
       blackholedCount,
       memberCount,
       evalCount,
+      trendingProject,
     };
   }
 }
