@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
-import type { ProjectRanking } from './models/home.team.model';
+import type { ProjectRank } from './models/home.team.model';
 
 @Injectable()
 export class HomeTeamService {
@@ -22,7 +22,7 @@ export class HomeTeamService {
     };
   }
 
-  async currRegisteredCountRanking(limit: number): Promise<ProjectRanking[]> {
+  async currRegisteredCountRanking(limit: number): Promise<ProjectRank[]> {
     return await this.projectsUserService.currRegisteredCountRanking(limit);
   }
 }

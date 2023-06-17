@@ -3,12 +3,15 @@ import { ProjectPreview } from 'src/api/project/models/project.preview';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 
 @ObjectType()
-export class ProjectRanking {
+export class ProjectRank {
   @Field()
   projectPreview: ProjectPreview;
 
   @Field()
   value: number;
+
+  @Field()
+  rank: number;
 }
 
 @ObjectType()
@@ -28,8 +31,8 @@ export class ExamResultDateRanged extends ArrayDateRanged(ExamResult) {}
 
 @ObjectType()
 export class HomeTeam {
-  @Field((_type) => [ProjectRanking])
-  currRegisteredCountRanking: ProjectRanking[];
+  @Field((_type) => [ProjectRank])
+  currRegisteredCountRanking: ProjectRank[];
 
   @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
   lastExamResult: ExamResultDateRanged;
