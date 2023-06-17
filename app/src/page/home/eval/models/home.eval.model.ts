@@ -7,9 +7,6 @@ import {
 @ObjectType()
 export class HomeEval {
   @Field()
-  totalEvalCount: number;
-
-  @Field()
   evalCountByDateTemplate: IntDateRanged;
 
   @Field()

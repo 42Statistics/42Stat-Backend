@@ -1,8 +1,12 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyUserId } from 'src/auth/myContext';
-import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import {
+  DateTemplate,
+  DateTemplateArgs,
+  UnsupportedDateTemplate,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardExpService } from './leaderboard.exp.service';
@@ -24,6 +28,15 @@ export class LeaderboardExpResolver {
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
+    if (
+      !(
+        dateTemplate === DateTemplate.CURR_MONTH ||
+        dateTemplate === DateTemplate.CURR_WEEK
+      )
+    ) {
+      throw new UnsupportedDateTemplate();
+    }
+
     return await this.leaderboardExpService.rankingByDateTemplate(
       myUserId,
       paginationIndexArgs,

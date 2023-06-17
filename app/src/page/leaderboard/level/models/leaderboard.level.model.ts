@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { LeaderboardElement } from '../../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
 
 @ObjectType()
 export class LeaderboardLevel {
-  @Field((_type) => LeaderboardElement)
-  total: LeaderboardElement;
+  @Field({ description: 'Available DateTemplate=[TOTAL]' })
+  byDateTemplate: LeaderboardElementDateRanged;
 }

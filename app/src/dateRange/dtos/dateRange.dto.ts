@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
 
 export enum DateTemplate {
@@ -22,9 +23,17 @@ export enum DateTemplate {
    * lastYear = 22-06-01 ~ 23-06-01
    */
   LAST_YEAR,
+
+  TOTAL,
 }
 
 registerEnumType(DateTemplate, { name: 'DateTemplate' });
+
+export class UnsupportedDateTemplate extends BadRequestException {
+  constructor() {
+    super('Unsupported DateTemplate');
+  }
+}
 
 export type DateRange = {
   start: Date;

@@ -16,11 +16,6 @@ export class HomeEvalResolver {
     return {};
   }
 
-  @ResolveField((_returns) => Int)
-  async totalEvalCount(): Promise<number> {
-    return await this.homeEvalService.evalCount();
-  }
-
   @ResolveField((_returns) => IntDateRanged)
   async evalCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,

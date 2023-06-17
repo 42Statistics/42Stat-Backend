@@ -154,6 +154,7 @@ enum DateTemplate {
   CURR_MONTH
   LAST_MONTH
   LAST_YEAR
+  TOTAL
 }
 
 type IntDateRanged {
@@ -169,7 +170,6 @@ type FloatDateRanged {
 }
 
 type HomeEval {
-  totalEvalCount: Int!
   evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged!
   averageFeedbackLength: Int!
@@ -258,20 +258,22 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  """Available DateTemplate=[TOTAL, CURR_MONTH, CURR_WEEK]"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
+  """Available DateTemplate=[CURR_MONTH, CURR_WEEK]"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  """Available DateTemplate=[TOTAL]"""
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardScore {
-  total(pageSize: Int! = 10, pageNumber: Int! = 1): LeaderboardElement!
+  """Available DateTemplate=[TOTAL, CURR_WEEK, CURR_MONTH]"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 

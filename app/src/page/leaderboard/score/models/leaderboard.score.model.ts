@@ -1,14 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import {
-  LeaderboardElement,
-  LeaderboardElementDateRanged,
-} from '../../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
 
 @ObjectType()
 export class LeaderboardScore {
-  @Field((_type) => LeaderboardElement)
-  total: LeaderboardElement;
-
-  @Field((_type) => LeaderboardElementDateRanged)
+  @Field({
+    description: 'Available DateTemplate=[TOTAL, CURR_WEEK, CURR_MONTH]',
+  })
   byDateTemplate: LeaderboardElementDateRanged;
 }
