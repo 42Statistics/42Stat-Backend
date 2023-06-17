@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
-import { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
+import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import type {
   UserPreview,
@@ -22,10 +22,10 @@ import {
 } from '../questsUser/questsUser.service';
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import { UserFullProfile } from './db/cursusUser.database.aggregate';
+import type { UserFullProfile } from './db/cursusUser.database.aggregate';
 import {
   aliveUserFilter,
-  blackholedUserFilter,
+  blackholedUserFilterByDateRange,
 } from './db/cursusUser.database.query';
 import {
   CursusUserDocument,
@@ -183,7 +183,7 @@ export class CursusUserService {
     return userFullProfiles;
   }
 
-  async userCount(filter?: FilterQuery<CursusUserDocument>): Promise<number> {
+  async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {
     if (!filter) {
       return await this.cursusUserModel.estimatedDocumentCount();
     }
@@ -201,7 +201,7 @@ export class CursusUserService {
       this.cursusUserModel.aggregate<AggrNumericPerDateBucket>();
 
     if (key === 'blackholedAt') {
-      aggregate.match(blackholedUserFilter);
+      aggregate.match(blackholedUserFilterByDateRange());
     }
 
     return await aggregate
@@ -246,7 +246,7 @@ export class CursusUserService {
    * @example
    *
    * ```ts
-   * userCountPerCircle(blackholedUserFilter);
+   * userCountPerCircle(blackholedUserFilter());
    * userCountPerCircle(aliveUserFilter);
    * ```
    */
