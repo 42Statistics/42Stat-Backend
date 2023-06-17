@@ -45,6 +45,11 @@ export class DateRangeService {
           start: lastYear,
           end: nextMonth,
         };
+      case DateTemplate.TOTAL:
+        return {
+          start: new StatDate(0),
+          end: now,
+        };
     }
   }
 

@@ -82,14 +82,23 @@ export class LeaderboardScoreService {
   async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: DateTemplate,
+    dateTemplate: Extract<
+      DateTemplate,
+      DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
+    >,
   ): Promise<LeaderboardElementDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    if (dateTemplate === DateTemplate.TOTAL) {
+      const rankingTotal = await this.rankingTotal(userId, paginationIndexArgs);
+
+      return this.dateRangeService.toDateRanged(rankingTotal, dateRange);
+    }
+
     const cachedRanking =
       await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
         dateTemplate,
       );
-
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return this.rankingByDateRange(
       userId,

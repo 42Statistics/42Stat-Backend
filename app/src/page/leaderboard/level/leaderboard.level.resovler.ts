@@ -1,9 +1,14 @@
 import { UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyUserId } from 'src/auth/myContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import {
+  DateTemplate,
+  DateTemplateArgs,
+  UnsupportedDateTemplate,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
-import { LeaderboardElement } from '../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevel } from './models/leaderboard.level.model';
 
@@ -17,14 +22,21 @@ export class LeaderboardLevelResolver {
     return {};
   }
 
-  @ResolveField((_returns) => LeaderboardElement)
-  async total(
+  @ResolveField((_returns) => LeaderboardElementDateRanged)
+  async byDateTemplate(
     @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
-  ): Promise<LeaderboardElement> {
-    return await this.leaderboardLevelService.rankingTotal(
+    @Args()
+    { dateTemplate }: DateTemplateArgs,
+  ) {
+    if (dateTemplate !== DateTemplate.TOTAL) {
+      throw new UnsupportedDateTemplate();
+    }
+
+    return await this.leaderboardLevelService.rankingByDateTemplate(
       myUserId,
       paginationIndexArgs,
+      dateTemplate,
     );
   }
 }

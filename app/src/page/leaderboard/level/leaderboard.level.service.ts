@@ -9,10 +9,15 @@ import type {
   cursus_user,
 } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { findUserRank } from 'src/common/findUserRank';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type { RankingArgs } from '../leaderboard.ranking.args';
-import type { LeaderboardElement } from '../models/leaderboard.model';
+import type {
+  LeaderboardElement,
+  LeaderboardElementDateRanged,
+} from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 @Injectable()
 export class LeaderboardLevelService {
@@ -20,6 +25,7 @@ export class LeaderboardLevelService {
     private leaderboardUtilService: LeaderboardUtilService,
     private cursusUserService: CursusUserService,
     private cursusUserCacheService: CursusUserCacheService,
+    private dateRangeService: DateRangeService,
   ) {}
 
   async ranking({
@@ -53,5 +59,17 @@ export class LeaderboardLevelService {
     );
 
     return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
+  }
+
+  async rankingByDateTemplate(
+    userId: number,
+    paginationIndexArgs: PaginationIndexArgs,
+    dateTemplate: DateTemplate.TOTAL,
+  ): Promise<LeaderboardElementDateRanged> {
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    const rankingTotal = await this.rankingTotal(userId, paginationIndexArgs);
+
+    return this.dateRangeService.toDateRanged(rankingTotal, dateRange);
   }
 }

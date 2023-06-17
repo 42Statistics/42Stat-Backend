@@ -80,7 +80,10 @@ export class LeaderboardEvalService {
   async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: DateTemplate,
+    dateTemplate: Extract<
+      DateTemplate,
+      DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
+    >,
   ): Promise<LeaderboardElementDateRanged> {
     const cachedRanking =
       await this.scaleTeamCacheService.getEvalCountRankingCacheByDateTemplate(

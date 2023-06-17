@@ -66,7 +66,10 @@ export class LeaderboardExpService {
   async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: DateTemplate,
+    dateTemplate: Extract<
+      DateTemplate,
+      DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
+    >,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
