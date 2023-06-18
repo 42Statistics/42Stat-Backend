@@ -1,16 +1,13 @@
 import { BadRequestException, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyUserId } from 'src/auth/myContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import {
   DateTemplate,
   DateTemplateArgs,
 } from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
-import {
-  LeaderboardElement,
-  LeaderboardElementDateRanged,
-} from '../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
 
