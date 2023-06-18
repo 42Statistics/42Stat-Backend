@@ -1,6 +1,12 @@
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { HomeTeamService } from './home.team.service';
-import { HomeTeam, ProjectRank } from './models/home.team.model';
+import {
+  ExamResult,
+  ExamResultDateRanged,
+  HomeTeam,
+  ProjectRank,
+  RecentExamResultInput,
+} from './models/home.team.model';
 
 @Resolver((_of: unknown) => HomeTeam)
 export class HomeTeamResolver {
@@ -8,7 +14,7 @@ export class HomeTeamResolver {
 
   @Query((_of) => HomeTeam)
   async getHomeTeam() {
-    return await this.homeTeamService.temp();
+    return {};
   }
 
   @ResolveField((_returns) => [ProjectRank])
@@ -16,5 +22,12 @@ export class HomeTeamResolver {
     @Args('limit', { defaultValue: 3 }) limit: number,
   ): Promise<ProjectRank[]> {
     return await this.homeTeamService.currRegisteredCountRanking(limit);
+  }
+
+  @ResolveField((_returns) => ExamResult)
+  async recentExamResult(
+    @Args() { after }: RecentExamResultInput,
+  ): Promise<ExamResultDateRanged> {
+    return await this.homeTeamService.recentExamResult(after);
   }
 }

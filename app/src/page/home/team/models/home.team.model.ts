@@ -1,6 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
+import { Min } from 'class-validator';
 import { ProjectPreview } from 'src/api/project/models/project.preview';
-import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
+import { Rate } from 'src/common/models/common.rate.model';
+import { DateRanged } from 'src/dateRange/models/dateRange.model';
 
 @ObjectType()
 export class ProjectRank {
@@ -15,25 +17,53 @@ export class ProjectRank {
 }
 
 @ObjectType()
-export class ExamResult {
+export class ResultPerRank {
   @Field()
   rank: number;
 
   @Field()
-  passCount: number;
-
-  @Field()
-  totalCount: number;
+  rate: Rate;
 }
 
 @ObjectType()
-export class ExamResultDateRanged extends ArrayDateRanged(ExamResult) {}
+export class ExamResult {
+  @Field((_type) => [ResultPerRank])
+  resultPerRank: ResultPerRank[];
+
+  @Field()
+  beginAt: Date;
+
+  @Field()
+  endAt: Date;
+
+  @Field()
+  location: string;
+
+  @Field()
+  maxPeople: number;
+
+  @Field()
+  name: string;
+
+  @Field()
+  nbrSubscribers: number;
+}
+
+@ObjectType()
+export class ExamResultDateRanged extends DateRanged(ExamResult) {}
 
 @ObjectType()
 export class HomeTeam {
   @Field((_type) => [ProjectRank])
   currRegisteredCountRanking: ProjectRank[];
 
-  @Field({ description: 'HOME 직전 회차 시험 Rank별 통과율' })
-  lastExamResult: ExamResultDateRanged;
+  @Field()
+  recentExamResult: ExamResultDateRanged;
+}
+
+@ArgsType()
+export class RecentExamResultInput {
+  @Min(1)
+  @Field({ defaultValue: 1 })
+  after: number;
 }
