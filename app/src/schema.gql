@@ -103,12 +103,8 @@ type EvalReview {
 type EvalLog {
   id: Int!
   header: EvalLogHeader!
-
-  """평가자가 부여한 점수와 리뷰 입니다."""
   correctorReview: EvalReview!
-
-  """피평가자가 부여한 점수와 리뷰 입니다."""
-  correctedsReview: EvalReview!
+  correctedsReview: EvalReview
 }
 
 type EvalLogEdge {

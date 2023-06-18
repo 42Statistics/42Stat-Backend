@@ -62,11 +62,11 @@ export class EvalLog {
   @Field()
   header: EvalLogHeader;
 
-  @Field({ description: '평가자가 부여한 점수와 리뷰 입니다.' })
+  @Field()
   correctorReview: EvalReview;
 
-  @Field({ description: '피평가자가 부여한 점수와 리뷰 입니다.' })
-  correctedsReview: EvalReview;
+  @Field({ nullable: true })
+  correctedsReview?: EvalReview;
 }
 
 @ObjectType()

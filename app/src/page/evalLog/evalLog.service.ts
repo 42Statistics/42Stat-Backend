@@ -37,6 +37,22 @@ export class EvalLogService {
   }: GetEvalLogsArgs): Promise<EvalLogsPaginated> {
     const filter: FilterQuery<scale_team> = {};
 
+    if (corrector) {
+      const correctorDocument = await this.cursusUserService.findOneByLogin(
+        corrector,
+      );
+
+      filter['corrector.id'] = correctorDocument.user.id;
+    }
+
+    if (corrected) {
+      const correctedDocument = await this.cursusUserService.findOneByLogin(
+        corrected,
+      );
+
+      filter['correcteds.id'] = correctedDocument.user.id;
+    }
+
     if (projectName) {
       const projectList = await this.projectService.findByName(projectName);
 
@@ -60,33 +76,12 @@ export class EvalLogService {
           };
     }
 
-    if (corrector) {
-      const correctorDocument = await this.cursusUserService.findOneByLogin(
-        corrector,
-      );
-
-      filter['corrector.id'] = correctorDocument.user.id;
-    }
-
-    if (corrected) {
-      const correctedDocument = await this.cursusUserService.findOneByLogin(
-        corrected,
-      );
-
-      filter['correcteds.id'] = correctedDocument.user.id;
-    }
-
     if (outstandingOnly) {
       // todo: constant
       filter['flag.id'] = 9;
     }
 
-    // todo: scale team service 의 filter 와 어떻게 동기화할지...
-    const totalCount = await this.scaleTeamService.evalCount({
-      ...filter,
-      feedback: { $ne: null },
-      comment: { $ne: null },
-    });
+    const totalCount = await this.scaleTeamService.evalCount(filter);
 
     if (after) {
       const [id, beginAt]: EvalLogCursorField =

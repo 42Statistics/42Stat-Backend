@@ -153,8 +153,11 @@ export class ScaleTeamService {
   ): Promise<EvalLog[]> {
     const aggregate = this.scaleTeamModel.aggregate<EvalLog>();
 
+    if (filter) {
+      aggregate.match(filter);
+    }
+
     return await aggregate
-      .match({ ...filter, feedback: { $ne: null }, comment: { $ne: null } })
       .sort(evalLogSort(sortOrder))
       .limit(limit)
       .lookup({
