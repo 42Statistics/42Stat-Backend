@@ -37,8 +37,10 @@ export class ProjectService {
   async findByName(name: string): Promise<project[]> {
     const result: Map<number, project> = new Map();
 
+    const escapedName = name.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
+
     const prefixMatches = await this.findAll({
-      name: { $regex: `^${name}`, $options: 'i' },
+      name: new RegExp(`^${escapedName}`, 'i'),
     });
 
     prefixMatches.forEach((prefixMatch) =>
@@ -46,7 +48,7 @@ export class ProjectService {
     );
 
     const matches = await this.findAll({
-      name: { $regex: name, $options: 'i' },
+      name: new RegExp(escapedName, 'i'),
     });
 
     matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));

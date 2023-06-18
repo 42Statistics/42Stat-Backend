@@ -104,10 +104,12 @@ export class CursusUserService {
       'user.image': 1,
     };
 
+    const escapedLogin = login.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
+
     const prefixMatches: { user: Userable }[] = await this.cursusUserModel
       .find(
         {
-          'user.login': { $regex: `^${login}`, $options: 'i' },
+          'user.login': new RegExp(`^${escapedLogin}`, 'i'),
         },
         previewProjection,
       )
@@ -121,7 +123,7 @@ export class CursusUserService {
       const matches: { user: Userable }[] = await this.cursusUserModel
         .find(
           {
-            'user.login': { $regex: login, $options: 'i' },
+            'user.login': new RegExp(escapedLogin, 'i'),
           },
           previewProjection,
         )
