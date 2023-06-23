@@ -7,7 +7,6 @@ import { RedisUtilService } from 'src/redis/redis.util.service';
 import { CursusUserService } from './cursusUser.service';
 import type { UserFullProfile } from './db/cursusUser.database.aggregate';
 
-export const USER_FULL_PROFILE_CACHE = 'userFullProfile';
 export const USER_WALLET_RANKING = 'userWalletRanking';
 export const USER_LEVEL_RANKING = 'userLevelRanking';
 export const USER_CORRECTION_POINT_RANKING = 'userCorrectionPointRanking';
@@ -18,6 +17,8 @@ export type UserRankingKey =
   | typeof USER_WALLET_RANKING
   | typeof USER_LEVEL_RANKING
   | typeof USER_CORRECTION_POINT_RANKING;
+
+export const USER_FULL_PROFILE_CACHE = 'userFullProfile';
 
 @Injectable()
 export class CursusUserCacheService {
@@ -45,6 +46,18 @@ export class CursusUserCacheService {
     return JSON.parse(cached, userFullProfileReviver) as Awaited<
       ReturnType<CursusUserService['findOneUserFullProfilebyUserId']>
     >;
+  }
+
+  async getAllUserFullProfileCache(): Promise<UserFullProfile[] | undefined> {
+    const cached = await this.redisClient.hGetAll(USER_FULL_PROFILE_CACHE);
+
+    if (!Object.keys(cached).length) {
+      return undefined;
+    }
+
+    return Object.values(cached).map(
+      (cache) => JSON.parse(cache) as UserFullProfile,
+    );
   }
 
   async getUserRanking(key: UserRankingKey): Promise<RankingType | undefined> {

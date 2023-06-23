@@ -1,10 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
+import type { AggrNumericPerCluster } from 'src/common/db/common.db.aggregation';
 import type {
-  AggrNumeric,
-  AggrNumericPerCluster,
-} from 'src/common/db/common.db.aggregation';
+  UserPreview,
+  UserRank,
+} from 'src/common/models/common.user.model';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PreferredTime } from 'src/page/personal/general/models/personal.general.model';
 import { StatDate } from 'src/statDate/StatDate';
@@ -83,11 +84,11 @@ export class LocationService {
     );
 
     return {
-      total: Math.floor(total / 1000 / 60),
-      morning: Math.floor(morning / 1000 / 60),
-      daytime: Math.floor(daytime / 1000 / 60),
-      evening: Math.floor(evening / 1000 / 60),
-      night: Math.floor(night / 1000 / 60),
+      total: Math.floor(total / StatDate.MIN),
+      morning: Math.floor(morning / StatDate.MIN),
+      daytime: Math.floor(daytime / StatDate.MIN),
+      evening: Math.floor(evening / StatDate.MIN),
+      night: Math.floor(night / StatDate.MIN),
     };
   }
 
@@ -124,22 +125,24 @@ export class LocationService {
   async logtimeByDateRange(
     { start, end }: DateRange,
     filter?: FilterQuery<location>,
-  ): Promise<number> {
-    const aggregate = this.locationModel.aggregate<
-      AggrNumeric & {
-        first: location;
-        last: location;
-      }
-    >();
+  ): Promise<UserRank[]> {
+    const aggregate = this.locationModel.aggregate<{
+      userPreview: UserPreview;
+      value: number;
+      first: location;
+      last: location;
+    }>();
 
-    const [logtime] = await aggregate
+    const userLogtimes = await aggregate
       .match({
         ...filter,
-        $and: [{ endAt: { $gt: start } }, { beginAt: { $lt: end } }],
+        $and: [{ endAt: { $gte: start } }, { beginAt: { $lt: end } }],
       })
       .sort({ beginAt: 1 })
       .group({
-        _id: 'result',
+        _id: '$user.id',
+        login: { $first: '$user.login' },
+        imgUrl: { $first: '$user.image.link' },
         value: {
           $sum: {
             $dateDiff: {
@@ -151,25 +154,32 @@ export class LocationService {
         },
         first: { $first: '$$ROOT' },
         last: { $last: '$$ROOT' },
+      })
+      .project({
+        _id: 0,
+        userId: '$_id',
+        userPreview: {
+          id: '$_id',
+          login: '$login',
+          imgUrl: '$imgUrl',
+        },
+        value: 1,
+        first: 1,
+        last: 1,
       });
 
-    if (!logtime) {
-      return 0;
-    }
+    userLogtimes.forEach((logtime) => sliceLogtime(logtime, { start, end }));
 
-    if (logtime.first.beginAt < start) {
-      logtime.value -= StatDate.dateGap(start, logtime.first.beginAt);
-    }
-
-    if (!logtime.last.endAt) {
-      logtime.value += StatDate.dateGap(end, logtime.last.beginAt);
-    }
-
-    if (logtime.last.endAt && end < logtime.last.endAt) {
-      logtime.value -= StatDate.dateGap(logtime.last.endAt, end);
-    }
-
-    return Math.floor(logtime.value / StatDate.MIN);
+    return userLogtimes
+      .map((logtime) => ({
+        userPreview: logtime.userPreview,
+        value: sliceLogtime(logtime, { start, end }),
+      }))
+      .sort((a, b) => b.value - a.value)
+      .map((curr, index) => ({
+        ...curr,
+        rank: index + 1,
+      }));
   }
 }
 
@@ -203,3 +213,32 @@ const initPartitionPoint = (date: Date, state: PartitionState) => {
 
 const toNextPartitionPoint = (partitionPoint: number): number =>
   partitionPoint + 1000 * 3600 * 6;
+
+const sliceLogtime = (
+  {
+    value,
+    first,
+    last,
+  }: {
+    value: number;
+    first: location;
+    last: location;
+  },
+  { start, end }: DateRange,
+): number => {
+  let newValue = value;
+
+  if (first.beginAt < start) {
+    newValue -= StatDate.dateGap(start, first.beginAt);
+  }
+
+  if (!last.endAt) {
+    newValue += StatDate.dateGap(end, last.beginAt);
+  }
+
+  if (last.endAt && end < last.endAt) {
+    newValue -= StatDate.dateGap(last.endAt, end);
+  }
+
+  return Math.floor(newValue / StatDate.MIN);
+};
