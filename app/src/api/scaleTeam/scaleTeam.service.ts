@@ -14,6 +14,8 @@ import {
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
 import { ScaleTeamDocument, scale_team } from './db/scaleTeam.database.schema';
 
+export const OUTSTANDING_FLAG_ID = 9;
+
 @Injectable()
 export class ScaleTeamService {
   constructor(

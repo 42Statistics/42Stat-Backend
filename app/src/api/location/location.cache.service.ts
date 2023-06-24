@@ -4,12 +4,13 @@ import {
   CacheService,
   CacheSupportedDateTemplate,
 } from 'src/cache/cache.service';
+import { assertExist } from 'src/common/assertExist';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { CursusUserCacheService } from '../cursusUser/cursusUser.cache.service';
 import { LocationService } from './location.service';
 
-const LOCATION_RANKING = 'locationRanking';
+const LOGTIME_RANKING = 'logtimeRanking';
 
 @Injectable()
 export class LocationCacheService {
@@ -19,19 +20,20 @@ export class LocationCacheService {
     private cursusUserCacheService: CursusUserCacheService,
   ) {}
 
-  async getLocationRankingCacheByDateTemplate(
+  async getLogtimeRankingCacheByDateTemplate(
     dateTemplate: CacheSupportedDateTemplate,
   ): Promise<UserRank[] | undefined> {
-    return await this.cacheService.getRanking(LOCATION_RANKING, dateTemplate);
+    return await this.cacheService.getRanking(LOGTIME_RANKING, dateTemplate);
   }
 
   // todo: 간격 조절
   @Cron(CronExpression.EVERY_MINUTE)
-  async updateLocationCache(): Promise<void> {
+  // eslint-disable-next-line
+  private async updateLocationCache(): Promise<void> {
     console.debug('enter locationCache', new Date());
 
     try {
-      await this.updateLocationRanking();
+      await this.updateLogtimeRanking();
     } catch (e) {
       console.error('updateLocationCache', e);
     }
@@ -39,27 +41,29 @@ export class LocationCacheService {
     console.debug('leaving locationCache', new Date());
   }
 
-  async updateLocationRanking(): Promise<void> {
+  async updateLogtimeRanking(): Promise<void> {
     await Promise.all([
-      this.updateLocationRankingByDateTemplate(DateTemplate.TOTAL),
-      this.updateLocationRankingByDateTemplate(DateTemplate.CURR_MONTH),
-      this.updateLocationRankingByDateTemplate(DateTemplate.LAST_MONTH),
+      this.updateLogtimeRankingByDateTemplate(DateTemplate.TOTAL),
+      this.updateLogtimeRankingByDateTemplate(DateTemplate.CURR_MONTH),
+      this.updateLogtimeRankingByDateTemplate(DateTemplate.LAST_MONTH),
     ]);
   }
 
-  private updateLocationRankingByDateTemplate = async (
+  private updateLogtimeRankingByDateTemplate = async (
     dateTemplate: CacheSupportedDateTemplate,
   ): Promise<void> => {
     await this.cacheService.updateRanking(
-      LOCATION_RANKING,
+      LOGTIME_RANKING,
       dateTemplate,
       async (dateRange: DateRange) =>
-        await this.locationService.logtimeByDateRange(dateRange),
+        await this.locationService.logtimePerUserByDateRange(dateRange),
       async () => {
         const userFullProfiles =
           await this.cursusUserCacheService.getAllUserFullProfileCache();
 
-        return userFullProfiles!.map(({ cursusUser }) => ({
+        assertExist(userFullProfiles);
+
+        return userFullProfiles.map(({ cursusUser }) => ({
           id: cursusUser.user.id,
           login: cursusUser.user.login,
           imgUrl: cursusUser.user.image.link,

@@ -1,15 +1,16 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { assertExist } from 'src/common/assertExist';
 import type {
   UserPreview,
   UserRank,
 } from 'src/common/models/common.user.model';
+import { partition } from 'src/common/partition';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
   CacheSupportedDateTemplate,
   StatCacheService,
 } from '../cache.service';
-import { partition } from 'src/common/partition';
 
 type KeySelector = (key: string) => boolean;
 type RankingCache = Record<string, UserRank>;
@@ -113,7 +114,7 @@ export class CacheInMemoryService implements StatCacheService {
     }
 
     const cached = rankingStorage.get(reusableKey ?? newKey);
-    assertCacheExist(cached);
+    assertExist(cached);
 
     const dateRange = getDateRangeByDateTemplateFromKey(
       reusableKey,
@@ -260,9 +261,3 @@ const findKeyByDateTemplate = (
       extractKeyBase(key) === keyBase &&
       extractKeyDateTemplate(key) === DateTemplate[dateTemplate],
   );
-
-function assertCacheExist<T>(cache: T | undefined): asserts cache is T {
-  if (!cache) {
-    throw new InternalServerErrorException();
-  }
-}

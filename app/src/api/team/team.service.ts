@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
+import type { QueryArgs } from 'src/common/db/common.db.query';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
 import {
@@ -11,7 +12,7 @@ import {
 import { StatDate } from 'src/statDate/StatDate';
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import { NETWHAT_PREVIEW } from '../project/project.service';
-import { team } from './db/team.database.schema';
+import { TeamDocument, team } from './db/team.database.schema';
 
 @Injectable()
 export class TeamService {
@@ -20,7 +21,35 @@ export class TeamService {
     private teamModel: Model<team>,
   ) {}
 
-  async teamCount(filter?: FilterQuery<team>): Promise<number> {
+  async findAll({
+    filter,
+    select,
+    sort,
+    limit,
+    skip,
+  }: QueryArgs<team>): Promise<TeamDocument[]> {
+    const query = this.teamModel.find(filter ?? {});
+
+    if (sort) {
+      query.sort(sort);
+    }
+
+    if (skip) {
+      query.skip(skip);
+    }
+
+    if (limit) {
+      query.limit(limit);
+    }
+
+    if (select) {
+      query.select(select);
+    }
+
+    return await query;
+  }
+
+  async count(filter?: FilterQuery<team>): Promise<number> {
     if (!filter) {
       return await this.teamModel.estimatedDocumentCount();
     }

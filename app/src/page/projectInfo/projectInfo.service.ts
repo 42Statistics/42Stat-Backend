@@ -35,12 +35,12 @@ export class ProjectInfoService {
   }
 
   async projectTeamInfo(projectId: number): Promise<ProjectTeamInfo> {
-    const currRegisteredTeamCount = await this.teamService.teamCount({
+    const currRegisteredTeamCount = await this.teamService.count({
       projectId: projectId,
       status: 'in_progress',
     });
 
-    const closedTeamCount = await this.teamService.teamCount({
+    const closedTeamCount = await this.teamService.count({
       projectId: projectId,
       $or: [{ status: 'waiting_for_correction' }, { status: 'finished' }],
     });

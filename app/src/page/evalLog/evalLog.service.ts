@@ -3,7 +3,10 @@ import { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { ProjectService } from 'src/api/project/project.service';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
-import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import {
+  OUTSTANDING_FLAG_ID,
+  ScaleTeamService,
+} from 'src/api/scaleTeam/scaleTeam.service';
 import {
   CursorExtractor,
   FieldExtractor,
@@ -77,8 +80,7 @@ export class EvalLogService {
     }
 
     if (outstandingOnly) {
-      // todo: constant
-      filter['flag.id'] = 9;
+      filter['flag.id'] = OUTSTANDING_FLAG_ID;
     }
 
     const totalCount = await this.scaleTeamService.evalCount(filter);

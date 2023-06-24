@@ -36,7 +36,7 @@ export class projects_user {
   status: string;
 
   @Prop({ required: true })
-  teams: team;
+  teams: team[];
 
   @Prop({ required: true })
   updatedAt: Date;

@@ -1,6 +1,8 @@
 import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { ProjectPreview } from 'src/api/project/models/project.preview';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import { Rate } from 'src/common/models/common.rate.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
@@ -103,6 +105,45 @@ export class UserScoreInfo {
   rankInTotal: number;
 }
 
+@ObjectType()
+export class CharacterEffort {
+  @Field()
+  logtimeRank: UserRank;
+
+  @Field()
+  evalCountRank: UserRank;
+
+  @Field()
+  examTryCount: number;
+
+  @Field()
+  projectTryCount: number;
+}
+
+@ObjectType()
+export class CharacterTalent {
+  @Field()
+  levelRank: UserRank;
+
+  @Field()
+  examOneshotRate: Rate;
+
+  @Field()
+  projectOneshotRate: Rate;
+
+  @Field()
+  outstandingRate: Rate;
+}
+
+@ObjectType()
+export class Character {
+  @Field()
+  effort: CharacterEffort;
+
+  @Field()
+  talent: CharacterTalent;
+}
+
 export type PersonalGeneralRoot = Pick<
   PersonalGeneral,
   'userProfile' | 'beginAt' | 'blackholedAt' | 'wallet'
@@ -142,4 +183,7 @@ export class PersonalGeneral {
 
   @Field((_type) => [LevelRecord])
   memberLevelRecords: LevelRecord[];
+
+  @Field({ nullable: true })
+  character: Character;
 }
