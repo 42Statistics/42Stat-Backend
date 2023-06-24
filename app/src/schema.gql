@@ -172,6 +172,16 @@ type HomeEval {
   averageCommentLength: Int!
 }
 
+type Pair {
+  key: String!
+  value: Int!
+}
+
+type Rate {
+  total: Int!
+  fields: [Pair!]!
+}
+
 type UserTeam {
   id: Int!
   name: String!
@@ -239,6 +249,25 @@ type UserScoreInfo {
   rankInTotal: Int!
 }
 
+type CharacterEffort {
+  logtimeRank: UserRank!
+  evalCountRank: UserRank!
+  examTryCount: Int!
+  projectTryCount: Int!
+}
+
+type CharacterTalent {
+  levelRank: UserRank!
+  examOneshotRate: Rate!
+  projectOneshotRate: Rate!
+  outstandingRate: Rate!
+}
+
+type Character {
+  effort: CharacterEffort!
+  talent: CharacterTalent!
+}
+
 type PersonalGeneral {
   userProfile: UserProfile!
   beginAt: DateTime!
@@ -251,16 +280,7 @@ type PersonalGeneral {
   teamInfo: TeamInfo!
   userLevelRecords: [LevelRecord]!
   memberLevelRecords: [LevelRecord!]!
-}
-
-type Pair {
-  key: String!
-  value: Int!
-}
-
-type Rate {
-  total: Int!
-  fields: [Pair!]!
+  character: Character
 }
 
 type ProjectRank {
@@ -292,8 +312,6 @@ type ExamResultDateRanged {
 
 type HomeTeam {
   currRegisteredCountRanking(limit: Int! = 3): [ProjectRank!]!
-
-  """HOME 직전 회차 시험 Rank별 통과율"""
   recentExamResult(after: Int! = 1): ExamResultDateRanged!
 }
 

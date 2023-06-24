@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { FilterQuery, Model } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
+import type { QueryArgs } from 'src/common/db/common.db.query';
 import { ProjectDocument, project } from './db/project.database.schema';
-import { ProjectPreview } from './models/project.preview';
+import type { ProjectPreview } from './models/project.preview';
 
 export const NETWHAT_PREVIEW: ProjectPreview = {
   id: 1318,
@@ -20,12 +21,36 @@ export class ProjectService {
     private projectModel: Model<project>,
   ) {}
 
-  async findAll(filter: FilterQuery<project> = {}): Promise<project[]> {
-    return await this.projectModel.find(filter);
+  async findAll({
+    filter,
+    sort,
+    limit,
+    select,
+    skip,
+  }: QueryArgs<project>): Promise<ProjectDocument[]> {
+    const query = this.projectModel.find(filter ?? {});
+
+    if (sort) {
+      query.sort(sort);
+    }
+
+    if (skip) {
+      query.skip(skip);
+    }
+
+    if (limit) {
+      query.limit(limit);
+    }
+
+    if (select) {
+      query.select(select);
+    }
+
+    return await query;
   }
 
   async findOne(filter?: FilterQuery<project>): Promise<ProjectDocument> {
-    const project = await this.projectModel.findOne(filter);
+    const project = await this.projectModel.findOne({ filter });
 
     if (!project) {
       throw new NotFoundException();
@@ -40,7 +65,7 @@ export class ProjectService {
     const escapedName = name.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
 
     const prefixMatches = await this.findAll({
-      name: new RegExp(`^${escapedName}`, 'i'),
+      filter: { name: new RegExp(`^${escapedName}`, 'i') },
     });
 
     prefixMatches.forEach((prefixMatch) =>
@@ -48,7 +73,7 @@ export class ProjectService {
     );
 
     const matches = await this.findAll({
-      name: new RegExp(escapedName, 'i'),
+      filter: { name: new RegExp(escapedName, 'i') },
     });
 
     matches.forEach((prefixMatch) => result.set(prefixMatch.id, prefixMatch));

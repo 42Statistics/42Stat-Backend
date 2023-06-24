@@ -3,9 +3,13 @@ import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import {
+  DateTemplate,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
 import {
+  Character,
   LevelRecord,
   PersonalGeneral,
   PersonalGeneralRoot,
@@ -98,5 +102,12 @@ export class PersonalGeneralResolver {
   @ResolveField((_returns) => [LevelRecord])
   async memberLevelRecords(): Promise<LevelRecord[]> {
     return await this.personalGeneralService.memberLevelRecords();
+  }
+
+  @ResolveField((_returns) => Character, { nullable: true })
+  async character(
+    @Root() root: PersonalGeneralRoot,
+  ): Promise<Character | null> {
+    return await this.personalGeneralService.character(root.userProfile.id);
   }
 }

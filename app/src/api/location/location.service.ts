@@ -9,6 +9,7 @@ import type {
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PreferredTime } from 'src/page/personal/general/models/personal.general.model';
 import { StatDate } from 'src/statDate/StatDate';
+import { locationDateRangeFilter } from './db/location.database.aggregate';
 import { location } from './db/location.database.schema';
 
 const enum PartitionState {
@@ -122,8 +123,8 @@ export class LocationService {
     return durationTimePerCluster?.cluster ?? null;
   }
 
-  async logtimeByDateRange(
-    { start, end }: DateRange,
+  async logtimePerUserByDateRange(
+    dateRange: DateRange,
     filter?: FilterQuery<location>,
   ): Promise<UserRank[]> {
     const aggregate = this.locationModel.aggregate<{
@@ -136,7 +137,7 @@ export class LocationService {
     const userLogtimes = await aggregate
       .match({
         ...filter,
-        $and: [{ endAt: { $gte: start } }, { beginAt: { $lt: end } }],
+        ...locationDateRangeFilter(dateRange),
       })
       .sort({ beginAt: 1 })
       .group({
@@ -168,12 +169,10 @@ export class LocationService {
         last: 1,
       });
 
-    userLogtimes.forEach((logtime) => sliceLogtime(logtime, { start, end }));
-
     return userLogtimes
       .map((logtime) => ({
         userPreview: logtime.userPreview,
-        value: sliceLogtime(logtime, { start, end }),
+        value: sliceLogtime(logtime, dateRange),
       }))
       .sort((a, b) => b.value - a.value)
       .map((curr, index) => ({
@@ -206,13 +205,13 @@ const toNextPartitionState = (state: PartitionState): PartitionState =>
 
 const initPartitionPoint = (date: Date, state: PartitionState) => {
   const beginPoint = new Date(date);
-  beginPoint.setHours(state * 6, 0, 0, 0);
+  beginPoint.setHours(state * (24 / PartitionState.__STATE_COUNT__), 0, 0, 0);
 
   return beginPoint.getTime();
 };
 
 const toNextPartitionPoint = (partitionPoint: number): number =>
-  partitionPoint + 1000 * 3600 * 6;
+  partitionPoint + StatDate.HOUR * 6;
 
 const sliceLogtime = (
   {
