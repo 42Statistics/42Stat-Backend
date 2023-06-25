@@ -11,6 +11,7 @@ import {
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
+import { CacheService } from 'src/cache/cache.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
@@ -27,6 +28,7 @@ export class HomeUserService {
     private cursusUserCacheService: CursusUserCacheService,
     private questsUserService: QuestsUserService,
     private dateRangeService: DateRangeService,
+    private cacheService: CacheService,
   ) {}
 
   async aliveUserCountRecords(): Promise<IntRecord[]> {
@@ -151,12 +153,16 @@ export class HomeUserService {
       USER_WALLET_RANKING,
     );
 
-    const walletRanking =
-      cachedRanking?.slice(0, limit) ??
-      (await this.cursusUserService.ranking(
-        { sort: { 'user.wallet': -1 }, limit },
-        (doc: CursusUserDocument) => doc.user.wallet,
-      ));
+    const walletRanking = cachedRanking
+      ? cachedRanking
+          .map((cachedRank) =>
+            this.cacheService.extractUserRankFromCache(cachedRank),
+          )
+          .slice(0, limit)
+      : await this.cursusUserService.ranking(
+          { sort: { 'user.wallet': -1 }, limit },
+          (doc: CursusUserDocument) => doc.user.wallet,
+        );
 
     return walletRanking;
   }
@@ -166,17 +172,20 @@ export class HomeUserService {
       USER_CORRECTION_POINT_RANKING,
     );
 
-    return (
-      cachedRanking ??
-      (await this.cursusUserService.ranking(
-        {
-          filter: aliveUserFilter,
-          sort: { 'user.correctionPoint': -1 },
-          limit,
-        },
-        (doc: CursusUserDocument) => doc.user.correctionPoint,
-      ))
-    );
+    return cachedRanking
+      ? cachedRanking
+          .map((cachedRank) =>
+            this.cacheService.extractUserRankFromCache(cachedRank),
+          )
+          .slice(0, limit)
+      : await this.cursusUserService.ranking(
+          {
+            filter: aliveUserFilter,
+            sort: { 'user.correctionPoint': -1 },
+            limit,
+          },
+          (doc: CursusUserDocument) => doc.user.correctionPoint,
+        );
   }
 
   async averageDuerationPerCircle(): Promise<IntPerCircle[]> {

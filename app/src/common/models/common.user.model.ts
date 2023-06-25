@@ -22,10 +22,4 @@ export class UserRank {
 }
 
 @ObjectType()
-export class UserRankWithCoalitionId extends UserRank {
-  @Field()
-  coalitionId: number;
-}
-
-@ObjectType()
 export class UserRankingIndexPaginated extends IndexPaginated(UserRank) {}

@@ -41,7 +41,7 @@ export class MyInfoService {
 
   async myInfoRoot(userId: number): Promise<MyInfoRoot> {
     const cachedUserFullProfile =
-      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+      await this.cursusUserCacheService.getUserFullProfile(userId);
 
     const cursusUser =
       cachedUserFullProfile?.cursusUser ??
@@ -89,10 +89,15 @@ export class MyInfoService {
   }
 
   async experienceRank(userId: number): Promise<number | undefined> {
-    const cachedRanking =
-      await this.experienceUserCacheService.getExpIncreamentRankingCacheByDateTemplate(
+    const cachedRank =
+      await this.experienceUserCacheService.getExpIncreamentRank(
         DateTemplate.CURR_WEEK,
+        userId,
       );
+
+    if (cachedRank) {
+      return cachedRank.rank;
+    }
 
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
@@ -103,17 +108,20 @@ export class MyInfoService {
     };
 
     const expIncreamentRanking =
-      cachedRanking ??
-      (await this.experienceUserService.increamentRanking(dateFilter));
+      await this.experienceUserService.increamentRanking(dateFilter);
 
     return findUserRank(expIncreamentRanking, userId)?.rank;
   }
 
   async scoreRank(userId: number): Promise<number | undefined> {
-    const cachedRanking =
-      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
-        DateTemplate.CURR_WEEK,
-      );
+    const cachedRank = await this.scoreCacheService.getScoreRank(
+      DateTemplate.CURR_WEEK,
+      userId,
+    );
+
+    if (cachedRank) {
+      return cachedRank.rank;
+    }
 
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
@@ -123,17 +131,20 @@ export class MyInfoService {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const ranking =
-      cachedRanking ?? (await this.scoreService.scoreRanking(dateFilter));
+    const ranking = await this.scoreService.scoreRanking(dateFilter);
 
     return findUserRank(ranking, userId)?.rank;
   }
 
   async evalCountRank(userId: number): Promise<number | undefined> {
-    const cachedRanking =
-      await this.scaleTeamCacheService.getEvalCountRankingCacheByDateTemplate(
-        DateTemplate.CURR_WEEK,
-      );
+    const cachedRanking = await this.scaleTeamCacheService.getEvalCountRank(
+      DateTemplate.CURR_WEEK,
+      userId,
+    );
+
+    if (cachedRanking) {
+      return cachedRanking.rank;
+    }
 
     const dateRange = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_WEEK,
@@ -143,9 +154,9 @@ export class MyInfoService {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };
 
-    const evalCountRanking =
-      cachedRanking ??
-      (await this.scaleTeamService.evalCountRanking(dateFilter));
+    const evalCountRanking = await this.scaleTeamService.evalCountRanking(
+      dateFilter,
+    );
 
     return findUserRank(evalCountRanking, userId)?.rank;
   }

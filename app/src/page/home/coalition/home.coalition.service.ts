@@ -21,14 +21,13 @@ export class HomeCoalitionService {
 
   async totalScoresPerCoalition(): Promise<IntPerCoalition[]> {
     const cachedTotalScores =
-      await this.scoreCacheService.getTotalScoresPerCoalitionCache();
+      await this.scoreCacheService.getTotalScoresPerCoalition();
 
     return cachedTotalScores ?? (await this.scoreService.scoresPerCoalition());
   }
 
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
-    const cachedScoreRecords =
-      await this.scoreCacheService.getScoreRecordsCache();
+    const cachedScoreRecords = await this.scoreCacheService.getScoreRecords();
 
     const currMonth = new StatDate().startOfMonth();
     const lastYear = currMonth.moveYear(-1);

@@ -74,7 +74,7 @@ export class HomeEvalService {
 
   async averageFeedbackLength(): Promise<number> {
     const cachedLength =
-      await this.scaleTeamCacheService.getAverageReviewLengthCache(
+      await this.scaleTeamCacheService.getAverageReviewLength(
         AVERAGE_FEEDBACK_LENGTH,
       );
 
@@ -86,7 +86,7 @@ export class HomeEvalService {
 
   async averageCommentLength(): Promise<number> {
     const cachedLength =
-      await this.scaleTeamCacheService.getAverageReviewLengthCache(
+      await this.scaleTeamCacheService.getAverageReviewLength(
         AVERAGE_COMMENT_LENGTH,
       );
 

@@ -1,30 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import type {
-  UserPreview,
-  UserRank,
-} from 'src/common/models/common.user.model';
+import type { UserFullProfile } from 'src/api/cursusUser/db/cursusUser.database.aggregate';
+import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { CacheInMemoryService } from './inMemory/cache.inMemory.service';
 
-export type CacheSupportedDateTemplate = Extract<
+export type CacheSupportedDateTemplate = Exclude<
   DateTemplate,
-  DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.LAST_MONTH
+  DateTemplate.LAST_WEEK | DateTemplate.LAST_YEAR
 >;
+
+export type UserRankCache = UserFullProfile & UserRank;
 
 export interface StatCacheService {
   get: <T>(key: string) => Promise<T | undefined>;
   hGet: <T>(key: string, field: string) => Promise<T | undefined>;
   hGetAll<T>(key: string): Promise<Map<string, T> | undefined>;
-  getRanking: (
-    key: string,
+  getRank: (
+    keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-  ) => Promise<UserRank[] | undefined>;
+    userId: number,
+  ) => Promise<UserRankCache | undefined>;
+  getRanking: (
+    keyBase: string,
+    dateTemplate: CacheSupportedDateTemplate,
+  ) => Promise<UserRankCache[] | undefined>;
   set: (key: string, value: unknown) => Promise<void>;
+  hSet: (key: string, field: string, value: unknown) => Promise<void>;
+  hSetMany: (
+    key: string,
+    elems: { field: string; value: unknown }[],
+  ) => Promise<void>;
   updateRanking: (
     keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-    queryByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
-    initRankingFn: () => Promise<UserPreview[]>,
+    queryDataByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
+    queryTargetUserFullProfileFn: () => Promise<UserFullProfile[]>,
   ) => Promise<void>;
 }
 
@@ -44,38 +54,82 @@ export class CacheService implements StatCacheService {
     return await this.cacheInMemoryService.hGetAll(key);
   }
 
-  async getRanking(
-    key: string,
+  async getRank(
+    keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-  ): Promise<UserRank[] | undefined> {
-    return await this.cacheInMemoryService.getRanking(key, dateTemplate);
+    userId: number,
+  ): Promise<UserRankCache | undefined> {
+    return await this.cacheInMemoryService.getRank(
+      keyBase,
+      dateTemplate,
+      userId,
+    );
   }
 
-  async set(key: string, value: unknown): Promise<void> {
-    await this.cacheInMemoryService.set(key, value);
+  async getRanking(
+    keyBase: string,
+    dateTemplate: CacheSupportedDateTemplate,
+  ): Promise<UserRankCache[] | undefined> {
+    return await this.cacheInMemoryService.getRanking(keyBase, dateTemplate);
   }
 
   /**
    *
    * @description
-   * cache key 의 생성 날짜를 통해 갱신이 필요한지 확인하고, `UserRank[]` cache 를 갱신하거나 새로 만듭니다.
+   * `key` 가 이미 존재하고 있을 경우, `value` 의 값으로 덮어씌워집니다.
+   */
+  async set(key: string, value: unknown): Promise<void> {
+    await this.cacheInMemoryService.set(key, value);
+  }
+
+  async hSet(key: string, field: string, value: unknown): Promise<void> {
+    await this.cacheInMemoryService.hSet(key, field, value);
+  }
+
+  async hSetMany(
+    key: string,
+    elems: { field: string; value: unknown }[],
+  ): Promise<void> {
+    await this.cacheInMemoryService.hSetMany(key, elems);
+  }
+
+  /**
+   *
+   * @description
+   * cache key 의 생성 날짜를 통해 갱신이 필요한지 확인하고, `UserRankCache[]` 를 갱신하거나 새로 만듭니다.
    * 만료된 cache 는 삭제합니다.
    *
-   * @param queryTargetUserPreviewFn
+   * @param queryTargetUserFullProfileFn
    * 기존에 cache 가 없는 경우, 새로 cache 를 생성하기 위해 필요한, 랭킹에 집계되길 원하는
-   * `cursus_user` 들의 `UserPreview` 를 가져오는 함수 입니다.
+   * `cursus_user` 들의 `UserFullProfile` 을 가져오는 함수 입니다.
    */
   async updateRanking(
     keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-    queryByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
-    queryTargetUserPreviewFn: () => Promise<UserPreview[]>,
+    queryDataByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
+    queryTargetUserFullProfileFn: () => Promise<UserFullProfile[]>,
   ): Promise<void> {
     await this.cacheInMemoryService.updateRanking(
       keyBase,
       dateTemplate,
-      queryByDateRangeFn,
-      queryTargetUserPreviewFn,
+      queryDataByDateRangeFn,
+      queryTargetUserFullProfileFn,
     );
+  }
+
+  extractUserRankFromCache({
+    cursusUser,
+    rank,
+    value,
+  }: UserRankCache): UserRank {
+    return {
+      userPreview: {
+        id: cursusUser.user.id,
+        login: cursusUser.user.login,
+        imgUrl: cursusUser.user.image.link,
+      },
+      rank,
+      value,
+    };
   }
 }

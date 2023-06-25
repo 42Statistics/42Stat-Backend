@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import type { RedisClientType } from 'redis';
+import type { UserRankCache } from 'src/cache/cache.service';
+import { CacheService } from 'src/cache/cache.service';
 import type { UserRank } from 'src/common/models/common.user.model';
-import { REDIS_CLIENT } from 'src/redis/redis.module';
-import { RedisUtilService } from 'src/redis/redis.util.service';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { CursusUserService } from './cursusUser.service';
 import type { UserFullProfile } from './db/cursusUser.database.aggregate';
 
@@ -11,31 +11,28 @@ export const USER_WALLET_RANKING = 'userWalletRanking';
 export const USER_LEVEL_RANKING = 'userLevelRanking';
 export const USER_CORRECTION_POINT_RANKING = 'userCorrectionPointRanking';
 
-type RankingType = Awaited<ReturnType<CursusUserService['ranking']>>;
-
 export type UserRankingKey =
   | typeof USER_WALLET_RANKING
   | typeof USER_LEVEL_RANKING
   | typeof USER_CORRECTION_POINT_RANKING;
 
-export const USER_FULL_PROFILE_CACHE = 'userFullProfile';
+export const USER_FULL_PROFILE = 'userFullProfile';
+type UserFullProfileCache = Awaited<
+  ReturnType<CursusUserService['findOneUserFullProfilebyUserId']>
+>;
 
 @Injectable()
 export class CursusUserCacheService {
   constructor(
     private cursusUserService: CursusUserService,
-    @Inject(REDIS_CLIENT)
-    private redisClient: RedisClientType,
-    private redisUtilService: RedisUtilService,
+    private cacheService: CacheService,
   ) {}
 
-  async getUserFullProfileCacheByUserId(
+  async getUserFullProfile(
     userId: number,
-  ): Promise<
-    ReturnType<CursusUserService['findOneUserFullProfilebyUserId']> | undefined
-  > {
-    const cached = await this.redisClient.hGet(
-      USER_FULL_PROFILE_CACHE,
+  ): Promise<UserFullProfileCache | undefined> {
+    const cached = await this.cacheService.hGet<UserFullProfileCache>(
+      USER_FULL_PROFILE,
       userId.toString(),
     );
 
@@ -43,41 +40,45 @@ export class CursusUserCacheService {
       return undefined;
     }
 
-    return JSON.parse(cached, userFullProfileReviver) as Awaited<
-      ReturnType<CursusUserService['findOneUserFullProfilebyUserId']>
-    >;
+    return cached;
   }
 
-  async getAllUserFullProfileCache(): Promise<UserFullProfile[] | undefined> {
-    const cached = await this.redisClient.hGetAll(USER_FULL_PROFILE_CACHE);
-
-    if (!Object.keys(cached).length) {
-      return undefined;
-    }
-
-    return Object.values(cached).map(
-      (cache) => JSON.parse(cache) as UserFullProfile,
+  async getAllUserFullProfile(): Promise<
+    Map<string, UserFullProfileCache> | undefined
+  > {
+    const cached = await this.cacheService.hGetAll<UserFullProfileCache>(
+      USER_FULL_PROFILE,
     );
-  }
-
-  async getUserRanking(key: UserRankingKey): Promise<RankingType | undefined> {
-    const cached = await this.redisClient.get(key);
 
     if (!cached) {
       return undefined;
     }
 
-    return JSON.parse(cached) as RankingType;
+    return cached;
+  }
+
+  async getUserRank(
+    key: UserRankingKey,
+    userId: number,
+  ): Promise<UserRankCache | undefined> {
+    return await this.cacheService.getRank(key, DateTemplate.TOTAL, userId);
+  }
+
+  async getUserRanking(
+    key: UserRankingKey,
+  ): Promise<UserRankCache[] | undefined> {
+    return await this.cacheService.getRanking(key, DateTemplate.TOTAL);
   }
 
   // todo: 빈도 조절
-  @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   // eslint-disable-next-line
-  private async updateCursusUserCache(): Promise<void> {
+  private async updateCursusUser(): Promise<void> {
     console.debug('enter cursusUserCache at', new Date().toLocaleString());
 
     try {
-      await this.updateUserFullProfileCache();
+      await this.updateUserFullProfile();
     } catch (e) {
       console.error('userFullProfileCache', e);
     }
@@ -85,7 +86,7 @@ export class CursusUserCacheService {
     console.debug('leaving cursusUserCache at', new Date().toLocaleString());
   }
 
-  private async updateUserFullProfileCache(): Promise<void> {
+  private async updateUserFullProfile(): Promise<void> {
     const userFullProfiles = await this.cursusUserService.userFullProfile();
 
     const walletRanking = toUserRanking(
@@ -100,41 +101,29 @@ export class CursusUserCacheService {
       (userFullProfile) => userFullProfile.cursusUser.level,
     );
 
-    await this.redisUtilService.replaceHash(
-      this.redisClient,
-      USER_FULL_PROFILE_CACHE,
-      userFullProfiles,
-      (userFullProfile) => userFullProfile.cursusUser.user.id,
-    );
-
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      USER_WALLET_RANKING,
-      walletRanking,
-    );
-
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      USER_LEVEL_RANKING,
-      levelRanking,
-    );
+    await Promise.all([
+      this.cacheService.hSetMany(
+        USER_FULL_PROFILE,
+        userFullProfiles.map((profile) => ({
+          field: profile.cursusUser.user.id.toString(),
+          value: profile,
+        })),
+      ),
+      this.cacheService.updateRanking(
+        USER_WALLET_RANKING,
+        DateTemplate.TOTAL,
+        (_) => Promise.resolve(walletRanking),
+        () => Promise.resolve(userFullProfiles),
+      ),
+      this.cacheService.updateRanking(
+        USER_LEVEL_RANKING,
+        DateTemplate.TOTAL,
+        (_) => Promise.resolve(levelRanking),
+        () => Promise.resolve(userFullProfiles),
+      ),
+    ]);
   }
 }
-
-const userFullProfileReviver: Parameters<typeof JSON.parse>[1] = (
-  key,
-  value,
-) => {
-  if (key === 'createdAt' || key === 'updatedAt' || key === 'beginAt') {
-    return new Date(value);
-  }
-
-  if (key === 'blackholedAt' && value !== null) {
-    return new Date(value);
-  }
-
-  return value;
-};
 
 const toUserRanking = <T extends UserFullProfile>(
   userFullProfiles: T[],

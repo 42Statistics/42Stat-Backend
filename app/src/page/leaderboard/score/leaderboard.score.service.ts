@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
+import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import type { score } from 'src/api/score/db/score.database.schema';
 import {
-  SCORE_RANKING_TOTAL,
   ScoreCacheService,
+  ScoreRankingSupportedDateTemplate,
 } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
+import type { UserRankCache } from 'src/cache/cache.service';
+import { CacheService } from 'src/cache/cache.service';
 import { findUserRank } from 'src/common/findUserRank';
-import type { UserRankWithCoalitionId } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateRangeArgs, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type { RankingArgs } from '../leaderboard.ranking.args';
 import type {
@@ -18,11 +19,6 @@ import type {
 } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
-// 나중에 코알리숑별로 나눌때 활용할 여지가 있다고 생각하여 남겨둡니다
-type ScoreRankingArgs = Omit<RankingArgs<score>, 'cachedRanking'> & {
-  cachedRanking?: UserRankWithCoalitionId[];
-};
-
 @Injectable()
 export class LeaderboardScoreService {
   constructor(
@@ -30,6 +26,7 @@ export class LeaderboardScoreService {
     private scoreService: ScoreService,
     private scoreCacheService: ScoreCacheService,
     private dateRangeService: DateRangeService,
+    private cacheService: CacheService,
   ) {}
 
   async ranking({
@@ -37,9 +34,12 @@ export class LeaderboardScoreService {
     paginationIndexArgs,
     filter,
     cachedRanking,
-  }: ScoreRankingArgs): Promise<LeaderboardElement> {
-    const scoreRanking =
-      cachedRanking ?? (await this.scoreService.scoreRanking(filter));
+  }: RankingArgs<score>): Promise<LeaderboardElement> {
+    const scoreRanking = cachedRanking
+      ? cachedRanking.map((cachedRank) =>
+          this.cacheService.extractUserRankFromCache(cachedRank),
+        )
+      : await this.scoreService.scoreRanking(filter);
 
     const me = findUserRank(scoreRanking, userId);
     const totalRanks = scoreRanking.filter(({ value }) => value >= 0);
@@ -51,23 +51,13 @@ export class LeaderboardScoreService {
     );
   }
 
-  async rankingTotal(userId: number, paginationIndexArgs: PaginationIndexArgs) {
-    const cachedRanking = await this.scoreCacheService.getScoreRankingCache(
-      SCORE_RANKING_TOTAL,
-    );
-
-    return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
-  }
-
   async rankingByDateRange(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateRange: DateRangeArgs,
-    cachedRanking?: UserRankWithCoalitionId[],
+    dateRange: DateRange,
+    cachedRanking?: UserRankCache[],
   ): Promise<LeaderboardElementDateRanged> {
-    const dateFilter: FilterQuery<score> = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
+    const dateFilter = scoreDateRangeFilter(dateRange);
 
     const scoreRanking = await this.ranking({
       userId,
@@ -82,23 +72,13 @@ export class LeaderboardScoreService {
   async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: Extract<
-      DateTemplate,
-      DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
-    >,
+    dateTemplate: ScoreRankingSupportedDateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
+    const cachedRanking = await this.scoreCacheService.getScoreRanking(
+      dateTemplate,
+    );
+
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    if (dateTemplate === DateTemplate.TOTAL) {
-      const rankingTotal = await this.rankingTotal(userId, paginationIndexArgs);
-
-      return this.dateRangeService.toDateRanged(rankingTotal, dateRange);
-    }
-
-    const cachedRanking =
-      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
-        dateTemplate,
-      );
 
     return this.rankingByDateRange(
       userId,

@@ -20,7 +20,7 @@ export class PersonalEvalService {
 
   async pesronalEvalProfile(userId: number): Promise<PersonalEvalRoot> {
     const cachedUserFullProfile =
-      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+      await this.cursusUserCacheService.getUserFullProfile(userId);
 
     const { cursusUser, coalition, titlesUsers } =
       cachedUserFullProfile ??
