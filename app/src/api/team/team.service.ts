@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
@@ -9,10 +9,10 @@ import {
   TeamStatus,
   UserTeam,
 } from 'src/page/personal/general/models/personal.general.model';
-import { StatDate } from 'src/statDate/StatDate';
 import { lookupProjects } from '../project/db/project.database.aggregate';
+import type { project } from '../project/db/project.database.schema';
 import { NETWHAT_PREVIEW } from '../project/project.service';
-import { TeamDocument, team } from './db/team.database.schema';
+import { team, TeamDocument } from './db/team.database.schema';
 
 @Injectable()
 export class TeamService {
@@ -204,8 +204,8 @@ export class TeamService {
 
   async examResult(
     targetBeginAt: Date,
-    nextBeginAt: Date = new StatDate(),
-    projectIds: number[],
+    nextBeginAt: Date,
+    targetProjects: project[],
   ): Promise<ResultPerRank[]> {
     const aggregate = this.teamModel.aggregate<{
       projectId: number;
@@ -213,6 +213,8 @@ export class TeamService {
       passUser: number;
       failUser: number;
     }>();
+
+    const projectIds = targetProjects.map((targetProject) => targetProject.id);
 
     const examResults = await aggregate
       .match({
@@ -232,11 +234,13 @@ export class TeamService {
         failUser: { $subtract: ['$total', '$passUser'] },
       });
 
-    return projectIds.map((id) => {
-      const examResult = examResults.find((result) => result.projectId === id);
+    return targetProjects.map((project) => {
+      const examResult = examResults.find(
+        ({ projectId }) => project.id === projectId,
+      );
 
       return {
-        rank: id,
+        rank: parseInt(project.name[project.name.length - 1]),
         rate: {
           total: examResult?.total ?? 0,
           fields: [
