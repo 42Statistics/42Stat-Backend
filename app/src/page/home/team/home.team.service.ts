@@ -1,14 +1,20 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ExamDocument } from 'src/api/exam/db/exam.database.schema';
+import type { ExamDocument } from 'src/api/exam/db/exam.database.schema';
 import { ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
+import { StatDate } from 'src/statDate/StatDate';
 import type {
   ExamResult,
   ExamResultDateRanged,
   ProjectRank,
 } from './models/home.team.model';
+
+type selectedExamDocument = Pick<
+  ExamDocument,
+  'beginAt' | 'endAt' | 'location' | 'maxPeople' | 'name' | 'projects'
+>;
 
 @Injectable()
 export class HomeTeamService {
@@ -24,10 +30,7 @@ export class HomeTeamService {
   }
 
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
-    const recentExams: Pick<
-      ExamDocument,
-      'beginAt' | 'endAt' | 'location' | 'maxPeople' | 'name' | 'projects'
-    >[] = await this.examService.findAll({
+    const recentExams: selectedExamDocument[] = await this.examService.findAll({
       select: {
         beginAt: 1,
         endAt: 1,
@@ -38,29 +41,25 @@ export class HomeTeamService {
       },
       sort: { beginAt: -1 },
       skip: Math.max(after - 2, 0),
-      limit: isFirstExam(after) ? 1 : 2,
+      limit: isRecentExam(after) ? 1 : 2,
     });
 
-    if (!recentExams.length) {
+    const [targetExam, nextExam] = recentExams;
+
+    if (outBoundIndex(nextExam, after)) {
       throw new NotFoundException();
     }
 
-    const [firstExam, secondExam] = recentExams;
+    const targetBeginAt = nextExam ? nextExam.beginAt : targetExam.beginAt;
 
-    const targetBeginAt = secondExam ? secondExam.beginAt : firstExam.beginAt;
+    const nextBeginAt = nextExam ? targetExam.beginAt : new StatDate();
 
-    const nextBeginAt = secondExam ? firstExam.beginAt : undefined;
-
-    const targetProjects = secondExam
-      ? secondExam.projects
-      : firstExam.projects;
-
-    const projectIds = targetProjects.map((item) => item.id);
+    const targetProjects = nextExam ? nextExam.projects : targetExam.projects;
 
     const resultPerRank = await this.teamService.examResult(
       targetBeginAt,
       nextBeginAt,
-      projectIds,
+      targetProjects,
     );
 
     const nbrSubscribers = resultPerRank.reduce(
@@ -74,7 +73,7 @@ export class HomeTeamService {
       location,
       maxPeople = 0,
       name,
-    } = secondExam ?? firstExam;
+    } = nextExam ?? targetExam;
 
     const result: ExamResult = {
       resultPerRank,
@@ -93,4 +92,8 @@ export class HomeTeamService {
   }
 }
 
-const isFirstExam = (after: number): boolean => after === 1;
+const isRecentExam = (after: number): boolean => after === 1;
+const outBoundIndex = (
+  nextExam: selectedExamDocument,
+  after: number,
+): boolean => !nextExam && !isRecentExam(after);
