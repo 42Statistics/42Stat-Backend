@@ -3,10 +3,7 @@ import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import {
-  DateTemplate,
-  DateTemplateArgs,
-} from 'src/dateRange/dtos/dateRange.dto';
+import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
 import {
   Character,

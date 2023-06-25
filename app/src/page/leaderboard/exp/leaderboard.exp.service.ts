@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
-import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
+import {
+  ExpIncreamentRankingCacheSupportedDateTemplate,
+  ExperienceUserCacheService,
+} from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
+import { CacheService, UserRankCache } from 'src/cache/cache.service';
 import { findUserRank } from 'src/common/findUserRank';
-import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
 import type { RankingArgs } from '../leaderboard.ranking.args';
 import type {
@@ -22,6 +25,7 @@ export class LeaderboardExpService {
     private experienceUserService: ExperienceUserService,
     private experienceUserCacheService: ExperienceUserCacheService,
     private dateRangeService: DateRangeService,
+    private cacheService: CacheService,
   ) {}
 
   async ranking({
@@ -30,9 +34,11 @@ export class LeaderboardExpService {
     filter,
     cachedRanking,
   }: RankingArgs<experience_user>): Promise<LeaderboardElement> {
-    const expRanking =
-      cachedRanking ??
-      (await this.experienceUserService.increamentRanking(filter));
+    const expRanking = cachedRanking
+      ? cachedRanking.map((cachedRank) =>
+          this.cacheService.extractUserRankFromCache(cachedRank),
+        )
+      : await this.experienceUserService.increamentRanking(filter);
 
     const me = findUserRank(expRanking, userId);
 
@@ -47,7 +53,7 @@ export class LeaderboardExpService {
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRange,
-    cachedRanking?: UserRank[],
+    cachedRanking?: UserRankCache[],
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter: FilterQuery<experience_user> = {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
@@ -66,10 +72,7 @@ export class LeaderboardExpService {
   async rankingByDateTemplate(
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: Extract<
-      DateTemplate,
-      DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
-    >,
+    dateTemplate: ExpIncreamentRankingCacheSupportedDateTemplate,
   ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
@@ -77,7 +80,7 @@ export class LeaderboardExpService {
       userId,
       paginationIndexArgs,
       dateRange,
-      await this.experienceUserCacheService.getExpIncreamentRankingCacheByDateTemplate(
+      await this.experienceUserCacheService.getExpIncreamentRanking(
         dateTemplate,
       ),
     );

@@ -13,6 +13,7 @@ export class DateRangeService {
     };
   }
 
+  // todo: lambda updated at
   dateRangeFromTemplate(dateTemplate: DateTemplate): DateRangeArgs {
     const now = new StatDate();
 

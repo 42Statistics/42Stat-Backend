@@ -7,6 +7,7 @@ import { ProjectsUserModule } from 'src/api/projectsUser/projectsUser.module';
 import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
 import { ScoreModule } from 'src/api/score/score.module';
 import { TeamModule } from 'src/api/team/team.module';
+import { CacheModule } from 'src/cache/cache.module';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { PersonalUtilModule } from '../util/personal.util.module';
 import { PersonalGeneralResolver } from './personal.general.resolver';
@@ -24,6 +25,7 @@ import { PersonalGeneralService } from './personal.general.service';
     ProjectModule,
     ExperienceUserModule,
     DateRangeModule,
+    CacheModule,
   ],
   providers: [PersonalGeneralResolver, PersonalGeneralService],
 })

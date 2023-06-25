@@ -1,33 +1,27 @@
 import { Injectable } from '@nestjs/common';
+import { UserFullProfile } from 'src/api/cursusUser/db/cursusUser.database.aggregate';
 import { assertExist } from 'src/common/assertExist';
-import type {
-  UserPreview,
-  UserRank,
-} from 'src/common/models/common.user.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import { partition } from 'src/common/partition';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
   CacheSupportedDateTemplate,
   StatCacheService,
+  UserRankCache,
 } from '../cache.service';
 
-type KeySelector = (key: string) => boolean;
-type RankingCache = Record<string, UserRank>;
+type KeySelector = (currKey: string, keyBase: string) => boolean;
+type UserRankingStorage = Map<number, UserRankCache>;
 
 // eslint-disable-next-line
 const normalStorage = new Map<string, any>();
-const rankingStorage = new Map<string, RankingCache>();
+const rankingStorage = new Map<string, UserRankingStorage>();
 // eslint-disable-next-line
 const hashStorage = new Map<string, Map<string, any>>();
 
 @Injectable()
 export class CacheInMemoryService implements StatCacheService {
-  // todo: dev
-  listKeys() {
-    console.log([...rankingStorage.keys()]);
-  }
-
   get<T>(key: string): Promise<T | undefined> {
     return Promise.resolve(normalStorage.get(key));
   }
@@ -40,10 +34,24 @@ export class CacheInMemoryService implements StatCacheService {
     return Promise.resolve(hashStorage.get(key));
   }
 
+  getRank(
+    keyBase: string,
+    dateTemplate: CacheSupportedDateTemplate,
+    userId: number,
+  ): Promise<UserRankCache | undefined> {
+    const cacheKey = findKeyByDateTemplate(keyBase, dateTemplate);
+
+    if (!cacheKey) {
+      return Promise.resolve(undefined);
+    }
+
+    return Promise.resolve(rankingStorage.get(cacheKey)?.get(userId));
+  }
+
   getRanking(
     keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-  ): Promise<UserRank[] | undefined> {
+  ): Promise<UserRankCache[] | undefined> {
     const cacheKey = findKeyByDateTemplate(keyBase, dateTemplate);
 
     if (!cacheKey) {
@@ -51,14 +59,15 @@ export class CacheInMemoryService implements StatCacheService {
     }
 
     const rankingCache = rankingStorage.get(cacheKey) as
-      | RankingCache
+      | UserRankingStorage
       | undefined;
+
     if (!rankingCache) {
       return Promise.resolve(undefined);
     }
 
     return Promise.resolve(
-      Object.values(rankingCache).sort((a, b) => a.rank - b.rank),
+      [...rankingCache.values()].sort((a, b) => a.rank - b.rank),
     );
   }
 
@@ -68,16 +77,44 @@ export class CacheInMemoryService implements StatCacheService {
     return Promise.resolve();
   }
 
+  async hSet(key: string, field: string, value: unknown): Promise<void> {
+    if (!hashStorage.has(key)) {
+      hashStorage.set(key, new Map());
+    }
+
+    const currMap = hashStorage.get(key);
+    assertExist(currMap);
+
+    currMap.set(field, value);
+  }
+
+  async hSetMany<T>(
+    key: string,
+    elems: { field: string; value: T }[],
+  ): Promise<void> {
+    if (!hashStorage.has(key)) {
+      hashStorage.set(key, new Map());
+    }
+
+    const currMap = hashStorage.get(key);
+    assertExist(currMap);
+
+    elems.forEach(({ field, value }) => currMap.set(field, value));
+  }
+
   async updateRanking(
     keyBase: string,
     dateTemplate: CacheSupportedDateTemplate,
-    queryByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
-    queryTargetUserPreview: () => Promise<UserPreview[]>,
+    queryDataByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
+    queryTargetUserFullProfile: () => Promise<UserFullProfile[]>,
   ): Promise<void> {
     const lambdaUpdatedAt = await getLambdaUpdatedAt();
 
     const keySelector = getKeySelectorByDateTempate(dateTemplate);
-    const oldKeys = [...rankingStorage.keys()].filter(keySelector);
+    const oldKeys = [...rankingStorage.keys()].filter((key) =>
+      keySelector(key, keyBase),
+    );
+
     const [staleKeys, reusableKeys] = partition(oldKeys, (key) =>
       isStaleKey(key, dateTemplate),
     );
@@ -97,20 +134,24 @@ export class CacheInMemoryService implements StatCacheService {
     }
 
     if (!reusableKey) {
-      const userPreviews = await queryTargetUserPreview();
+      const userFullProfiles = await queryTargetUserFullProfile();
 
-      rankingStorage.set(
-        newKey,
-        userPreviews.reduce((cache, userPreview) => {
-          cache[userPreview.id] = {
-            userPreview,
-            rank: 1,
-            value: 0,
-          };
+      const newRankingMap = new Map() as UserRankingStorage;
 
-          return cache;
-        }, {} as RankingCache),
-      );
+      userFullProfiles.forEach((userFullProfile) => {
+        newRankingMap.set(userFullProfile.cursusUser.user.id, {
+          ...userFullProfile,
+          userPreview: {
+            id: userFullProfile.cursusUser.user.id,
+            login: userFullProfile.cursusUser.user.login,
+            imgUrl: userFullProfile.cursusUser.user.image.link,
+          },
+          rank: 1,
+          value: 0,
+        });
+      });
+
+      rankingStorage.set(newKey, newRankingMap);
     }
 
     const cached = rankingStorage.get(reusableKey ?? newKey);
@@ -122,13 +163,16 @@ export class CacheInMemoryService implements StatCacheService {
       lambdaUpdatedAt,
     );
 
-    const datas = await queryByDateRangeFn(dateRange);
+    const datas = await queryDataByDateRangeFn(dateRange);
 
     datas.forEach(({ userPreview, value }) => {
-      cached[userPreview.id].value += value;
+      const userRank = cached.get(userPreview.id);
+      assertExist(userRank);
+
+      userRank.value += value;
     });
 
-    Object.values(cached)
+    [...cached.values()]
       .sort((a, b) => b.value - a.value)
       .forEach((curr, index) => {
         curr.rank = index + 1;
@@ -155,6 +199,7 @@ const buildKeyByDateTemplate = (
   switch (dateTemplate) {
     case DateTemplate.TOTAL:
     case DateTemplate.CURR_MONTH:
+    case DateTemplate.CURR_WEEK:
       return buildKey(
         keyBase,
         DateTemplate[dateTemplate],
@@ -190,13 +235,20 @@ const extractKeyDate = (key: string): Date => {
   return new Date(parseInt(keyTimePartString));
 };
 
-const isTotalKey: KeySelector = (key): boolean =>
+const isTotalKey: KeySelector = (key, keyBase) =>
+  extractKeyBase(key) === keyBase &&
   extractKeyDateTemplate(key) === DateTemplate[DateTemplate.TOTAL];
 
-const isCurrMonthKey: KeySelector = (key): boolean =>
+const isCurrMonthKey: KeySelector = (key, keyBase) =>
+  extractKeyBase(key) === keyBase &&
   extractKeyDateTemplate(key) === DateTemplate[DateTemplate.CURR_MONTH];
 
-const isLastMonthKey: KeySelector = (key): boolean =>
+const isCurrWeekKey: KeySelector = (key, keyBase) =>
+  extractKeyBase(key) === keyBase &&
+  extractKeyDateTemplate(key) === DateTemplate[DateTemplate.CURR_WEEK];
+
+const isLastMonthKey: KeySelector = (key, keyBase) =>
+  extractKeyBase(key) === keyBase &&
   extractKeyDateTemplate(key) === DateTemplate[DateTemplate.LAST_MONTH];
 
 const isStaleKey = (
@@ -208,6 +260,8 @@ const isStaleKey = (
       return false;
     case DateTemplate.CURR_MONTH:
       return extractKeyDate(key).getTime() < StatDate.currMonth().getTime();
+    case DateTemplate.CURR_WEEK:
+      return extractKeyDate(key).getTime() < StatDate.currWeek().getTime();
     case DateTemplate.LAST_MONTH:
       return extractKeyDate(key).getTime() !== StatDate.lastMonth().getTime();
   }
@@ -215,12 +269,14 @@ const isStaleKey = (
 
 const getKeySelectorByDateTempate = (
   dateTemplate: CacheSupportedDateTemplate,
-) => {
+): KeySelector => {
   switch (dateTemplate) {
     case DateTemplate.TOTAL:
       return isTotalKey;
     case DateTemplate.CURR_MONTH:
       return isCurrMonthKey;
+    case DateTemplate.CURR_WEEK:
+      return isCurrWeekKey;
     case DateTemplate.LAST_MONTH:
       return isLastMonthKey;
   }
@@ -238,6 +294,9 @@ const getDateRangeByDateTemplateFromKey = (
       break;
     case DateTemplate.CURR_MONTH:
       start = key ? extractKeyDate(key) : StatDate.currMonth();
+      break;
+    case DateTemplate.CURR_WEEK:
+      start = key ? extractKeyDate(key) : StatDate.currWeek();
       break;
     case DateTemplate.LAST_MONTH:
       start = StatDate.lastMonth();

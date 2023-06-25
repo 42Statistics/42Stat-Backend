@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ExperienceUserModule } from 'src/api/experienceUser/experienceUser.module';
+import { CacheModule } from 'src/cache/cache.module';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
-import { RedisModule } from 'src/redis/redis.module';
 import { LeaderboardUtilModule } from '../util/leaderboard.util.module';
 import { LeaderboardExpResolver } from './leaderboard.exp.resolver';
 import { LeaderboardExpService } from './leaderboard.exp.service';
@@ -11,7 +11,7 @@ import { LeaderboardExpService } from './leaderboard.exp.service';
     LeaderboardUtilModule,
     ExperienceUserModule,
     DateRangeModule,
-    RedisModule,
+    CacheModule,
   ],
   providers: [LeaderboardExpResolver, LeaderboardExpService],
 })

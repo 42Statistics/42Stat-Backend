@@ -14,10 +14,7 @@ import { LocationService } from 'src/api/location/location.service';
 import type { project } from 'src/api/project/db/project.database.schema';
 import { ProjectService } from 'src/api/project/project.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
-import {
-  EVAL_COUNT_RANKING_TOTAL,
-  ScaleTeamCacheService,
-} from 'src/api/scaleTeam/scaleTeam.cache.service';
+import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import {
   OUTSTANDING_FLAG_ID,
   ScaleTeamService,
@@ -25,8 +22,8 @@ import {
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheService } from 'src/cache/cache.service';
 import { assertExist } from 'src/common/assertExist';
-import { findUserRank } from 'src/common/findUserRank';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -61,6 +58,7 @@ export class PersonalGeneralService {
     private projectService: ProjectService,
     private projectsUserService: ProjectsUserService,
     private dateRangeService: DateRangeService,
+    private cacheService: CacheService,
   ) {}
 
   async findUserIdByLogin(login: string): Promise<number> {
@@ -71,7 +69,7 @@ export class PersonalGeneralService {
 
   async personalGeneralProfile(userId: number): Promise<PersonalGeneralRoot> {
     const cachedUserFullProfile =
-      await this.cursusUserCacheService.getUserFullProfileCacheByUserId(userId);
+      await this.cursusUserCacheService.getUserFullProfile(userId);
 
     const userFullProfile =
       cachedUserFullProfile ??
@@ -105,10 +103,9 @@ export class PersonalGeneralService {
   async scoreInfo(userId: number): Promise<UserScoreInfo> {
     const dateTemplate = DateTemplate.CURR_MONTH;
 
-    const cachedScoreRanking =
-      await this.scoreCacheService.getScoreRankingCacheByDateTemplate(
-        dateTemplate,
-      );
+    const scoreRankingCache = await this.scoreCacheService.getScoreRanking(
+      dateTemplate,
+    );
 
     const dateFilter = {
       createdAt: this.dateRangeService.aggrFilterFromDateRange(
@@ -117,18 +114,19 @@ export class PersonalGeneralService {
     };
 
     const scoreRanking =
-      cachedScoreRanking ?? (await this.scoreService.scoreRanking(dateFilter));
+      scoreRankingCache ?? (await this.scoreService.scoreRanking(dateFilter));
 
     const me = scoreRanking.find(
       ({ userPreview }) => userPreview.id === userId,
     );
+
     if (!me) {
       throw new NotFoundException();
     }
 
     const coalitionRank =
       scoreRanking
-        .filter(({ coalitionId }) => coalitionId === me?.coalitionId)
+        .filter(({ coalition }) => coalition.id === me.coalition.id)
         .findIndex(({ userPreview }) => userPreview.id === userId) + 1;
 
     return {
@@ -259,14 +257,16 @@ export class PersonalGeneralService {
         select: { id: 1 },
       });
 
-      const evalCountRanking =
-        await this.scaleTeamCacheService.getEvalCountRankingCache(
-          EVAL_COUNT_RANKING_TOTAL,
+      const evalCountRankCache =
+        await this.scaleTeamCacheService.getEvalCountRank(
+          DateTemplate.TOTAL,
+          userId,
         );
 
-      assertExist(evalCountRanking);
-      const evalCountRank = findUserRank(evalCountRanking, userId);
-      assertExist(evalCountRank);
+      assertExist(evalCountRankCache);
+
+      const evalCountRank =
+        this.cacheService.extractUserRankFromCache(evalCountRankCache);
 
       return {
         effort: await this.characterEffort(userId, examProjects, evalCountRank),
@@ -282,14 +282,15 @@ export class PersonalGeneralService {
     examProjects: Pick<project, 'id'>[],
     evalCountRank: UserRank,
   ): Promise<CharacterEffort> {
-    const logtimeRanking =
-      await this.locationCacheService.getLogtimeRankingCacheByDateTemplate(
-        DateTemplate.TOTAL,
-      );
+    const logtimeRankCache = await this.locationCacheService.getLogtimeRank(
+      DateTemplate.TOTAL,
+      userId,
+    );
 
-    assertExist(logtimeRanking);
-    const logtimeRank = findUserRank(logtimeRanking, userId);
-    assertExist(logtimeRank);
+    assertExist(logtimeRankCache);
+
+    const logtimeRank =
+      this.cacheService.extractUserRankFromCache(logtimeRankCache);
 
     const teams = await this.teamService.findAll({
       filter: {
@@ -320,13 +321,15 @@ export class PersonalGeneralService {
     examProjects: Pick<project, 'id'>[],
     evalCountRank: UserRank,
   ): Promise<CharacterTalent> {
-    const levelRanking = await this.cursusUserCacheService.getUserRanking(
+    const levelRankCache = await this.cursusUserCacheService.getUserRank(
       USER_LEVEL_RANKING,
+      userId,
     );
 
-    assertExist(levelRanking);
-    const levelRank = findUserRank(levelRanking, userId);
-    assertExist(levelRank);
+    assertExist(levelRankCache);
+
+    const levelRank =
+      this.cacheService.extractUserRankFromCache(levelRankCache);
 
     const projectsUsers = await this.projectsUserService.findAll({
       filter: { 'user.id': userId },

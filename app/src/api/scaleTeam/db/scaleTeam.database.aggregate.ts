@@ -1,9 +1,17 @@
+import type { FilterQuery } from 'mongoose';
 import {
   CollectionLookup,
   lookupStage,
 } from 'src/common/db/common.db.aggregation';
-// eslint-disable-next-line
 import type { scale_team } from './scaleTeam.database.schema';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
+
+export const evalCountDateRangeFilter = ({
+  start,
+  end,
+}: DateRange): FilterQuery<scale_team> => ({
+  beginAt: { $gte: start, $lt: end },
+});
 
 /**
  *

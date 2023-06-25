@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   backend:
@@ -13,21 +13,10 @@ services:
         source: backend-app
         target: /app
     ports:
-      - '80:80'
+      - "80:80"
     entrypoint: sh /tmp/entry.sh
     env_file:
       - env/.env
-
-  redis:
-    container_name: redis
-    build:
-      context: redis
-      dockerfile: Dockerfile
-    networks:
-      - internal
-    entrypoint: sh /tmp/entry.sh
-    volumes:
-      - redis-log:/data
 
 networks:
   internal:
@@ -40,13 +29,5 @@ volumes:
     driver: local
     driver_opts:
       device: ./app
-      type: none
-      o: bind
-
-  redis-log:
-    name: redis-log
-    driver: local
-    driver_opts:
-      device: ./redis/redis-log
       type: none
       o: bind

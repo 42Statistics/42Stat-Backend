@@ -1,25 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common';
-import type { RedisClientType } from 'redis';
-import { ScoreService } from './score.service';
-import { REDIS_CLIENT } from 'src/redis/redis.module';
-import { RedisUtilService } from 'src/redis/redis.util.service';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { StatDate } from 'src/statDate/StatDate';
-import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import type { UserRankCache } from 'src/cache/cache.service';
+import {
+  CacheService,
+  CacheSupportedDateTemplate,
+} from 'src/cache/cache.service';
+import { assertExist } from 'src/common/assertExist';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { StatDate } from 'src/statDate/StatDate';
 import { SEOUL_COALITION_ID } from '../coalition/coalition.service';
+import { CursusUserCacheService } from '../cursusUser/cursusUser.cache.service';
+import { scoreDateRangeFilter } from './db/score.database.aggregate';
+import { ScoreService } from './score.service';
 
 const SCORE_RANKING = 'scoreRanking';
-export const SCORE_RANKING_TOTAL = SCORE_RANKING + ':total';
-export const SCORE_RANKING_MONTHLY = SCORE_RANKING + ':monthly';
-export const SCORE_RANKING_WEEKLY = SCORE_RANKING + ':weekly';
 export const TOTAL_SCORES_BY_COALITION = 'totalScoresByCoalition';
 export const SCORE_RECORDS = 'scoreRecords';
 
-export type ScoreRankCacheKey =
-  | typeof SCORE_RANKING_TOTAL
-  | typeof SCORE_RANKING_MONTHLY
-  | typeof SCORE_RANKING_WEEKLY;
+export type ScoreRankingSupportedDateTemplate = Extract<
+  CacheSupportedDateTemplate,
+  DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
+>;
 
 export type ScoreRecordsKey = typeof SCORE_RECORDS;
 
@@ -28,85 +30,55 @@ export class ScoreCacheService {
   constructor(
     private scoreService: ScoreService,
     private dateRangeServie: DateRangeService,
-    @Inject(REDIS_CLIENT)
-    private redisClient: RedisClientType,
-    private redisUtilService: RedisUtilService,
+    private cursusUserCacheService: CursusUserCacheService,
+    private cacheService: CacheService,
   ) {}
 
-  async getScoreRankingCache(
-    key: ScoreRankCacheKey,
-  ): Promise<ReturnType<ScoreService['scoreRanking']> | undefined> {
-    const cached = await this.redisClient.get(key);
-
-    if (!cached) {
-      return undefined;
-    }
-
-    return JSON.parse(cached) as Awaited<
-      ReturnType<ScoreService['scoreRanking']>
-    >;
+  async getScoreRank(
+    dateTemplate: ScoreRankingSupportedDateTemplate,
+    userId: number,
+  ): Promise<UserRankCache | undefined> {
+    return await this.cacheService.getRank(SCORE_RANKING, dateTemplate, userId);
   }
 
-  async getScoreRankingCacheByDateTemplate(
-    dateTemplate: DateTemplate,
-  ): Promise<ReturnType<ScoreService['scoreRanking']> | undefined> {
-    const cacheKey = selectScoreRankCacheKeyByDateTemplate(dateTemplate);
-
-    return cacheKey ? await this.getScoreRankingCache(cacheKey) : undefined;
+  async getScoreRanking(
+    dateTemplate: ScoreRankingSupportedDateTemplate,
+  ): Promise<UserRankCache[] | undefined> {
+    return await this.cacheService.getRanking(SCORE_RANKING, dateTemplate);
   }
 
-  async getTotalScoresPerCoalitionCache(): Promise<
+  async getTotalScoresPerCoalition(): Promise<
     ReturnType<ScoreService['scoresPerCoalition']> | undefined
   > {
-    const cached = await this.redisClient.get(TOTAL_SCORES_BY_COALITION);
-
-    if (!cached) {
-      return undefined;
-    }
-
-    return JSON.parse(cached) as Promise<
-      ReturnType<ScoreService['scoresPerCoalition']> | undefined
-    >;
+    return await this.cacheService.get(TOTAL_SCORES_BY_COALITION);
   }
 
-  async getScoreRecordsCache(): Promise<
+  async getScoreRecords(): Promise<
     ReturnType<ScoreService['scoreRecordsPerCoalition']> | undefined
   > {
-    const cached = await this.redisClient.get(SCORE_RECORDS);
-
-    if (!cached) {
-      return undefined;
-    }
-
-    return JSON.parse(cached, (key, value) => {
-      if (key === 'at') {
-        return new Date(value);
-      }
-
-      return value;
-    }) as Awaited<ReturnType<ScoreService['scoreRecordsPerCoalition']>>;
+    return await this.cacheService.get(SCORE_RECORDS);
   }
 
   // todo: prod 때 빈도 늘리기
   @Cron(CronExpression.EVERY_MINUTE)
   // eslint-disable-next-line
-  private async updateScoreCache(): Promise<void> {
+  private async updateScore(): Promise<void> {
     console.debug('enter scoreCache at', new Date().toLocaleString());
 
     try {
-      await this.updateScoreRankingCache();
+      await this.updateScoreRanking();
     } catch (e) {
       console.error('scoreRanking', e);
     }
 
     try {
-      await this.updateTotalScoresPerCoalitionCache();
+      await this.updateTotalScoresPerCoalition();
     } catch (e) {
       console.error('totalScoresPerCoalition', e);
     }
 
     try {
-      await this.updateScoreRecordsCache();
+      await this.updateScoreRecords();
     } catch (e) {
       console.error('scoreRecords', e);
     }
@@ -114,50 +86,40 @@ export class ScoreCacheService {
     console.debug('leavning scoreCache at', new Date().toLocaleString());
   }
 
-  private async updateScoreRankingCache(): Promise<void> {
-    const currMonth = StatDate.currMonth();
-    const nextMonth = StatDate.nextMonth();
-    const currWeek = StatDate.currWeek();
-    const nextWeek = StatDate.nextWeek();
+  private async updateScoreRanking(): Promise<void> {
+    await Promise.all([
+      await this.updateScoreRankingCacheByDateTemplate(DateTemplate.TOTAL),
+      await this.updateScoreRankingCacheByDateTemplate(DateTemplate.CURR_MONTH),
+      await this.updateScoreRankingCacheByDateTemplate(DateTemplate.CURR_WEEK),
+    ]);
+  }
 
-    const total = await this.scoreService.scoreRanking();
-    const monthly = await this.scoreService.scoreRanking({
-      createdAt: { $gte: currMonth, $lt: nextMonth },
-    });
-    const weekly = await this.scoreService.scoreRanking({
-      createdAt: { $gte: currWeek, $lt: nextWeek },
-    });
+  private async updateScoreRankingCacheByDateTemplate(
+    dateTemplate: ScoreRankingSupportedDateTemplate,
+  ): Promise<void> {
+    await this.cacheService.updateRanking(
+      SCORE_RANKING,
+      dateTemplate,
+      async (dateRange) =>
+        await this.scoreService.scoreRanking(scoreDateRangeFilter(dateRange)),
+      async () => {
+        const userFullProfiles =
+          await this.cursusUserCacheService.getAllUserFullProfile();
 
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      SCORE_RANKING_TOTAL,
-      total,
-    );
+        assertExist(userFullProfiles);
 
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      SCORE_RANKING_MONTHLY,
-      monthly,
-    );
-
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      SCORE_RANKING_WEEKLY,
-      weekly,
+        return [...userFullProfiles.values()];
+      },
     );
   }
 
-  private async updateTotalScoresPerCoalitionCache(): Promise<void> {
+  private async updateTotalScoresPerCoalition(): Promise<void> {
     const totalScores = await this.scoreService.scoresPerCoalition();
 
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      TOTAL_SCORES_BY_COALITION,
-      totalScores,
-    );
+    await this.cacheService.set(TOTAL_SCORES_BY_COALITION, totalScores);
   }
 
-  private async updateScoreRecordsCache(): Promise<void> {
+  private async updateScoreRecords(): Promise<void> {
     const currMonth = StatDate.currMonth();
     const lastYear = currMonth.moveYear(-1);
 
@@ -172,23 +134,6 @@ export class ScoreCacheService {
       coalitionId: { $in: SEOUL_COALITION_ID },
     });
 
-    await this.redisUtilService.replaceKey(
-      this.redisClient,
-      SCORE_RECORDS,
-      scoreRecords,
-    );
+    await this.cacheService.set(SCORE_RECORDS, scoreRecords);
   }
 }
-
-const selectScoreRankCacheKeyByDateTemplate = (
-  dateTemplate: DateTemplate,
-): ScoreRankCacheKey | undefined => {
-  switch (dateTemplate) {
-    case DateTemplate.CURR_MONTH:
-      return SCORE_RANKING_MONTHLY;
-    case DateTemplate.CURR_WEEK:
-      return SCORE_RANKING_WEEKLY;
-    default:
-      return undefined;
-  }
-};

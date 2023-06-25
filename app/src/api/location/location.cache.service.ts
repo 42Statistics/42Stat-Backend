@@ -1,14 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import type { UserRankCache } from 'src/cache/cache.service';
 import {
   CacheService,
   CacheSupportedDateTemplate,
 } from 'src/cache/cache.service';
 import { assertExist } from 'src/common/assertExist';
-import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { CursusUserCacheService } from '../cursusUser/cursusUser.cache.service';
 import { LocationService } from './location.service';
+
+export type LogtimeRankingCacheSupportedDateTemplate = Extract<
+  CacheSupportedDateTemplate,
+  DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.LAST_MONTH
+>;
 
 const LOGTIME_RANKING = 'logtimeRanking';
 
@@ -20,16 +25,27 @@ export class LocationCacheService {
     private cursusUserCacheService: CursusUserCacheService,
   ) {}
 
-  async getLogtimeRankingCacheByDateTemplate(
-    dateTemplate: CacheSupportedDateTemplate,
-  ): Promise<UserRank[] | undefined> {
+  async getLogtimeRank(
+    dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
+    userId: number,
+  ): Promise<UserRankCache | undefined> {
+    return await this.cacheService.getRank(
+      LOGTIME_RANKING,
+      dateTemplate,
+      userId,
+    );
+  }
+
+  async getLogtimeRanking(
+    dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
+  ): Promise<UserRankCache[] | undefined> {
     return await this.cacheService.getRanking(LOGTIME_RANKING, dateTemplate);
   }
 
   // todo: 간격 조절
   @Cron(CronExpression.EVERY_MINUTE)
   // eslint-disable-next-line
-  private async updateLocationCache(): Promise<void> {
+  private async updateLocation(): Promise<void> {
     console.debug('enter locationCache', new Date());
 
     try {
@@ -41,7 +57,7 @@ export class LocationCacheService {
     console.debug('leaving locationCache', new Date());
   }
 
-  async updateLogtimeRanking(): Promise<void> {
+  private async updateLogtimeRanking(): Promise<void> {
     await Promise.all([
       this.updateLogtimeRankingByDateTemplate(DateTemplate.TOTAL),
       this.updateLogtimeRankingByDateTemplate(DateTemplate.CURR_MONTH),
@@ -59,15 +75,11 @@ export class LocationCacheService {
         await this.locationService.logtimePerUserByDateRange(dateRange),
       async () => {
         const userFullProfiles =
-          await this.cursusUserCacheService.getAllUserFullProfileCache();
+          await this.cursusUserCacheService.getAllUserFullProfile();
 
         assertExist(userFullProfiles);
 
-        return userFullProfiles.map(({ cursusUser }) => ({
-          id: cursusUser.user.id,
-          login: cursusUser.user.login,
-          imgUrl: cursusUser.user.image.link,
-        }));
+        return [...userFullProfiles.values()];
       },
     );
   };

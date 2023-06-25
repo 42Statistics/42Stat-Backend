@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
-import type { UserRankWithCoalitionId } from 'src/common/models/common.user.model';
 import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
@@ -12,7 +11,10 @@ import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
-import { lookupScores } from './db/score.database.aggregate';
+import {
+  UserRankWithCoalitionId,
+  lookupScores,
+} from './db/score.database.aggregate';
 import { score } from './db/score.database.schema';
 
 @Injectable()
@@ -50,7 +52,9 @@ export class ScoreService {
       .project({
         _id: 0,
         userPreview: 1,
-        coalitionId: '$coalitions_users.coalitionId',
+        coalition: {
+          id: '$coalitions_users.coalitionId',
+        },
         value: 1,
         rank: 1,
       });
