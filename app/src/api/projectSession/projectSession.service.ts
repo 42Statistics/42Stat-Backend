@@ -26,7 +26,7 @@ export class ProjectSessionService {
 
     const [projectSessionInfo] = await aggregate
       .match({
-        $or: [{ 'campus.id': SEOUL_CAMPUS_ID }, { 'campus.id': null }],
+        $or: [{ 'campus.id': SEOUL_CAMPUS_ID }, { campus: null }],
         'project.id': projectId,
       })
       .sort({ 'campus.id': -1 })

@@ -413,7 +413,7 @@ type ProjectInfo {
   minUserCount: Int!
   maxUserCount: Int!
   estimateTime: String
-  difficulty: Int!
+  difficulty: Int
   currRegisteredTeamCount: Int!
 
   """총 제출 횟수 입니다."""

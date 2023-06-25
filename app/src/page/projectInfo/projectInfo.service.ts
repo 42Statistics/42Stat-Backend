@@ -19,6 +19,7 @@ export class ProjectInfoService {
     const project = await this.projectService.findOne({
       name: projectName,
     });
+
     const projectId = project.id;
 
     const projectTeamInfo = await this.projectTeamInfo(projectId);

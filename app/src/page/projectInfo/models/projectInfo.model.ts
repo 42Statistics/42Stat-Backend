@@ -47,8 +47,8 @@ export class ProjectInfo {
   @Field({ nullable: true })
   estimateTime?: string;
 
-  @Field()
-  difficulty: number;
+  @Field({ nullable: true })
+  difficulty?: number;
 
   @Field()
   currRegisteredTeamCount: number;

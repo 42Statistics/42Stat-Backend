@@ -25,7 +25,6 @@ import { TeamService } from 'src/api/team/team.service';
 import { CacheService } from 'src/cache/cache.service';
 import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type {
@@ -257,20 +256,9 @@ export class PersonalGeneralService {
         select: { id: 1 },
       });
 
-      const evalCountRankCache =
-        await this.scaleTeamCacheService.getEvalCountRank(
-          DateTemplate.TOTAL,
-          userId,
-        );
-
-      assertExist(evalCountRankCache);
-
-      const evalCountRank =
-        this.cacheService.extractUserRankFromCache(evalCountRankCache);
-
       return {
-        effort: await this.characterEffort(userId, examProjects, evalCountRank),
-        talent: await this.characterTalent(userId, examProjects, evalCountRank),
+        effort: await this.characterEffort(userId, examProjects),
+        talent: await this.characterTalent(userId, examProjects),
       };
     } catch (e) {
       return null;
@@ -280,7 +268,6 @@ export class PersonalGeneralService {
   private async characterEffort(
     userId: number,
     examProjects: Pick<project, 'id'>[],
-    evalCountRank: UserRank,
   ): Promise<CharacterEffort> {
     const logtimeRankCache = await this.locationCacheService.getLogtimeRank(
       DateTemplate.TOTAL,
@@ -291,6 +278,17 @@ export class PersonalGeneralService {
 
     const logtimeRank =
       this.cacheService.extractUserRankFromCache(logtimeRankCache);
+
+    const evalCountRankCache =
+      await this.scaleTeamCacheService.getEvalCountRank(
+        DateTemplate.TOTAL,
+        userId,
+      );
+
+    assertExist(evalCountRankCache);
+
+    const evalCountRank =
+      this.cacheService.extractUserRankFromCache(evalCountRankCache);
 
     const teams = await this.teamService.findAll({
       filter: {
@@ -319,7 +317,6 @@ export class PersonalGeneralService {
   private async characterTalent(
     userId: number,
     examProjects: Pick<project, 'id'>[],
-    evalCountRank: UserRank,
   ): Promise<CharacterTalent> {
     const levelRankCache = await this.cursusUserCacheService.getUserRank(
       USER_LEVEL_RANKING,
@@ -359,7 +356,9 @@ export class PersonalGeneralService {
         [0, 0, 0, 0],
       );
 
-    const evalCount = evalCountRank.value;
+    const evalCount = await this.scaleTeamService.evalCount({
+      'correcteds.id': userId,
+    });
 
     const outstandingCount = await this.scaleTeamService.evalCount({
       'correcteds.id': userId,

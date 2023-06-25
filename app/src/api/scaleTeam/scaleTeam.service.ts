@@ -11,6 +11,7 @@ import {
   addUserPreview,
   lookupCursusUser,
 } from '../cursusUser/db/cursusUser.database.aggregate';
+import { NETWHAT_PREVIEW } from '../project/project.service';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
 import { ScaleTeamDocument, scale_team } from './db/scaleTeam.database.schema';
 
@@ -188,7 +189,7 @@ export class ScaleTeamService {
             url: {
               $concat: [
                 'https://projects.intra.42.fr/projects/',
-                { $toString: '$project.id' },
+                { $toString: '$team.projectId' },
                 '/projects_users/',
                 {
                   $toString: {
@@ -200,13 +201,19 @@ export class ScaleTeamService {
           },
           beginAt: '$beginAt',
           projectPreview: {
-            id: '$project.id',
-            name: '$project.name',
-            url: {
-              $concat: [
-                'https://projects.intra.42.fr/projects/',
-                { $toString: '$project.id' },
-              ],
+            $cond: {
+              if: { $eq: [{ $size: '$projects' }, 0] },
+              then: NETWHAT_PREVIEW,
+              else: {
+                id: '$project.id',
+                name: '$project.name',
+                url: {
+                  $concat: [
+                    'https://projects.intra.42.fr/projects/',
+                    { $toString: '$project.id' },
+                  ],
+                },
+              },
             },
           },
           flag: {
@@ -220,8 +227,14 @@ export class ScaleTeamService {
           review: '$comment',
         },
         correctedsReview: {
-          mark: { $max: '$feedbacks.rating' },
-          review: '$feedback',
+          $cond: {
+            if: { $eq: ['$feedback', null] },
+            then: null,
+            else: {
+              mark: { $max: '$feedbacks.rating' },
+              review: '$feedback',
+            },
+          },
         },
       });
   }

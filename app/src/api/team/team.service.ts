@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
@@ -12,7 +12,7 @@ import {
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { NETWHAT_PREVIEW } from '../project/project.service';
-import { team, TeamDocument } from './db/team.database.schema';
+import { TeamDocument, team } from './db/team.database.schema';
 
 @Injectable()
 export class TeamService {
