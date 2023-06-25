@@ -50,7 +50,7 @@ export class ProjectService {
   }
 
   async findOne(filter?: FilterQuery<project>): Promise<ProjectDocument> {
-    const project = await this.projectModel.findOne({ filter });
+    const project = await this.projectModel.findOne(filter);
 
     if (!project) {
       throw new NotFoundException();
