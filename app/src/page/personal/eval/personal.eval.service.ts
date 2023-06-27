@@ -4,7 +4,9 @@ import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.serv
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { TeamService } from 'src/api/team/team.service';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { PersonalEvalRoot } from './models/personal.eval.model';
@@ -12,6 +14,7 @@ import type { PersonalEvalRoot } from './models/personal.eval.model';
 @Injectable()
 export class PersonalEvalService {
   constructor(
+    private teamService: TeamService,
     private scaleTeamService: ScaleTeamService,
     private dateRangeService: DateRangeService,
     private cursusUserSevice: CursusUserService,
@@ -117,5 +120,9 @@ export class PersonalEvalService {
     });
 
     return scaleTeams.at(0)?.comment ?? null;
+  }
+
+  async destinyRanking(userId: number, limit: number): Promise<UserRank[]> {
+    return await this.teamService.destinyRanking(userId, limit);
   }
 }

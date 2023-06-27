@@ -401,6 +401,7 @@ type PersonalEval {
   averageFinalMark: Float!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
+  destinyRanking(limit: Int! = 5): [UserRank]!
   recentComment: String
 }
 

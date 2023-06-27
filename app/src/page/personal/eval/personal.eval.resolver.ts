@@ -8,9 +8,10 @@ import {
   Resolver,
   Root,
 } from '@nestjs/graphql';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyUserId } from 'src/auth/myContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
@@ -87,5 +88,16 @@ export class PersonalEvalResolver {
   @ResolveField((_returns) => String, { nullable: true })
   async recentComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
     return await this.personalEvalService.recentComment(root.userProfile.id);
+  }
+
+  @ResolveField((_returns) => [UserRank], { nullable: 'items' })
+  async destinyRanking(
+    @Root() root: PersonalEvalRoot,
+    @Args('limit', { defaultValue: 5 }) limit: number,
+  ): Promise<UserRank[]> {
+    return await this.personalEvalService.destinyRanking(
+      root.userProfile.id,
+      limit,
+    );
   }
 }

@@ -25,17 +25,29 @@ export class ScaleTeamService {
     private cursusUserService: CursusUserService,
   ) {}
 
-  async findAll(
-    queryArgs?: QueryArgs<scale_team>,
-  ): Promise<ScaleTeamDocument[]> {
-    const query = this.scaleTeamModel.find(queryArgs?.filter ?? {});
+  async findAll({
+    filter,
+    select,
+    sort,
+    limit,
+    skip,
+  }: QueryArgs<scale_team>): Promise<ScaleTeamDocument[]> {
+    const query = this.scaleTeamModel.find(filter ?? {});
 
-    if (queryArgs?.sort) {
-      query.sort(queryArgs.sort);
+    if (sort) {
+      query.sort(sort);
     }
 
-    if (queryArgs?.limit) {
-      query.limit(queryArgs.limit);
+    if (skip) {
+      query.skip(skip);
+    }
+
+    if (limit) {
+      query.limit(limit);
+    }
+
+    if (select) {
+      query.select(select);
     }
 
     return await query;
