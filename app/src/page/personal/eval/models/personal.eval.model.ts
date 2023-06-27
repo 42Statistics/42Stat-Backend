@@ -1,12 +1,7 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import { UserRank } from 'src/common/models/common.user.model';
 import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
-
-// @ObjectType()
-// export class DestinyUser extends UserPreview {
-//   @Field()
-//   score: number;
-// }
 
 export type PersonalEvalRoot = Pick<
   PersonalEval,
@@ -42,8 +37,8 @@ export class PersonalEval {
   @Field()
   averageCommentLength: number;
 
-  // @Field((_types) => [DestinyUser], { nullable: 'items' })
-  // destinyUsers: DestinyUser[];
+  @Field((_types) => [UserRank], { nullable: 'items' })
+  destinyRanking: UserRank[];
 
   @Field({ nullable: true })
   recentComment?: string;

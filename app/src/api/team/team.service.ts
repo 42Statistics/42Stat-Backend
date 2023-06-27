@@ -2,13 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
+import { addRank } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import type { Rate } from 'src/common/models/common.rate.model';
+import type { UserRank } from 'src/common/models/common.user.model';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
 import {
   TeamStatus,
   UserTeam,
 } from 'src/page/personal/general/models/personal.general.model';
+import {
+  addUserPreview,
+  lookupCursusUser,
+} from '../cursusUser/db/cursusUser.database.aggregate';
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { NETWHAT_PREVIEW } from '../project/project.service';
@@ -250,6 +256,51 @@ export class TeamService {
         },
       };
     });
+  }
+
+  async destinyRanking(userId: number, limit: number): Promise<UserRank[]> {
+    const aggregate = this.teamModel.aggregate<UserRank>();
+
+    return await aggregate
+      .match({
+        $or: [{ 'users.id': userId }, { 'scaleTeams.corrector.id': userId }],
+      })
+      .addFields({
+        users: {
+          $cond: {
+            if: { $in: [userId, '$scaleTeams.corrector.id'] },
+            then: { $first: '$users.id' },
+            else: {
+              $concatArrays: [
+                {
+                  $filter: {
+                    input: {
+                      $concatArrays: ['$scaleTeams.corrector.id', '$users.id'],
+                    },
+                    cond: { $ne: ['$$this', userId] },
+                  },
+                },
+              ],
+            },
+          },
+        },
+      })
+      .unwind('$users')
+      .group({
+        _id: '$users',
+        value: { $count: {} },
+      })
+      .append(addRank())
+      .limit(limit)
+      .append(lookupCursusUser('_id', 'user.id'))
+      .unwind('cursus_users')
+      .append(addUserPreview('cursus_users.user'))
+      .project({
+        _id: 0,
+        value: 1,
+        rank: 1,
+        userPreview: 1,
+      });
   }
 }
 
