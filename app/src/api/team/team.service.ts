@@ -209,8 +209,8 @@ export class TeamService {
   }
 
   async examResult(
-    targetBeginAt: Date,
-    nextBeginAt: Date,
+    start: Date,
+    end: Date,
     targetProjects: project[],
   ): Promise<ResultPerRank[]> {
     const aggregate = this.teamModel.aggregate<{
@@ -225,7 +225,7 @@ export class TeamService {
     const examResults = await aggregate
       .match({
         projectId: { $in: projectIds },
-        closedAt: { $gte: targetBeginAt, $lt: nextBeginAt },
+        closedAt: { $gte: start, $lt: end },
       })
       .group({
         _id: '$projectId',
@@ -246,7 +246,7 @@ export class TeamService {
       );
 
       return {
-        rank: parseInt(project.name[project.name.length - 1]),
+        rank: parseInt(project.name.at(-1)!),
         rate: {
           total: examResult?.total ?? 0,
           fields: [

@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model } from 'mongoose';
+import type {
+  FilterQuery,
+  Model,
+  ProjectionType,
+  QueryOptions,
+} from 'mongoose';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import { exam, ExamDocument } from './db/exam.database.schema';
 
@@ -33,7 +38,13 @@ export class ExamService {
     return await query;
   }
 
-  async findOne(filter?: FilterQuery<exam>): Promise<exam | null> {
-    return await this.examModel.findOne(filter);
+  async findOne({
+    filter,
+    projection,
+    options,
+  }: FilterQuery<exam> &
+    ProjectionType<exam> &
+    QueryOptions<exam>): Promise<ExamDocument | null> {
+    return await this.examModel.findOne(filter, projection, options);
   }
 }

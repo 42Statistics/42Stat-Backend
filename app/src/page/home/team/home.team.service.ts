@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { ExamDocument } from 'src/api/exam/db/exam.database.schema';
 import { ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
@@ -10,11 +9,6 @@ import type {
   ExamResultDateRanged,
   ProjectRank,
 } from './models/home.team.model';
-
-type selectedExamDocument = Pick<
-  ExamDocument,
-  'beginAt' | 'endAt' | 'location' | 'maxPeople' | 'name' | 'projects'
->;
 
 @Injectable()
 export class HomeTeamService {
@@ -30,36 +24,23 @@ export class HomeTeamService {
   }
 
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
-    const recentExams: selectedExamDocument[] = await this.examService.findAll({
-      select: {
-        beginAt: 1,
-        endAt: 1,
-        location: 1,
-        maxPeople: 1,
-        name: 1,
-        projects: 1,
+    const targetExam = await this.examService.findOne({
+      options: {
+        sort: { beginAt: -1 },
+        skip: after - 1,
       },
-      sort: { beginAt: -1 },
-      skip: Math.max(after - 2, 0),
-      limit: isRecentExam(after) ? 1 : 2,
     });
 
-    const [targetExam, nextExam] = recentExams;
-
-    if (outBoundIndex(nextExam, after)) {
+    if (!targetExam) {
       throw new NotFoundException();
     }
 
-    const targetBeginAt = nextExam ? nextExam.beginAt : targetExam.beginAt;
-
-    const nextBeginAt = nextExam ? targetExam.beginAt : new StatDate();
-
-    const targetProjects = nextExam ? nextExam.projects : targetExam.projects;
+    const adjustTargetEndAt = new StatDate(targetExam.endAt).moveHour(1);
 
     const resultPerRank = await this.teamService.examResult(
-      targetBeginAt,
-      nextBeginAt,
-      targetProjects,
+      targetExam.beginAt,
+      adjustTargetEndAt,
+      targetExam.projects,
     );
 
     const nbrSubscribers = resultPerRank.reduce(
@@ -67,13 +48,7 @@ export class HomeTeamService {
       0,
     );
 
-    const {
-      beginAt,
-      endAt,
-      location,
-      maxPeople = 0,
-      name,
-    } = nextExam ?? targetExam;
+    const { beginAt, endAt, location, maxPeople = 0, name } = targetExam;
 
     const result: ExamResult = {
       resultPerRank,
@@ -86,14 +61,8 @@ export class HomeTeamService {
     };
 
     return this.dateRangeService.toDateRanged(result, {
-      start: beginAt,
-      end: endAt,
+      start: targetExam.beginAt,
+      end: targetExam.endAt,
     });
   }
 }
-
-const isRecentExam = (after: number): boolean => after === 1;
-const outBoundIndex = (
-  nextExam: selectedExamDocument,
-  after: number,
-): boolean => !nextExam && !isRecentExam(after);
