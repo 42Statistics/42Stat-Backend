@@ -32,6 +32,10 @@ export class StatDate extends Date {
     return new StatDate(super.getTime() + ms);
   };
 
+  moveHour = (count: number): StatDate => {
+    return new StatDate(super.getTime() + count * HOUR);
+  };
+
   moveDate = (count: number): StatDate => {
     return new StatDate(super.getTime() + count * DAY);
   };
