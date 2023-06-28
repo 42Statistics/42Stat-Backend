@@ -63,7 +63,7 @@ export class HomeTeam {
 
 @ArgsType()
 export class RecentExamResultInput {
-  @Min(1)
-  @Field({ defaultValue: 1 })
+  @Min(0)
+  @Field({ defaultValue: 0 })
   after: number;
 }
