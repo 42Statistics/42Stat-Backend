@@ -1,5 +1,5 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
-import { GetEvalLogsArgs } from './dto/evalLog.dto.getEvalLog';
+import { GetEvalLogsArgs } from './dtos/evalLog.dto.getEvalLog';
 import { EvalLogService } from './evalLog.service';
 import { EvalLog, EvalLogsPaginated } from './models/evalLog.model';
 

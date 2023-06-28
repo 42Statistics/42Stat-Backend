@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { UserRank } from 'src/common/models/common.user.model';
-import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import type { LeaderboardElement } from '../models/leaderboard.model';
 

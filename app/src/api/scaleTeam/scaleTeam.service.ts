@@ -4,7 +4,7 @@ import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import type { UserRank } from 'src/common/models/common.user.model';
-import { EvalLogSortOrder } from 'src/page/evalLog/dto/evalLog.dto.getEvalLog';
+import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import {

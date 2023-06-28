@@ -424,8 +424,8 @@ type ProjectInfo {
 }
 
 type Query {
-  findUserPreview(login: String! = "", limit: Int! = 10): [UserPreview]!
-  findProjectPreview(name: String! = ""): [ProjectPreview]!
+  findUserPreview(login: String!, limit: Int! = 10): [UserPreview]!
+  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview]!
   getLanding: Landing!
   getMyInfo: MyInfo!
   getHomeUser: HomeUser!

@@ -84,18 +84,6 @@ export class CursusUserService {
     login: string,
     limit: number,
   ): Promise<UserPreview[]> {
-    type Userable = Pick<User, 'id' | 'login' | 'image'>;
-
-    const extractUserPreview = ({
-      id,
-      login,
-      image,
-    }: Userable): UserPreview => ({
-      id,
-      login,
-      imgUrl: image?.link,
-    });
-
     const result: Map<number, UserPreview> = new Map();
 
     const previewProjection = {
@@ -106,7 +94,7 @@ export class CursusUserService {
 
     const escapedLogin = login.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
 
-    const prefixMatches: { user: Userable }[] = await this.cursusUserModel
+    const prefixMatches: { user: User }[] = await this.cursusUserModel
       .find(
         {
           'user.login': new RegExp(`^${escapedLogin}`, 'i'),
@@ -120,7 +108,7 @@ export class CursusUserService {
     );
 
     if (prefixMatches.length < limit) {
-      const matches: { user: Userable }[] = await this.cursusUserModel
+      const matches: { user: User }[] = await this.cursusUserModel
         .find(
           {
             'user.login': new RegExp(escapedLogin, 'i'),
@@ -321,3 +309,9 @@ export class CursusUserService {
     }));
   }
 }
+
+const extractUserPreview = ({ id, login, image }: User): UserPreview => ({
+  id,
+  login,
+  imgUrl: image?.link,
+});

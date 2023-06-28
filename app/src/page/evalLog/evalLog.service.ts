@@ -15,7 +15,7 @@ import {
 import {
   EvalLogSortOrder,
   GetEvalLogsArgs,
-} from './dto/evalLog.dto.getEvalLog';
+} from './dtos/evalLog.dto.getEvalLog';
 import { EvalLog, EvalLogsPaginated } from './models/evalLog.model';
 
 type EvalLogCursorField = [number, Date];

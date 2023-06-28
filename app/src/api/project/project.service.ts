@@ -81,11 +81,62 @@ export class ProjectService {
     return [...result.values()];
   }
 
-  convertToPreview(project: project): ProjectPreview {
-    return {
-      id: project.id,
-      name: project.name,
-      url: `https://projects.intra.42.fr/${project.id}`,
+  async findProjectPreviewByName(
+    name: string,
+    limit: number,
+  ): Promise<ProjectPreview[]> {
+    const result: Map<number, ProjectPreview> = new Map();
+
+    const escapedName = name.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
+
+    const previewProjection = {
+      id: 1,
+      name: 1,
     };
+
+    const prefixMatches = await this.projectModel
+      .find(
+        {
+          filter: { name: new RegExp(`^${escapedName}`, 'i') },
+        },
+        previewProjection,
+      )
+      .limit(limit);
+
+    prefixMatches.forEach((project) =>
+      result.set(project.id, extractProjectPreview(project)),
+    );
+
+    if (prefixMatches.length < limit) {
+      const matches = await this.projectModel
+        .find(
+          {
+            name: new RegExp(escapedName, 'i'),
+          },
+          previewProjection,
+        )
+        .limit(limit - prefixMatches.length);
+
+      matches.forEach((project) =>
+        result.set(project.id, extractProjectPreview(project)),
+      );
+    }
+
+    return [...result.values()];
   }
 }
+
+const extractProjectPreview = ({ id, name }: project): ProjectPreview => ({
+  id,
+  name,
+  url: `https://projects.intra.42.fr/${id}`,
+});
+
+const addToResult = (
+  result: Map<number, ProjectPreview>,
+  projects: project[],
+): void => {
+  projects.forEach((project) => {
+    result.set(project.id, extractProjectPreview(project));
+  });
+};

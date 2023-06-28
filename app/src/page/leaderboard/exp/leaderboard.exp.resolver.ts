@@ -7,7 +7,7 @@ import {
   DateTemplateArgs,
   UnsupportedDateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
-import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardExpService } from './leaderboard.exp.service';
 import { LeaderboardExp } from './models/leaderboard.exp.model';

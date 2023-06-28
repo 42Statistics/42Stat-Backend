@@ -1,6 +1,6 @@
 import type { FilterQuery } from 'mongoose';
 import type { UserRankCache } from 'src/cache/cache.service';
-import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 
 // todo: 적당한 파일 위치..?
 

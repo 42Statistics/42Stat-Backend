@@ -10,7 +10,7 @@ import { CacheService, UserRankCache } from 'src/cache/cache.service';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import type { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import type { RankingArgs } from '../leaderboard.ranking.args';
 import type {
   LeaderboardElement,

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationIndexArgs } from 'src/pagination/index/dto/pagination.index.dto.args';
+import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import { IIndexPaginatedType } from './models/pagination.index.model';
 
 @Injectable()
