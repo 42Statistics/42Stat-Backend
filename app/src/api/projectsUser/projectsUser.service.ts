@@ -54,8 +54,11 @@ export class ProjectsUserService {
     const aggregate = this.projectsUserModel.aggregate<ProjectRank>();
 
     return await aggregate
-      .match({ ...filter, status: 'in_progress' })
-      .match({ createdAt: { $gte: new StatDate().moveMonth(-4) } })
+      .match({
+        ...filter,
+        status: 'in_progress',
+        createdAt: { $gte: new StatDate().moveMonth(-4) },
+      })
       .group({
         _id: '$project.id',
         name: { $first: '$project.name' },

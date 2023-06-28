@@ -1,4 +1,5 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { projectSearchInput } from './dtos/project.dto';
 import { Project } from './models/project.model';
 import { ProjectPreview } from './models/project.preview';
 import { ProjectService } from './project.service';
@@ -9,10 +10,8 @@ export class ProjectResolver {
 
   @Query((_returns) => [ProjectPreview], { nullable: 'items' })
   async findProjectPreview(
-    @Args('name', { defaultValue: '' }) name: string,
+    @Args() { name, limit }: projectSearchInput,
   ): Promise<ProjectPreview[]> {
-    const projects = await this.projectService.findByName(name);
-
-    return projects.map(this.projectService.convertToPreview);
+    return await this.projectService.findProjectPreviewByName(name, limit);
   }
 }
