@@ -1,11 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type {
-  FilterQuery,
-  Model,
-  ProjectionType,
-  QueryOptions,
-} from 'mongoose';
+import type { Model } from 'mongoose';
 import type { QueryArgs } from 'src/common/db/common.db.query';
 import { exam, ExamDocument } from './db/exam.database.schema';
 
@@ -38,13 +33,31 @@ export class ExamService {
     return await query;
   }
 
-  async findOne({
-    filter,
-    projection,
-    options,
-  }: FilterQuery<exam> &
-    ProjectionType<exam> &
-    QueryOptions<exam>): Promise<ExamDocument | null> {
-    return await this.examModel.findOne(filter, projection, options);
+  async findOne(queryArgs?: QueryArgs<exam>): Promise<ExamDocument | null> {
+    const query = this.examModel.findOne(queryArgs?.filter ?? {});
+
+    if (queryArgs?.select) {
+      query.select(queryArgs.select);
+    }
+
+    if (queryArgs?.sort) {
+      query.sort(queryArgs.sort);
+    }
+
+    if (queryArgs?.skip) {
+      query.skip(queryArgs.skip);
+    }
+
+    if (queryArgs?.limit) {
+      query.limit(queryArgs.limit);
+    }
+
+    const exam = await query;
+
+    if (!exam) {
+      throw new NotFoundException();
+    }
+
+    return exam;
   }
 }

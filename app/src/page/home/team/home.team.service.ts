@@ -25,10 +25,9 @@ export class HomeTeamService {
 
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
     const targetExam = await this.examService.findOne({
-      options: {
-        sort: { beginAt: -1 },
-        skip: after - 1,
-      },
+      filter: { endAt: { $lt: new StatDate() } },
+      sort: { beginAt: -1 },
+      skip: after,
     });
 
     if (!targetExam) {
