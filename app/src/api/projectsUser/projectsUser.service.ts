@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
+import { addRank } from 'src/common/db/common.db.aggregation';
+import type { QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
+import { StatDate } from 'src/statDate/StatDate';
 import {
   ProjectsUserDocument,
   projects_user,
 } from './db/projectsUser.database.schema';
-import type { QueryArgs } from 'src/common/db/common.db.query';
 
 @Injectable()
 export class ProjectsUserService {
@@ -53,19 +55,13 @@ export class ProjectsUserService {
 
     return await aggregate
       .match({ ...filter, status: 'in_progress' })
+      .match({ createdAt: { $gte: new StatDate().moveMonth(-4) } })
       .group({
         _id: '$project.id',
         name: { $first: '$project.name' },
         value: { $count: {} },
       })
-      .append({
-        $setWindowFields: {
-          sortBy: { value: -1 },
-          output: {
-            rank: { $rank: {} },
-          },
-        },
-      })
+      .append(addRank())
       .project({
         _id: 0,
         projectPreview: {
