@@ -1,9 +1,11 @@
+import { UseFilters } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeUserService } from './home.user.service';
 import {
   HomeUser,
@@ -11,6 +13,7 @@ import {
   UserCountPerLevel,
 } from './models/home.user.model';
 
+@UseFilters(HttpExceptionFilter)
 @Resolver((_of: unknown) => HomeUser)
 export class HomeUserResolver {
   constructor(private homeUserService: HomeUserService) {}

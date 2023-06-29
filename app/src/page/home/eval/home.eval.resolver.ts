@@ -1,12 +1,15 @@
+import { UseFilters } from '@nestjs/common';
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import {
   FloatDateRanged,
   IntDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeEvalService } from './home.eval.service';
 import { HomeEval } from './models/home.eval.model';
 
+@UseFilters(HttpExceptionFilter)
 @Resolver((_of: unknown) => HomeEval)
 export class HomeEvalResolver {
   constructor(private homeEvalService: HomeEvalService) {}

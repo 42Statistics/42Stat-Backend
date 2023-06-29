@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import {
   Args,
   Float,
@@ -13,10 +13,12 @@ import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
+@UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {

@@ -1,11 +1,13 @@
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
+import { UserTeam } from '../personal/general/models/personal.general.model';
 import { MyInfo, MyInfoRoot } from './models/myInfo.model';
 import { MyInfoService } from './myInfo.service';
-import { UserTeam } from '../personal/general/models/personal.general.model';
 
+@UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => MyInfo)
 export class MyInfoResolver {

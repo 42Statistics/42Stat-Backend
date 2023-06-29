@@ -1,9 +1,10 @@
-import { UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import {
   Character,
@@ -17,6 +18,7 @@ import {
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
 
+@UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {

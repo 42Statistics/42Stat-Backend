@@ -1,5 +1,7 @@
+import { UseFilters } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeCoalitionService } from './home.coalition.service';
 import {
   HomeCoalition,
@@ -8,6 +10,7 @@ import {
   ScoreRecordPerCoalition,
 } from './models/home.coalition.model';
 
+@UseFilters(HttpExceptionFilter)
 @Resolver((_of: unknown) => HomeCoalition)
 export class HomeCoalitionResolver {
   constructor(private homeCoalitionService: HomeCoalitionService) {}

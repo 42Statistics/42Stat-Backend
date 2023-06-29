@@ -1,4 +1,6 @@
+import { UseFilters } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeTeamService } from './home.team.service';
 import {
   ExamResult,
@@ -8,6 +10,7 @@ import {
   RecentExamResultInput,
 } from './models/home.team.model';
 
+@UseFilters(HttpExceptionFilter)
 @Resolver((_of: unknown) => HomeTeam)
 export class HomeTeamResolver {
   constructor(private homeTeamService: HomeTeamService) {}

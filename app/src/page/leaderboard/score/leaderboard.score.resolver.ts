@@ -1,16 +1,19 @@
-import { BadRequestException, UseGuards } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import {
   DateTemplate,
   DateTemplateArgs,
+  UnsupportedDateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
 
+@UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => LeaderboardScore)
 export class LeaderboardScoreResolver {
@@ -35,7 +38,7 @@ export class LeaderboardScoreResolver {
         dateTemplate === DateTemplate.CURR_WEEK
       )
     ) {
-      throw new BadRequestException();
+      throw new UnsupportedDateTemplate();
     }
 
     return await this.leaderboardScoreService.rankingByDateTemplate(
