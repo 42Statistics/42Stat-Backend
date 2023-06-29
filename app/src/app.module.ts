@@ -31,6 +31,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
     LeaderboardModule,
     EvalLogModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
+      includeStacktraceInErrorResponses: false,
       driver: ApolloDriver,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
