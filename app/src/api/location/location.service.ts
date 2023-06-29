@@ -41,7 +41,7 @@ export class LocationService {
     // 이제부터 날짜를 전부 millisecond 로 사용합니다
     const { total, morning, daytime, evening, night } = locations.reduce(
       (acc, { beginAt, endAt }) => {
-        const end = (endAt ?? new Date()).getTime();
+        const end = (endAt ?? new StatDate()).getTime();
 
         let state = initPartitionStateByHour(beginAt);
         let partitionPoint = initPartitionPoint(beginAt, state);
@@ -99,26 +99,26 @@ export class LocationService {
   ): Promise<string | null> {
     const aggregate = this.locationModel.aggregate<AggrNumericPerCluster>();
 
-    aggregate.match({ 'user.id': userId });
+    aggregate.match({ ...filter, 'user.id': userId });
 
-    if (filter) {
-      aggregate.match(filter);
-    }
-
-    const [durationTimePerCluster] = await aggregate.group({
-      _id: {
-        $substrCP: ['$host', 0, { $indexOfCP: ['$host', 'r'] }],
-      },
-      value: {
-        $sum: {
-          $dateDiff: {
-            startDate: '$beginAt',
-            endDate: '$endAt',
-            unit: 'millisecond',
+    const [durationTimePerCluster] = await aggregate
+      .group({
+        _id: {
+          $substrCP: ['$host', 0, { $indexOfCP: ['$host', 'r'] }],
+        },
+        value: {
+          $sum: {
+            $dateDiff: {
+              startDate: '$beginAt',
+              endDate: '$endAt',
+              unit: 'millisecond',
+            },
           },
         },
-      },
-    });
+      })
+      .sort({ value: -1 })
+      .limit(1)
+      .project({ _id: 0, cluster: '$_id', value: 1 });
 
     return durationTimePerCluster?.cluster ?? null;
   }
@@ -204,7 +204,7 @@ const toNextPartitionState = (state: PartitionState): PartitionState =>
   ((state + 1) % PartitionState.__STATE_COUNT__) as PartitionState;
 
 const initPartitionPoint = (date: Date, state: PartitionState) => {
-  const beginPoint = new Date(date);
+  const beginPoint = new StatDate(date);
   beginPoint.setHours(state * (24 / PartitionState.__STATE_COUNT__), 0, 0, 0);
 
   return beginPoint.getTime();
@@ -232,7 +232,9 @@ const sliceLogtime = (
   }
 
   if (!last.endAt) {
-    newValue += StatDate.dateGap(end, last.beginAt);
+    const now = new StatDate();
+
+    newValue += StatDate.dateGap(now < end ? now : end, last.beginAt);
   }
 
   if (last.endAt && end < last.endAt) {
