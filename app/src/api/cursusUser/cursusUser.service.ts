@@ -94,7 +94,7 @@ export class CursusUserService {
 
     const escapedLogin = login.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
 
-    const prefixMatches: { user: User }[] = await this.cursusUserModel
+    const prefixMatches = await this.cursusUserModel
       .find(
         {
           'user.login': new RegExp(`^${escapedLogin}`, 'i'),
@@ -108,14 +108,14 @@ export class CursusUserService {
     );
 
     if (prefixMatches.length < limit) {
-      const matches: { user: User }[] = await this.cursusUserModel
+      const matches = await this.cursusUserModel
         .find(
           {
             'user.login': new RegExp(escapedLogin, 'i'),
           },
           previewProjection,
         )
-        .limit(limit - prefixMatches.length);
+        .limit(limit);
 
       matches.forEach(({ user }) =>
         result.set(user.id, extractUserPreview(user)),

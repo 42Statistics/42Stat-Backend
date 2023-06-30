@@ -1,13 +1,14 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { Min, MinLength } from 'class-validator';
+import { Length, Max, Min } from 'class-validator';
 
 @ArgsType()
 export class userSearchInput {
-  @MinLength(2)
+  @Length(2, 10)
   @Field()
   login: string;
 
   @Min(1)
+  @Max(50)
   @Field({ defaultValue: 10 })
   limit: number;
 }
