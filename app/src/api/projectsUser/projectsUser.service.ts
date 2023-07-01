@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
-import type { QueryArgs } from 'src/common/db/common.db.query';
+import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import { StatDate } from 'src/statDate/StatDate';
 import {
@@ -17,32 +17,10 @@ export class ProjectsUserService {
     private projectsUserModel: Model<projects_user>,
   ) {}
 
-  async findAll({
-    filter,
-    select,
-    sort,
-    limit,
-    skip,
-  }: QueryArgs<projects_user>): Promise<ProjectsUserDocument[]> {
-    const query = this.projectsUserModel.find(filter ?? {});
-
-    if (sort) {
-      query.sort(sort);
-    }
-
-    if (skip) {
-      query.skip(skip);
-    }
-
-    if (limit) {
-      query.limit(limit);
-    }
-
-    if (select) {
-      query.select(select);
-    }
-
-    return await query;
+  async findAll(
+    queryArgs?: QueryArgs<projects_user>,
+  ): Promise<ProjectsUserDocument[]> {
+    return await findAll(queryArgs)(this.projectsUserModel);
   }
 
   // todo: limit 을 주기보단 pagination 방식으로 바꾸는게 더 적절해보임. 애초에 이 경우는 전부

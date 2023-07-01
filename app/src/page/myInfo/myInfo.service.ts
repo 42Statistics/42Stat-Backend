@@ -59,8 +59,10 @@ export class MyInfoService {
 
   async isNewMember(userId: number): Promise<boolean> {
     const { validatedAt } = await this.questsUserService.findOne({
-      'user.id': userId,
-      questId: COMMON_CORE_QUEST_ID,
+      filter: {
+        'user.id': userId,
+        questId: COMMON_CORE_QUEST_ID,
+      },
     });
 
     if (!validatedAt) {

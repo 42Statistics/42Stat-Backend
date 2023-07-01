@@ -2,7 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
 import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
-import type { QueryArgs } from 'src/common/db/common.db.query';
+import {
+  findAll,
+  findOne,
+  type QueryArgs,
+  type QueryOneArgs,
+} from 'src/common/db/common.db.query';
 import type {
   UserPreview,
   UserRank,
@@ -28,9 +33,8 @@ import {
   blackholedUserFilterByDateRange,
 } from './db/cursusUser.database.query';
 import {
-  CursusUserDocument,
-  User,
   cursus_user,
+  type CursusUserDocument,
 } from './db/cursusUser.database.schema';
 
 @Injectable()
@@ -45,25 +49,15 @@ export class CursusUserService {
   }
 
   async findAll(
-    queryArgs?: Partial<QueryArgs<cursus_user>>,
+    queryArgs?: QueryArgs<cursus_user>,
   ): Promise<CursusUserDocument[]> {
-    const query = this.cursusUserModel.find(queryArgs?.filter ?? {});
-
-    if (queryArgs?.sort) {
-      query.sort(queryArgs.sort);
-    }
-
-    if (queryArgs?.limit) {
-      query.limit(queryArgs.limit);
-    }
-
-    return await query;
+    return await findAll(queryArgs)(this.cursusUserModel);
   }
 
   async findOne(
-    filter?: FilterQuery<cursus_user>,
+    queryOneArgs: QueryOneArgs<cursus_user>,
   ): Promise<CursusUserDocument> {
-    const cursusUser = await this.cursusUserModel.findOne(filter);
+    const cursusUser = await findOne(queryOneArgs)(this.cursusUserModel);
 
     if (!cursusUser) {
       throw new NotFoundException();
@@ -73,11 +67,11 @@ export class CursusUserService {
   }
 
   async findOneByUserId(userId: number): Promise<CursusUserDocument> {
-    return await this.findOne({ 'user.id': userId });
+    return await this.findOne({ filter: { 'user.id': userId } });
   }
 
   async findOneByLogin(login: string): Promise<CursusUserDocument> {
-    return await this.findOne({ 'user.login': login });
+    return await this.findOne({ filter: { 'user.login': login } });
   }
 
   async findUserPreviewByLogin(
@@ -94,31 +88,37 @@ export class CursusUserService {
 
     const escapedLogin = login.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
 
-    const prefixMatches = await this.cursusUserModel
-      .find(
-        {
-          'user.login': new RegExp(`^${escapedLogin}`, 'i'),
-        },
-        previewProjection,
-      )
-      .limit(limit);
+    const prefixMatches: {
+      user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
+    }[] = await this.findAll({
+      filter: { 'user.login': new RegExp(`^${escapedLogin}`, 'i') },
+      select: previewProjection,
+      limit,
+    });
 
     prefixMatches.forEach(({ user }) =>
-      result.set(user.id, extractUserPreview(user)),
+      result.set(user.id, {
+        id: user.id,
+        login: user.login,
+        imgUrl: user.image.link,
+      }),
     );
 
     if (prefixMatches.length < limit) {
-      const matches = await this.cursusUserModel
-        .find(
-          {
-            'user.login': new RegExp(escapedLogin, 'i'),
-          },
-          previewProjection,
-        )
-        .limit(limit);
+      const matches: {
+        user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
+      }[] = await this.findAll({
+        filter: { 'user.login': new RegExp(`.${escapedLogin}`, 'i') },
+        select: previewProjection,
+        limit: limit - result.size,
+      });
 
       matches.forEach(({ user }) =>
-        result.set(user.id, extractUserPreview(user)),
+        result.set(user.id, {
+          id: user.id,
+          login: user.login,
+          imgUrl: user.image.link,
+        }),
       );
     }
 
@@ -309,9 +309,3 @@ export class CursusUserService {
     }));
   }
 }
-
-const extractUserPreview = ({ id, login, image }: User): UserPreview => ({
-  id,
-  login,
-  imgUrl: image?.link,
-});

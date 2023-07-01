@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
-import type { QueryArgs } from 'src/common/db/common.db.query';
+import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
@@ -13,7 +13,10 @@ import {
 } from '../cursusUser/db/cursusUser.database.aggregate';
 import { NETWHAT_PREVIEW } from '../project/project.service';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
-import { ScaleTeamDocument, scale_team } from './db/scaleTeam.database.schema';
+import {
+  scale_team,
+  type ScaleTeamDocument,
+} from './db/scaleTeam.database.schema';
 
 export const OUTSTANDING_FLAG_ID = 9;
 
@@ -25,32 +28,10 @@ export class ScaleTeamService {
     private cursusUserService: CursusUserService,
   ) {}
 
-  async findAll({
-    filter,
-    select,
-    sort,
-    limit,
-    skip,
-  }: QueryArgs<scale_team>): Promise<ScaleTeamDocument[]> {
-    const query = this.scaleTeamModel.find(filter ?? {});
-
-    if (sort) {
-      query.sort(sort);
-    }
-
-    if (skip) {
-      query.skip(skip);
-    }
-
-    if (limit) {
-      query.limit(limit);
-    }
-
-    if (select) {
-      query.select(select);
-    }
-
-    return await query;
+  async findAll(
+    queryArgs?: QueryArgs<scale_team>,
+  ): Promise<ScaleTeamDocument[]> {
+    return await findAll(queryArgs)(this.scaleTeamModel);
   }
 
   async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {

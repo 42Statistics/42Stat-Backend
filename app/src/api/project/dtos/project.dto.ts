@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { Length, Max, Min, MinLength } from 'class-validator';
+import { Length, Max, Min } from 'class-validator';
 
 @ArgsType()
 export class projectSearchInput {

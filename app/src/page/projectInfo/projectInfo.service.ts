@@ -17,7 +17,7 @@ export class ProjectInfoService {
   ) {}
   async projectInfo(projectName: string): Promise<ProjectInfo> {
     const project = await this.projectService.findOne({
-      name: projectName,
+      filter: { name: projectName },
     });
 
     const projectId = project.id;

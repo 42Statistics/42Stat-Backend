@@ -26,7 +26,7 @@ import { CacheService } from 'src/cache/cache.service';
 import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   Character,
   CharacterEffort,
@@ -251,14 +251,15 @@ export class PersonalGeneralService {
 
   async character(userId: number): Promise<Character | null> {
     try {
-      const examProjects = await this.projectService.findAll({
-        filter: { exam: true },
-        select: { id: 1 },
-      });
+      const examProjectIds: { id: number }[] =
+        await this.projectService.findAll({
+          filter: { exam: true },
+          select: { id: 1 },
+        });
 
       return {
-        effort: await this.characterEffort(userId, examProjects),
-        talent: await this.characterTalent(userId, examProjects),
+        effort: await this.characterEffort(userId, examProjectIds),
+        talent: await this.characterTalent(userId, examProjectIds),
       };
     } catch (e) {
       return null;
@@ -290,15 +291,16 @@ export class PersonalGeneralService {
     const evalCountRank =
       this.cacheService.extractUserRankFromCache(evalCountRankCache);
 
-    const teams = await this.teamService.findAll({
-      filter: {
-        'users.id': userId,
-        'validated?': { $ne: null },
-      },
-      select: { projectId: 1 },
-    });
+    const teamProjectIds: { projectId: number }[] =
+      await this.teamService.findAll({
+        filter: {
+          'users.id': userId,
+          'validated?': { $ne: null },
+        },
+        select: { projectId: 1 },
+      });
 
-    const [projectTryCount, examTryCount] = teams.reduce(
+    const [projectTryCount, examTryCount] = teamProjectIds.reduce(
       (acc, team) => [
         acc[0] + 1,
         acc[1] + Number(isExam(team.projectId, examProjects)),
@@ -328,12 +330,16 @@ export class PersonalGeneralService {
     const levelRank =
       this.cacheService.extractUserRankFromCache(levelRankCache);
 
-    const projectsUsers = await this.projectsUserService.findAll({
+    const projectsUsers: {
+      teams: { 'validated?'?: boolean }[];
+      'validated?'?: boolean;
+      project: { id: number };
+    }[] = await this.projectsUserService.findAll({
       filter: { 'user.id': userId },
       select: {
-        teams: 1,
+        'teams.validated?': 1,
         'validated?': 1,
-        project: 1,
+        'project.id': 1,
       },
     });
 

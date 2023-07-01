@@ -61,13 +61,8 @@ type UserRankingIndexPaginated {
 type ProjectPreview {
   id: Int!
   name: String!
-  url: URL!
+  url: String!
 }
-
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
 
 type CursorPageInfo {
   totalCount: Int!
