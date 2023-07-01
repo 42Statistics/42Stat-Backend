@@ -22,7 +22,7 @@ export class ScoreRecordPerCoalition {
   @Field()
   coalition: Coalition;
 
-  @Field((_type) => [IntRecord], { nullable: 'items' })
+  @Field((_type) => [IntRecord])
   records: IntRecord[];
 }
 

@@ -29,10 +29,10 @@ export class ProjectInfo {
   @Field()
   name: string;
 
-  @Field((_type) => [String], { nullable: 'items' })
+  @Field((_type) => [String])
   objectives: string[];
 
-  @Field((_type) => [String], { nullable: 'items' })
+  @Field((_type) => [String])
   skills: string[];
 
   @Field()

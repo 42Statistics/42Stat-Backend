@@ -13,7 +13,7 @@ export function IndexPaginated<T>(
 ): Type<IIndexPaginatedType<T>> {
   @ObjectType({ isAbstract: true })
   abstract class IndexPaginatedType implements IIndexPaginatedType<T> {
-    @Field((_type) => [classRef], { nullable: 'items' })
+    @Field((_type) => [classRef])
     nodes: T[];
 
     @Field()

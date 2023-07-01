@@ -35,7 +35,7 @@ type UserProfile {
   grade: String!
   displayname: String!
   coalition: Coalition!
-  titles: [UserTitle]!
+  titles: [UserTitle!]!
   level: Float!
 }
 
@@ -52,7 +52,7 @@ type UserRank {
 }
 
 type UserRankingIndexPaginated {
-  nodes: [UserRank]!
+  nodes: [UserRank!]!
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
@@ -108,7 +108,7 @@ type EvalLogEdge {
 }
 
 type EvalLogsPaginated {
-  edges: [EvalLogEdge]!
+  edges: [EvalLogEdge!]!
   pageInfo: CursorPageInfo
 }
 
@@ -130,7 +130,7 @@ type IntPerCoalitionDateRanged {
 
 type ScoreRecordPerCoalition {
   coalition: Coalition!
-  records: [IntRecord]!
+  records: [IntRecord!]!
 }
 
 type HomeCoalition {
@@ -230,7 +230,7 @@ type PreferredClusterDateRanged {
 type TeamInfo {
   lastRegistered: String
   lastPassed: String
-  teams: [UserTeam]!
+  teams: [UserTeam!]!
 }
 
 type LevelRecord {
@@ -273,7 +273,7 @@ type PersonalGeneral {
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
   teamInfo: TeamInfo!
-  userLevelRecords: [LevelRecord]!
+  userLevelRecords: [LevelRecord!]!
   memberLevelRecords: [LevelRecord!]!
   character: Character
 }
@@ -396,15 +396,15 @@ type PersonalEval {
   averageFinalMark: Float!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
-  destinyRanking(limit: Int! = 5): [UserRank]!
+  destinyRanking(limit: Int! = 5): [UserRank!]!
   recentComment: String
 }
 
 type ProjectInfo {
   id: Int!
   name: String!
-  objectives: [String]!
-  skills: [String]!
+  objectives: [String!]!
+  skills: [String!]!
   description: String!
   minUserCount: Int!
   maxUserCount: Int!
@@ -419,8 +419,8 @@ type ProjectInfo {
 }
 
 type Query {
-  findUserPreview(login: String!, limit: Int! = 10): [UserPreview]!
-  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview]!
+  findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]!
+  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview!]!
   getLanding: Landing!
   getMyInfo: MyInfo!
   getHomeUser: HomeUser!
