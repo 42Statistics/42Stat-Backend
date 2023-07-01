@@ -7,7 +7,7 @@ import { userSearchInput } from './dtos/cursusUser.dto';
 export class CursusUserResolver {
   constructor(private cursusUserService: CursusUserService) {}
 
-  @Query((_returns) => [UserPreview], { nullable: 'items' })
+  @Query((_returns) => [UserPreview])
   async findUserPreview(
     @Args() { login, limit }: userSearchInput,
   ): Promise<UserPreview[]> {

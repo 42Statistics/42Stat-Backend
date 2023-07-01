@@ -92,7 +92,7 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.recentComment(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => [UserRank], { nullable: 'items' })
+  @ResolveField((_returns) => [UserRank])
   async destinyRanking(
     @Root() root: PersonalEvalRoot,
     @Args('limit', { defaultValue: 5 }) limit: number,

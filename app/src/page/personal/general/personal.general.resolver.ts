@@ -89,7 +89,7 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.teamInfo(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => [LevelRecord], { nullable: 'items' })
+  @ResolveField((_returns) => [LevelRecord])
   async userLevelRecords(
     @Root() root: PersonalGeneralRoot,
   ): Promise<LevelRecord[]> {

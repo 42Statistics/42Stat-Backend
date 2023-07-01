@@ -39,7 +39,7 @@ export class UserProfile {
   @Field()
   coalition: Coalition;
 
-  @Field((_type) => [UserTitle], { nullable: 'items' })
+  @Field((_type) => [UserTitle])
   titles: UserTitle[];
 
   @Field((_type) => Float)

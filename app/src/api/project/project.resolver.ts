@@ -8,7 +8,7 @@ import { ProjectService } from './project.service';
 export class ProjectResolver {
   constructor(private projectService: ProjectService) {}
 
-  @Query((_returns) => [ProjectPreview], { nullable: 'items' })
+  @Query((_returns) => [ProjectPreview])
   async findProjectPreview(
     @Args() { name, limit }: projectSearchInput,
   ): Promise<ProjectPreview[]> {

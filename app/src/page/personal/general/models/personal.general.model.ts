@@ -80,7 +80,7 @@ export class TeamInfo {
   @Field({ nullable: true })
   lastPassed?: string;
 
-  @Field((_type) => [UserTeam], { nullable: 'items' })
+  @Field((_type) => [UserTeam])
   teams: UserTeam[];
 }
 
@@ -178,7 +178,7 @@ export class PersonalGeneral {
   @Field()
   teamInfo: TeamInfo;
 
-  @Field((_type) => [LevelRecord], { nullable: 'items' })
+  @Field((_type) => [LevelRecord])
   userLevelRecords: LevelRecord[];
 
   @Field((_type) => [LevelRecord])

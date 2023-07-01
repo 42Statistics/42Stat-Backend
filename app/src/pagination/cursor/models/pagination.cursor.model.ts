@@ -37,7 +37,7 @@ export function CursorPaginated<T>(
 
   @ObjectType({ isAbstract: true })
   abstract class CursorPaginatedType implements ICursorPaginatedType<T> {
-    @Field((_type) => [CursorEdgeType], { nullable: 'items' })
+    @Field((_type) => [CursorEdgeType])
     edges: CursorEdgeType[];
 
     @Field((_type) => CursorPageInfo, { nullable: true })

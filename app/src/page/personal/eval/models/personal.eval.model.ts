@@ -37,7 +37,7 @@ export class PersonalEval {
   @Field()
   averageCommentLength: number;
 
-  @Field((_types) => [UserRank], { nullable: 'items' })
+  @Field((_types) => [UserRank])
   destinyRanking: UserRank[];
 
   @Field({ nullable: true })
