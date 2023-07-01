@@ -57,7 +57,10 @@ export class EvalLogService {
     }
 
     if (projectName) {
-      const projectList = await this.projectService.findByName(projectName);
+      const projectList = await this.projectService.findProjectPreviewByName(
+        projectName,
+        100,
+      );
 
       if (!projectList.length) {
         return this.paginationCursorService.toPaginated<EvalLog>(

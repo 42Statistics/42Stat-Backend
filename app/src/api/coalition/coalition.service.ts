@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
+import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import { coalition } from './db/coalition.database.schema';
 
 export const SEOUL_COALITION_ID = [85, 86, 87, 88] as const;
@@ -12,8 +13,8 @@ export class CoalitionService {
     private coalitionModel: Model<coalition>,
   ) {}
 
-  async findAll(): Promise<coalition[]> {
-    return await this.coalitionModel.find();
+  async findAll(queryArgs?: QueryArgs<coalition>): Promise<coalition[]> {
+    return await findAll(queryArgs)(this.coalitionModel);
   }
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
