@@ -71,8 +71,10 @@ A field whose value conforms to the standard URL format as specified in RFC3986:
 """
 scalar URL
 
-type LoginUser {
-  sub: String!
+type Tokens {
+  ftUid: Int!
+  access_token: String!
+  refresh_token: String!
 }
 
 type CursorPageInfo {
@@ -513,7 +515,7 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  loginWithGoogle(input: GoogleLoginInput!): LoginUser!
+  login(code: String, google: GoogleLoginInput): Tokens!
 }
 
 input GoogleLoginInput {

@@ -8,11 +8,11 @@ import { join } from 'path';
 import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
 import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
-import { AuthModule } from './auth/auth.module';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
 import { LambdaModule } from './lambda/lambda.module';
+import { LoginModule } from './login/login.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { HomeModule } from './page/home/home.module';
 import { LandingModule } from './page/landing/landing.module';
@@ -27,7 +27,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
       isGlobal: true,
       store: new ShallowStore(),
     }),
-    AuthModule,
+    LoginModule,
     MongooseModule.forRoot(
       `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
     ),
