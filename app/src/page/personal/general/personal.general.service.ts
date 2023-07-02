@@ -5,7 +5,7 @@ import {
   USER_LEVEL_RANKING,
 } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { promoFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import { locationDateRangeFilter } from 'src/api/location/db/location.database.aggregate';
 import type { location } from 'src/api/location/db/location.database.schema';
@@ -27,6 +27,7 @@ import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
+import { StatDate } from 'src/statDate/StatDate';
 import type {
   Character,
   CharacterEffort,
@@ -235,18 +236,26 @@ export class PersonalGeneralService {
     };
   }
 
-  async levelRecords(
-    filter?: FilterQuery<cursus_user>,
+  async userLevelRecords(
+    userId: number,
+    beginAt: Date,
   ): Promise<LevelRecord[]> {
-    return await this.experineceUserService.levelRecords(filter);
+    return await this.experineceUserService.levelRecords(beginAt, {
+      'user.id': userId,
+    });
   }
 
-  async userLevelRecords(userId: number): Promise<LevelRecord[]> {
-    return await this.levelRecords({ 'user.id': userId });
+  async promoLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
+    return await this.experineceUserService.levelRecords(beginAt, {
+      ...promoFilter(new StatDate(beginAt)),
+    });
   }
 
-  async memberLevelRecords(): Promise<LevelRecord[]> {
-    return await this.levelRecords({ grade: 'Member' });
+  async promoMemberLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
+    return await this.experineceUserService.levelRecords(beginAt, {
+      ...promoFilter(new StatDate(beginAt)),
+      grade: 'Member',
+    });
   }
 
   async character(userId: number): Promise<Character | null> {
@@ -300,12 +309,14 @@ export class PersonalGeneralService {
         select: { projectId: 1 },
       });
 
-    const [projectTryCount, examTryCount] = teamProjectIds.reduce(
-      (acc, team) => [
-        acc[0] + 1,
-        acc[1] + Number(isExam(team.projectId, examProjects)),
-      ],
-      [0, 0],
+    const { projectTryCount, examTryCount } = teamProjectIds.reduce(
+      (acc, team) => {
+        acc.projectTryCount++;
+        acc.examTryCount += Number(isExam(team.projectId, examProjects));
+
+        return acc;
+      },
+      { projectTryCount: 0, examTryCount: 0 },
     );
 
     return {

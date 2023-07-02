@@ -95,12 +95,24 @@ export class PersonalGeneralResolver {
   ): Promise<LevelRecord[]> {
     return await this.personalGeneralService.userLevelRecords(
       root.userProfile.id,
+      root.beginAt,
     );
   }
 
   @ResolveField((_returns) => [LevelRecord])
-  async memberLevelRecords(): Promise<LevelRecord[]> {
-    return await this.personalGeneralService.memberLevelRecords();
+  async promoLevelRecords(
+    @Root() root: PersonalGeneralRoot,
+  ): Promise<LevelRecord[]> {
+    return await this.personalGeneralService.promoLevelRecords(root.beginAt);
+  }
+
+  @ResolveField((_returns) => [LevelRecord])
+  async promoMemberLevelRecords(
+    @Root() root: PersonalGeneralRoot,
+  ): Promise<LevelRecord[]> {
+    return await this.personalGeneralService.promoMemberLevelRecords(
+      root.beginAt,
+    );
   }
 
   @ResolveField((_returns) => Character, { nullable: true })
