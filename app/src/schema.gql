@@ -11,7 +11,9 @@ type Coalition {
   color: String
   score: Int!
 
-  """코알리숑 마스터의 user id 입니다."""
+  """
+  코알리숑 마스터의 user id 입니다.
+  """
   userId: Int!
 }
 
@@ -62,6 +64,15 @@ type ProjectPreview {
   id: Int!
   name: String!
   url: String!
+}
+
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+type LoginUser {
+  sub: String!
 }
 
 type CursorPageInfo {
@@ -136,7 +147,9 @@ type ScoreRecordPerCoalition {
 type HomeCoalition {
   totalScoresPerCoalition: [IntPerCoalition!]!
   scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
-  tigCountPerCoalitionByDateTemplate(dateTemplate: DateTemplate!): IntPerCoalitionDateRanged!
+  tigCountPerCoalitionByDateTemplate(
+    dateTemplate: DateTemplate!
+  ): IntPerCoalitionDateRanged!
 }
 
 enum DateTemplate {
@@ -200,16 +213,24 @@ enum TeamStatus {
 type PreferredTime {
   total: Int!
 
-  """06 ~ 12"""
+  """
+  06 ~ 12
+  """
   morning: Int!
 
-  """12 ~ 18"""
+  """
+  12 ~ 18
+  """
   daytime: Int!
 
-  """18 ~ 24"""
+  """
+  18 ~ 24
+  """
   evening: Int!
 
-  """24 ~ 06"""
+  """
+  24 ~ 06
+  """
   night: Int!
 }
 
@@ -253,8 +274,12 @@ type PersonalGeneral {
   wallet: Int!
   scoreInfo: UserScoreInfo!
   logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
-  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
+  preferredTimeByDateTemplate(
+    dateTemplate: DateTemplate!
+  ): PreferredTimeDateRanged!
+  preferredClusterByDateTemplate(
+    dateTemplate: DateTemplate!
+  ): PreferredClusterDateRanged!
   teamInfo: TeamInfo!
   userLevelRecords: [LevelRecord!]!
   promoLevelRecords: [LevelRecord!]!
@@ -326,7 +351,9 @@ type HomeUser {
   averageDurationPerCircle: [IntPerCircle!]!
 }
 
-"""누적 데이터 기준입니다."""
+"""
+누적 데이터 기준입니다.
+"""
 type Landing {
   daysAfterBeginAt: Int!
   aliveCount: Int!
@@ -337,10 +364,14 @@ type Landing {
 }
 
 type LeaderboardElement {
-  """내 랭킹 정보"""
+  """
+  내 랭킹 정보
+  """
   me: UserRank
 
-  """전체 랭킹 정보"""
+  """
+  전체 랭킹 정보
+  """
   totalRanking: UserRankingIndexPaginated!
 }
 
@@ -351,23 +382,47 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardEval {
-  """Available DateTemplate=[TOTAL, CURR_MONTH, CURR_WEEK]"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  """
+  Available DateTemplate=[TOTAL, CURR_MONTH, CURR_WEEK]
+  """
+  byDateTemplate(
+    pageSize: Int! = 10
+    pageNumber: Int! = 1
+    dateTemplate: DateTemplate!
+  ): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  """Available DateTemplate=[CURR_MONTH, CURR_WEEK]"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  """
+  Available DateTemplate=[CURR_MONTH, CURR_WEEK]
+  """
+  byDateTemplate(
+    pageSize: Int! = 10
+    pageNumber: Int! = 1
+    dateTemplate: DateTemplate!
+  ): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  """Available DateTemplate=[TOTAL]"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  """
+  Available DateTemplate=[TOTAL]
+  """
+  byDateTemplate(
+    pageSize: Int! = 10
+    pageNumber: Int! = 1
+    dateTemplate: DateTemplate!
+  ): LeaderboardElementDateRanged!
 }
 
 type LeaderboardScore {
-  """Available DateTemplate=[TOTAL, CURR_WEEK, CURR_MONTH]"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  """
+  Available DateTemplate=[TOTAL, CURR_WEEK, CURR_MONTH]
+  """
+  byDateTemplate(
+    pageSize: Int! = 10
+    pageNumber: Int! = 1
+    dateTemplate: DateTemplate!
+  ): LeaderboardElementDateRanged!
 }
 
 type MyInfo {
@@ -416,7 +471,9 @@ type ProjectInfo {
   difficulty: Int
   currRegisteredTeamCount: Int!
 
-  """총 제출 횟수 입니다."""
+  """
+  총 제출 횟수 입니다.
+  """
   closedTeamCount: Int!
   averagePassFinalMark: Int!
   validatedRate: Rate!
@@ -439,10 +496,27 @@ type Query {
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
-  getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
+  getEvalLogs(
+    after: String
+    first: Int! = 20
+    corrector: String
+    corrected: String
+    projectName: String
+    outstandingOnly: Boolean! = false
+    sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC
+  ): EvalLogsPaginated!
 }
 
 enum EvalLogSortOrder {
   BEGIN_AT_ASC
   BEGIN_AT_DESC
+}
+
+type Mutation {
+  loginWithGoogle(input: GoogleLoginInput!): LoginUser!
+}
+
+input GoogleLoginInput {
+  clientId: String!
+  credential: String!
 }
