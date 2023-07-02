@@ -274,7 +274,8 @@ type PersonalGeneral {
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
   teamInfo: TeamInfo!
   userLevelRecords: [LevelRecord!]!
-  memberLevelRecords: [LevelRecord!]!
+  promoLevelRecords: [LevelRecord!]!
+  promoMemberLevelRecords: [LevelRecord!]!
   character: Character
 }
 

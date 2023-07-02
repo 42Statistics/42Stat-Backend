@@ -3,6 +3,10 @@ import { StatDate } from 'src/statDate/StatDate';
 import type { cursus_user } from './cursusUser.database.schema';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 
+export const promoFilter = (date: StatDate): FilterQuery<cursus_user> => ({
+  beginAt: { $gte: date.moveWeek(-1), $lt: date.moveWeek(1) },
+});
+
 export const blackholedUserFilterByDateRange = (
   dateRange?: DateRange,
 ): FilterQuery<cursus_user> => {

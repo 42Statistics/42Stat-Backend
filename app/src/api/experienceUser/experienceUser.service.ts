@@ -48,6 +48,7 @@ export class ExperienceUserService {
   }
 
   async levelRecords(
+    beginAt: Date,
     filter?: FilterQuery<cursus_user>,
   ): Promise<LevelRecord[]> {
     const levelTable = await this.levelService.findAll({ sort: { lvl: 1 } });
@@ -103,6 +104,15 @@ export class ExperienceUserService {
       },
       [[], 0] as readonly [number[], number],
     );
+
+    const gapFromBeginAt = Math.min(
+      Math.ceil(StatDate.dateGap(new Date(), beginAt) / (StatDate.DAY * 30)),
+      24,
+    );
+
+    while (experienceRecords.length <= gapFromBeginAt) {
+      experienceRecords.push(experienceRecords.at(-1) ?? 0);
+    }
 
     return experienceRecords.map((record, index) => ({
       monthsPassed: index,

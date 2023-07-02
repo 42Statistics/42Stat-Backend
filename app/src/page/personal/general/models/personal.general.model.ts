@@ -182,7 +182,10 @@ export class PersonalGeneral {
   userLevelRecords: LevelRecord[];
 
   @Field((_type) => [LevelRecord])
-  memberLevelRecords: LevelRecord[];
+  promoLevelRecords: LevelRecord[];
+
+  @Field((_type) => [LevelRecord])
+  promoMemberLevelRecords: LevelRecord[];
 
   @Field({ nullable: true })
   character: Character;
