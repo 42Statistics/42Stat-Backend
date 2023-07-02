@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ProjectService } from 'src/api/project/project.service';
+import {
+  ProjectService,
+  projectUrlById,
+} from 'src/api/project/project.service';
 import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import {
@@ -25,7 +28,9 @@ export class ProjectInfoService {
     const projectTeamInfo = await this.projectTeamInfo(projectId);
     const projectSessionsInfo = await this.projectSessionInfo(projectId);
     return {
+      id: projectId,
       name: project.name,
+      url: projectUrlById(projectId),
       ...projectTeamInfo,
       ...projectSessionsInfo,
     };

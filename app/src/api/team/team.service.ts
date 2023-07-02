@@ -17,7 +17,7 @@ import {
 } from '../cursusUser/db/cursusUser.database.aggregate';
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
-import { NETWHAT_PREVIEW } from '../project/project.service';
+import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
 import { team, type TeamDocument } from './db/team.database.schema';
 
 @Injectable()
@@ -67,12 +67,8 @@ export class TeamService {
         projectPreview: {
           id: '$projects.id',
           name: '$projects.name',
-          // todo: project 꺼 사용
           url: {
-            $concat: [
-              'https://api.intra.42.fr/v2/projects/',
-              { $toString: '$projectId' },
-            ],
+            $concat: [PROJECT_BASE_URL, { $toString: '$projectId' }],
           },
         },
         status: 1,

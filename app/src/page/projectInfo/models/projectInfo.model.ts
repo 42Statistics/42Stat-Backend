@@ -3,7 +3,6 @@ import { Rate } from 'src/common/models/common.rate.model';
 
 export type ProjectSessionInfo = Pick<
   ProjectInfo,
-  | 'id'
   | 'objectives'
   | 'skills'
   | 'description'
@@ -28,6 +27,9 @@ export class ProjectInfo {
 
   @Field()
   name: string;
+
+  @Field()
+  url: string;
 
   @Field((_type) => [String])
   objectives: string[];
