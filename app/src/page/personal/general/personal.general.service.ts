@@ -332,34 +332,31 @@ export class PersonalGeneralService {
 
     const projectsUsers: {
       teams: { 'validated?'?: boolean }[];
-      'validated?'?: boolean;
       project: { id: number };
     }[] = await this.projectsUserService.findAll({
-      filter: { 'user.id': userId },
+      filter: { 'user.id': userId, 'validated?': { $ne: null } },
       select: {
         'teams.validated?': 1,
-        'validated?': 1,
         'project.id': 1,
       },
     });
 
-    const [examTotal, examOneShot, projectTotal, projectOneShot] =
+    const { examTotal, examOneShot, projectTotal, projectOneShot } =
       projectsUsers.reduce(
         (acc, projectsUser) => {
           const isOneShot = projectsUser.teams.at(0)?.['validated?'] === true;
-          const isValidated = projectsUser['validated?'] !== null;
 
           if (isExam(projectsUser.project.id, examProjects)) {
-            acc[0] += Number(isValidated);
-            acc[1] += Number(isOneShot);
+            acc.examTotal++;
+            acc.examOneShot += Number(isOneShot);
           }
 
-          acc[2] += Number(isValidated);
-          acc[3] += Number(isOneShot);
+          acc.projectTotal++;
+          acc.projectOneShot += Number(isOneShot);
 
           return acc;
         },
-        [0, 0, 0, 0],
+        { examTotal: 0, examOneShot: 0, projectTotal: 0, projectOneShot: 0 },
       );
 
     const evalCount = await this.scaleTeamService.evalCount({
