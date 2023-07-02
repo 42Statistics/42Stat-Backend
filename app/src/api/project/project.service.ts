@@ -10,15 +10,19 @@ import {
 import { ProjectDocument, project } from './db/project.database.schema';
 import type { ProjectPreview } from './models/project.preview';
 
+export const PROJECT_BASE_URL = 'https://projects.intra.42.fr/projects/';
+
+export const projectUrlById = (id: number): string =>
+  `${PROJECT_BASE_URL}${id}`;
+
 export const NETWHAT_PREVIEW: ProjectPreview = {
   id: 1318,
   name: 'netwhat',
-  url: 'https://api.intra.42.fr/v2/projects/1318',
+  url: projectUrlById(1318),
 };
 
 export const SEOUL_CAMPUS_ID = 29;
 
-// todo: refactor all
 @Injectable()
 export class ProjectService {
   constructor(
@@ -64,7 +68,7 @@ export class ProjectService {
       result.set(project.id, {
         id: project.id,
         name: project.name,
-        url: `https://projects.intra.42.fr/${project.id}`,
+        url: projectUrlById(project.id),
       }),
     );
 
@@ -81,7 +85,7 @@ export class ProjectService {
         result.set(project.id, {
           id: project.id,
           name: project.name,
-          url: `https://projects.intra.42.fr/${project.id}`,
+          url: projectUrlById(project.id),
         }),
       );
     }

@@ -11,7 +11,7 @@ import {
   addUserPreview,
   lookupCursusUser,
 } from '../cursusUser/db/cursusUser.database.aggregate';
-import { NETWHAT_PREVIEW } from '../project/project.service';
+import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
 import {
   scale_team,
@@ -181,7 +181,7 @@ export class ScaleTeamService {
             name: '$team.name',
             url: {
               $concat: [
-                'https://projects.intra.42.fr/projects/',
+                PROJECT_BASE_URL,
                 { $toString: '$team.projectId' },
                 '/projects_users/',
                 {
@@ -201,10 +201,7 @@ export class ScaleTeamService {
                 id: '$project.id',
                 name: '$project.name',
                 url: {
-                  $concat: [
-                    'https://projects.intra.42.fr/projects/',
-                    { $toString: '$project.id' },
-                  ],
+                  $concat: [PROJECT_BASE_URL, { $toString: '$project.id' }],
                 },
               },
             },

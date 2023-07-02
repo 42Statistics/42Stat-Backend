@@ -33,7 +33,6 @@ export class ProjectSessionService {
       .append(lookupProjectSessionsSkill('id', 'projectSessionId'))
       .append(lookupSkill('project_sessions_skills.skillId', 'id'))
       .project({
-        id: 1,
         projectSessionsRules: 1,
         objectives: 1,
         skills: '$skills.name',
@@ -51,7 +50,6 @@ export class ProjectSessionService {
     );
 
     return {
-      id: projectSessionInfo.id,
       objectives: projectSessionInfo.objectives ?? [],
       skills: projectSessionInfo.skills ?? [],
       description: projectSessionInfo.description,

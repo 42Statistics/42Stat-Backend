@@ -5,9 +5,10 @@ import { addRank } from 'src/common/db/common.db.aggregation';
 import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import { StatDate } from 'src/statDate/StatDate';
+import { PROJECT_BASE_URL } from '../project/project.service';
 import {
-  ProjectsUserDocument,
   projects_user,
+  type ProjectsUserDocument,
 } from './db/projectsUser.database.schema';
 
 @Injectable()
@@ -49,10 +50,7 @@ export class ProjectsUserService {
           id: '$_id',
           name: '$name',
           url: {
-            $concat: [
-              'https://projects.intra.42.fr/projects/',
-              { $toString: '$_id' },
-            ],
+            $concat: [PROJECT_BASE_URL, { $toString: '$_id' }],
           },
         },
         value: 1,
