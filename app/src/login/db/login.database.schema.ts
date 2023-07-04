@@ -6,10 +6,16 @@ export type LoginDocument = HydratedDocument<login>;
 @Schema({ versionKey: false })
 export class login {
   @Prop()
-  ftUid: number;
+  userId: number;
 
   @Prop()
   googleId?: string;
+
+  @Prop()
+  email?: string;
+
+  @Prop()
+  time?: Date;
 }
 
 export const LoginSchema = SchemaFactory.createForClass(login);

@@ -1,16 +1,17 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthResolver } from './login.resolver';
-import { AuthService } from './login.service';
 import { LoginSchema, login } from './db/login.database.schema';
+import { LoginResolver } from './login.resolver';
+import { LoginService } from './login.service';
 import { TokenSchema, token } from './db/token.database.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: login.name, schema: LoginSchema }]),
+    MongooseModule.forFeature([{ name: token.name, schema: TokenSchema }]),
     HttpModule,
   ],
-  providers: [AuthResolver, AuthService],
+  providers: [LoginResolver, LoginService],
 })
 export class LoginModule {}

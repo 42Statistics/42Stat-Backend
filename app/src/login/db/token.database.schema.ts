@@ -6,6 +6,9 @@ export type TokenDocument = HydratedDocument<token>;
 @Schema({ versionKey: false })
 export class token {
   @Prop()
+  userId: number;
+
+  @Prop()
   accessToken: string;
 
   @Prop()

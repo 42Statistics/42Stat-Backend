@@ -1,18 +1,20 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { OAuth2Client } from 'google-auth-library';
 import { Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
+import { StatDate } from 'src/statDate/StatDate';
 import { login } from './db/login.database.schema';
-import type { GoogleLoginInput } from './login.dto';
-import type { Tokens } from './models/login.models';
+import { token } from './db/token.database.schema';
+import type { GoogleLoginInput } from './dtos/login.dto';
+import { GoogleUser, StatusType } from './models/login.model';
 
 @Injectable()
-export class AuthService {
+export class LoginService {
   constructor(
-    @InjectModel(login.name)
-    private loginModel: Model<login>,
+    @InjectModel(login.name) private loginModel: Model<login>,
+    @InjectModel(token.name) private tokenModel: Model<token>,
     private readonly httpService: HttpService,
   ) {}
 
@@ -21,43 +23,47 @@ export class AuthService {
     google,
   }: { google: GoogleLoginInput | undefined } & {
     code: string | undefined;
-  }): Promise<Tokens> {
-    if (!code) {
-      console.log('연동된 42 계정이 없음');
-      throw new Error();
+  }): Promise<(typeof StatusType)[]> {
+    if (code && google) {
+      const user = await this.loginWith42(code);
+      const googleUser = await this.getGoogleUser(google);
+      await this.upsertLogin(user.userId, googleUser.googleId);
+
+      return await this.upsertToken(
+        user.userId,
+        user.accessToken,
+        user.refreshToken,
+      );
     }
 
-    const userInfo = await this.loginWith42(code);
+    if (code) {
+      const user = await this.loginWith42(code);
 
-    if (!google) {
-      console.log('42 login');
-      const user = await this.loginModel.findOne({ ftUid: userInfo.ftUid });
-      if (!user) {
-        const newUser = new this.loginModel({ ftUid: userInfo.ftUid });
-        await newUser.save();
-      }
+      await this.upsertLogin(user.userId);
 
-      return userInfo;
+      return await this.upsertToken(
+        user.userId,
+        user.accessToken,
+        user.refreshToken,
+      );
     }
 
-    console.log('google, 42 login');
-
-    const googleId = await this.getGoogleId(google);
-
-    const user = await this.loginModel.findOneAndUpdate(
-      { googleId },
-      { ftUid: userInfo.ftUid, googleId },
-    );
-
-    if (!user) {
-      const newUser = new this.loginModel({ ftUid: userInfo.ftUid, googleId });
-      await newUser.save();
+    if (google) {
+      return await this.loginWithGoogle(google);
     }
 
-    return userInfo;
+    //error
+    return [
+      {
+        status: 404,
+        message: 'Nothing input',
+      },
+    ];
   }
 
-  async loginWith42(code: string): Promise<Tokens> {
+  async loginWith42(
+    code: string,
+  ): Promise<{ userId: number; accessToken: string; refreshToken: string }> {
     const apiUid = process.env.CLIENT_ID;
     const apiSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
@@ -66,10 +72,14 @@ export class AuthService {
 
     if (!(apiUid && apiSecret && redirectUri)) {
       console.log('env 설정');
-      console.log(apiUid);
-      console.log(apiSecret);
-      console.log(redirectUri);
       throw new Error();
+      //todo
+      // return [
+      //   {
+      //     status: 500,
+      //     message: 'Missing environment configuration',
+      //   },
+      // ];
     }
 
     const params = new URLSearchParams();
@@ -80,7 +90,7 @@ export class AuthService {
     params.set('redirect_uri', redirectUri);
 
     const tokens = await lastValueFrom(
-      this.httpService.post<Tokens>(intraTokenUrl, params),
+      this.httpService.post(intraTokenUrl, params),
     );
 
     const userInfo = await lastValueFrom(
@@ -90,38 +100,131 @@ export class AuthService {
     );
 
     return {
-      ftUid: userInfo.data.id,
-      access_token: tokens.data.access_token,
-      refresh_token: tokens.data.refresh_token,
+      userId: userInfo.data.id,
+      accessToken: tokens.data.access_token,
+      refreshToken: tokens.data.refresh_token,
     };
   }
 
-  async getGoogleId(input: GoogleLoginInput | undefined): Promise<string> {
-    if (!input) {
-      throw new NotFoundException();
+  async loginWithGoogle(
+    googleInput: GoogleLoginInput,
+  ): Promise<(typeof StatusType)[]> {
+    const googleUser = await this.getGoogleUser(googleInput);
+    const user = await this.loginModel.findOne({
+      googleId: googleUser.googleId,
+    });
+
+    if (!user) {
+      return [
+        {
+          status: 401,
+          message: 'No associated 42 account found',
+        },
+      ];
     }
 
+    const token = await this.tokenModel.findOne({ userId: user.userId });
+
+    if (!token) {
+      return [
+        {
+          status: 404,
+          message: 'Token not found',
+        },
+      ];
+    }
+
+    return [
+      {
+        status: 200,
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        userId: token.userId,
+      },
+    ];
+  }
+
+  async getGoogleUser(input: GoogleLoginInput): Promise<GoogleUser> {
     const client = new OAuth2Client({
       clientId: input.clientId,
     });
 
-    try {
-      const ticket = await client.verifyIdToken({
-        idToken: input.credential,
-        audience: input.clientId,
-      });
+    const ticket = await client.verifyIdToken({
+      idToken: input.credential,
+      audience: input.clientId,
+    });
 
-      const payload = ticket.getPayload();
+    const payload = ticket.getPayload();
 
-      if (!payload) {
-        throw new Error('payload 가져오기 실패');
-      }
-
-      const sub = payload.sub;
-
-      return sub;
-    } catch (error) {
-      throw new NotFoundException();
+    if (!payload) {
+      throw new InternalServerErrorException();
     }
+
+    return {
+      googleId: payload.sub,
+      email: payload.email,
+      time: new StatDate(),
+    };
+  }
+
+  async upsertLogin(
+    userId: number,
+    googleId?: string,
+  ): Promise<(typeof StatusType)[]> {
+    const updateData = googleId ? { userId, googleId } : { userId };
+    //todo: null로 들어가도 되는지 확인
+    await this.loginModel.findOneAndUpdate({ userId }, updateData, {
+      upsert: true,
+    });
+
+    return [
+      {
+        status: 200,
+        message: '유저 저장 혹은 업데이트',
+      },
+    ];
+  }
+
+  async upsertToken(
+    userId: number,
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<(typeof StatusType)[]> {
+    const newToken = await this.tokenModel.findOneAndUpdate(
+      { userId },
+      { userId, accessToken, refreshToken },
+      { upsert: true, new: true },
+    );
+
+    return [
+      {
+        status: 200,
+        accessToken: newToken.accessToken,
+        refreshToken: newToken.refreshToken,
+        userId: newToken.userId,
+      },
+    ];
+  }
+
+  async linkGoogle(userId: number, google: GoogleLoginInput): Promise<boolean> {
+    const googleUser = await this.getGoogleUser(google);
+    await this.loginModel.findOneAndUpdate(
+      { userId },
+      {
+        userId,
+        googleId: googleUser.googleId,
+        email: googleUser.email,
+        time: new StatDate(),
+      },
+    );
+    return true;
+  }
+
+  async unlinkGoogle(userId: number): Promise<boolean> {
+    await this.loginModel.findOneAndUpdate(
+      { userId },
+      { $unset: { googleId: 1, email: 1, time: 1 } },
+    );
+    return true;
   }
 }

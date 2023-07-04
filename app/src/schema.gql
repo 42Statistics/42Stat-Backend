@@ -71,12 +71,6 @@ A field whose value conforms to the standard URL format as specified in RFC3986:
 """
 scalar URL
 
-type Tokens {
-  ftUid: Int!
-  access_token: String!
-  refresh_token: String!
-}
-
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -515,10 +509,32 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(code: String, google: GoogleLoginInput): Tokens!
+  login(code: String, google: GoogleLoginInput): [StatusType!]!
+  linkGoogle(userId: Int!, google: GoogleLoginInput!): Boolean!
+  unlinkGoogle(userId: Int!): Boolean!
 }
+<<<<<<< HEAD
+=======
+
+union StatusType = ErrorType | SuccessType
+
+type ErrorType {
+  status: Int!
+  message: String!
+}
+
+type SuccessType {
+  status: Int!
+  accessToken: String!
+  refreshToken: String!
+  userId: Int!
+}
+<<<<<<< HEAD
+>>>>>>> f35d15f... feat: :sparkles: unionType 생성
+=======
 
 input GoogleLoginInput {
   clientId: String!
   credential: String!
 }
+>>>>>>> ae6453d... feat: :sparkles: unionType 적용
