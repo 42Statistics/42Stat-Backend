@@ -13,5 +13,6 @@ import { TokenSchema, token } from './db/token.database.schema';
     HttpModule,
   ],
   providers: [LoginResolver, LoginService],
+  exports: [LoginService],
 })
 export class LoginModule {}

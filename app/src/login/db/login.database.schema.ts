@@ -12,10 +12,10 @@ export class login {
   googleId?: string;
 
   @Prop()
-  email?: string;
+  googleEmail?: string;
 
   @Prop()
-  time?: Date;
+  linkedTime?: Date;
 }
 
 export const LoginSchema = SchemaFactory.createForClass(login);

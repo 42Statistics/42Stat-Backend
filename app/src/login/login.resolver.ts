@@ -1,7 +1,7 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { GoogleLoginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
-import { GoogleUser, StatusType, Tokens } from './models/login.model';
+import { StatusType } from './models/login.model';
 
 @Resolver()
 export class LoginResolver {
