@@ -20,6 +20,7 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
+import { SettingModule } from './page/setting/setting.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
     ProjectInfoModule,
     LeaderboardModule,
     EvalLogModule,
+    SettingModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
       includeStacktraceInErrorResponses: process.env.PROD ? true : false,
       driver: ApolloDriver,

@@ -1,11 +1,15 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { OAuth2Client } from 'google-auth-library';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { StatDate } from 'src/statDate/StatDate';
-import { login } from './db/login.database.schema';
+import { LoginDocument, login } from './db/login.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import { GoogleUser, StatusType } from './models/login.model';
@@ -17,6 +21,16 @@ export class LoginService {
     @InjectModel(token.name) private tokenModel: Model<token>,
     private readonly httpService: HttpService,
   ) {}
+
+  async findOne(filter?: FilterQuery<login>): Promise<LoginDocument> {
+    const login = await this.loginModel.findOne(filter);
+
+    if (!login) {
+      throw new NotFoundException();
+    }
+
+    return login;
+  }
 
   async login({
     code,
@@ -89,21 +103,39 @@ export class LoginService {
     params.set('code', code);
     params.set('redirect_uri', redirectUri);
 
-    const tokens = await lastValueFrom(
-      this.httpService.post(intraTokenUrl, params),
-    );
+    try {
+      const tokens = await lastValueFrom(
+        this.httpService.post<{
+          access_token: string;
+          expires_in: number;
+          refresh_token: string;
+        }>(intraTokenUrl, params),
+      );
 
-    const userInfo = await lastValueFrom(
-      this.httpService.get(intraMeUrl, {
-        headers: { Authorization: `Bearer ${tokens.data.access_token}` },
-      }),
-    );
+      console.log(tokens.data); //type <>
 
-    return {
-      userId: userInfo.data.id,
-      accessToken: tokens.data.access_token,
-      refreshToken: tokens.data.refresh_token,
-    };
+      const userInfo = await lastValueFrom(
+        //<user>
+        this.httpService.get<{ id: number }>(intraMeUrl, {
+          headers: { Authorization: `Bearer ${tokens.data.access_token}` },
+        }),
+      );
+
+      return {
+        userId: userInfo.data.id,
+        accessToken: tokens.data.access_token,
+        refreshToken: tokens.data.refresh_token,
+      };
+    } catch (e) {
+      throw new Error();
+      //todo
+      // return [
+      //   {
+      //     status: 401,
+      //     message: 'token error',
+      //   },
+      // ];
+    }
   }
 
   async loginWithGoogle(
@@ -208,7 +240,7 @@ export class LoginService {
 
   async linkGoogle(userId: number, google: GoogleLoginInput): Promise<boolean> {
     const googleUser = await this.getGoogleUser(google);
-    await this.loginModel.findOneAndUpdate(
+    const user = await this.loginModel.findOneAndUpdate(
       { userId },
       {
         userId,
@@ -217,14 +249,47 @@ export class LoginService {
         time: new StatDate(),
       },
     );
+
+    if (!user || !googleUser) {
+      return false;
+    }
+
     return true;
   }
 
   async unlinkGoogle(userId: number): Promise<boolean> {
-    await this.loginModel.findOneAndUpdate(
+    const user = await this.loginModel.findOneAndUpdate(
       { userId },
       { $unset: { googleId: 1, email: 1, time: 1 } },
     );
+
+    if (!user) {
+      return false;
+    }
+
     return true;
   }
+
+  /**-----token-----**/
+
+  // async checkExpiresAccessToken(
+  //   accessToken: string,
+  // ): Promise<(typeof StatusType)[]> {
+
+  //   if (tokenInfo.data.expires_in_seconds <= 0) {
+  //     return [
+  //       {
+  //         status: 403,
+  //         message: 'Expired access token',
+  //       },
+  //     ];
+  //   }
+
+  //   return [
+  //     {
+  //       status: 200,
+  //       message: 'succeed',
+  //     },
+  //   ];
+  // }
 }
