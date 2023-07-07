@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CacheModule } from 'src/cache/cache.module';
+import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { CursusUserModule } from '../cursusUser/cursusUser.module';
 import { LocationSchema, location } from './db/location.database.schema';
 import { LocationCacheService } from './location.cache.service';
@@ -12,7 +12,7 @@ import { LocationService } from './location.service';
       { name: location.name, schema: LocationSchema },
     ]),
     CursusUserModule,
-    CacheModule,
+    CacheUtilModule,
   ],
   providers: [LocationService, LocationCacheService],
   exports: [
@@ -20,7 +20,7 @@ import { LocationService } from './location.service';
     LocationService,
     LocationCacheService,
     CursusUserModule,
-    CacheModule,
+    CacheUtilModule,
   ],
 })
 // eslint-disable-next-line

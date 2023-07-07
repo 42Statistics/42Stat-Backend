@@ -6,13 +6,12 @@ import {
   ScoreRankingSupportedDateTemplate,
 } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
-import type { UserRankCache } from 'src/cache/cache.service';
-import { CacheService } from 'src/cache/cache.service';
+import { UserRankCache } from 'src/cache/cache.util.service';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
-import type { RankingArgs } from '../leaderboard.ranking.args';
+import type { RankingArgs } from '../leaderboard.type';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -26,7 +25,6 @@ export class LeaderboardScoreService {
     private scoreService: ScoreService,
     private scoreCacheService: ScoreCacheService,
     private dateRangeService: DateRangeService,
-    private cacheService: CacheService,
   ) {}
 
   async ranking({
@@ -35,11 +33,8 @@ export class LeaderboardScoreService {
     filter,
     cachedRanking,
   }: RankingArgs<score>): Promise<LeaderboardElement> {
-    const scoreRanking = cachedRanking
-      ? cachedRanking.map((cachedRank) =>
-          this.cacheService.extractUserRankFromCache(cachedRank),
-        )
-      : await this.scoreService.scoreRanking(filter);
+    const scoreRanking =
+      cachedRanking ?? (await this.scoreService.scoreRanking(filter));
 
     const me = findUserRank(scoreRanking, userId);
     const totalRanks = scoreRanking.filter(({ value }) => value >= 0);

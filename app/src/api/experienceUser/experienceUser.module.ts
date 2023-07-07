@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CacheModule } from 'src/cache/cache.module';
+import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { CursusUserModule } from '../cursusUser/cursusUser.module';
 import { LevelModule } from '../level/level.module';
 import {
@@ -17,7 +17,7 @@ import { ExperienceUserService } from './experienceUser.service';
     ]),
     CursusUserModule,
     LevelModule,
-    CacheModule,
+    CacheUtilModule,
   ],
   providers: [ExperienceUserService, ExperienceUserCacheService],
   exports: [
@@ -26,7 +26,7 @@ import { ExperienceUserService } from './experienceUser.service';
     ExperienceUserCacheService,
     CursusUserModule,
     LevelModule,
-    CacheModule,
+    CacheUtilModule,
   ],
 })
 // eslint-diable-next-line

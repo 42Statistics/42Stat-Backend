@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { CacheModule } from 'src/cache/cache.module';
+import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { CursusUserModule } from '../cursusUser/cursusUser.module';
 import { scale_team, ScaleTeamSchema } from './db/scaleTeam.database.schema';
 import { ScaleTeamCacheService } from './scaleTeam.cache.service';
@@ -12,7 +12,7 @@ import { ScaleTeamService } from './scaleTeam.service';
       { name: scale_team.name, schema: ScaleTeamSchema },
     ]),
     CursusUserModule,
-    CacheModule,
+    CacheUtilModule,
   ],
   providers: [ScaleTeamService, ScaleTeamCacheService],
   exports: [
@@ -20,7 +20,7 @@ import { ScaleTeamService } from './scaleTeam.service';
     ScaleTeamService,
     ScaleTeamCacheService,
     CursusUserModule,
-    CacheModule,
+    CacheUtilModule,
   ],
 })
 export class ScaleTeamModule {}
