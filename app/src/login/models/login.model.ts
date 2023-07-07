@@ -1,27 +1,6 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 
 @ObjectType()
-export class Tokens {
-  @Field()
-  userId: number;
-
-  @Field()
-  accessToken: string;
-
-  @Field()
-  refreshToken: string;
-}
-
-@ObjectType()
-export class ValidateResult {
-  @Field()
-  message: string;
-
-  @Field()
-  errorCode: number;
-}
-
-@ObjectType()
 export class GoogleUser {
   @Field()
   googleId: string;
@@ -34,15 +13,27 @@ export class GoogleUser {
 }
 
 @ObjectType()
-export class ErrorType {
-  /**
-   * google login only: 401
-   * token not found: 404
-   * token 만료 : 401
-   * input 없음: 404
-   */
+export class InternalServerErrorType {
   @Field()
-  status: number;
+  status: 500;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class UnauthorizedType {
+  @Field()
+  status: 401;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class NotFoundType {
+  @Field()
+  status: 404;
 
   @Field()
   message: string;
@@ -51,7 +42,7 @@ export class ErrorType {
 @ObjectType()
 export class SuccessType {
   @Field()
-  status: number;
+  status: 200;
 
   @Field()
   accessToken: string;
@@ -63,19 +54,27 @@ export class SuccessType {
   userId: number;
 }
 
-export const StatusType = createUnionType({
-  name: 'StatusType',
-  types: () => [ErrorType, SuccessType] as const,
+export const StatusUnion = createUnionType({
+  name: 'StatusUnion',
+  types: () =>
+    [
+      SuccessType,
+      UnauthorizedType,
+      NotFoundType,
+      InternalServerErrorType,
+    ] as const,
   resolveType(value) {
-    if ('message' in value) {
-      return ErrorType;
-    } else if (
-      'accessToken' in value &&
-      'refreshToken' in value &&
-      'userId' in value
-    ) {
-      return SuccessType;
+    switch (value.status) {
+      case 200:
+        return SuccessType;
+      case 401:
+        return UnauthorizedType;
+      case 404:
+        return NotFoundType;
+      case 500:
+        return InternalServerErrorType;
+      default:
+        return undefined;
     }
-    return undefined;
   },
 });

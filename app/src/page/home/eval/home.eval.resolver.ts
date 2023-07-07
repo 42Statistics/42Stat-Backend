@@ -1,5 +1,6 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import {
   FloatDateRanged,
   IntDateRanged,
@@ -10,6 +11,7 @@ import { HomeEvalService } from './home.eval.service';
 import { HomeEval } from './models/home.eval.model';
 
 @UseFilters(HttpExceptionFilter)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeEval)
 export class HomeEvalResolver {
   constructor(private homeEvalService: HomeEvalService) {}

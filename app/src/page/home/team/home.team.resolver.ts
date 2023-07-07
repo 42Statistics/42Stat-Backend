@@ -1,5 +1,6 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeTeamService } from './home.team.service';
 import {
@@ -11,6 +12,7 @@ import {
 } from './models/home.team.model';
 
 @UseFilters(HttpExceptionFilter)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeTeam)
 export class HomeTeamResolver {
   constructor(private homeTeamService: HomeTeamService) {}

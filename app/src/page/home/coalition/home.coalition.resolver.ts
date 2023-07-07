@@ -1,5 +1,6 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeCoalitionService } from './home.coalition.service';
@@ -11,6 +12,7 @@ import {
 } from './models/home.coalition.model';
 
 @UseFilters(HttpExceptionFilter)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeCoalition)
 export class HomeCoalitionResolver {
   constructor(private homeCoalitionService: HomeCoalitionService) {}

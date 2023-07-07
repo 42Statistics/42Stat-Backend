@@ -1,5 +1,6 @@
-import { UseFilters } from '@nestjs/common';
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
@@ -14,6 +15,7 @@ import {
 } from './models/home.user.model';
 
 @UseFilters(HttpExceptionFilter)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeUser)
 export class HomeUserResolver {
   constructor(private homeUserService: HomeUserService) {}
