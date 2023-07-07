@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
+import { scoreRecordsFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -39,11 +40,9 @@ export class HomeCoalitionService {
 
     return (
       cachedScoreRecords ??
-      (await this.scoreService.scoreRecordsPerCoalition({
-        createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-        coalitionsUserId: { $ne: null },
-        coalitionId: { $in: SEOUL_COALITION_ID },
-      }))
+      (await this.scoreService.scoreRecordsPerCoalition(
+        scoreRecordsFilter(dateRange),
+      ))
     );
   }
 
