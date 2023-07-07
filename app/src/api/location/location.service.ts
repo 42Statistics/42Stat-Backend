@@ -123,7 +123,7 @@ export class LocationService {
     return durationTimePerCluster?.cluster ?? null;
   }
 
-  async logtimePerUserByDateRange(
+  async logtimeRanking(
     dateRange: DateRange,
     filter?: FilterQuery<location>,
   ): Promise<UserRank[]> {

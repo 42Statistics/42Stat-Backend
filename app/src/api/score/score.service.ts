@@ -6,7 +6,10 @@ import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
-import { CoalitionService } from '../coalition/coalition.service';
+import {
+  CoalitionService,
+  SEOUL_COALITION_ID,
+} from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -33,8 +36,17 @@ export class ScoreService {
       this.cursusUserService.aggregate<UserRankWithCoalitionId>();
 
     return await aggregate
-      .append(lookupCoalitionsUser('user.id', 'userId'))
+      .append(
+        lookupCoalitionsUser('user.id', 'userId', [
+          {
+            $match: {
+              coalitionId: { $in: SEOUL_COALITION_ID },
+            },
+          },
+        ]),
+      )
       .addFields({ coalitions_users: { $first: '$coalitions_users' } })
+      .match({ coalitions_users: { $ne: null } })
       .append(
         lookupScores(
           'coalitions_users.id',

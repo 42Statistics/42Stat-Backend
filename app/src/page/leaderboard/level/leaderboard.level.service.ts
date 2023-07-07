@@ -8,16 +8,10 @@ import type {
   CursusUserDocument,
   cursus_user,
 } from 'src/api/cursusUser/db/cursusUser.database.schema';
-import { CacheService } from 'src/cache/cache.service';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
-import type { RankingArgs } from '../leaderboard.ranking.args';
-import type {
-  LeaderboardElement,
-  LeaderboardElementDateRanged,
-} from '../models/leaderboard.model';
+import type { RankingArgs, RankingByDateTemplateFn } from '../leaderboard.type';
+import type { LeaderboardElement } from '../models/leaderboard.model';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
@@ -27,7 +21,6 @@ export class LeaderboardLevelService {
     private cursusUserService: CursusUserService,
     private cursusUserCacheService: CursusUserCacheService,
     private dateRangeService: DateRangeService,
-    private cacheService: CacheService,
   ) {}
 
   async ranking({
@@ -36,14 +29,12 @@ export class LeaderboardLevelService {
     filter,
     cachedRanking,
   }: RankingArgs<cursus_user>): Promise<LeaderboardElement> {
-    const levelRanking = cachedRanking
-      ? cachedRanking.map((cachedRank) =>
-          this.cacheService.extractUserRankFromCache(cachedRank),
-        )
-      : await this.cursusUserService.ranking(
-          { sort: { level: -1 }, filter },
-          (doc: CursusUserDocument) => doc.level,
-        );
+    const levelRanking =
+      cachedRanking ??
+      (await this.cursusUserService.ranking(
+        { sort: { level: -1 }, filter },
+        (doc: CursusUserDocument) => doc.level,
+      ));
 
     const me = findUserRank(levelRanking, userId);
 
@@ -54,26 +45,17 @@ export class LeaderboardLevelService {
     );
   }
 
-  async rankingTotal(
-    userId: number,
-    paginationIndexArgs: PaginationIndexArgs,
-  ): Promise<LeaderboardElement> {
+  rankingByDateTemplate: RankingByDateTemplateFn<cursus_user> = async (
+    dateTemplate,
+    rankingArgs,
+  ) => {
     const cachedRanking = await this.cursusUserCacheService.getUserRanking(
       USER_LEVEL_RANKING,
     );
 
-    return await this.ranking({ userId, paginationIndexArgs, cachedRanking });
-  }
-
-  async rankingByDateTemplate(
-    userId: number,
-    paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: DateTemplate.TOTAL,
-  ): Promise<LeaderboardElementDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    const rankingTotal = await this.rankingTotal(userId, paginationIndexArgs);
+    const rankingTotal = await this.ranking({ cachedRanking, ...rankingArgs });
 
     return this.dateRangeService.toDateRanged(rankingTotal, dateRange);
-  }
+  };
 }

@@ -46,7 +46,7 @@ export const LAMBDA_UPDATED_AT = 'lambdaUpdatedAt';
 @Injectable()
 export class LambdaService {
   constructor(
-    private cacheTempService: CacheUtilService,
+    private cacheUtilService: CacheUtilService,
     private cursusUserService: CursusUserService,
     private scaleTeamService: ScaleTeamService,
     private scoreService: ScoreService,
@@ -63,7 +63,7 @@ export class LambdaService {
 
     const userFullProfiles = await this.cursusUserService.userFullProfile();
 
-    await this.cacheTempService.setUserFullProfiles(
+    await this.cacheUtilService.setUserFullProfiles(
       userFullProfiles,
       updatedAt,
     );
@@ -110,13 +110,13 @@ export class LambdaService {
     updatedAt: Date,
     valueExtractor: (userFullProfile: UserFullProfile) => number,
   ): Promise<void> {
-    const key = this.cacheTempService.buildKey(
+    const key = this.cacheUtilService.buildKey(
       keyBase,
       DateTemplate[DateTemplate.TOTAL],
     );
 
     const userFullProfileMap =
-      await this.cacheTempService.getUserFullProfileMap();
+      await this.cacheUtilService.getUserFullProfileMap();
 
     assertExist(userFullProfileMap);
 
@@ -126,7 +126,7 @@ export class LambdaService {
       rankingMap.set(userId, {
         ...userFullProfile,
         userPreview:
-          this.cacheTempService.extractUserPreviewFromFullProfile(
+          this.cacheUtilService.extractUserPreviewFromFullProfile(
             userFullProfile,
           ),
         value: valueExtractor(userFullProfile),
@@ -134,16 +134,16 @@ export class LambdaService {
       });
     });
 
-    this.cacheTempService.sortRankingMap(rankingMap);
+    this.cacheUtilService.sortRankingMap(rankingMap);
 
-    await this.cacheTempService.setWithDate(key, rankingMap, updatedAt);
+    await this.cacheUtilService.setWithDate(key, rankingMap, updatedAt);
   }
 
   private updateEvalCountRanking: UpdateRankingByDateTemplateFn = async (
     updatedAt: Date,
     dateTemplate: CacheSupportedDateTemplate,
   ) => {
-    await this.cacheTempService.updateRanking(
+    await this.cacheUtilService.updateRanking(
       EVAL_COUNT_RANKING,
       updatedAt,
       dateTemplate,
@@ -160,13 +160,13 @@ export class LambdaService {
       'feedback',
     );
 
-    await this.cacheTempService.setWithDate(
+    await this.cacheUtilService.setWithDate(
       AVERAGE_COMMENT_LENGTH,
       comment,
       updatedAt,
     );
 
-    await this.cacheTempService.setWithDate(
+    await this.cacheUtilService.setWithDate(
       AVERAGE_COMMENT_LENGTH,
       feedback,
       updatedAt,
@@ -177,7 +177,7 @@ export class LambdaService {
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheTempService.updateRanking(
+    await this.cacheUtilService.updateRanking(
       SCORE_RANKING,
       updatedAt,
       dateTemplate,
@@ -189,7 +189,7 @@ export class LambdaService {
   private async updateTotalScoresPerCoalition(updatedAt: Date): Promise<void> {
     const totalScores = await this.scoreService.scoresPerCoalition();
 
-    await this.cacheTempService.setWithDate(
+    await this.cacheUtilService.setWithDate(
       TOTAL_SCORES_BY_COALITION,
       totalScores,
       updatedAt,
@@ -209,7 +209,7 @@ export class LambdaService {
       scoreRecordsFilter(dateRange),
     );
 
-    await this.cacheTempService.setWithDate(
+    await this.cacheUtilService.setWithDate(
       SCORE_RECORDS,
       scoreRecords,
       updatedAt,
@@ -220,7 +220,7 @@ export class LambdaService {
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheTempService.updateRanking(
+    await this.cacheUtilService.updateRanking(
       EXP_INCREAMENT_RANKING,
       updatedAt,
       dateTemplate,
@@ -235,7 +235,7 @@ export class LambdaService {
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheTempService.updateRanking(
+    await this.cacheUtilService.updateRanking(
       LOGTIME_RANKING,
       updatedAt,
       dateTemplate,

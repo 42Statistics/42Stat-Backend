@@ -1,21 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
+import { expIncreamentDateFilter } from 'src/api/experienceUser/db/experiecneUser.database.aggregate';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import {
   ExpIncreamentRankingCacheSupportedDateTemplate,
   ExperienceUserCacheService,
 } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
-import { CacheService, UserRankCache } from 'src/cache/cache.service';
-import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
-import type { RankingArgs } from '../leaderboard.ranking.args';
 import type {
-  LeaderboardElement,
-  LeaderboardElementDateRanged,
-} from '../models/leaderboard.model';
+  RankingByDateRangeFn,
+  RankingByDateTemplateFn,
+  RankingFn,
+} from '../leaderboard.type';
 import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
@@ -25,64 +21,43 @@ export class LeaderboardExpService {
     private experienceUserService: ExperienceUserService,
     private experienceUserCacheService: ExperienceUserCacheService,
     private dateRangeService: DateRangeService,
-    private cacheService: CacheService,
   ) {}
 
-  async ranking({
-    userId,
-    paginationIndexArgs,
-    filter,
-    cachedRanking,
-  }: RankingArgs<experience_user>): Promise<LeaderboardElement> {
-    const expRanking = cachedRanking
-      ? cachedRanking.map((cachedRank) =>
-          this.cacheService.extractUserRankFromCache(cachedRank),
-        )
-      : await this.experienceUserService.increamentRanking(filter);
-
-    const me = findUserRank(expRanking, userId);
-
-    return this.leaderboardUtilService.toLeaderboardElement(
-      me,
-      expRanking,
-      paginationIndexArgs,
+  ranking: RankingFn<experience_user> = async (rankingArgs) => {
+    return await this.leaderboardUtilService.rankingImpl(
+      this.experienceUserService.increamentRanking,
+      rankingArgs,
     );
-  }
+  };
 
-  async rankingByDateRange(
-    userId: number,
-    paginationIndexArgs: PaginationIndexArgs,
-    dateRange: DateRange,
-    cachedRanking?: UserRankCache[],
-  ): Promise<LeaderboardElementDateRanged> {
-    const dateFilter: FilterQuery<experience_user> = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
+  rankingByDateRange: RankingByDateRangeFn<experience_user> = async (
+    dateRange,
+    rankingArgs,
+  ) => {
+    const dateFilter = expIncreamentDateFilter(dateRange);
 
-    const expRanking = await this.ranking({
-      userId,
-      paginationIndexArgs,
+    const ranking = await this.ranking({
       filter: dateFilter,
-      cachedRanking,
+      ...rankingArgs,
     });
 
-    return this.dateRangeService.toDateRanged(expRanking, dateRange);
-  }
+    return this.dateRangeService.toDateRanged(ranking, dateRange);
+  };
 
-  async rankingByDateTemplate(
-    userId: number,
-    paginationIndexArgs: PaginationIndexArgs,
-    dateTemplate: ExpIncreamentRankingCacheSupportedDateTemplate,
-  ): Promise<LeaderboardElementDateRanged> {
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    return await this.rankingByDateRange(
-      userId,
-      paginationIndexArgs,
-      dateRange,
+  rankingByDateTemplate: RankingByDateTemplateFn<
+    experience_user,
+    ExpIncreamentRankingCacheSupportedDateTemplate
+  > = async (dateTemplate, rankingArgs) => {
+    const cachedRanking =
       await this.experienceUserCacheService.getExpIncreamentRanking(
         dateTemplate,
-      ),
-    );
-  }
+      );
+
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    return this.rankingByDateRange(dateRange, {
+      cachedRanking,
+      ...rankingArgs,
+    });
+  };
 }

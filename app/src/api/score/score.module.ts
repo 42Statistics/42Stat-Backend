@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
-import { CacheModule } from 'src/cache/cache.module';
+import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { CoalitionModule } from '../coalition/coalition.module';
 import { score, ScoreSchema } from './db/score.database.schema';
@@ -14,7 +14,7 @@ import { ScoreService } from './score.service';
     CursusUserModule,
     CoalitionModule,
     DateRangeModule,
-    CacheModule,
+    CacheUtilModule,
   ],
   providers: [ScoreService, ScoreCacheService],
   exports: [
@@ -23,7 +23,7 @@ import { ScoreService } from './score.service';
     ScoreCacheService,
     CursusUserModule,
     CoalitionModule,
-    CacheModule,
+    CacheUtilModule,
   ],
 })
 // eslint-disable-next-line
