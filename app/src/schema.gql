@@ -455,23 +455,36 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(code: String, google: GoogleLoginInput): [StatusType!]!
+  login(code: String, google: GoogleLoginInput): StatusUnion!
   linkGoogle(userId: Int!, google: GoogleLoginInput!): Boolean!
   unlinkGoogle(userId: Int!): Boolean!
+  refreshToken(accessToken: String!, refreshToken: String!): StatusUnion!
+  logout(userId: Int!): Boolean!
+  deleteAccount(userId: Int!): Boolean!
 }
 
-union StatusType = ErrorType | SuccessType
-
-type ErrorType {
-  status: Int!
-  message: String!
-}
+union StatusUnion = SuccessType | UnauthorizedType | NotFoundType | InternalServerErrorType
 
 type SuccessType {
   status: Int!
   accessToken: String!
   refreshToken: String!
   userId: Int!
+}
+
+type UnauthorizedType {
+  status: Int!
+  message: String!
+}
+
+type NotFoundType {
+  status: Int!
+  message: String!
+}
+
+type InternalServerErrorType {
+  status: Int!
+  message: String!
 }
 
 input GoogleLoginInput {

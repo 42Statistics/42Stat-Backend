@@ -4,15 +4,16 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { OAuth2Client } from 'google-auth-library';
-import { FilterQuery, Model } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { StatDate } from 'src/statDate/StatDate';
 import { LoginDocument, login } from './db/login.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
-import { GoogleUser, StatusType } from './models/login.model';
+import { GoogleUser, StatusUnion } from './models/login.model';
 
 @Injectable()
 export class LoginService {
@@ -20,8 +21,10 @@ export class LoginService {
     @InjectModel(login.name) private loginModel: Model<login>,
     @InjectModel(token.name) private tokenModel: Model<token>,
     private readonly httpService: HttpService,
+    private jwtService: JwtService,
   ) {}
 
+  //todo: loginModel임을 적어야함...
   async findOne(filter?: FilterQuery<login>): Promise<LoginDocument> {
     const login = await this.loginModel.findOne(filter);
 
@@ -37,29 +40,35 @@ export class LoginService {
     google,
   }: { google: GoogleLoginInput | undefined } & {
     code: string | undefined;
-  }): Promise<(typeof StatusType)[]> {
+  }): Promise<typeof StatusUnion> {
     if (code && google) {
       const user = await this.loginWith42(code);
       const googleUser = await this.getGoogleUser(google);
-      await this.upsertLogin(user.userId, googleUser.googleId);
 
-      return await this.upsertToken(
-        user.userId,
-        user.accessToken,
-        user.refreshToken,
-      );
+      if (user.status !== 200) {
+        return user;
+      }
+
+      await this.upsertLogin(user.userId, googleUser);
+
+      const accessToken = await this.generateAcccessToken(user.userId);
+      const refreshToken = await this.generateRefreshToken(user.userId);
+
+      return await this.upsertToken(user.userId, accessToken, refreshToken);
     }
 
     if (code) {
       const user = await this.loginWith42(code);
-
+      if (user.status !== 200) {
+        return user;
+      }
+      //todo: check google user delete
       await this.upsertLogin(user.userId);
 
-      return await this.upsertToken(
-        user.userId,
-        user.accessToken,
-        user.refreshToken,
-      );
+      const accessToken = await this.generateAcccessToken(user.userId);
+      const refreshToken = await this.generateRefreshToken(user.userId);
+
+      return await this.upsertToken(user.userId, accessToken, refreshToken);
     }
 
     if (google) {
@@ -67,17 +76,13 @@ export class LoginService {
     }
 
     //error
-    return [
-      {
-        status: 404,
-        message: 'Nothing input',
-      },
-    ];
+    return {
+      status: 404,
+      message: 'Nothing input',
+    };
   }
 
-  async loginWith42(
-    code: string,
-  ): Promise<{ userId: number; accessToken: string; refreshToken: string }> {
+  async loginWith42(code: string): Promise<typeof StatusUnion> {
     const apiUid = process.env.CLIENT_ID;
     const apiSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
@@ -85,15 +90,10 @@ export class LoginService {
     const intraMeUrl = 'https://api.intra.42.fr/v2/me';
 
     if (!(apiUid && apiSecret && redirectUri)) {
-      console.log('env 설정');
-      throw new Error();
-      //todo
-      // return [
-      //   {
-      //     status: 500,
-      //     message: 'Missing environment configuration',
-      //   },
-      // ];
+      return {
+        status: 500,
+        message: 'Missing environment configuration',
+      };
     }
 
     const params = new URLSearchParams();
@@ -112,10 +112,7 @@ export class LoginService {
         }>(intraTokenUrl, params),
       );
 
-      console.log(tokens.data); //type <>
-
       const userInfo = await lastValueFrom(
-        //<user>
         this.httpService.get<{ id: number }>(intraMeUrl, {
           headers: { Authorization: `Bearer ${tokens.data.access_token}` },
         }),
@@ -125,55 +122,51 @@ export class LoginService {
         userId: userInfo.data.id,
         accessToken: tokens.data.access_token,
         refreshToken: tokens.data.refresh_token,
+        status: 200,
       };
     } catch (e) {
-      throw new Error();
-      //todo
-      // return [
-      //   {
-      //     status: 401,
-      //     message: 'token error',
-      //   },
-      // ];
+      return {
+        status: 401,
+        message: 'Token error',
+      };
     }
   }
 
   async loginWithGoogle(
     googleInput: GoogleLoginInput,
-  ): Promise<(typeof StatusType)[]> {
+  ): Promise<typeof StatusUnion> {
     const googleUser = await this.getGoogleUser(googleInput);
     const user = await this.loginModel.findOne({
       googleId: googleUser.googleId,
     });
 
     if (!user) {
-      return [
-        {
-          status: 401,
-          message: 'No associated 42 account found',
-        },
-      ];
+      return {
+        status: 401,
+        message: 'No associated 42 account found',
+      };
     }
 
     const token = await this.tokenModel.findOne({ userId: user.userId });
 
-    if (!token) {
-      return [
-        {
-          status: 404,
-          message: 'Token not found',
-        },
-      ];
-    }
-
-    return [
-      {
+    if (token) {
+      return {
         status: 200,
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         userId: token.userId,
-      },
-    ];
+      };
+    }
+
+    const accessToken = await this.generateAcccessToken(user.userId);
+    const refreshToken = await this.generateRefreshToken(user.userId);
+
+    return {
+      status: 200,
+      accessToken,
+      refreshToken,
+      userId: user.userId,
+    };
   }
 
   async getGoogleUser(input: GoogleLoginInput): Promise<GoogleUser> {
@@ -199,43 +192,38 @@ export class LoginService {
     };
   }
 
-  async upsertLogin(
-    userId: number,
-    googleId?: string,
-  ): Promise<(typeof StatusType)[]> {
-    const updateData = googleId ? { userId, googleId } : { userId };
+  async upsertLogin(userId: number, googleUser?: GoogleUser): Promise<boolean> {
+    const updateData = googleUser
+      ? {
+          userId,
+          googleId: googleUser.googleId,
+          googleEmail: googleUser.email,
+          linkedTime: googleUser.time,
+        }
+      : { userId };
     //todo: null로 들어가도 되는지 확인
-    await this.loginModel.findOneAndUpdate({ userId }, updateData, {
-      upsert: true,
-    });
+    await this.loginModel.findOneAndUpdate({ userId }, updateData);
 
-    return [
-      {
-        status: 200,
-        message: '유저 저장 혹은 업데이트',
-      },
-    ];
+    return true;
   }
 
   async upsertToken(
     userId: number,
     accessToken: string,
     refreshToken: string,
-  ): Promise<(typeof StatusType)[]> {
+  ): Promise<typeof StatusUnion> {
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
       { upsert: true, new: true },
     );
 
-    return [
-      {
-        status: 200,
-        accessToken: newToken.accessToken,
-        refreshToken: newToken.refreshToken,
-        userId: newToken.userId,
-      },
-    ];
+    return {
+      status: 200,
+      accessToken: newToken.accessToken,
+      refreshToken: newToken.refreshToken,
+      userId: newToken.userId,
+    };
   }
 
   async linkGoogle(userId: number, google: GoogleLoginInput): Promise<boolean> {
@@ -248,6 +236,7 @@ export class LoginService {
         email: googleUser.email,
         time: new StatDate(),
       },
+      { upsert: true, new: true },
     );
 
     if (!user || !googleUser) {
@@ -272,24 +261,79 @@ export class LoginService {
 
   /**-----token-----**/
 
-  // async checkExpiresAccessToken(
-  //   accessToken: string,
-  // ): Promise<(typeof StatusType)[]> {
+  async generateAcccessToken(userId: number): Promise<string> {
+    const user = await this.findOne({ userId });
+    const payload = { userId: user.userId };
+    const accessToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '3d',
+      secret: process.env.JWT_SECRET,
+    });
 
-  //   if (tokenInfo.data.expires_in_seconds <= 0) {
-  //     return [
-  //       {
-  //         status: 403,
-  //         message: 'Expired access token',
-  //       },
-  //     ];
-  //   }
+    return accessToken;
+  }
 
-  //   return [
-  //     {
-  //       status: 200,
-  //       message: 'succeed',
-  //     },
-  //   ];
-  // }
+  async generateRefreshToken(userId: number): Promise<string> {
+    const user = await this.findOne({ userId });
+    const payload = { userId: user.userId };
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      expiresIn: '15d',
+      secret: process.env.JWT_SECRET,
+    });
+
+    return refreshToken;
+  }
+
+  async refreshToken(
+    accessToken: string,
+    refreshToken: string,
+  ): Promise<typeof StatusUnion> {
+    const { exp: e, userId: u } = this.jwtService.verify(accessToken);
+
+    //todo: 반환할것
+    //todo: verify도 exp검사 하는지 확인
+    if (StatDate.now() < e * 1000) {
+      return { status: 200, accessToken, refreshToken, userId: u };
+    }
+
+    const { userId, iat, exp } = await this.jwtService.verifyAsync<{
+      userId: number;
+      iat: number;
+      exp: number;
+    }>(refreshToken);
+
+    //exp유효성은 verifyAsync 내부에서 처리됨 ...
+
+    if (StatDate.now() > exp * 1000) {
+      return {
+        status: 401,
+        message: '유효하지 않은 refreshToken',
+      };
+    }
+
+    const newAccessToken = await this.generateAcccessToken(userId);
+
+    await this.tokenModel.findOneAndUpdate(
+      { userId },
+      { userId, newAccessToken, refreshToken },
+      { upsert: true, new: true },
+    );
+
+    return {
+      status: 200,
+      accessToken: newAccessToken,
+      refreshToken,
+      userId,
+    };
+  }
+
+  async logout(userId: number): Promise<boolean> {
+    //모두 삭제...?
+    await this.tokenModel.deleteMany({ userId });
+    return true;
+  }
+
+  async deleteAccount(userId: number): Promise<boolean> {
+    await this.loginModel.deleteOne({ userId });
+    return true;
+  }
 }
