@@ -18,7 +18,7 @@ export const scoreDateRangeFilter = ({
 });
 
 export const scoreRecordsFilter = (dateRange: DateRange) => ({
-  createdAt: scoreDateRangeFilter(dateRange),
+  ...scoreDateRangeFilter(dateRange),
   coalitionsUserId: { $ne: null },
   coalitionId: { $in: SEOUL_COALITION_ID },
 });
