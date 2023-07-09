@@ -9,23 +9,37 @@ import { InjectModel } from '@nestjs/mongoose';
 import { OAuth2Client } from 'google-auth-library';
 import type { FilterQuery, Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
+import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { StatDate } from 'src/statDate/StatDate';
 import { LoginDocument, login } from './db/login.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
-import { GoogleUser, StatusUnion } from './models/login.model';
+import type {
+  GoogleUser,
+  StatusUnion,
+  UserPreviewWithFullName,
+} from './models/login.model';
 
 @Injectable()
 export class LoginService {
   constructor(
     @InjectModel(login.name) private loginModel: Model<login>,
     @InjectModel(token.name) private tokenModel: Model<token>,
+    private cursusUserService: CursusUserService,
     private readonly httpService: HttpService,
     private jwtService: JwtService,
   ) {}
 
-  //todo: loginModel임을 적어야함...
-  async findOne(filter?: FilterQuery<login>): Promise<LoginDocument> {
+  async userPreviewByUserId(userId: number): Promise<UserPreviewWithFullName> {
+    const cursusUser = await this.cursusUserService.findOneByUserId(userId);
+
+    const login = cursusUser.user.login;
+    const imgUrl = cursusUser.user.image.link;
+    const displayname = cursusUser.user.displayname;
+    return { id: userId, login, imgUrl, displayname };
+  }
+
+  async findOneLogin(filter?: FilterQuery<login>): Promise<LoginDocument> {
     const login = await this.loginModel.findOne(filter);
 
     if (!login) {
@@ -42,33 +56,49 @@ export class LoginService {
     code: string | undefined;
   }): Promise<typeof StatusUnion> {
     if (code && google) {
-      const user = await this.loginWith42(code);
+      const login42 = await this.loginWith42(code);
       const googleUser = await this.getGoogleUser(google);
 
-      if (user.status !== 200) {
-        return user;
+      if (login42.status !== 200) {
+        return login42;
       }
 
-      await this.upsertLogin(user.userId, googleUser);
+      await this.upsertLogin(login42.userPreviewWithFullName.id, googleUser);
 
-      const accessToken = await this.generateAcccessToken(user.userId);
-      const refreshToken = await this.generateRefreshToken(user.userId);
+      const accessToken = await this.generateAcccessToken(
+        login42.userPreviewWithFullName.id,
+      );
+      const refreshToken = await this.generateRefreshToken(
+        login42.userPreviewWithFullName.id,
+      );
 
-      return await this.upsertToken(user.userId, accessToken, refreshToken);
+      return await this.upsertToken(
+        login42.userPreviewWithFullName.id,
+        accessToken,
+        refreshToken,
+      );
     }
 
     if (code) {
-      const user = await this.loginWith42(code);
-      if (user.status !== 200) {
-        return user;
+      const login42 = await this.loginWith42(code);
+      if (login42.status !== 200) {
+        return login42;
       }
-      //todo: check google user delete
-      await this.upsertLogin(user.userId);
+      //todo: check google userPreviewWithFullName delete
+      await this.upsertLogin(login42.userPreviewWithFullName.id);
 
-      const accessToken = await this.generateAcccessToken(user.userId);
-      const refreshToken = await this.generateRefreshToken(user.userId);
+      const accessToken = await this.generateAcccessToken(
+        login42.userPreviewWithFullName.id,
+      );
+      const refreshToken = await this.generateRefreshToken(
+        login42.userPreviewWithFullName.id,
+      );
 
-      return await this.upsertToken(user.userId, accessToken, refreshToken);
+      return await this.upsertToken(
+        login42.userPreviewWithFullName.id,
+        accessToken,
+        refreshToken,
+      );
     }
 
     if (google) {
@@ -119,7 +149,9 @@ export class LoginService {
       );
 
       return {
-        userId: userInfo.data.id,
+        userPreviewWithFullName: await this.userPreviewByUserId(
+          userInfo.data.id,
+        ),
         accessToken: tokens.data.access_token,
         refreshToken: tokens.data.refresh_token,
         status: 200,
@@ -151,10 +183,10 @@ export class LoginService {
 
     if (token) {
       return {
-        status: 200,
+        userPreviewWithFullName: await this.userPreviewByUserId(token.userId),
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
-        userId: token.userId,
+        status: 200,
       };
     }
 
@@ -162,10 +194,10 @@ export class LoginService {
     const refreshToken = await this.generateRefreshToken(user.userId);
 
     return {
-      status: 200,
+      userPreviewWithFullName: await this.userPreviewByUserId(user.id),
       accessToken,
       refreshToken,
-      userId: user.userId,
+      status: 200,
     };
   }
 
@@ -202,7 +234,10 @@ export class LoginService {
         }
       : { userId };
     //todo: null로 들어가도 되는지 확인
-    await this.loginModel.findOneAndUpdate({ userId }, updateData);
+    const user = await this.loginModel.findOneAndUpdate({ userId }, updateData);
+    if (!user) {
+      await this.loginModel.create(updateData);
+    }
 
     return true;
   }
@@ -215,26 +250,35 @@ export class LoginService {
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
-      { upsert: true, new: true },
+      { upsert: true, new: true }, //todo not upsert
     );
 
     return {
-      status: 200,
+      userPreviewWithFullName: await this.userPreviewByUserId(newToken.userId),
       accessToken: newToken.accessToken,
       refreshToken: newToken.refreshToken,
-      userId: newToken.userId,
+      status: 200,
     };
   }
 
-  async linkGoogle(userId: number, google: GoogleLoginInput): Promise<boolean> {
+  async linkGoogle(
+    accessToken: string,
+    google: GoogleLoginInput,
+  ): Promise<boolean> {
+    const { userId } = await this.jwtService.verifyAsync<{
+      userId: number;
+      iat: number;
+      exp: number;
+    }>(accessToken);
+
     const googleUser = await this.getGoogleUser(google);
     const user = await this.loginModel.findOneAndUpdate(
       { userId },
       {
         userId,
         googleId: googleUser.googleId,
-        email: googleUser.email,
-        time: new StatDate(),
+        googleEmail: googleUser.email,
+        linkedTime: new StatDate(),
       },
       { upsert: true, new: true },
     );
@@ -246,10 +290,16 @@ export class LoginService {
     return true;
   }
 
-  async unlinkGoogle(userId: number): Promise<boolean> {
+  async unlinkGoogle(accessToken: string): Promise<boolean> {
+    const { userId } = await this.jwtService.verifyAsync<{
+      userId: number;
+      iat: number;
+      exp: number;
+    }>(accessToken);
+
     const user = await this.loginModel.findOneAndUpdate(
       { userId },
-      { $unset: { googleId: 1, email: 1, time: 1 } },
+      { $unset: { googleId: 1, googleEmail: 1, linkedTime: 1 } },
     );
 
     if (!user) {
@@ -262,7 +312,7 @@ export class LoginService {
   /**-----token-----**/
 
   async generateAcccessToken(userId: number): Promise<string> {
-    const user = await this.findOne({ userId });
+    const user = await this.findOneLogin({ userId });
     const payload = { userId: user.userId };
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: '3d',
@@ -273,7 +323,7 @@ export class LoginService {
   }
 
   async generateRefreshToken(userId: number): Promise<string> {
-    const user = await this.findOne({ userId });
+    const user = await this.findOneLogin({ userId });
     const payload = { userId: user.userId };
     const refreshToken = await this.jwtService.signAsync(payload, {
       expiresIn: '15d',
@@ -287,12 +337,18 @@ export class LoginService {
     accessToken: string,
     refreshToken: string,
   ): Promise<typeof StatusUnion> {
-    const { exp: e, userId: u } = this.jwtService.verify(accessToken);
+    const { exp: e, userId: u } = await this.jwtService.verifyAsync(
+      accessToken,
+    );
 
-    //todo: 반환할것
     //todo: verify도 exp검사 하는지 확인
     if (StatDate.now() < e * 1000) {
-      return { status: 200, accessToken, refreshToken, userId: u };
+      return {
+        status: 200,
+        accessToken,
+        refreshToken,
+        userPreviewWithFullName: await this.userPreviewByUserId(u),
+      };
     }
 
     const { userId, iat, exp } = await this.jwtService.verifyAsync<{
@@ -319,21 +375,26 @@ export class LoginService {
     );
 
     return {
-      status: 200,
+      userPreviewWithFullName: await this.userPreviewByUserId(userId),
       accessToken: newAccessToken,
       refreshToken,
-      userId,
+      status: 200,
     };
   }
 
-  async logout(userId: number): Promise<boolean> {
-    //모두 삭제...?
-    await this.tokenModel.deleteMany({ userId });
+  async logout(accessToken: string): Promise<boolean> {
+    const tmp = await this.tokenModel.deleteOne({ accessToken });
+    if (!tmp) {
+      return false;
+    }
     return true;
   }
 
-  async deleteAccount(userId: number): Promise<boolean> {
-    await this.loginModel.deleteOne({ userId });
+  async deleteAccount(accessToken: string): Promise<boolean> {
+    const tmp = await this.loginModel.deleteOne({ accessToken });
+    if (!tmp) {
+      return false;
+    }
     return true;
   }
 }

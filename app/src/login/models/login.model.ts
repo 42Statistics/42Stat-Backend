@@ -1,4 +1,6 @@
-import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
+import { Field, ObjectType, PickType, createUnionType } from '@nestjs/graphql';
+import { UserPreview } from 'src/common/models/common.user.model';
+import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
 
 @ObjectType()
 export class GoogleUser {
@@ -40,6 +42,14 @@ export class NotFoundType {
 }
 
 @ObjectType()
+export class UserPreviewWithFullName extends PickType(UserProfile, [
+  'id',
+  'login',
+  'imgUrl',
+  'displayname',
+]) {}
+
+@ObjectType()
 export class SuccessType {
   @Field()
   status: 200;
@@ -51,7 +61,7 @@ export class SuccessType {
   refreshToken: string;
 
   @Field()
-  userId: number;
+  userPreviewWithFullName: UserPreviewWithFullName;
 }
 
 export const StatusUnion = createUnionType({
