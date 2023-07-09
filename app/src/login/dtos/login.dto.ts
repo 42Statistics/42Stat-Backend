@@ -8,3 +8,13 @@ export class GoogleLoginInput {
   @Field()
   credential: string;
 }
+
+//todo: login to Login
+@InputType()
+export class loginInput {
+  @Field({ nullable: true })
+  google?: GoogleLoginInput;
+
+  @Field({ nullable: true })
+  code?: string;
+}

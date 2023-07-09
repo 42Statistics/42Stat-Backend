@@ -24,6 +24,15 @@ export class InternalServerErrorType {
 }
 
 @ObjectType()
+export class BadRequestType {
+  @Field()
+  status: 400;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
 export class UnauthorizedType {
   @Field()
   status: 401;
@@ -42,7 +51,7 @@ export class NotFoundType {
 }
 
 @ObjectType()
-export class UserPreviewWithFullName extends PickType(UserProfile, [
+export class UserPreviewWithDisplayname extends PickType(UserProfile, [
   'id',
   'login',
   'imgUrl',
@@ -61,7 +70,7 @@ export class SuccessType {
   refreshToken: string;
 
   @Field()
-  userPreviewWithFullName: UserPreviewWithFullName;
+  userPreview: UserPreviewWithDisplayname;
 }
 
 export const StatusUnion = createUnionType({
@@ -69,6 +78,7 @@ export const StatusUnion = createUnionType({
   types: () =>
     [
       SuccessType,
+      BadRequestType,
       UnauthorizedType,
       NotFoundType,
       InternalServerErrorType,
@@ -77,6 +87,8 @@ export const StatusUnion = createUnionType({
     switch (value.status) {
       case 200:
         return SuccessType;
+      case 400:
+        return BadRequestType;
       case 401:
         return UnauthorizedType;
       case 404:

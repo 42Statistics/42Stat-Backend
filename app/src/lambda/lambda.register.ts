@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { LambdaService } from './lambda.service';
 import { StatDate } from 'src/statDate/StatDate';
+import { LambdaService } from './lambda.service';
 
 @Injectable()
 export class LambdaRegister implements OnModuleInit {

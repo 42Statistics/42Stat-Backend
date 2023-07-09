@@ -1,13 +1,11 @@
 import {
   CanActivate,
   ExecutionContext,
-  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { JwtService } from '@nestjs/jwt';
-import { StatDate } from 'src/statDate/StatDate';
 
 @Injectable()
 export class StatAuthGuard implements CanActivate {
@@ -22,6 +20,7 @@ export class StatAuthGuard implements CanActivate {
     const { userId, iat, exp } = await this.verifyToken(accessToken);
 
     context.userId = userId;
+    context.accessToken = accessToken;
 
     return true;
   }
@@ -49,7 +48,7 @@ export class StatAuthGuard implements CanActivate {
 
       return { userId, iat, exp };
     } catch (e) {
-      throw new ForbiddenException(e);
+      throw new UnauthorizedException('Access token expired');
     }
   }
 }
