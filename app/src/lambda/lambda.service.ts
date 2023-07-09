@@ -84,6 +84,11 @@ export class LambdaService {
       USER_CORRECTION_POINT_RANKING,
       updatedAt,
       ({ cursusUser }) => cursusUser.user.correctionPoint,
+      // todo: 다른 로직 중 겹치는 부분 있으면 통합
+      ({ cursusUser }) =>
+        (cursusUser.grade === 'Learner' &&
+          cursusUser.blackholedAt &&
+          cursusUser.blackholedAt.getTime() >= new Date().getTime()) === true,
     );
 
     await this.updateEvalCountRanking(updatedAt, DateTemplate.TOTAL);
@@ -109,6 +114,7 @@ export class LambdaService {
     keyBase: string,
     updatedAt: Date,
     valueExtractor: (userFullProfile: UserFullProfile) => number,
+    userFilter?: (userFullProfile: UserFullProfile) => boolean,
   ): Promise<void> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
@@ -123,6 +129,10 @@ export class LambdaService {
     const rankingMap: RankingCacheMap = new Map();
 
     [...userFullProfileMap.entries()].forEach(([userId, userFullProfile]) => {
+      if (userFilter && !userFilter(userFullProfile)) {
+        return;
+      }
+
       rankingMap.set(userId, {
         ...userFullProfile,
         userPreview:
