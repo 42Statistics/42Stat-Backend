@@ -9,7 +9,6 @@ import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
 import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
-import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
@@ -21,7 +20,7 @@ import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SettingModule } from './page/setting/setting.module';
-import { JwtModule } from '@nestjs/jwt';
+import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 
 @Module({
   imports: [
@@ -30,7 +29,6 @@ import { JwtModule } from '@nestjs/jwt';
       store: new ShallowStore(),
     }),
     LoginModule,
-
     MongooseModule.forRoot(
       `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
     ),

@@ -65,13 +65,16 @@ type ProjectPreview {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
 """
 scalar URL
 
-type UserPreviewWithFullName {
+=======
+>>>>>>> 6a2112e... feat: :sparkles: 회원가입시 account에 저장하도록 추가 및 토큰관련 반환 값 맞추기
+type UserPreviewWithDisplayname {
   id: Int!
   login: String!
   imgUrl: String
@@ -470,22 +473,30 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(code: String, google: GoogleLoginInput): StatusUnion!
-  linkGoogle(userId: Int!, google: GoogleLoginInput!): Boolean!
-  unlinkGoogle(userId: Int!): Boolean!
+  login(loginInput: loginInput!): StatusUnion!
+  linkGoogle(google: GoogleLoginInput!): Boolean!
+  unlinkGoogle: Boolean!
   refreshToken(accessToken: String!, refreshToken: String!): StatusUnion!
-  logout(accessToken: String!): Boolean!
-  deleteAccount(accessToken: String!): Boolean!
+  logout: Boolean!
+  deleteAccount: Boolean!
 }
 
-union StatusUnion = SuccessType | UnauthorizedType | NotFoundType | InternalServerErrorType
+union StatusUnion = SuccessType | BadRequestType | UnauthorizedType | NotFoundType | InternalServerErrorType
 
 type SuccessType {
   status: Int!
   accessToken: String!
   refreshToken: String!
-  userPreviewWithFullName: UserPreviewWithFullName!
+  userPreview: UserPreviewWithDisplayname!
 }
+<<<<<<< HEAD
+=======
+
+type BadRequestType {
+  status: Int!
+  message: String!
+}
+>>>>>>> 6a2112e... feat: :sparkles: 회원가입시 account에 저장하도록 추가 및 토큰관련 반환 값 맞추기
 
 type UnauthorizedType {
   status: Int!
@@ -500,6 +511,11 @@ type NotFoundType {
 type InternalServerErrorType {
   status: Int!
   message: String!
+}
+
+input loginInput {
+  google: GoogleLoginInput
+  code: String
 }
 
 input GoogleLoginInput {
