@@ -17,15 +17,17 @@ export class LoginResolver {
 
   @Mutation((_returns) => Boolean)
   async linkGoogle(
-    @Args('userId') userId: number,
+    @Args('accessToken') accessToken: string,
     @Args('google') google: GoogleLoginInput,
   ): Promise<boolean> {
-    return await this.loginService.linkGoogle(userId, google);
+    return await this.loginService.linkGoogle(accessToken, google);
   }
 
   @Mutation((_returns) => Boolean)
-  async unlinkGoogle(@Args('userId') userId: number): Promise<boolean> {
-    return await this.loginService.unlinkGoogle(userId);
+  async unlinkGoogle(
+    @Args('accessToken') accessToken: string,
+  ): Promise<boolean> {
+    return await this.loginService.unlinkGoogle(accessToken);
   }
 
   @Mutation((_returns) => StatusUnion)
@@ -37,12 +39,14 @@ export class LoginResolver {
   }
 
   @Mutation((_returns) => Boolean)
-  async logout(@Args('userId') userId: number): Promise<boolean> {
-    return await this.loginService.logout(userId);
+  async logout(@Args('accessToken') accessToken: string): Promise<boolean> {
+    return await this.loginService.logout(accessToken);
   }
 
   @Mutation((_returns) => Boolean)
-  async deleteAccount(@Args('userId') userId: number): Promise<boolean> {
-    return await this.loginService.deleteAccount(userId);
+  async deleteAccount(
+    @Args('accessToken') accessToken: string,
+  ): Promise<boolean> {
+    return await this.loginService.deleteAccount(accessToken);
   }
 }

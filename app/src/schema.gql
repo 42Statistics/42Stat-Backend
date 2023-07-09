@@ -64,6 +64,21 @@ type ProjectPreview {
   url: String!
 }
 
+<<<<<<< HEAD
+=======
+"""
+A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
+"""
+scalar URL
+
+type UserPreviewWithFullName {
+  id: Int!
+  login: String!
+  imgUrl: String
+  displayname: String!
+}
+
+>>>>>>> ede1df1... feat: :sparkles: userPreview 및 userFullName 추가
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -459,8 +474,8 @@ type Mutation {
   linkGoogle(userId: Int!, google: GoogleLoginInput!): Boolean!
   unlinkGoogle(userId: Int!): Boolean!
   refreshToken(accessToken: String!, refreshToken: String!): StatusUnion!
-  logout(userId: Int!): Boolean!
-  deleteAccount(userId: Int!): Boolean!
+  logout(accessToken: String!): Boolean!
+  deleteAccount(accessToken: String!): Boolean!
 }
 
 union StatusUnion = SuccessType | UnauthorizedType | NotFoundType | InternalServerErrorType
@@ -469,7 +484,7 @@ type SuccessType {
   status: Int!
   accessToken: String!
   refreshToken: String!
-  userId: Int!
+  userPreviewWithFullName: UserPreviewWithFullName!
 }
 
 type UnauthorizedType {
