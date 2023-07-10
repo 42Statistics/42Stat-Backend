@@ -9,6 +9,7 @@ import {
   ScaleTeamCacheService,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type {
   FloatDateRanged,
   IntDateRanged,
@@ -25,10 +26,12 @@ export class HomeEvalService {
     private dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
   async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     return await this.scaleTeamService.evalCount(filter);
   }
 
+  @CacheOnReturn()
   async evalCountByDateRange(dateRange: DateRange): Promise<IntDateRanged> {
     const evalFilter: FilterQuery<scale_team> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
@@ -39,6 +42,7 @@ export class HomeEvalService {
     return this.dateRangeService.toDateRanged(evalCount, dateRange);
   }
 
+  @CacheOnReturn()
   async evalCountByDateTemplate(
     dateTemplate: DateTemplate,
   ): Promise<IntDateRanged> {
@@ -47,6 +51,7 @@ export class HomeEvalService {
     return await this.evalCountByDateRange(dateRange);
   }
 
+  @CacheOnReturn()
   async averageEvalCountByDateRange(
     dateRange: DateRange,
   ): Promise<FloatDateRanged> {
@@ -64,6 +69,7 @@ export class HomeEvalService {
     );
   }
 
+  @CacheOnReturn()
   async averageEvalCountByDateTemplate(
     dateTemplate: DateTemplate,
   ): Promise<FloatDateRanged> {

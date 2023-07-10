@@ -5,6 +5,7 @@ import {
 } from 'src/api/project/project.service';
 import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import {
   ProjectInfo,
   ProjectSessionInfo,
@@ -18,6 +19,8 @@ export class ProjectInfoService {
     private projectSessionService: ProjectSessionService,
     private teamService: TeamService,
   ) {}
+
+  @CacheOnReturn()
   async projectInfo(projectName: string): Promise<ProjectInfo> {
     const project = await this.projectService.findOne({
       filter: { name: projectName },
@@ -36,11 +39,13 @@ export class ProjectInfoService {
     };
   }
 
-  async projectSessionInfo(projectId: number): Promise<ProjectSessionInfo> {
+  private async projectSessionInfo(
+    projectId: number,
+  ): Promise<ProjectSessionInfo> {
     return await this.projectSessionService.projectSessionInfo(projectId);
   }
 
-  async projectTeamInfo(projectId: number): Promise<ProjectTeamInfo> {
+  private async projectTeamInfo(projectId: number): Promise<ProjectTeamInfo> {
     const currRegisteredTeamCount = await this.teamService.count({
       projectId: projectId,
       status: 'in_progress',

@@ -11,6 +11,7 @@ import {
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
@@ -29,6 +30,7 @@ export class HomeUserService {
     private dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
   async aliveUserCountRecords(): Promise<IntRecord[]> {
     const now = new StatDate();
     const lastYear = now.startOfMonth().moveMonth(1).moveYear(-1);
@@ -69,10 +71,12 @@ export class HomeUserService {
     )[0];
   }
 
+  @CacheOnReturn()
   async userCountPerLevels(): Promise<UserCountPerLevel[]> {
     return await this.cursusUserService.userCountPerLevels();
   }
 
+  @CacheOnReturn()
   async memberRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
     const value = await this.cursusUserService.userCount({ grade: 'Member' });
@@ -92,6 +96,7 @@ export class HomeUserService {
     };
   }
 
+  @CacheOnReturn()
   async blackholedRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
     const value = await this.cursusUserService.userCount(
@@ -113,6 +118,7 @@ export class HomeUserService {
     };
   }
 
+  @CacheOnReturn()
   async blackholedCountByDateRange({
     start,
     end,
@@ -132,6 +138,7 @@ export class HomeUserService {
     return this.dateRangeService.toDateRanged(blackholedCount, { start, end });
   }
 
+  @CacheOnReturn()
   async blackholedCountByDateTemplate(
     dateTemplate: DateTemplate,
   ): Promise<IntDateRanged> {
@@ -140,6 +147,7 @@ export class HomeUserService {
     return await this.blackholedCountByDateRange(dateRange);
   }
 
+  @CacheOnReturn()
   async blackholedCountPerCircle(): Promise<IntPerCircle[]> {
     return await this.cursusUserService.userCountPerCircle(
       blackholedUserFilterByDateRange(),
@@ -178,6 +186,7 @@ export class HomeUserService {
         );
   }
 
+  @CacheOnReturn()
   async averageDuerationPerCircle(): Promise<IntPerCircle[]> {
     return await this.questsUserService.averageDuartionPerCircle();
   }

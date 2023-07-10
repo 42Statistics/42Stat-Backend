@@ -6,6 +6,7 @@ import {
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { StatDate } from 'src/statDate/StatDate';
 import type { Landing } from './models/landing.model';
 
@@ -17,6 +18,7 @@ export class LandingService {
     private projectsUserService: ProjectsUserService,
   ) {}
 
+  @CacheOnReturn(StatDate.MIN * 5)
   async landing(): Promise<Landing> {
     const daysAfterBeginAt = Math.floor(
       StatDate.dateGap(

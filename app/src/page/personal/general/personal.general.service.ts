@@ -22,6 +22,7 @@ import {
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -59,12 +60,14 @@ export class PersonalGeneralService {
     private dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
   async findUserIdByLogin(login: string): Promise<number> {
     const cursusUser = await this.cursusUserService.findOneByLogin(login);
 
     return cursusUser.user.id;
   }
 
+  @CacheOnReturn()
   async personalGeneralProfile(userId: number): Promise<PersonalGeneralRoot> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
@@ -134,6 +137,7 @@ export class PersonalGeneralService {
     };
   }
 
+  @CacheOnReturn()
   async logtimeByDateRange(
     userId: number,
     dateRange: DateRange,
@@ -157,6 +161,7 @@ export class PersonalGeneralService {
     return await this.logtimeByDateRange(userId, dateRange);
   }
 
+  @CacheOnReturn()
   async preferredTime(
     userId: number,
     filter: FilterQuery<location>,
@@ -183,6 +188,7 @@ export class PersonalGeneralService {
     return await this.preferredTimeByDateRange(userId, dateRange);
   }
 
+  @CacheOnReturn()
   async preferredCluster(
     userId: number,
     filter?: FilterQuery<location>,
@@ -213,6 +219,7 @@ export class PersonalGeneralService {
     return await this.preferredClusterByDateRange(userId, dateRange);
   }
 
+  @CacheOnReturn()
   async teamInfo(userId: number): Promise<TeamInfo> {
     const userTeams = await this.teamService.userTeams(userId);
 
@@ -231,6 +238,7 @@ export class PersonalGeneralService {
     };
   }
 
+  @CacheOnReturn()
   async userLevelRecords(
     userId: number,
     beginAt: Date,
@@ -240,12 +248,14 @@ export class PersonalGeneralService {
     });
   }
 
+  @CacheOnReturn()
   async promoLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
       ...promoFilter(new StatDate(beginAt)),
     });
   }
 
+  @CacheOnReturn()
   async promoMemberLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
       ...promoFilter(new StatDate(beginAt)),
@@ -253,6 +263,7 @@ export class PersonalGeneralService {
     });
   }
 
+  @CacheOnReturn()
   async character(userId: number): Promise<Character | null> {
     try {
       const examProjectIds: { id: number }[] =
