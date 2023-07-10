@@ -89,7 +89,8 @@ export class PersonalEvalResolver {
 
   @ResolveField((_returns) => String, { nullable: true })
   async recentComment(@Root() root: PersonalEvalRoot): Promise<string | null> {
-    return await this.personalEvalService.recentComment(root.userProfile.id);
+    return (await this.personalEvalService.recentComment(root.userProfile.id))
+      .value;
   }
 
   @ResolveField((_returns) => [UserRank])
