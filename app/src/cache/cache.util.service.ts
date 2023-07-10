@@ -23,10 +23,10 @@ export type CacheSupportedDateTemplate = Exclude<
   DateTemplate.LAST_WEEK | DateTemplate.LAST_YEAR
 >;
 
-export type UserRankCache = UserFullProfile & UserRank;
+export type RankCache = UserFullProfile & UserRank;
 
 export type UserFullProfileMap = Map<UserPreview['id'], UserFullProfile>;
-export type RankingCacheMap = Map<UserPreview['id'], UserRankCache>;
+export type RankingCacheMap = Map<UserPreview['id'], RankCache>;
 
 export type GetRankingArgs = {
   keyBase: string;
@@ -110,7 +110,7 @@ export class CacheUtilService {
     keyBase,
     userId,
     dateTemplate,
-  }: GetRankArgs): Promise<UserRankCache | undefined> {
+  }: GetRankArgs): Promise<RankCache | undefined> {
     const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
 
     return await this.getMapValue(key, userId);
@@ -119,12 +119,21 @@ export class CacheUtilService {
   async getRanking({
     keyBase,
     dateTemplate,
-  }: GetRankingArgs): Promise<UserRankCache[] | undefined> {
+  }: GetRankingArgs): Promise<RankCache[] | undefined> {
     const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
 
-    return await this.getMapValues<UserRankCache>(key).then((rankingValues) =>
+    return await this.getMapValues<RankCache>(key).then((rankingValues) =>
       rankingValues?.sort((a, b) => a.rank - b.rank),
     );
+  }
+
+  async getRankingMap({
+    keyBase,
+    dateTemplate,
+  }: GetRankingArgs): Promise<RankingCacheMap | undefined> {
+    const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
+
+    return await this.getMap(key);
   }
 
   async setUserFullProfiles(
@@ -246,8 +255,7 @@ export class CacheUtilService {
 
   sortRankingMap(
     rankingMap: RankingCacheMap,
-    sortFn: Parameters<UserRankCache[]['sort']>[0] = (a, b) =>
-      b.value - a.value,
+    sortFn: Parameters<RankCache[]['sort']>[0] = (a, b) => b.value - a.value,
   ): void {
     [...rankingMap.values()].sort(sortFn).reduce(
       ({ prevRank, prevValue }, userRank, index) => {

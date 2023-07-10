@@ -6,7 +6,7 @@ import {
   ScoreRankingSupportedDateTemplate,
 } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
-import { UserRankCache } from 'src/cache/cache.util.service';
+import { RankCache } from 'src/cache/cache.util.service';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
@@ -50,7 +50,7 @@ export class LeaderboardScoreService {
     userId: number,
     paginationIndexArgs: PaginationIndexArgs,
     dateRange: DateRange,
-    cachedRanking?: UserRankCache[],
+    cachedRanking?: RankCache[],
   ): Promise<LeaderboardElementDateRanged> {
     const dateFilter = scoreDateRangeFilter(dateRange);
 

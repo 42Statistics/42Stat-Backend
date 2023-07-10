@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   CacheUtilService,
   type CacheSupportedDateTemplate,
-  type UserRankCache,
+  type RankCache,
 } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
@@ -20,7 +20,7 @@ export class LocationCacheService {
   async getLogtimeRank(
     dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
     userId: number,
-  ): Promise<UserRankCache | undefined> {
+  ): Promise<RankCache | undefined> {
     return await this.cacheUtilService.getRank({
       keyBase: LOGTIME_RANKING,
       userId,
@@ -30,8 +30,17 @@ export class LocationCacheService {
 
   async getLogtimeRanking(
     dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
-  ): Promise<UserRankCache[] | undefined> {
+  ): Promise<RankCache[] | undefined> {
     return await this.cacheUtilService.getRanking({
+      keyBase: LOGTIME_RANKING,
+      dateTemplate,
+    });
+  }
+
+  async getLogtimeRankingMap(
+    dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
+  ) {
+    return await this.cacheUtilService.getRankingMap({
       keyBase: LOGTIME_RANKING,
       dateTemplate,
     });

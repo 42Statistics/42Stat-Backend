@@ -106,12 +106,18 @@ export class UserScoreInfo {
 }
 
 @ObjectType()
+export class UserRankWithCount extends UserRank {
+  @Field()
+  totalUserCount: number;
+}
+
+@ObjectType()
 export class CharacterEffort {
   @Field()
-  logtimeRank: UserRank;
+  logtimeRank: UserRankWithCount;
 
   @Field()
-  evalCountRank: UserRank;
+  evalCountRank: UserRankWithCount;
 
   @Field()
   examTryCount: number;
@@ -123,7 +129,7 @@ export class CharacterEffort {
 @ObjectType()
 export class CharacterTalent {
   @Field()
-  levelRank: UserRank;
+  levelRank: UserRankWithCount;
 
   @Field()
   examOneshotRate: Rate;
