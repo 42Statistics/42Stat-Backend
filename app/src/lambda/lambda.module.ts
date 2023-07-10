@@ -6,6 +6,7 @@ import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
 import { ScoreModule } from 'src/api/score/score.module';
 import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { LambdaController } from './lambda.controller';
+import { LambdaRegister } from './lambda.register';
 import { LambdaService } from './lambda.service';
 
 @Module({
@@ -17,7 +18,7 @@ import { LambdaService } from './lambda.service';
     ExperienceUserModule,
     LocationModule,
   ],
-  providers: [LambdaService],
+  providers: [LambdaService, LambdaRegister],
   controllers: [LambdaController],
 })
 // eslint-disable-next-line
