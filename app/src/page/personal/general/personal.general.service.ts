@@ -286,22 +286,23 @@ export class PersonalGeneralService {
     userId: number,
     examProjects: Pick<project, 'id'>[],
   ): Promise<CharacterEffort> {
-    const logtimeRank = await this.locationCacheService.getLogtimeRank(
-      DateTemplate.TOTAL,
-      userId,
-    );
+    const logtimeRankingMap =
+      await this.locationCacheService.getLogtimeRankingMap(DateTemplate.TOTAL);
 
+    assertExist(logtimeRankingMap);
+
+    const logtimeRank = logtimeRankingMap.get(userId);
     assertExist(logtimeRank);
 
-    const evalCountRankCache =
-      await this.scaleTeamCacheService.getEvalCountRank(
+    const evalCountRankingMap =
+      await this.scaleTeamCacheService.getEvalCountRankingMap(
         DateTemplate.TOTAL,
-        userId,
       );
 
-    assertExist(evalCountRankCache);
+    assertExist(evalCountRankingMap);
 
-    const evalCountRank = evalCountRankCache;
+    const evalCountRank = evalCountRankingMap.get(userId);
+    assertExist(evalCountRank);
 
     const teamProjectIds: { projectId: number }[] =
       await this.teamService.findAll({
@@ -323,8 +324,11 @@ export class PersonalGeneralService {
     );
 
     return {
-      logtimeRank,
-      evalCountRank,
+      logtimeRank: { ...logtimeRank, totalUserCount: logtimeRankingMap.size },
+      evalCountRank: {
+        ...evalCountRank,
+        totalUserCount: evalCountRankingMap.size,
+      },
       examTryCount,
       projectTryCount,
     };
@@ -334,11 +338,13 @@ export class PersonalGeneralService {
     userId: number,
     examProjects: Pick<project, 'id'>[],
   ): Promise<CharacterTalent> {
-    const levelRank = await this.cursusUserCacheService.getUserRank(
+    const levelRankingMap = await this.cursusUserCacheService.getUserRankingMap(
       USER_LEVEL_RANKING,
-      userId,
     );
 
+    assertExist(levelRankingMap);
+
+    const levelRank = levelRankingMap.get(userId);
     assertExist(levelRank);
 
     const projectsUsers: {
@@ -380,7 +386,7 @@ export class PersonalGeneralService {
     });
 
     return {
-      levelRank,
+      levelRank: { ...levelRank, totalUserCount: levelRankingMap.size },
       examOneshotRate: {
         total: examTotal,
         fields: [

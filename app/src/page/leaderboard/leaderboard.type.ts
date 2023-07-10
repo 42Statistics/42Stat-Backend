@@ -1,5 +1,5 @@
 import type { FilterQuery } from 'mongoose';
-import type { UserRankCache } from 'src/cache/cache.util.service';
+import type { RankCache } from 'src/cache/cache.util.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import type {
@@ -11,7 +11,7 @@ export type RankingArgs<T> = {
   userId: number;
   paginationIndexArgs: PaginationIndexArgs;
   filter?: FilterQuery<T>;
-  cachedRanking?: UserRankCache[];
+  cachedRanking?: RankCache[];
 };
 
 export type RankingFn<T> = (

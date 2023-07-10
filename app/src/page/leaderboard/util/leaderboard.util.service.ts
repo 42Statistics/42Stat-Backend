@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import type { UserRankCache } from 'src/cache/cache.util.service';
+import type { RankCache } from 'src/cache/cache.util.service';
 import { findUserRank } from 'src/common/findUserRank';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';

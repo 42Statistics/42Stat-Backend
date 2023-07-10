@@ -244,15 +244,22 @@ type UserScoreInfo {
   rankInTotal: Int!
 }
 
+type UserRankWithCount {
+  userPreview: UserPreview!
+  value: Float!
+  rank: Int!
+  totalUserCount: Int!
+}
+
 type CharacterEffort {
-  logtimeRank: UserRank!
-  evalCountRank: UserRank!
+  logtimeRank: UserRankWithCount!
+  evalCountRank: UserRankWithCount!
   examTryCount: Int!
   projectTryCount: Int!
 }
 
 type CharacterTalent {
-  levelRank: UserRank!
+  levelRank: UserRankWithCount!
   examOneshotRate: Rate!
   projectOneshotRate: Rate!
   outstandingRate: Rate!
