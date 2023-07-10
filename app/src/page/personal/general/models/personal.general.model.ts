@@ -98,8 +98,8 @@ export class UserScoreInfo {
   @Field()
   value: number;
 
-  @Field()
-  rankInCoalition: number;
+  @Field({ nullable: true })
+  rankInCoalition?: number;
 
   @Field()
   rankInTotal: number;

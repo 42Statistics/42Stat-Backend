@@ -36,8 +36,8 @@ export class UserProfile {
   @Field()
   displayname: string;
 
-  @Field()
-  coalition: Coalition;
+  @Field({ nullable: true })
+  coalition?: Coalition;
 
   @Field((_type) => [UserTitle])
   titles: UserTitle[];
