@@ -50,7 +50,7 @@ export class ProjectsUserService {
           id: '$_id',
           name: '$name',
           url: {
-            $concat: [PROJECT_BASE_URL, { $toString: '$_id' }],
+            $concat: [PROJECT_BASE_URL, '/', { $toString: '$_id' }],
           },
         },
         value: 1,

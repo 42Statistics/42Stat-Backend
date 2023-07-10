@@ -10,10 +10,10 @@ import {
 import { ProjectDocument, project } from './db/project.database.schema';
 import type { ProjectPreview } from './models/project.preview';
 
-export const PROJECT_BASE_URL = 'https://projects.intra.42.fr/projects/';
+export const PROJECT_BASE_URL = 'https://projects.intra.42.fr/projects';
 
 export const projectUrlById = (id: number): string =>
-  `${PROJECT_BASE_URL}${id}`;
+  [PROJECT_BASE_URL, id.toString()].join('/');
 
 export const NETWHAT_PREVIEW: ProjectPreview = {
   id: 1318,
