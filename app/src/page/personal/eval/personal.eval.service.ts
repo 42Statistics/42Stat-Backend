@@ -99,7 +99,7 @@ export class PersonalEvalService {
       'corrector.id': userId,
     });
 
-    return Math.floor(totalDuration / count);
+    return count !== 0 ? Math.floor(totalDuration / count) : 0;
   }
 
   @CacheOnReturn()
@@ -122,14 +122,14 @@ export class PersonalEvalService {
   }
 
   @CacheOnReturn()
-  async recentComment(userId: number): Promise<string | null> {
+  async recentComment(userId: number): Promise<{ value: string | null }> {
     const scaleTeams = await this.scaleTeamService.findAll({
       filter: { 'corrector.id': userId },
       sort: { beginAt: -1, id: -1 },
       limit: 1,
     });
 
-    return scaleTeams.at(0)?.comment ?? null;
+    return { value: scaleTeams.at(0)?.comment ?? null };
   }
 
   @CacheOnReturn()
