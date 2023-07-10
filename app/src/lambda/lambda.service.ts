@@ -14,6 +14,7 @@ import { LocationService } from 'src/api/location/location.service';
 import { evalCountDateRangeFilter } from 'src/api/scaleTeam/db/scaleTeam.database.aggregate';
 import {
   AVERAGE_COMMENT_LENGTH,
+  AVERAGE_FEEDBACK_LENGTH,
   EVAL_COUNT_RANKING,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -177,7 +178,7 @@ export class LambdaService {
     );
 
     await this.cacheUtilService.setWithDate(
-      AVERAGE_COMMENT_LENGTH,
+      AVERAGE_FEEDBACK_LENGTH,
       feedback,
       updatedAt,
     );
