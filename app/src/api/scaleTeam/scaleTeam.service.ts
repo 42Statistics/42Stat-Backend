@@ -182,6 +182,7 @@ export class ScaleTeamService {
             url: {
               $concat: [
                 PROJECT_BASE_URL,
+                '/',
                 { $toString: '$team.projectId' },
                 '/projects_users/',
                 {
@@ -201,7 +202,11 @@ export class ScaleTeamService {
                 id: '$project.id',
                 name: '$project.name',
                 url: {
-                  $concat: [PROJECT_BASE_URL, { $toString: '$project.id' }],
+                  $concat: [
+                    PROJECT_BASE_URL,
+                    '/',
+                    { $toString: '$project.id' },
+                  ],
                 },
               },
             },

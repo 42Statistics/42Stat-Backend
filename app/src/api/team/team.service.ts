@@ -68,7 +68,7 @@ export class TeamService {
           id: '$projects.id',
           name: '$projects.name',
           url: {
-            $concat: [PROJECT_BASE_URL, { $toString: '$projectId' }],
+            $concat: [PROJECT_BASE_URL, '/', { $toString: '$projectId' }],
           },
         },
         status: 1,
