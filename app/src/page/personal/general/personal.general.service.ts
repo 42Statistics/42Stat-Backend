@@ -125,15 +125,18 @@ export class PersonalGeneralService {
       throw new NotFoundException();
     }
 
-    const coalitionRank =
-      scoreRanking
-        .filter(({ coalition }) => coalition.id === me.coalition.id)
-        .findIndex(({ userPreview }) => userPreview.id === userId) + 1;
+    const rankInCoalition = me.coalition
+      ? scoreRanking
+          .filter(
+            ({ coalition }) => coalition && coalition.id === me.coalition?.id,
+          )
+          .findIndex(({ userPreview }) => userPreview.id === userId) + 1
+      : undefined;
 
     return {
       value: me.value,
       rankInTotal: me.rank,
-      rankInCoalition: coalitionRank,
+      rankInCoalition,
     };
   }
 

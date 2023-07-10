@@ -7,7 +7,7 @@ import type { cursus_user } from './cursusUser.database.schema';
 
 export type UserFullProfile = {
   cursusUser: cursus_user;
-  coalition: coalition;
+  coalition?: coalition;
   titlesUsers: (titles_user & {
     titles: title;
   })[];

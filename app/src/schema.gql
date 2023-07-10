@@ -34,7 +34,7 @@ type UserProfile {
   imgUrl: String
   grade: String!
   displayname: String!
-  coalition: Coalition!
+  coalition: Coalition
   titles: [UserTitle!]!
   level: Float!
 }
@@ -240,7 +240,7 @@ type LevelRecord {
 
 type UserScoreInfo {
   value: Int!
-  rankInCoalition: Int!
+  rankInCoalition: Int
   rankInTotal: Int!
 }
 

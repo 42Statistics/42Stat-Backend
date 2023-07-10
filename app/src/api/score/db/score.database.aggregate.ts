@@ -8,7 +8,7 @@ import type { UserRank } from 'src/common/models/common.user.model';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { score } from './score.database.schema';
 
-export type UserRankWithCoalitionId = UserRank & { coalition: { id: number } };
+export type UserRankWithCoalitionId = UserRank & { coalition?: { id: number } };
 
 export const scoreDateRangeFilter = ({
   start,
