@@ -23,7 +23,11 @@ export class CacheDecoratorOnReturnRegister implements OnModuleInit {
         this.metadataScanner
           .getAllMethodNames(Object.getPrototypeOf(instance))
           .forEach((methodName) => {
-            const ttl = this.reflactor.get(ONRETURN, instance[methodName]);
+            const ttl = this.reflactor.get<number | undefined>(
+              ONRETURN,
+              instance[methodName],
+            );
+
             if (!ttl) {
               return;
             }
