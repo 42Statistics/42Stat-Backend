@@ -16,6 +16,7 @@ import type { score } from 'src/api/score/db/score.database.schema';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
@@ -39,6 +40,7 @@ export class MyInfoService {
     private dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
   async myInfoRoot(userId: number): Promise<MyInfoRoot> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
@@ -57,6 +59,7 @@ export class MyInfoService {
     };
   }
 
+  @CacheOnReturn()
   async isNewMember(userId: number): Promise<boolean> {
     const { validatedAt } = await this.questsUserService.findOne({
       filter: {
@@ -76,6 +79,7 @@ export class MyInfoService {
     return dateGap < 8;
   }
 
+  @CacheOnReturn()
   async recentValidatedTeam(userId: number): Promise<UserTeam | null> {
     const userTeams = await this.teamService.userTeams(userId);
 

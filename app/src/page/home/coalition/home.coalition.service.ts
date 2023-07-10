@@ -3,6 +3,7 @@ import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
 import { scoreRecordsFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
@@ -46,6 +47,7 @@ export class HomeCoalitionService {
     );
   }
 
+  @CacheOnReturn()
   async tigCountPerCoalitionByDateTemplate(
     dateTemplate: DateTemplate,
   ): Promise<IntPerCoalitionDateRanged> {

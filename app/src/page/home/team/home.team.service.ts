@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
@@ -19,10 +20,12 @@ export class HomeTeamService {
     private dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
   async currRegisteredCountRanking(limit: number): Promise<ProjectRank[]> {
     return await this.projectsUserService.currRegisteredCountRanking(limit);
   }
 
+  @CacheOnReturn()
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
     const targetExam = await this.examService.findOne({
       filter: { endAt: { $lt: new StatDate() } },

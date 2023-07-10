@@ -8,6 +8,7 @@ import { join } from 'path';
 import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
 import { StatAuthGuard } from './auth/statAuthGuard';
+import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
 import { LambdaModule } from './lambda/lambda.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
@@ -46,6 +47,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
     LambdaModule,
+    CacheDecoratorOnReturnModule,
   ],
   providers: [StatAuthGuard],
 })

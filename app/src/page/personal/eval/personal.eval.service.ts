@@ -5,6 +5,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { TeamService } from 'src/api/team/team.service';
+import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -21,6 +22,7 @@ export class PersonalEvalService {
     private cursusUserCacheService: CursusUserCacheService,
   ) {}
 
+  @CacheOnReturn()
   async pesronalEvalProfile(userId: number): Promise<PersonalEvalRoot> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
@@ -50,6 +52,7 @@ export class PersonalEvalService {
     };
   }
 
+  @CacheOnReturn()
   async count(
     userId: number,
     filter?: FilterQuery<scale_team>,
@@ -71,6 +74,7 @@ export class PersonalEvalService {
     return this.dateRangeService.toDateRanged(count, dateRange);
   }
 
+  @CacheOnReturn()
   async countByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
@@ -80,6 +84,7 @@ export class PersonalEvalService {
     return await this.countByDateRange(userId, dateRange);
   }
 
+  @CacheOnReturn()
   async totalDuration(userId: number): Promise<number> {
     const [totalDuration] = await this.scaleTeamService.durationInfo({
       'corrector.id': userId,
@@ -88,6 +93,7 @@ export class PersonalEvalService {
     return totalDuration;
   }
 
+  @CacheOnReturn()
   async averageDuration(userId: number): Promise<number> {
     const [totalDuration, count] = await this.scaleTeamService.durationInfo({
       'corrector.id': userId,
@@ -96,22 +102,26 @@ export class PersonalEvalService {
     return Math.floor(totalDuration / count);
   }
 
+  @CacheOnReturn()
   async averageFinalMark(userId: number): Promise<number> {
     return await this.scaleTeamService.averageFinalMark(userId);
   }
 
+  @CacheOnReturn()
   async averageFeedbackLength(userId: number): Promise<number> {
     return await this.scaleTeamService.averageReviewLength('feedback', {
       'correcteds.id': userId,
     });
   }
 
+  @CacheOnReturn()
   async averageCommentLength(userId: number): Promise<number> {
     return await this.scaleTeamService.averageReviewLength('comment', {
       'corrector.id': userId,
     });
   }
 
+  @CacheOnReturn()
   async recentComment(userId: number): Promise<string | null> {
     const scaleTeams = await this.scaleTeamService.findAll({
       filter: { 'corrector.id': userId },
@@ -122,6 +132,7 @@ export class PersonalEvalService {
     return scaleTeams.at(0)?.comment ?? null;
   }
 
+  @CacheOnReturn()
   async destinyRanking(userId: number, limit: number): Promise<UserRank[]> {
     return await this.teamService.destinyRanking(userId, limit);
   }

@@ -21,7 +21,7 @@ export class ShallowStore implements CacheStore {
     this.lruOpts = {
       ttlAutopurge: true,
       max: args?.max ?? 500,
-      ttl: args?.ttl ?? 0,
+      ttl: args?.ttl ?? 5000,
     };
 
     this.lruCache = new LRUCache(this.lruOpts);
