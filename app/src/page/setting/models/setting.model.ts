@@ -9,5 +9,5 @@ export class Setting {
   googleEmail?: string;
 
   @Field({ nullable: true })
-  linkedTime?: Date;
+  linkedAt?: Date;
 }

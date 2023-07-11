@@ -15,21 +15,10 @@ export class account {
   googleEmail?: string;
 
   @Prop()
-  linkedTime?: Date;
+  linkedAt?: Date;
 
   @Prop()
   createdAt: Date;
-
-  @Prop()
-  login: string;
-
-  @Prop()
-  displayname: string;
-
-  @Prop()
-  imgUrl: string;
 }
-
-//todo: google과 user로 나눌지 -> nullable 관리 편함 & userId가 2번 들어갈 수 있음
 
 export const AccountSchema = SchemaFactory.createForClass(account);

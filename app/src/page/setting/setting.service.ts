@@ -13,14 +13,14 @@ export class SettingService {
   async setting(userId: number): Promise<Setting> {
     const userLogin = await this.cursusUserService.findOneByUserId(userId);
 
-    const { googleEmail, linkedTime } = await this.loginService.findOneAccount({
+    const { googleEmail, linkedAt } = await this.loginService.findOneAccount({
       userId,
     });
 
     return {
       userLogin: userLogin.user.login,
       googleEmail,
-      linkedTime,
+      linkedAt,
     };
   }
 }

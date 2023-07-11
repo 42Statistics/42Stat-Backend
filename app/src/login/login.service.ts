@@ -1,5 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import {
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -10,129 +11,66 @@ import { InjectModel } from '@nestjs/mongoose';
 import { OAuth2Client } from 'google-auth-library';
 import type { FilterQuery, Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { StatDate } from 'src/statDate/StatDate';
 import { AccountDocument, account } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput, loginInput } from './dtos/login.dto';
-import type {
-  GoogleUser,
-  StatusUnion,
-  UserPreviewWithDisplayname,
-} from './models/login.model';
+import type { GoogleUser, Token } from './models/login.model';
 
 @Injectable()
 export class LoginService {
   constructor(
     @InjectModel(account.name) private accountModel: Model<account>,
     @InjectModel(token.name) private tokenModel: Model<token>,
-    private cursusUserService: CursusUserService,
     private readonly httpService: HttpService,
     private jwtService: JwtService,
   ) {}
 
-  async findAccountByUserId(
-    userId: number,
-  ): Promise<UserPreviewWithDisplayname> {
-    const user = await this.accountModel.findOne({ userId });
-
-    if (!user) {
-      const cursusUser = await this.cursusUserService.findOneByUserId(userId);
-
-      const login = cursusUser.user.login;
-      const imgUrl = cursusUser.user.image.link;
-      const displayname = cursusUser.user.displayname;
-
-      await this.accountModel.create({
-        userId,
-        login,
-        displayname,
-        imgUrl,
-        createdAt: new StatDate(),
-      });
-
-      return { id: userId, login, imgUrl, displayname };
-    }
-
-    return {
-      id: userId,
-      login: user?.login,
-      imgUrl: user.imgUrl,
-      displayname: user.displayname,
-    };
-  }
-
   async findOneAccount(
     filter?: FilterQuery<account>,
   ): Promise<AccountDocument> {
-    const login = await this.accountModel.findOne(filter);
+    const account = await this.accountModel.findOne(filter);
 
-    if (!login) {
+    if (!account) {
       throw new NotFoundException();
     }
 
-    return login;
+    return account;
   }
 
-  async login({ code, google }: loginInput): Promise<typeof StatusUnion> {
+  async login({ code, google }: loginInput): Promise<Token> {
     if (code && google) {
       const login42 = await this.loginWith42(code);
       const googleUser = await this.getGoogleUser(google);
 
-      if (login42.status !== 200) {
-        return login42;
-      }
+      await this.upsertLogin(login42.userId, googleUser);
 
-      await this.upsertLogin(login42.userPreview.id, googleUser);
+      const accessToken = await this.generateAcccessToken(login42.userId);
+      const refreshToken = await this.generateRefreshToken(login42.userId);
 
-      const accessToken = await this.generateAcccessToken(
-        login42.userPreview.id,
-      );
-      const refreshToken = await this.generateRefreshToken(
-        login42.userPreview.id,
-      );
-
-      return await this.upsertToken(
-        login42.userPreview.id,
-        accessToken,
-        refreshToken,
-      );
+      return await this.upsertToken(login42.userId, accessToken, refreshToken);
     }
 
     if (code) {
       const login42 = await this.loginWith42(code);
-      if (login42.status !== 200) {
-        return login42;
-      }
+
       //todo: check google userPreview delete
-      await this.upsertLogin(login42.userPreview.id);
+      await this.upsertLogin(login42.userId);
 
-      const accessToken = await this.generateAcccessToken(
-        login42.userPreview.id,
-      );
-      const refreshToken = await this.generateRefreshToken(
-        login42.userPreview.id,
-      );
+      const accessToken = await this.generateAcccessToken(login42.userId);
+      const refreshToken = await this.generateRefreshToken(login42.userId);
 
-      return await this.upsertToken(
-        login42.userPreview.id,
-        accessToken,
-        refreshToken,
-      );
+      return await this.upsertToken(login42.userId, accessToken, refreshToken);
     }
 
     if (google) {
       return await this.loginWithGoogle(google);
     }
 
-    //error
-    return {
-      status: 404,
-      message: 'Nothing input',
-    };
+    throw new NotFoundException('Nothing input');
   }
 
-  async loginWith42(code: string): Promise<typeof StatusUnion> {
+  async loginWith42(code: string): Promise<Token> {
     const apiUid = process.env.CLIENT_ID;
     const apiSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
@@ -140,10 +78,9 @@ export class LoginService {
     const intraMeUrl = 'https://api.intra.42.fr/v2/me';
 
     if (!(apiUid && apiSecret && redirectUri)) {
-      return {
-        status: 500,
-        message: 'Missing environment configuration',
-      };
+      throw new InternalServerErrorException(
+        'Missing environment configuration',
+      );
     }
 
     const params = new URLSearchParams();
@@ -169,32 +106,23 @@ export class LoginService {
       );
 
       return {
-        userPreview: await this.findAccountByUserId(userInfo.data.id),
+        userId: userInfo.data.id,
         accessToken: tokens.data.access_token,
         refreshToken: tokens.data.refresh_token,
-        status: 200,
       };
     } catch (e) {
-      return {
-        status: 401,
-        message: 'Token error',
-      };
+      throw new UnauthorizedException('Token error');
     }
   }
 
-  async loginWithGoogle(
-    googleInput: GoogleLoginInput,
-  ): Promise<typeof StatusUnion> {
+  async loginWithGoogle(googleInput: GoogleLoginInput): Promise<Token> {
     const googleUser = await this.getGoogleUser(googleInput);
     const user = await this.accountModel.findOne({
       googleId: googleUser.googleId,
     });
 
     if (!user) {
-      return {
-        status: 401,
-        message: 'No associated 42 account found',
-      };
+      throw new UnauthorizedException('No associated 42 account found');
     }
 
     const token = await this.tokenModel.findOne({ userId: user.userId });
@@ -206,18 +134,16 @@ export class LoginService {
       await this.upsertToken(user.userId, accessToken, refreshToken);
 
       return {
-        userPreview: await this.findAccountByUserId(user.userId),
+        userId: user.userId,
         accessToken,
         refreshToken,
-        status: 200,
       };
     }
 
     return {
-      userPreview: await this.findAccountByUserId(token.userId),
+      userId: token.userId,
       accessToken: token.accessToken,
       refreshToken: token.refreshToken,
-      status: 200,
     };
   }
 
@@ -254,7 +180,7 @@ export class LoginService {
           userId,
           googleId: googleUser.googleId,
           googleEmail: googleUser.email,
-          linkedTime: googleUser.time,
+          linkedAt: googleUser.time,
         }
       : { userId };
     //todo: null로 들어가도 되는지 확인
@@ -263,7 +189,10 @@ export class LoginService {
       updateData,
     );
     if (!user) {
-      await this.accountModel.create(updateData);
+      await this.accountModel.create({
+        ...updateData,
+        createdAt: new StatDate().toString(), //todo
+      });
     }
 
     return true;
@@ -273,7 +202,7 @@ export class LoginService {
     userId: number,
     accessToken: string,
     refreshToken: string,
-  ): Promise<typeof StatusUnion> {
+  ): Promise<Token> {
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
@@ -281,10 +210,9 @@ export class LoginService {
     );
 
     return {
-      userPreview: await this.findAccountByUserId(newToken.userId),
+      userId: newToken.userId,
       accessToken: newToken.accessToken,
       refreshToken: newToken.refreshToken,
-      status: 200,
     };
   }
 
@@ -338,7 +266,7 @@ export class LoginService {
 
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
-      { $unset: { googleId: 1, googleEmail: 1, linkedTime: 1 } },
+      { $unset: { googleId: 1, googleEmail: 1, linkedAt: 1 } },
     );
 
     if (!user) {
@@ -375,7 +303,7 @@ export class LoginService {
   async refreshToken(
     accessToken: string,
     refreshToken: string,
-  ): Promise<typeof StatusUnion> {
+  ): Promise<Token> {
     //todo: 401 throw 중
     const { exp: e, userId: u } = await this.jwtService.verifyAsync(
       accessToken,
@@ -383,10 +311,9 @@ export class LoginService {
 
     if (StatDate.now() < e * 1000) {
       return {
-        status: 200,
         accessToken,
         refreshToken,
-        userPreview: await this.findAccountByUserId(u),
+        userId: u,
       };
     }
 
@@ -406,16 +333,12 @@ export class LoginService {
       );
 
       return {
-        userPreview: await this.findAccountByUserId(userId),
+        userId,
         accessToken: newAccessToken,
         refreshToken,
-        status: 200,
       };
     } catch (e) {
-      return {
-        status: 400,
-        message: '유효하지 않은 refreshToken',
-      };
+      throw new ForbiddenException('유효하지 않은 refreshToken');
     }
   }
 
