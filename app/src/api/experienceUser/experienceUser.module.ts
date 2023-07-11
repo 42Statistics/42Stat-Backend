@@ -29,5 +29,5 @@ import { ExperienceUserService } from './experienceUser.service';
     CacheUtilModule,
   ],
 })
-// eslint-diable-next-line
+// eslint-disable-next-line
 export class ExperienceUserModule {}

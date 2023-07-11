@@ -9,5 +9,5 @@ import { LandingService } from './landing.service';
   imports: [CursusUserModule, ScaleTeamModule, ProjectsUserModule],
   providers: [LandingResolver, LandingService],
 })
-// eslint-diable-next-line
+// eslint-disable-next-line
 export class LandingModule {}

@@ -51,4 +51,5 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
   ],
   providers: [StatAuthGuard],
 })
+// eslint-disable-next-line
 export class AppModule {}

@@ -5,4 +5,5 @@ import { PaginationIndexService } from './pagination.index.service';
   providers: [PaginationIndexService],
   exports: [PaginationIndexService],
 })
+// eslint-disable-next-line
 export class PaginationIndexModule {}

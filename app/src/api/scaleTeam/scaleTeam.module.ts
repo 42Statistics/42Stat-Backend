@@ -23,4 +23,5 @@ import { ScaleTeamService } from './scaleTeam.service';
     CacheUtilModule,
   ],
 })
+// eslint-disable-next-line
 export class ScaleTeamModule {}

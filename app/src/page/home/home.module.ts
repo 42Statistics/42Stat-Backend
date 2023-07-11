@@ -12,4 +12,5 @@ import { HomeUserModule } from './user/home.user.module';
     HomeTeamModule,
   ],
 })
+// eslint-disable-next-line
 export class HomeModule {}

@@ -20,10 +20,8 @@ export class StatDate extends Date {
   static readonly DAY = DAY;
   static readonly WEEK = WEEK;
 
-  constructor();
-  constructor(ms: number);
-  constructor(date: Date);
-  constructor(dateString: string);
+  constructor(ms?: number);
+  constructor(date: Date | string);
   constructor(arg?: number | Date | string) {
     super(arg ?? new Date());
   }
