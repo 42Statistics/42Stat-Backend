@@ -42,9 +42,8 @@ export class LeaderboardScoreResolver {
     }
 
     return await this.leaderboardScoreService.rankingByDateTemplate(
-      myUserId,
-      paginationIndexArgs,
       dateTemplate,
+      { userId: myUserId, paginationIndexArgs },
     );
   }
 }
