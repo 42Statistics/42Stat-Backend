@@ -5,4 +5,5 @@ import { PaginationCursorService } from './pagination.cursor.service';
   providers: [PaginationCursorService],
   exports: [PaginationCursorService],
 })
+// eslint-disable-next-line
 export class PaginationCursorModule {}

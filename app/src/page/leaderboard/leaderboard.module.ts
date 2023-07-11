@@ -12,4 +12,5 @@ import { LeaderboardScoreModule } from './score/leaderboard.score.module';
     LeaderboardScoreModule,
   ],
 })
+// eslint-disable-next-line
 export class LeaderboardModule {}
