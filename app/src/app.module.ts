@@ -7,6 +7,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
+import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
@@ -49,7 +50,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
     LambdaModule,
     CacheDecoratorOnReturnModule,
   ],
-  providers: [StatAuthGuard],
+  providers: [StatAuthGuard, ComplexityPlugin],
 })
 // eslint-disable-next-line
 export class AppModule {}
