@@ -1,17 +1,21 @@
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { MyAccessToken } from 'src/auth/myContext';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { GoogleLoginInput, loginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
-import { Token } from './models/login.model';
-import { UseGuards } from '@nestjs/common';
-import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { MyAccessToken } from 'src/auth/myContext';
+import { StatusUnion, Success } from './models/login.model';
 
+@UseFilters(HttpExceptionFilter)
 @Resolver()
 export class LoginResolver {
   constructor(private readonly loginService: LoginService) {}
 
-  @Mutation((_returns) => Token)
-  async login(@Args('loginInput') loginInput: loginInput): Promise<Token> {
+  @Mutation((_returns) => StatusUnion)
+  async login(
+    @Args('loginInput') loginInput: loginInput,
+  ): Promise<typeof StatusUnion> {
     return await this.loginService.login(loginInput);
   }
 
@@ -30,12 +34,11 @@ export class LoginResolver {
     return await this.loginService.unlinkGoogle(accessToken);
   }
 
-  @Mutation((_returns) => Token)
+  @Mutation((_returns) => StatusUnion)
   async refreshToken(
-    @Args('accessToken', { nullable: true }) accessToken: string,
     @Args('refreshToken') refreshToken: string,
-  ): Promise<Token> {
-    return await this.loginService.refreshToken(accessToken, refreshToken);
+  ): Promise<Success> {
+    return await this.loginService.refreshToken(refreshToken);
   }
 
   @UseGuards(StatAuthGuard)

@@ -39,7 +39,6 @@ export class StatAuthGuard implements CanActivate {
     //todo: db 존재여부 검사 -> 401
 
     try {
-      //verufyAsync에서 exp를 검사함
       const { userId, iat, exp } = await this.jwtService.verifyAsync<{
         userId: number;
         iat: number;
