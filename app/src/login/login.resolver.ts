@@ -1,7 +1,7 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { GoogleLoginInput, loginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
-import { StatusUnion } from './models/login.model';
+import { Token } from './models/login.model';
 import { UseGuards } from '@nestjs/common';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { MyAccessToken } from 'src/auth/myContext';
@@ -10,10 +10,8 @@ import { MyAccessToken } from 'src/auth/myContext';
 export class LoginResolver {
   constructor(private readonly loginService: LoginService) {}
 
-  @Mutation((_returns) => StatusUnion)
-  async login(
-    @Args('loginInput') loginInput: loginInput,
-  ): Promise<typeof StatusUnion> {
+  @Mutation((_returns) => Token)
+  async login(@Args('loginInput') loginInput: loginInput): Promise<Token> {
     return await this.loginService.login(loginInput);
   }
 
@@ -32,11 +30,11 @@ export class LoginResolver {
     return await this.loginService.unlinkGoogle(accessToken);
   }
 
-  @Mutation((_returns) => StatusUnion)
+  @Mutation((_returns) => Token)
   async refreshToken(
-    @Args('accessToken') accessToken: string,
+    @Args('accessToken', { nullable: true }) accessToken: string,
     @Args('refreshToken') refreshToken: string,
-  ): Promise<typeof StatusUnion> {
+  ): Promise<Token> {
     return await this.loginService.refreshToken(accessToken, refreshToken);
   }
 

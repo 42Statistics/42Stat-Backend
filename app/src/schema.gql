@@ -66,6 +66,7 @@ type ProjectPreview {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
@@ -79,6 +80,12 @@ type UserPreviewWithDisplayname {
   login: String!
   imgUrl: String
   displayname: String!
+=======
+type Token {
+  userId: Int!
+  accessToken: String!
+  refreshToken: String!
+>>>>>>> 8a5c9de... refactor: :recycle: unionType 및 userPreview 제공 제거
 }
 
 >>>>>>> ede1df1... feat: :sparkles: userPreview 및 userFullName 추가
@@ -443,7 +450,7 @@ type ProjectInfo {
 type Setting {
   userLogin: String!
   googleEmail: String
-  linkedTime: DateTime
+  linkedAt: DateTime
 }
 
 type Query {
@@ -473,14 +480,15 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(loginInput: loginInput!): StatusUnion!
+  login(loginInput: loginInput!): Token!
   linkGoogle(google: GoogleLoginInput!): Boolean!
   unlinkGoogle: Boolean!
-  refreshToken(accessToken: String!, refreshToken: String!): StatusUnion!
+  refreshToken(accessToken: String, refreshToken: String!): Token!
   logout: Boolean!
   deleteAccount: Boolean!
 }
 
+<<<<<<< HEAD
 union StatusUnion = SuccessType | BadRequestType | UnauthorizedType | NotFoundType | InternalServerErrorType
 
 type SuccessType {
@@ -513,6 +521,8 @@ type InternalServerErrorType {
   message: String!
 }
 
+=======
+>>>>>>> 8a5c9de... refactor: :recycle: unionType 및 userPreview 제공 제거
 input loginInput {
   google: GoogleLoginInput
   code: String
