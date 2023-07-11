@@ -26,7 +26,7 @@ export class LeaderboardLevelResolver {
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @MyUserId() userId: number,
+    @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
     @Args()
     { dateTemplate }: DateTemplateArgs,
@@ -37,7 +37,7 @@ export class LeaderboardLevelResolver {
 
     return await this.leaderboardLevelService.rankingByDateTemplate(
       dateTemplate,
-      { userId, paginationIndexArgs },
+      { userId: myUserId, paginationIndexArgs },
     );
   }
 }
