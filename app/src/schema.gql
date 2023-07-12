@@ -483,7 +483,7 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(loginInput: loginInput!): StatusUnion!
+  login(loginInput: LoginInput!): StatusUnion!
   linkGoogle(google: GoogleLoginInput!): Boolean!
   unlinkGoogle: Boolean!
   refreshToken(refreshToken: String!): StatusUnion!
@@ -541,8 +541,12 @@ type NoAssociated {
   message: String!
 }
 
+<<<<<<< HEAD
 >>>>>>> c4374f0... refactor: :recycle: UnionType에 NoAssociated 추가
 input loginInput {
+=======
+input LoginInput {
+>>>>>>> 9a8dced... style: :art: loginInput -> LoginInput
   google: GoogleLoginInput
   code: String
 }

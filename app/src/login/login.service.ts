@@ -4,7 +4,6 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,9 +14,9 @@ import type { FilterQuery, Model } from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
-import { AccountDocument, account } from './db/account.database.schema';
+import { type AccountDocument, account } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
-import type { GoogleLoginInput, loginInput } from './dtos/login.dto';
+import type { GoogleLoginInput, LoginInput } from './dtos/login.dto';
 import type { GoogleUser, StatusUnion, Success } from './models/login.model';
 
 @UseFilters(HttpExceptionFilter)
@@ -36,35 +35,33 @@ export class LoginService {
     const account = await this.accountModel.findOne(filter);
 
     if (!account) {
-      //todo: 빈 AccountDocument반환
+      //todo
       throw new NotFoundException();
     }
 
     return account;
   }
 
-  async login({ code, google }: loginInput): Promise<typeof StatusUnion> {
+  async login({ code, google }: LoginInput): Promise<typeof StatusUnion> {
     if (code && google) {
-      const login42 = await this.loginWith42(code);
+      const userId = await this.loginWith42(code);
       const googleUser = await this.getGoogleUser(google);
 
-      await this.upsertLogin(login42, googleUser);
+      await this.upsertLogin(userId, googleUser);
 
-      const accessToken = await this.generateAcccessToken(login42);
-      const refreshToken = await this.generateRefreshToken(login42);
+      const { accessToken, refreshToken } = await this.makeNewToken(userId);
 
-      return await this.upsertToken(login42, accessToken, refreshToken);
+      return await this.upsertToken(userId, accessToken, refreshToken);
     }
 
     if (code) {
-      const login42 = await this.loginWith42(code);
+      const userId = await this.loginWith42(code);
 
-      await this.upsertLogin(login42);
+      await this.upsertLogin(userId);
 
-      const accessToken = await this.generateAcccessToken(login42);
-      const refreshToken = await this.generateRefreshToken(login42);
+      const { accessToken, refreshToken } = await this.makeNewToken(userId);
 
-      return await this.upsertToken(login42, accessToken, refreshToken);
+      return await this.upsertToken(userId, accessToken, refreshToken);
     }
 
     if (google) {
@@ -148,38 +145,16 @@ export class LoginService {
       userId: associateUser.userId,
     });
 
-    if (!token) {
-      const accessToken = await this.generateAcccessToken(associateUser.userId);
-      const refreshToken = await this.generateRefreshToken(
+    if (!token || !(await this.isValidToken(token.refreshToken))) {
+      const { accessToken, refreshToken } = await this.makeNewToken(
         associateUser.userId,
       );
 
-      await this.upsertToken(associateUser.userId, accessToken, refreshToken);
-
-      return {
-        userId: associateUser.userId,
-        accessToken,
-        refreshToken,
-        message: 'OK',
-      };
-    }
-
-    try {
-      await this.jwtService.verifyAsync(token.refreshToken);
-    } catch (e) {
-      const accessToken = await this.generateAcccessToken(associateUser.userId);
-      const refreshToken = await this.generateRefreshToken(
+      return await this.upsertToken(
         associateUser.userId,
-      );
-
-      await this.upsertToken(associateUser.userId, accessToken, refreshToken);
-
-      return {
-        userId: associateUser.userId,
         accessToken,
         refreshToken,
-        message: 'OK',
-      };
+      );
     }
 
     return {
@@ -188,6 +163,33 @@ export class LoginService {
       refreshToken: token.refreshToken,
       message: 'OK',
     };
+  }
+
+  /**
+   *
+   * 유효한 토큰인 경우 true를 반환
+   */
+  async isValidToken(targetToken?: string): Promise<boolean> {
+    if (!targetToken) {
+      return false;
+    }
+
+    try {
+      await this.jwtService.verifyAsync(targetToken);
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async makeNewToken(
+    userId: number,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    const accessToken = await this.generateAcccessToken(userId);
+    const refreshToken = await this.generateRefreshToken(userId);
+
+    return { accessToken, refreshToken };
   }
 
   /**
@@ -280,8 +282,6 @@ export class LoginService {
       message: 'OK',
     };
   }
-
-  //todo: google계정 upsert하는 함수 만들기
 
   /**
    *
@@ -382,7 +382,7 @@ export class LoginService {
    */
   async refreshToken(refreshToken: string): Promise<Success> {
     try {
-      const { userId, iat, exp } = await this.jwtService.verifyAsync<{
+      const { userId } = await this.jwtService.verifyAsync<{
         userId: number;
         iat: number;
         exp: number;
@@ -418,9 +418,11 @@ export class LoginService {
     const deletedToken = await this.tokenModel.deleteOne({
       accessToken: token,
     });
+
     if (!deletedToken.deletedCount) {
       return false;
     }
+
     return true;
   }
 
@@ -442,9 +444,11 @@ export class LoginService {
     await this.tokenModel.deleteMany({ userId });
 
     const deletedAccount = await this.accountModel.deleteOne({ userId });
+
     if (!deletedAccount.deletedCount) {
       return false;
     }
+
     return true;
   }
 

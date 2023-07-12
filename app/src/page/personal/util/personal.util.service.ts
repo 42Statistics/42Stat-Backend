@@ -10,21 +10,16 @@ export class PersonalUtilService {
     userId?: number,
     login?: string,
   ): Promise<number> {
-    try {
-      if (login) {
-        const cursusUser = await this.cursusUserService.findOneByLogin(login);
+    if (login) {
+      const cursusUser = await this.cursusUserService.findOneByLogin(login);
 
-        return cursusUser.user.id;
-      }
-
-      if (userId) {
-        return userId;
-      }
-
-      return myId;
-    } catch (e) {
-      console.log(e);
-      return 0;
+      return cursusUser.user.id;
     }
+
+    if (userId) {
+      return userId;
+    }
+
+    return myId;
   }
 }
