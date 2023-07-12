@@ -9,9 +9,8 @@ export class GoogleLoginInput {
   credential: string;
 }
 
-//todo: login to Login
 @InputType()
-export class loginInput {
+export class LoginInput {
   @Field({ nullable: true })
   google?: GoogleLoginInput;
 

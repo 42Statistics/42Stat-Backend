@@ -1,4 +1,4 @@
-import { Catch, HttpException, HttpStatus } from '@nestjs/common';
+import { Catch, HttpException } from '@nestjs/common';
 import type { GqlExceptionFilter } from '@nestjs/graphql';
 import {
   GraphQLError,

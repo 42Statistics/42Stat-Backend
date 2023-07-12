@@ -3,7 +3,7 @@ import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { MyAccessToken } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { GoogleLoginInput, loginInput } from './dtos/login.dto';
+import { GoogleLoginInput, LoginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
 import { StatusUnion, Success } from './models/login.model';
 
@@ -14,7 +14,7 @@ export class LoginResolver {
 
   @Mutation((_returns) => StatusUnion)
   async login(
-    @Args('loginInput') loginInput: loginInput,
+    @Args('loginInput') loginInput: LoginInput,
   ): Promise<typeof StatusUnion> {
     return await this.loginService.login(loginInput);
   }

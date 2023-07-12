@@ -17,7 +17,7 @@ export class StatAuthGuard implements CanActivate {
 
     const accessToken = context.req.header('Authorization');
 
-    const { userId, iat, exp } = await this.verifyToken(accessToken);
+    const { userId } = await this.verifyToken(accessToken);
 
     context.userId = userId;
     context.accessToken = accessToken;
@@ -35,8 +35,6 @@ export class StatAuthGuard implements CanActivate {
     }
 
     const token = accessToken.split(' ')[1];
-
-    //todo: db 존재여부 검사 -> 401
 
     try {
       const { userId, iat, exp } = await this.jwtService.verifyAsync<{

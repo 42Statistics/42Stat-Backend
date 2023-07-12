@@ -10,7 +10,6 @@ import { LoginService } from './login.service';
 
 @Module({
   imports: [
-    //todo:
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
