@@ -12,7 +12,7 @@ import {
   simpleEstimator,
 } from 'graphql-query-complexity';
 
-const MAX_COMPLEXITY = 500;
+const MAX_COMPLEXITY = process.env.PROD ? 500 : 99999999;
 
 @Plugin()
 export class ComplexityPlugin implements ApolloServerPlugin {
