@@ -40,7 +40,7 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
     LeaderboardModule,
     EvalLogModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      includeStacktraceInErrorResponses: false,
+      includeStacktraceInErrorResponses: process.env.PROD ? true : false,
       driver: ApolloDriver,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
