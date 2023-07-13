@@ -3,19 +3,25 @@ import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 @ObjectType()
 export class GoogleUser {
   @Field()
-  googleId: string;
+  googleId?: string;
 
   @Field()
   googleEmail?: string;
 
   @Field()
-  linkedAt: Date;
+  linkedAt?: Date;
 }
 
 @ObjectType()
-export class NoAssociated {
+export class UserAccount extends GoogleUser {
   @Field()
-  message: 'NoAssociated';
+  userId: number;
+}
+
+@ObjectType()
+export class NotLinked {
+  @Field()
+  message: 'NotLinked';
 }
 
 @ObjectType()
@@ -33,15 +39,15 @@ export class Success {
   message: 'OK';
 }
 
-export const StatusUnion = createUnionType({
-  name: 'StatusUnion',
-  types: () => [Success, NoAssociated] as const,
+export const LoginResult = createUnionType({
+  name: 'LoginResult',
+  types: () => [Success, NotLinked] as const,
   resolveType(value) {
     switch (value.message) {
       case 'OK':
         return Success;
-      case 'NoAssociated':
-        return NoAssociated;
+      case 'NotLinked':
+        return NotLinked;
     }
   },
 });

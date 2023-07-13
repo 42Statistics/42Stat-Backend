@@ -68,6 +68,7 @@ type ProjectPreview {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
@@ -92,6 +93,15 @@ type Token {
 >>>>>>> ede1df1... feat: :sparkles: userPreview 및 userFullName 추가
 =======
 >>>>>>> c4374f0... refactor: :recycle: UnionType에 NoAssociated 추가
+=======
+type UserAccount {
+  googleId: String!
+  googleEmail: String!
+  linkedAt: DateTime!
+  userId: Int!
+}
+
+>>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -450,10 +460,14 @@ type ProjectInfo {
   validatedRate: Rate!
 }
 
-type Setting {
-  userLogin: String!
+type Account {
+  login: String!
   googleEmail: String
   linkedAt: DateTime
+}
+
+type Setting {
+  account: Account!
 }
 
 type Query {
@@ -483,14 +497,15 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(loginInput: LoginInput!): StatusUnion!
-  linkGoogle(google: GoogleLoginInput!): Boolean!
-  unlinkGoogle: Boolean!
-  refreshToken(refreshToken: String!): StatusUnion!
+  login(loginInput: LoginInput!): LoginResult!
+  linkGoogle(google: GoogleLoginInput!): UserAccount!
+  unlinkGoogle: UserAccount!
+  refreshToken(refreshToken: String!): LoginResult!
   logout: Boolean!
   deleteAccount: Boolean!
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 union StatusUnion = SuccessType | BadRequestType | UnauthorizedType | NotFoundType | InternalServerErrorType
@@ -529,6 +544,9 @@ type InternalServerErrorType {
 >>>>>>> 8a5c9de... refactor: :recycle: unionType 및 userPreview 제공 제거
 =======
 union StatusUnion = Success | NoAssociated
+=======
+union LoginResult = Success | NotLinked
+>>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
 
 type Success {
   accessToken: String!
@@ -537,7 +555,7 @@ type Success {
   message: String!
 }
 
-type NoAssociated {
+type NotLinked {
   message: String!
 }
 
@@ -548,7 +566,7 @@ input loginInput {
 input LoginInput {
 >>>>>>> 9a8dced... style: :art: loginInput -> LoginInput
   google: GoogleLoginInput
-  code: String
+  ftCode: String
 }
 
 input GoogleLoginInput {

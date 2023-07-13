@@ -15,5 +15,5 @@ export class LoginInput {
   google?: GoogleLoginInput;
 
   @Field({ nullable: true })
-  code?: string;
+  ftCode?: string;
 }

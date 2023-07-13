@@ -17,19 +17,17 @@ export class StatAuthGuard implements CanActivate {
 
     const accessToken = context.req.header('Authorization');
 
-    const { userId } = await this.verifyToken(accessToken);
+    const { userId, token } = await this.verifyToken(accessToken);
 
     context.userId = userId;
-    context.accessToken = accessToken;
+    context.accessToken = token;
 
     return true;
   }
 
-  async verifyToken(accessToken: string | undefined): Promise<{
-    userId: number;
-    iat: number;
-    exp: number;
-  }> {
+  async verifyToken(
+    accessToken: string | undefined,
+  ): Promise<{ userId: number; token: string }> {
     if (!accessToken || !accessToken.startsWith('Bearer ')) {
       throw new UnauthorizedException('Invalid token format');
     }
@@ -37,15 +35,13 @@ export class StatAuthGuard implements CanActivate {
     const token = accessToken.split(' ')[1];
 
     try {
-      const { userId, iat, exp } = await this.jwtService.verifyAsync<{
+      const { userId } = await this.jwtService.verifyAsync<{
         userId: number;
-        iat: number;
-        exp: number;
       }>(token);
 
-      return { userId, iat, exp };
+      return { userId, token };
     } catch (e) {
-      throw new UnauthorizedException('Access token expired');
+      throw new UnauthorizedException();
     }
   }
 }
