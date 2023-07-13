@@ -3,15 +3,15 @@ import { HydratedDocument } from 'mongoose';
 
 export type TokenDocument = HydratedDocument<token>;
 
-@Schema({ versionKey: false })
+@Schema()
 export class token {
-  @Prop()
+  @Prop({ required: true })
   userId: number;
 
-  @Prop()
+  @Prop({ required: true })
   accessToken: string;
 
-  @Prop()
+  @Prop({ required: true })
   refreshToken: string;
 }
 

@@ -3,22 +3,19 @@ import { HydratedDocument } from 'mongoose';
 
 export type AccountDocument = HydratedDocument<account>;
 
-@Schema({ versionKey: false })
+@Schema()
 export class account {
-  @Prop()
+  @Prop({ required: true })
   userId: number;
 
-  @Prop()
+  @Prop({ required: true })
   googleId?: string;
 
-  @Prop()
+  @Prop({ required: true })
   googleEmail?: string;
 
-  @Prop()
+  @Prop({ required: true })
   linkedAt?: Date;
-
-  @Prop()
-  createdAt: Date;
 }
 
 export const AccountSchema = SchemaFactory.createForClass(account);
