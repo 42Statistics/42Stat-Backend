@@ -6,8 +6,8 @@ import type { Setting } from './models/setting.model';
 @Injectable()
 export class SettingService {
   constructor(
-    private cursusUserService: CursusUserService,
-    private loginService: LoginService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly loginService: LoginService,
   ) {}
 
   async setting(userId: number): Promise<Setting> {
@@ -18,9 +18,11 @@ export class SettingService {
     });
 
     return {
-      userLogin: userLogin.user.login,
-      googleEmail,
-      linkedAt,
+      account: {
+        login: userLogin.user.login,
+        googleEmail,
+        linkedAt,
+      },
     };
   }
 }
