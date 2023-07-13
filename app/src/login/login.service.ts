@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -11,22 +12,25 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
 import type { FilterQuery, Model } from 'mongoose';
+import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
-import { type AccountDocument, account } from './db/account.database.schema';
+import { account, type AccountDocument } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput, LoginInput } from './dtos/login.dto';
-import type { GoogleUser, StatusUnion, Success } from './models/login.model';
+import type { GoogleUser, LoginResult, Success } from './models/login.model';
 
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
   constructor(
-    @InjectModel(account.name) private accountModel: Model<account>,
-    @InjectModel(token.name) private tokenModel: Model<token>,
+    @InjectModel(account.name)
+    private accountModel: Model<account>,
+    @InjectModel(token.name)
+    private tokenModel: Model<token>,
     private readonly httpService: HttpService,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async findOneAccount(
@@ -35,16 +39,15 @@ export class LoginService {
     const account = await this.accountModel.findOne(filter);
 
     if (!account) {
-      //todo
       throw new NotFoundException();
     }
 
     return account;
   }
 
-  async login({ code, google }: LoginInput): Promise<typeof StatusUnion> {
-    if (code && google) {
-      const userId = await this.loginWith42(code);
+  async login({ ftCode, google }: LoginInput): Promise<typeof LoginResult> {
+    if (ftCode && google) {
+      const userId = await this.loginWith42(ftCode);
       const googleUser = await this.getGoogleUser(google);
 
       await this.upsertLogin(userId, googleUser);
@@ -54,8 +57,8 @@ export class LoginService {
       return await this.upsertToken(userId, accessToken, refreshToken);
     }
 
-    if (code) {
-      const userId = await this.loginWith42(code);
+    if (ftCode) {
+      const userId = await this.loginWith42(ftCode);
 
       await this.upsertLogin(userId);
 
@@ -73,13 +76,13 @@ export class LoginService {
 
   /**
    *
-   * code를 받아 userId를 반환함
+   * ftCode를 받아 userId를 반환함
    * env가 설정되지 않은 경우 -> 500
-   * code가 유효하지 않은 경우 -> 400
+   * ftCode가 유효하지 않은 경우 -> 400
    *
    * userId 반환
    */
-  async loginWith42(code: string): Promise<number> {
+  async loginWith42(ftCode: string): Promise<number> {
     const apiUid = process.env.CLIENT_ID;
     const apiSecret = process.env.CLIENT_SECRET;
     const redirectUri = process.env.REDIRECT_URI;
@@ -96,7 +99,7 @@ export class LoginService {
     params.set('grant_type', 'authorization_code');
     params.set('client_id', apiUid);
     params.set('client_secret', apiSecret);
-    params.set('code', code);
+    params.set('code', ftCode);
     params.set('redirect_uri', redirectUri);
 
     try {
@@ -123,13 +126,13 @@ export class LoginService {
   /**
    *
    * googleInput을 받아
-   * 42연동이 필요한 유저이면 -> union 중 NoAssociated타입 반환 {message: 'NoAssociated'}
+   * 42연동이 필요한 유저이면 -> union 중 NotLinked타입 반환 {message: 'NotLinked'}
    * 이미 있는 유저이면 -> 조회 후 그 유저의 토큰 반환 (만료되었는지는 상관 x)
    *
    */
   async loginWithGoogle(
     googleInput: GoogleLoginInput,
-  ): Promise<typeof StatusUnion> {
+  ): Promise<typeof LoginResult> {
     const googleUser = await this.getGoogleUser(googleInput);
     const associateUser = await this.accountModel.findOne({
       googleId: googleUser.googleId,
@@ -137,7 +140,7 @@ export class LoginService {
 
     if (!associateUser) {
       return {
-        message: 'NoAssociated',
+        message: 'NotLinked',
       };
     }
 
@@ -145,7 +148,8 @@ export class LoginService {
       userId: associateUser.userId,
     });
 
-    if (!token || !(await this.isValidToken(token.refreshToken))) {
+    // if (!token || !(await this.isValidToken(token.refreshToken))) {
+    if (!token) {
       const { accessToken, refreshToken } = await this.makeNewToken(
         associateUser.userId,
       );
@@ -165,27 +169,7 @@ export class LoginService {
     };
   }
 
-  /**
-   *
-   * 유효한 토큰인 경우 true를 반환
-   */
-  async isValidToken(targetToken?: string): Promise<boolean> {
-    if (!targetToken) {
-      return false;
-    }
-
-    try {
-      await this.jwtService.verifyAsync(targetToken);
-    } catch (e) {
-      return false;
-    }
-
-    return true;
-  }
-
-  async makeNewToken(
-    userId: number,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async makeNewToken(userId: number): Promise<Omit<token, 'userId'>> {
     const accessToken = await this.generateAcccessToken(userId);
     const refreshToken = await this.generateRefreshToken(userId);
 
@@ -229,9 +213,10 @@ export class LoginService {
    *
    * userId로 조회 후 user가 없으면 새로 생성
    * googleUser도 들어왔을 경우 google 정보도 업데이트
+   * 업데이트 이전의 데이터 반환 //todo
    */
-  async upsertLogin(userId: number, googleUser?: GoogleUser): Promise<boolean> {
-    const updateData = {
+  async upsertLogin(userId: number, googleUser?: GoogleUser): Promise<account> {
+    const updateData: account = {
       userId,
       googleId: googleUser?.googleId,
       googleEmail: googleUser?.googleEmail,
@@ -241,16 +226,10 @@ export class LoginService {
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
       updateData,
+      { upsert: true, new: true },
     );
 
-    if (!user) {
-      await this.accountModel.create({
-        ...updateData,
-        createdAt: new StatDate().toString(),
-      });
-    }
-
-    return true;
+    return user;
   }
 
   /**
@@ -264,7 +243,7 @@ export class LoginService {
     userId: number,
     accessToken: string,
     refreshToken: string,
-  ): Promise<typeof StatusUnion> {
+  ): Promise<typeof LoginResult> {
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
@@ -287,21 +266,10 @@ export class LoginService {
    *
    * header에 첨부된 accessToken을 decoding해 userId를 가져옴
    * googleInput을 통해 googleId, googleEmail, linkedAt을 받아옴
-   * userId로 find 후 구글 정보들을 upsert 혹은 새로 만들어줌
-   * 업데이트에 실패하거나 없는 userId로 find에 실패했을 시 false 반환
+   * userId로 find 후 구글 정보들을 upsert 혹은 새로 만든 후 업데이트 전 데이터를 반환 //todo
+   * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
-  async linkGoogle(
-    accessToken: string,
-    google: GoogleLoginInput,
-  ): Promise<boolean> {
-    const token = accessToken.split(' ')[1];
-
-    const { userId } = await this.jwtService.verifyAsync<{
-      userId: number;
-      iat: number;
-      exp: number;
-    }>(token);
-
+  async linkGoogle(userId: number, google: GoogleLoginInput): Promise<account> {
     const googleUser = await this.getGoogleUser(google);
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
@@ -315,37 +283,29 @@ export class LoginService {
     );
 
     if (!user) {
-      return false;
+      throw new InternalServerErrorException();
     }
 
-    return true;
+    return user;
   }
 
   /**
    *
    * header에 첨부된 accessToken을 decoding해 userId를 가져옴
    * userId로 find 후 google과 관련된 정보를 삭제함
-   * find에 실패했을시 false 반환
+   * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
-  async unlinkGoogle(accessToken: string): Promise<boolean> {
-    const token = accessToken.split(' ')[1];
-
-    const { userId } = await this.jwtService.verifyAsync<{
-      userId: number;
-      iat: number;
-      exp: number;
-    }>(token);
-
+  async unlinkGoogle(userId: number): Promise<account> {
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
       { $unset: { googleId: 1, googleEmail: 1, linkedAt: 1 } },
     );
 
     if (!user) {
-      return false;
+      throw new InternalServerErrorException();
     }
 
-    return true;
+    return user;
   }
 
   /**
@@ -382,18 +342,13 @@ export class LoginService {
    */
   async refreshToken(refreshToken: string): Promise<Success> {
     try {
-      const { userId } = await this.jwtService.verifyAsync<{
-        userId: number;
-        iat: number;
-        exp: number;
-      }>(refreshToken);
+      const { userId } = await this.verifyToken(refreshToken);
 
       const newAccessToken = await this.generateAcccessToken(userId);
 
       await this.tokenModel.findOneAndUpdate(
         { userId },
         { userId, accessToken: newAccessToken, refreshToken },
-        { upsert: true, new: true },
       );
 
       return {
@@ -411,19 +366,16 @@ export class LoginService {
    *
    * header에 첨부된 accessToken을 가져옴
    * tokenDB에서 가져온 accessToken을 통해 find하고 해당 데이터를 삭제함
+   * 지운 토큰의 수를 반환함 (1)
    */
-  async logout(accessToken: string): Promise<boolean> {
+  async logout(accessToken: string): Promise<number> {
     const token = accessToken.split(' ')[1];
 
-    const deletedToken = await this.tokenModel.deleteOne({
+    const { deletedCount } = await this.tokenModel.deleteOne({
       accessToken: token,
     });
 
-    if (!deletedToken.deletedCount) {
-      return false;
-    }
-
-    return true;
+    return deletedCount;
   }
 
   /**
@@ -431,30 +383,47 @@ export class LoginService {
    * header에 첨부된 accessToken을 decoding해 userId를 가져옴
    * userId로 로그인했던 모든 토큰기록을 삭제함
    * userId로 가입했던 정보를 삭제함
+   * 지운 계정의 수를 반환함 (1)
    */
-  async deleteAccount(accessToken: string): Promise<boolean> {
-    const token = accessToken.split(' ')[1];
-
-    const { userId } = await this.jwtService.verifyAsync<{
-      userId: number;
-      iat: number;
-      exp: number;
-    }>(token);
-
+  async deleteAccount(userId: number): Promise<number> {
     await this.tokenModel.deleteMany({ userId });
 
-    const deletedAccount = await this.accountModel.deleteOne({ userId });
+    const { deletedCount } = await this.accountModel.deleteOne({ userId });
 
-    if (!deletedAccount.deletedCount) {
-      return false;
-    }
-
-    return true;
+    return deletedCount;
   }
 
-  //매달 1일 오전 5시 토큰 초기화
-  @Cron('0 0 5 * *')
-  async deleteAllToken() {
-    await this.tokenModel.deleteMany();
+  async verifyToken(targetToken: string): Promise<{
+    userId: number;
+    iat: number;
+    exp: number;
+  }> {
+    try {
+      return await this.jwtService.verifyAsync(targetToken);
+    } catch (e) {
+      throw new UnauthorizedException('Token expired');
+    }
+  }
+
+  /**
+   *
+   * 매일 0시에 자동으로 실행되는 함수
+   * 로그인 후 1주일이 지난 토큰을 삭제함
+   */
+  @Cron('0 0 * * *')
+  async deleteTokens() {
+    const beforeOneWeek = new StatDate().moveWeek(-1);
+
+    const expiredTokens = await this.tokenModel.find({
+      _id: {
+        $lt: mongoose.Types.ObjectId.createFromTime(
+          Math.floor(beforeOneWeek.getTime() / StatDate.SEC),
+        ),
+      },
+    });
+
+    await this.tokenModel.deleteMany({
+      _id: { $in: expiredTokens.map((token) => token._id) },
+    });
   }
 }
