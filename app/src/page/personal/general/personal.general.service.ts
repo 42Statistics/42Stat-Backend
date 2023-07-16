@@ -1,37 +1,21 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
-import {
-  CursusUserCacheService,
-  USER_LEVEL_RANKING,
-} from 'src/api/cursusUser/cursusUser.cache.service';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { promoFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import { locationDateRangeFilter } from 'src/api/location/db/location.database.aggregate';
 import type { location } from 'src/api/location/db/location.database.schema';
-import { LocationCacheService } from 'src/api/location/location.cache.service';
 import { LocationService } from 'src/api/location/location.service';
-import type { project } from 'src/api/project/db/project.database.schema';
-import { ProjectService } from 'src/api/project/project.service';
-import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
-import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
-import {
-  OUTSTANDING_FLAG_ID,
-  ScaleTeamService,
-} from 'src/api/scaleTeam/scaleTeam.service';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { StatDate } from 'src/statDate/StatDate';
 import type {
-  Character,
-  CharacterEffort,
-  CharacterTalent,
   LevelRecord,
   PersonalGeneralRoot,
   PreferredCluster,
@@ -48,15 +32,10 @@ export class PersonalGeneralService {
     private cursusUserService: CursusUserService,
     private cursusUserCacheService: CursusUserCacheService,
     private locationService: LocationService,
-    private locationCacheService: LocationCacheService,
     private scoreService: ScoreService,
     private scoreCacheService: ScoreCacheService,
-    private scaleTeamService: ScaleTeamService,
-    private scaleTeamCacheService: ScaleTeamCacheService,
     private teamService: TeamService,
     private experineceUserService: ExperienceUserService,
-    private projectService: ProjectService,
-    private projectsUserService: ProjectsUserService,
     private dateRangeService: DateRangeService,
   ) {}
 
@@ -265,157 +244,4 @@ export class PersonalGeneralService {
       grade: 'Member',
     });
   }
-
-  @CacheOnReturn()
-  async character(userId: number): Promise<Character | null> {
-    try {
-      const examProjectIds: { id: number }[] =
-        await this.projectService.findAll({
-          filter: { exam: true },
-          select: { id: 1 },
-        });
-
-      return {
-        effort: await this.characterEffort(userId, examProjectIds),
-        talent: await this.characterTalent(userId, examProjectIds),
-      };
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
-  }
-
-  private async characterEffort(
-    userId: number,
-    examProjects: Pick<project, 'id'>[],
-  ): Promise<CharacterEffort> {
-    const logtimeRankingMap =
-      await this.locationCacheService.getLogtimeRankingMap(DateTemplate.TOTAL);
-
-    assertExist(logtimeRankingMap);
-
-    const logtimeRank = logtimeRankingMap.get(userId);
-    assertExist(logtimeRank);
-
-    const evalCountRankingMap =
-      await this.scaleTeamCacheService.getEvalCountRankingMap(
-        DateTemplate.TOTAL,
-      );
-
-    assertExist(evalCountRankingMap);
-
-    const evalCountRank = evalCountRankingMap.get(userId);
-    assertExist(evalCountRank);
-
-    const teamProjectIds: { projectId: number }[] =
-      await this.teamService.findAll({
-        filter: {
-          'users.id': userId,
-          'validated?': { $ne: null },
-        },
-        select: { projectId: 1 },
-      });
-
-    const { projectTryCount, examTryCount } = teamProjectIds.reduce(
-      (acc, team) => {
-        acc.projectTryCount++;
-        acc.examTryCount += Number(isExam(team.projectId, examProjects));
-
-        return acc;
-      },
-      { projectTryCount: 0, examTryCount: 0 },
-    );
-
-    return {
-      logtimeRank: { ...logtimeRank, totalUserCount: logtimeRankingMap.size },
-      evalCountRank: {
-        ...evalCountRank,
-        totalUserCount: evalCountRankingMap.size,
-      },
-      examTryCount,
-      projectTryCount,
-    };
-  }
-
-  private async characterTalent(
-    userId: number,
-    examProjects: Pick<project, 'id'>[],
-  ): Promise<CharacterTalent> {
-    const levelRankingMap = await this.cursusUserCacheService.getUserRankingMap(
-      USER_LEVEL_RANKING,
-    );
-
-    assertExist(levelRankingMap);
-
-    const levelRank = levelRankingMap.get(userId);
-    assertExist(levelRank);
-
-    const projectsUsers: {
-      teams: { 'validated?'?: boolean }[];
-      project: { id: number };
-    }[] = await this.projectsUserService.findAll({
-      filter: { 'user.id': userId, 'validated?': { $ne: null } },
-      select: {
-        'teams.validated?': 1,
-        'project.id': 1,
-      },
-    });
-
-    const { examTotal, examOneShot, projectTotal, projectOneShot } =
-      projectsUsers.reduce(
-        (acc, projectsUser) => {
-          const isOneShot = projectsUser.teams.at(0)?.['validated?'] === true;
-
-          if (isExam(projectsUser.project.id, examProjects)) {
-            acc.examTotal++;
-            acc.examOneShot += Number(isOneShot);
-          }
-
-          acc.projectTotal++;
-          acc.projectOneShot += Number(isOneShot);
-
-          return acc;
-        },
-        { examTotal: 0, examOneShot: 0, projectTotal: 0, projectOneShot: 0 },
-      );
-
-    const evalCount = await this.scaleTeamService.evalCount({
-      'correcteds.id': userId,
-    });
-
-    const outstandingCount = await this.scaleTeamService.evalCount({
-      'correcteds.id': userId,
-      'flag.id': OUTSTANDING_FLAG_ID,
-    });
-
-    return {
-      levelRank: { ...levelRank, totalUserCount: levelRankingMap.size },
-      examOneshotRate: {
-        total: examTotal,
-        fields: [
-          { key: 'oneShot', value: examOneShot },
-          { key: 'retried', value: examTotal - examOneShot },
-        ],
-      },
-      projectOneshotRate: {
-        total: projectTotal,
-        fields: [
-          { key: 'oneShot', value: projectOneShot },
-          { key: 'retried', value: projectTotal - projectOneShot },
-        ],
-      },
-      outstandingRate: {
-        total: evalCount,
-        fields: [
-          { key: 'outstanding', value: outstandingCount },
-          { key: 'else', value: evalCount - outstandingCount },
-        ],
-      },
-    };
-  }
 }
-
-const isExam = (
-  projectId: number,
-  examProjects: Pick<project, 'id'>[],
-): boolean => examProjects.find(({ id }) => id === projectId) !== undefined;
