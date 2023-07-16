@@ -103,7 +103,7 @@ const TALENT_TABLE: Table = [
   { targetValue: 7, score: 1 },
   { targetValue: 12, score: 2 },
   { targetValue: 17, score: 3 },
-  { targetValue: 22, score: 4 },
+  { targetValue: 21, score: 4 },
 ];
 
 const EFFORT_TABLE: Table = [
