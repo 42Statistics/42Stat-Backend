@@ -394,6 +394,15 @@ type PersonalEval {
   recentComment: String
 }
 
+type PersonalVersus {
+  levelRank: UserRank!
+  totalScoreRank: UserRank!
+  totalEvalCountRank: UserRank!
+  currWeekExpIncreamentRank: UserRank!
+  currWeekScoreRank: UserRank!
+  currWeekEvalCountRank: UserRank!
+}
+
 type ProjectInfo {
   id: Int!
   name: String!
@@ -424,6 +433,7 @@ type Query {
   getHomeTeam: HomeTeam!
   getPersonalGeneral(login: String, userId: Int): PersonalGeneral!
   getPersonalEval(userId: Int, login: String): PersonalEval!
+  getPersonalVersus(login: String, userId: Int): PersonalVersus
   getProjectInfo(projectName: String! = "Libft"): ProjectInfo!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
