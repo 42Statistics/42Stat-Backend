@@ -69,6 +69,7 @@ type ProjectPreview {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 """
 A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
@@ -97,8 +98,18 @@ type Token {
 type UserAccount {
   googleId: String!
   googleEmail: String!
+=======
+type LinkedAccount {
+  linkedPlatform: String!
+  id: String!
+  email: String!
+>>>>>>> 9ef48c2... feat: :sparkles: linked Account로 추상화
   linkedAt: DateTime!
+}
+
+type Account {
   userId: Int!
+  linkedAccount: [LinkedAccount!]!
 }
 
 <<<<<<< HEAD
@@ -470,11 +481,6 @@ type ProjectInfo {
   validatedRate: Rate!
 }
 
-type Account {
-  googleEmail: String
-  linkedAt: DateTime
-}
-
 type Setting {
   account: Account!
 }
@@ -508,8 +514,8 @@ enum EvalLogSortOrder {
 type Mutation {
   ftLogin(ftCode: String!): LoginSuccess!
   googleLogin(google: GoogleLoginInput!, ftCode: String): LoginResult!
-  linkGoogle(google: GoogleLoginInput!): UserAccount!
-  unlinkGoogle: UserAccount!
+  linkGoogle(google: GoogleLoginInput!): Account!
+  unlinkGoogle: Account!
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!

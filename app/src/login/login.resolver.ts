@@ -5,7 +5,7 @@ import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { GoogleLoginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
-import { LoginResult, LoginSuccess, UserAccount } from './models/login.model';
+import { Account, LoginResult, LoginSuccess } from './models/login.model';
 
 @UseFilters(HttpExceptionFilter)
 @Resolver()
@@ -26,17 +26,17 @@ export class LoginResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => UserAccount)
+  @Mutation((_returns) => Account)
   async linkGoogle(
     @MyUserId() userId: number,
     @Args('google') google: GoogleLoginInput,
-  ): Promise<UserAccount> {
+  ): Promise<Account> {
     return await this.loginService.linkGoogle(userId, google);
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => UserAccount)
-  async unlinkGoogle(@MyUserId() userId: number): Promise<UserAccount> {
+  @Mutation((_returns) => Account)
+  async unlinkGoogle(@MyUserId() userId: number): Promise<Account> {
     return await this.loginService.unlinkGoogle(userId);
   }
 

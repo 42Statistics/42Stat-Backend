@@ -21,7 +21,7 @@ import { account, type AccountDocument } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
-  GoogleUser,
+  LinkedAccount,
   LoginResult,
   LoginSuccess,
 } from './models/login.model';
@@ -86,7 +86,7 @@ export class LoginService {
     }
 
     const linkedUser = await this.accountModel.findOne({
-      googleId: googleUser.googleId,
+      googleId: googleUser.id,
     });
 
     if (!linkedUser) {
@@ -151,7 +151,7 @@ export class LoginService {
    * googleId, email, time
    * googleInput이 만료된 경우 -> 400 반환
    */
-  async getGoogleUser(input: GoogleLoginInput): Promise<GoogleUser> {
+  async getGoogleUser(input: GoogleLoginInput): Promise<LinkedAccount> {
     const google = this.configRegister.getGoogle();
 
     const oAuth2Client = new OAuth2Client();
@@ -170,8 +170,9 @@ export class LoginService {
     }
 
     return {
-      googleId: sub,
-      googleEmail: email,
+      linkedPlatform: 'google',
+      id: sub,
+      email: email,
       linkedAt: new StatDate(),
     };
   }
@@ -181,13 +182,24 @@ export class LoginService {
    * userId로 조회 후 user가 없으면 새로 생성
    * googleUser도 들어왔을 경우 google 정보도 업데이트
    */
-  async upsertLogin(userId: number, googleUser?: GoogleUser): Promise<account> {
-    const updateData: account = {
-      userId,
-      googleId: googleUser?.googleId,
-      googleEmail: googleUser?.googleEmail,
-      linkedAt: googleUser?.linkedAt,
-    };
+  async upsertLogin(
+    userId: number,
+    linkedAccount?: LinkedAccount,
+  ): Promise<account> {
+    const updateData: account = linkedAccount
+      ? {
+          userId,
+          //todo: 배열에 insert
+          linkedAccount: [
+            {
+              linkedPlatform: 'google',
+              id: linkedAccount.id,
+              email: linkedAccount.email,
+              linkedAt: linkedAccount.linkedAt,
+            },
+          ],
+        }
+      : { userId, linkedAccount: [] };
 
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
@@ -237,9 +249,14 @@ export class LoginService {
       { userId },
       {
         userId,
-        googleId: googleUser.googleId,
-        googleEmail: googleUser.googleEmail,
-        linkedAt: googleUser.linkedAt,
+        linkedAccount: [
+          {
+            id: googleUser.id,
+            email: googleUser.email,
+            linkedAt: googleUser.linkedAt,
+            linkedPlatform: 'google',
+          },
+        ],
       },
       { upsert: true, new: true },
     );
@@ -260,7 +277,11 @@ export class LoginService {
   async unlinkGoogle(userId: number): Promise<account> {
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
-      { $unset: { googleId: 1, googleEmail: 1, linkedAt: 1 } },
+      //todo: linkedPlatform만 제거되는지 확인
+      {
+        $pull: { linkedAccount: { linkedPlatform: 'google' } },
+      },
+      { new: true },
     );
 
     if (!user) {

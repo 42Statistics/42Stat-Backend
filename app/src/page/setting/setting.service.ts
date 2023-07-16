@@ -7,14 +7,23 @@ export class SettingService {
   constructor(private readonly loginService: LoginService) {}
 
   async setting(userId: number): Promise<Setting> {
-    const { googleEmail, linkedAt } = await this.loginService.findOneAccount({
+    const linkedAccount = await this.loginService.findOneAccount({
       userId,
     });
 
+    //todo: test
     return {
       account: {
-        googleEmail,
-        linkedAt,
+        ...linkedAccount,
+        // userId,
+        // linkedAccount: [
+        //   {
+        //     linkedPlatform: linkedAccount.linkedPlatform,
+        //     id: linkedAccount.id,
+        //     email: linkedAccount.googleEmail,
+        //     linkedAt: linkedAccount.linkedAt,
+        //   },
+        // ],
       },
     };
   }
