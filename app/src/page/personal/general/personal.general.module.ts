@@ -9,12 +9,14 @@ import { ScoreModule } from 'src/api/score/score.module';
 import { TeamModule } from 'src/api/team/team.module';
 import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { PersonalUtilModule } from '../util/personal.util.module';
+import { PersonalGeneralCharacterModule } from './character/persoanl.general.character.module';
 import { PersonalGeneralResolver } from './personal.general.resolver';
 import { PersonalGeneralService } from './personal.general.service';
 
 @Module({
   imports: [
     PersonalUtilModule,
+    PersonalGeneralCharacterModule,
     ScoreModule,
     CursusUserModule,
     LocationModule,

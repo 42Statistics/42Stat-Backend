@@ -9,6 +9,8 @@ import {
 } from 'src/common/db/common.db.query';
 import { exam, type ExamDocument } from './db/exam.database.schema';
 
+export const EXAM_PROJECT_IDS = [1320, 1321, 1322, 1323, 1324];
+
 @Injectable()
 export class ExamService {
   constructor(

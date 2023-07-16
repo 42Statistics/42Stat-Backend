@@ -167,14 +167,16 @@ type HomeEval {
   averageCommentLength: Int!
 }
 
-type Pair {
-  key: String!
-  value: Int!
+type CharacterType {
+  name: String!
+  description: String!
+  color: String!
 }
 
-type Rate {
-  total: Int!
-  fields: [Pair!]!
+type Character {
+  name: String!
+  types: [CharacterType!]!
+  imgUrl: String!
 }
 
 type UserTeam {
@@ -244,32 +246,6 @@ type UserScoreInfo {
   rankInTotal: Int!
 }
 
-type UserRankWithCount {
-  userPreview: UserPreview!
-  value: Float!
-  rank: Int!
-  totalUserCount: Int!
-}
-
-type CharacterEffort {
-  logtimeRank: UserRankWithCount!
-  evalCountRank: UserRankWithCount!
-  examTryCount: Int!
-  projectTryCount: Int!
-}
-
-type CharacterTalent {
-  levelRank: UserRankWithCount!
-  examOneshotRate: Rate!
-  projectOneshotRate: Rate!
-  outstandingRate: Rate!
-}
-
-type Character {
-  effort: CharacterEffort!
-  talent: CharacterTalent!
-}
-
 type PersonalGeneral {
   userProfile: UserProfile!
   beginAt: DateTime!
@@ -284,6 +260,16 @@ type PersonalGeneral {
   promoLevelRecords: [LevelRecord!]!
   promoMemberLevelRecords: [LevelRecord!]!
   character: Character
+}
+
+type Pair {
+  key: String!
+  value: Int!
+}
+
+type Rate {
+  total: Int!
+  fields: [Pair!]!
 }
 
 type ProjectRank {

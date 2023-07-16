@@ -6,6 +6,8 @@ import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
+import { Character } from './character/models/personal.general.character.model';
+import { PersonalGeneralCharacterService } from './character/personal.general.character.service';
 import {
   LevelRecord,
   PersonalGeneral,
@@ -16,6 +18,7 @@ import {
   UserScoreInfo,
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
+// import { findPokemon } from './character/personal.general.character.pokemon';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
@@ -24,6 +27,7 @@ export class PersonalGeneralResolver {
   constructor(
     private personalGeneralService: PersonalGeneralService,
     private personalUtilService: PersonalUtilService,
+    private personalGeneralCharacterService: PersonalGeneralCharacterService,
   ) {}
 
   @Query((_returns) => PersonalGeneral)
@@ -111,6 +115,31 @@ export class PersonalGeneralResolver {
   ): Promise<LevelRecord[]> {
     return await this.personalGeneralService.promoMemberLevelRecords(
       root.beginAt,
+    );
+  }
+
+  // test 함수들. 이후 진짜 test 파일로 분리해야 합니다.
+  // @ResolveField((_returns) => String, { nullable: true })
+  // async characterCode(
+  //   @Root() root: PersonalGeneralRoot,
+  //   @Args('code') code: string,
+  // ): Promise<Character> {
+  //   const [effort, talent] = code.split(',');
+  //   return findPokemon(parseInt(effort), parseInt(talent));
+  // }
+
+  // @ResolveField((_returns) => String)
+  // async characterTest() {
+  //   await this.personalGeneralCharacterService.test();
+  //   return 'asdf';
+  // }
+
+  @ResolveField((_returns) => Character, { nullable: true })
+  async character(
+    @Root() root: PersonalGeneralRoot,
+  ): Promise<Character | null> {
+    return await this.personalGeneralCharacterService.character(
+      root.userProfile.id,
     );
   }
 }

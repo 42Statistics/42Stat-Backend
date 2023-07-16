@@ -2,6 +2,7 @@ import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
 import { ProjectPreview } from 'src/api/project/models/project.preview';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
+import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
 export enum TeamStatus {
@@ -145,4 +146,7 @@ export class PersonalGeneral {
 
   @Field((_type) => [LevelRecord])
   promoMemberLevelRecords: LevelRecord[];
+
+  @Field({ nullable: true })
+  character?: Character;
 }
