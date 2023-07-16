@@ -29,7 +29,7 @@ export class ShallowStore implements CacheStore {
 
   set = <T>(key: string, value: T, options?: number): Promise<void> => {
     if ((value ?? null) === null) {
-      throw new Error('wrong value');
+      throw new Error('wrong cache value');
     }
 
     this.lruCache.set(key, clone(value), {
