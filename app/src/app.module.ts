@@ -1,6 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -9,7 +10,13 @@ import { CursusUserModule } from './api/cursusUser/cursusUser.module';
 import { ProjectModule } from './api/project/project.module';
 import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
+import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
+import clientConfig from './config/configuration/client.config';
+import databaseConfig from './config/configuration/database.config';
+import googleConfig from './config/configuration/google.config';
+import jwtConfig from './config/configuration/jwt.config';
+import timezoneConfig from './config/configuration/timezone.config';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
@@ -20,10 +27,22 @@ import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SettingModule } from './page/setting/setting.module';
-import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 
 @Module({
   imports: [
+    //todo: appmodule에서 말고 필요한 module에서 필요한 config만 load하기
+    ConfigModule.forRoot({
+      // isGlobal: true,
+      // cache: true,
+      envFilePath: '../env/.env',
+      load: [
+        clientConfig,
+        databaseConfig,
+        jwtConfig,
+        googleConfig,
+        timezoneConfig,
+      ],
+    }),
     CacheModule.register({
       isGlobal: true,
       store: new ShallowStore(),

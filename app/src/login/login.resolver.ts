@@ -1,22 +1,28 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Int, Mutation, Resolver } from '@nestjs/graphql';
 import { MyAccessToken, MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { GoogleLoginInput, LoginInput } from './dtos/login.dto';
+import { GoogleLoginInput } from './dtos/login.dto';
 import { LoginService } from './login.service';
-import { LoginResult, Success, UserAccount } from './models/login.model';
+import { LoginResult, LoginSuccess, UserAccount } from './models/login.model';
 
 @UseFilters(HttpExceptionFilter)
 @Resolver()
 export class LoginResolver {
   constructor(private readonly loginService: LoginService) {}
 
+  @Mutation((_returns) => LoginSuccess)
+  async ftLogin(@Args('ftCode') ftCode: string): Promise<LoginSuccess> {
+    return await this.loginService.ftLogin(ftCode);
+  }
+
   @Mutation((_returns) => LoginResult)
-  async login(
-    @Args('loginInput') loginInput: LoginInput,
+  async googleLogin(
+    @Args('google') google: GoogleLoginInput,
+    @Args('ftCode', { nullable: true }) ftCode: string,
   ): Promise<typeof LoginResult> {
-    return await this.loginService.login(loginInput);
+    return await this.loginService.googleLogin(google, ftCode);
   }
 
   @UseGuards(StatAuthGuard)
@@ -34,21 +40,21 @@ export class LoginResolver {
     return await this.loginService.unlinkGoogle(userId);
   }
 
-  @Mutation((_returns) => LoginResult)
+  @Mutation((_returns) => LoginSuccess)
   async refreshToken(
     @Args('refreshToken') refreshToken: string,
-  ): Promise<Success> {
+  ): Promise<LoginSuccess> {
     return await this.loginService.refreshToken(refreshToken);
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => Boolean)
+  @Mutation((_returns) => Int)
   async logout(@MyAccessToken() accessToken: string): Promise<number> {
     return await this.loginService.logout(accessToken);
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => Boolean)
+  @Mutation((_returns) => Int)
   async deleteAccount(@MyUserId() userId: number): Promise<number> {
     return await this.loginService.deleteAccount(userId);
   }

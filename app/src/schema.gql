@@ -101,7 +101,17 @@ type UserAccount {
   userId: Int!
 }
 
+<<<<<<< HEAD
 >>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
+=======
+type LoginSuccess {
+  accessToken: String!
+  refreshToken: String!
+  userId: Int!
+  message: String!
+}
+
+>>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -461,7 +471,6 @@ type ProjectInfo {
 }
 
 type Account {
-  login: String!
   googleEmail: String
   linkedAt: DateTime
 }
@@ -497,14 +506,16 @@ enum EvalLogSortOrder {
 }
 
 type Mutation {
-  login(loginInput: LoginInput!): LoginResult!
+  ftLogin(ftCode: String!): LoginSuccess!
+  googleLogin(google: GoogleLoginInput!, ftCode: String): LoginResult!
   linkGoogle(google: GoogleLoginInput!): UserAccount!
   unlinkGoogle: UserAccount!
-  refreshToken(refreshToken: String!): LoginResult!
-  logout: Boolean!
-  deleteAccount: Boolean!
+  refreshToken(refreshToken: String!): LoginSuccess!
+  logout: Int!
+  deleteAccount: Int!
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -547,14 +558,15 @@ union StatusUnion = Success | NoAssociated
 =======
 union LoginResult = Success | NotLinked
 >>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
+=======
+union LoginResult = LoginSuccess | LoginNotLinked
+>>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 
-type Success {
-  accessToken: String!
-  refreshToken: String!
-  userId: Int!
+type LoginNotLinked {
   message: String!
 }
 
+<<<<<<< HEAD
 type NotLinked {
   message: String!
 }
@@ -569,6 +581,8 @@ input LoginInput {
   ftCode: String
 }
 
+=======
+>>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 input GoogleLoginInput {
   clientId: String!
   credential: String!

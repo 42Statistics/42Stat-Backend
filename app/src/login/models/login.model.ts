@@ -19,13 +19,13 @@ export class UserAccount extends GoogleUser {
 }
 
 @ObjectType()
-export class NotLinked {
+export class LoginNotLinked {
   @Field()
   message: 'NotLinked';
 }
 
 @ObjectType()
-export class Success {
+export class LoginSuccess {
   @Field()
   accessToken: string;
 
@@ -41,13 +41,13 @@ export class Success {
 
 export const LoginResult = createUnionType({
   name: 'LoginResult',
-  types: () => [Success, NotLinked] as const,
+  types: () => [LoginSuccess, LoginNotLinked] as const,
   resolveType(value) {
     switch (value.message) {
       case 'OK':
-        return Success;
+        return LoginSuccess;
       case 'NotLinked':
-        return NotLinked;
+        return LoginNotLinked;
     }
   },
 });
