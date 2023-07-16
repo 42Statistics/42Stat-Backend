@@ -1,21 +1,27 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 
 @ObjectType()
-export class GoogleUser {
+export class LinkedAccount {
   @Field()
-  googleId?: string;
+  linkedPlatform: string;
 
   @Field()
-  googleEmail?: string;
+  id: string;
 
   @Field()
-  linkedAt?: Date;
+  email?: string;
+
+  @Field()
+  linkedAt: Date;
 }
 
 @ObjectType()
-export class UserAccount extends GoogleUser {
+export class Account {
   @Field()
   userId: number;
+
+  @Field((_type) => [LinkedAccount])
+  linkedAccount: LinkedAccount[];
 }
 
 @ObjectType()

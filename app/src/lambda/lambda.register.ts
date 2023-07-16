@@ -7,6 +7,6 @@ export class LambdaRegister implements OnModuleInit {
   constructor(private lambdaService: LambdaService) {}
 
   async onModuleInit(): Promise<void> {
-    await this.lambdaService.updatePreloadCache(StatDate.currWeek().getTime());
+    // await this.lambdaService.updatePreloadCache(StatDate.currWeek().getTime());
   }
 }

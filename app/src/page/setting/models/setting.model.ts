@@ -1,13 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-
-@ObjectType()
-export class Account {
-  @Field({ nullable: true })
-  googleEmail?: string;
-
-  @Field({ nullable: true })
-  linkedAt?: Date;
-}
+import { Account } from 'src/login/models/login.model';
 
 @ObjectType()
 export class Setting {
