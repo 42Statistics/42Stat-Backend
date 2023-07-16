@@ -14,12 +14,17 @@ import { OAuth2Client } from 'google-auth-library';
 import type { FilterQuery, Model } from 'mongoose';
 import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
+import { ConfigRegister } from 'src/config/config.register';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
 import { account, type AccountDocument } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
-import type { GoogleLoginInput, LoginInput } from './dtos/login.dto';
-import type { GoogleUser, LoginResult, Success } from './models/login.model';
+import type { GoogleLoginInput } from './dtos/login.dto';
+import type {
+  GoogleUser,
+  LoginResult,
+  LoginSuccess,
+} from './models/login.model';
 
 @UseFilters(HttpExceptionFilter)
 @Injectable()
@@ -31,6 +36,7 @@ export class LoginService {
     private tokenModel: Model<token>,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
+    private readonly configRegister: ConfigRegister,
   ) {}
 
   async findOneAccount(
@@ -45,33 +51,51 @@ export class LoginService {
     return account;
   }
 
-  async login({ ftCode, google }: LoginInput): Promise<typeof LoginResult> {
-    if (ftCode && google) {
-      const userId = await this.loginWith42(ftCode);
-      const googleUser = await this.getGoogleUser(google);
+  /**
+   *
+   * 42 code를 통해 로그인 하거나 가입
+   */
+  async ftLogin(ftCode: string): Promise<LoginSuccess> {
+    const userId = await this.getFtUser(ftCode);
+
+    await this.upsertLogin(userId);
+
+    return await this.updateToken(userId);
+  }
+
+  /**
+   *
+   * (google)
+   *   42연동이 필요한 유저이면 -> union 중 NotLinked타입 반환 {message: 'NotLinked'}
+   *   이미 있는 유저이면 -> 조회 후 그 유저의 새로운 토큰 반환
+   * (google, ftCode)
+   *   가입 & 연동 후 유저의 새로운 토큰 반환
+   */
+  async googleLogin(
+    google: GoogleLoginInput,
+    ftCode?: string,
+  ): Promise<typeof LoginResult> {
+    const googleUser = await this.getGoogleUser(google);
+
+    if (ftCode) {
+      const userId = await this.getFtUser(ftCode);
 
       await this.upsertLogin(userId, googleUser);
 
-      const { accessToken, refreshToken } = await this.makeNewToken(userId);
-
-      return await this.upsertToken(userId, accessToken, refreshToken);
+      return await this.updateToken(userId);
     }
 
-    if (ftCode) {
-      const userId = await this.loginWith42(ftCode);
+    const linkedUser = await this.accountModel.findOne({
+      googleId: googleUser.googleId,
+    });
 
-      await this.upsertLogin(userId);
-
-      const { accessToken, refreshToken } = await this.makeNewToken(userId);
-
-      return await this.upsertToken(userId, accessToken, refreshToken);
+    if (!linkedUser) {
+      return {
+        message: 'NotLinked',
+      };
     }
 
-    if (google) {
-      return await this.loginWithGoogle(google);
-    }
-
-    throw new BadRequestException('Nothing input');
+    return await this.updateToken(linkedUser.userId);
   }
 
   /**
@@ -82,37 +106,26 @@ export class LoginService {
    *
    * userId 반환
    */
-  async loginWith42(ftCode: string): Promise<number> {
-    const apiUid = process.env.CLIENT_ID;
-    const apiSecret = process.env.CLIENT_SECRET;
-    const redirectUri = process.env.REDIRECT_URI;
-    const intraTokenUrl = 'https://api.intra.42.fr/oauth/token';
-    const intraMeUrl = 'https://api.intra.42.fr/v2/me';
-
-    if (!(apiUid && apiSecret && redirectUri)) {
-      throw new InternalServerErrorException(
-        'Missing environment configuration',
-      );
-    }
+  async getFtUser(ftCode: string): Promise<number> {
+    const client = this.configRegister.getClient();
 
     const params = new URLSearchParams();
     params.set('grant_type', 'authorization_code');
-    params.set('client_id', apiUid);
-    params.set('client_secret', apiSecret);
+    params.set('client_id', client.ID);
+    params.set('client_secret', client.SECRET);
     params.set('code', ftCode);
-    params.set('redirect_uri', redirectUri);
+    params.set('redirect_uri', client.REDIRECT_URI);
 
     try {
       const tokens = await lastValueFrom(
-        this.httpService.post<{
-          access_token: string;
-          expires_in: number;
-          refresh_token: string;
-        }>(intraTokenUrl, params),
+        this.httpService.post<{ access_token: string }>(
+          client.INTRA_TOKEN_URI,
+          params,
+        ),
       );
 
       const userInfo = await lastValueFrom(
-        this.httpService.get<{ id: number }>(intraMeUrl, {
+        this.httpService.get<{ id: number }>(client.INTRA_ME_URI, {
           headers: { Authorization: `Bearer ${tokens.data.access_token}` },
         }),
       );
@@ -123,55 +136,11 @@ export class LoginService {
     }
   }
 
-  /**
-   *
-   * googleInput을 받아
-   * 42연동이 필요한 유저이면 -> union 중 NotLinked타입 반환 {message: 'NotLinked'}
-   * 이미 있는 유저이면 -> 조회 후 그 유저의 토큰 반환 (만료되었는지는 상관 x)
-   *
-   */
-  async loginWithGoogle(
-    googleInput: GoogleLoginInput,
-  ): Promise<typeof LoginResult> {
-    const googleUser = await this.getGoogleUser(googleInput);
-    const associateUser = await this.accountModel.findOne({
-      googleId: googleUser.googleId,
-    });
+  async generateTokenPair(userId: number): Promise<Omit<token, 'userId'>> {
+    const jwt = this.configRegister.getJwt();
 
-    if (!associateUser) {
-      return {
-        message: 'NotLinked',
-      };
-    }
-
-    const token = await this.tokenModel.findOne({
-      userId: associateUser.userId,
-    });
-
-    // if (!token || !(await this.isValidToken(token.refreshToken))) {
-    if (!token) {
-      const { accessToken, refreshToken } = await this.makeNewToken(
-        associateUser.userId,
-      );
-
-      return await this.upsertToken(
-        associateUser.userId,
-        accessToken,
-        refreshToken,
-      );
-    }
-
-    return {
-      userId: token.userId,
-      accessToken: token.accessToken,
-      refreshToken: token.refreshToken,
-      message: 'OK',
-    };
-  }
-
-  async makeNewToken(userId: number): Promise<Omit<token, 'userId'>> {
-    const accessToken = await this.generateAcccessToken(userId);
-    const refreshToken = await this.generateRefreshToken(userId);
+    const accessToken = await this.generateToken(userId, jwt.ACCESS_EXPIRES);
+    const refreshToken = await this.generateToken(userId, jwt.REFRESH_EXPIRES);
 
     return { accessToken, refreshToken };
   }
@@ -183,37 +152,34 @@ export class LoginService {
    * googleInput이 만료된 경우 -> 400 반환
    */
   async getGoogleUser(input: GoogleLoginInput): Promise<GoogleUser> {
-    try {
-      const client = new OAuth2Client({
-        clientId: input.clientId,
-      });
+    const google = this.configRegister.getGoogle();
 
-      const ticket = await client.verifyIdToken({
-        idToken: input.credential,
-        audience: input.clientId,
-      });
+    const oAuth2Client = new OAuth2Client();
 
-      const payload = ticket.getPayload();
+    const ticket = await oAuth2Client.verifyIdToken({
+      idToken: input.credential,
+      audience: input.clientId,
+    });
 
-      if (!payload) {
-        throw new BadRequestException('Google input 오류');
-      }
+    const { sub, email, aud } = ticket.getPayload()!; //todo
 
-      return {
-        googleId: payload.sub,
-        googleEmail: payload.email,
-        linkedAt: new StatDate(),
-      };
-    } catch (e) {
-      throw new BadRequestException('Google token 만료');
+    console.log(aud, google.CLIENT_ID);
+
+    if (aud !== google.CLIENT_ID) {
+      throw new BadRequestException();
     }
+
+    return {
+      googleId: sub,
+      googleEmail: email,
+      linkedAt: new StatDate(),
+    };
   }
 
   /**
    *
    * userId로 조회 후 user가 없으면 새로 생성
    * googleUser도 들어왔을 경우 google 정보도 업데이트
-   * 업데이트 이전의 데이터 반환 //todo
    */
   async upsertLogin(userId: number, googleUser?: GoogleUser): Promise<account> {
     const updateData: account = {
@@ -239,11 +205,9 @@ export class LoginService {
    *
    * userId, accessToken, refreshToken을 반환함
    */
-  async upsertToken(
-    userId: number,
-    accessToken: string,
-    refreshToken: string,
-  ): Promise<typeof LoginResult> {
+  async updateToken(userId: number): Promise<LoginSuccess> {
+    const { accessToken, refreshToken } = await this.generateTokenPair(userId);
+
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
@@ -255,9 +219,7 @@ export class LoginService {
     }
 
     return {
-      userId: newToken.userId,
-      accessToken: newToken.accessToken,
-      refreshToken: newToken.refreshToken,
+      ...newToken,
       message: 'OK',
     };
   }
@@ -313,24 +275,16 @@ export class LoginService {
    * input에 들어오는 userId는 AccountModel에 존재하는 유저이어야함
    * userId를 이용해 token을 생성함
    */
-  async generateAcccessToken(userId: number): Promise<string> {
-    const payload = { userId };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: process.env.JWT_ACCESS_EXPIRES,
-      secret: process.env.JWT_SECRET,
-    });
+  async generateToken(userId: number, expiresIn: string): Promise<string> {
+    const jwt = this.configRegister.getJwt();
 
-    return accessToken;
-  }
-
-  async generateRefreshToken(userId: number): Promise<string> {
-    const payload = { userId };
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES,
-      secret: process.env.JWT_SECRET,
-    });
-
-    return refreshToken;
+    return await this.jwtService.signAsync(
+      { userId },
+      {
+        expiresIn: expiresIn,
+        secret: jwt.SECRET,
+      },
+    );
   }
 
   /**
@@ -340,26 +294,33 @@ export class LoginService {
    * refreshToken이 만료되지 않은 경우 userId를 통해 find 후
    * 새로 받급받은 accessToken과 기존 refreshToken으로 업데이트함
    */
-  async refreshToken(refreshToken: string): Promise<Success> {
+  async refreshToken(refreshToken: string): Promise<LoginSuccess> {
+    let userId: number;
+
     try {
-      const { userId } = await this.verifyToken(refreshToken);
-
-      const newAccessToken = await this.generateAcccessToken(userId);
-
-      await this.tokenModel.findOneAndUpdate(
-        { userId },
-        { userId, accessToken: newAccessToken, refreshToken },
-      );
-
-      return {
-        userId,
-        accessToken: newAccessToken,
-        refreshToken,
-        message: 'OK',
-      };
+      userId = await this.verifyToken(refreshToken);
     } catch (e) {
       throw new BadRequestException('유효하지 않은 refreshToken');
     }
+
+    const jwt = this.configRegister.getJwt();
+
+    const accessToken = await this.generateToken(userId, jwt.ACCESS_EXPIRES);
+
+    const newTokens = await this.tokenModel.findOneAndUpdate(
+      { refreshToken },
+      { userId, accessToken, refreshToken },
+      { new: true },
+    );
+
+    if (!newTokens) {
+      throw new BadRequestException();
+    }
+
+    return {
+      ...newTokens,
+      message: 'OK',
+    };
   }
 
   /**
@@ -369,10 +330,8 @@ export class LoginService {
    * 지운 토큰의 수를 반환함 (1)
    */
   async logout(accessToken: string): Promise<number> {
-    const token = accessToken.split(' ')[1];
-
     const { deletedCount } = await this.tokenModel.deleteOne({
-      accessToken: token,
+      accessToken,
     });
 
     return deletedCount;
@@ -393,13 +352,11 @@ export class LoginService {
     return deletedCount;
   }
 
-  async verifyToken(targetToken: string): Promise<{
-    userId: number;
-    iat: number;
-    exp: number;
-  }> {
+  async verifyToken(targetToken: string): Promise<number> {
     try {
-      return await this.jwtService.verifyAsync(targetToken);
+      const verifiedToken = await this.jwtService.verifyAsync(targetToken);
+
+      return verifiedToken.userId;
     } catch (e) {
       throw new UnauthorizedException('Token expired');
     }
@@ -407,23 +364,19 @@ export class LoginService {
 
   /**
    *
-   * 매일 0시에 자동으로 실행되는 함수
+   * 매일 5시에 자동으로 실행되는 함수
    * 로그인 후 1주일이 지난 토큰을 삭제함
    */
-  @Cron('0 0 * * *')
+  @Cron('0 5 * * *')
   async deleteTokens() {
     const beforeOneWeek = new StatDate().moveWeek(-1);
 
-    const expiredTokens = await this.tokenModel.find({
+    await this.tokenModel.deleteMany({
       _id: {
         $lt: mongoose.Types.ObjectId.createFromTime(
           Math.floor(beforeOneWeek.getTime() / StatDate.SEC),
         ),
       },
-    });
-
-    await this.tokenModel.deleteMany({
-      _id: { $in: expiredTokens.map((token) => token._id) },
     });
   }
 }

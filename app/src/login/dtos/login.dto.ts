@@ -8,12 +8,3 @@ export class GoogleLoginInput {
   @Field()
   credential: string;
 }
-
-@InputType()
-export class LoginInput {
-  @Field({ nullable: true })
-  google?: GoogleLoginInput;
-
-  @Field({ nullable: true })
-  ftCode?: string;
-}

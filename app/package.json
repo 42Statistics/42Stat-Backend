@@ -23,9 +23,10 @@
   "dependencies": {
     "@apollo/server": "^4.7.5",
     "@nestjs/apollo": "^12.0.7",
-    "@nestjs/cache-manager": "^2.0.1",
     "@nestjs/axios": "^3.0.0",
+    "@nestjs/cache-manager": "^2.0.1",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.0.0",
     "@nestjs/graphql": "^12.0.7",
     "@nestjs/jwt": "^10.1.0",
