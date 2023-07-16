@@ -7,7 +7,6 @@ import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import {
-  Character,
   LevelRecord,
   PersonalGeneral,
   PersonalGeneralRoot,
@@ -113,12 +112,5 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.promoMemberLevelRecords(
       root.beginAt,
     );
-  }
-
-  @ResolveField((_returns) => Character, { nullable: true })
-  async character(
-    @Root() root: PersonalGeneralRoot,
-  ): Promise<Character | null> {
-    return await this.personalGeneralService.character(root.userProfile.id);
   }
 }
