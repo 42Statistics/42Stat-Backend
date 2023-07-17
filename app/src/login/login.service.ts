@@ -39,10 +39,8 @@ export class LoginService {
     private readonly configRegister: ConfigRegister,
   ) {}
 
-  async findOneAccount(
-    filter?: FilterQuery<account>,
-  ): Promise<AccountDocument> {
-    const account = await this.accountModel.findOne(filter);
+  async findOneAccount(filter?: FilterQuery<account>): Promise<account> {
+    const account = await this.accountModel.findOne(filter).lean();
 
     if (!account) {
       throw new NotFoundException();
@@ -223,7 +221,7 @@ export class LoginService {
     const newToken = await this.tokenModel.findOneAndUpdate(
       { userId },
       { userId, accessToken, refreshToken },
-      { upsert: true, new: true },
+      { upsert: true, new: true, lean: true },
     );
 
     if (!newToken) {
