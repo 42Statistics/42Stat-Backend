@@ -171,7 +171,8 @@ export class LoginService {
       linkedPlatform: 'google',
       id: sub,
       email: email,
-      linkedAt: new StatDate(),
+      // StatDate 사용 시 mongoose 가 제대로 처리하지 못하는 문제가 있음
+      linkedAt: new Date(),
     };
   }
 
