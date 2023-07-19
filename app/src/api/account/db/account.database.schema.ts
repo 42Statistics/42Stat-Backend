@@ -6,7 +6,7 @@ export type AccountDocument = HydratedDocument<account>;
 @Schema()
 export class LinkedAccount {
   @Prop({ required: true })
-  linkedPlatform: string;
+  platform: string;
 
   @Prop({ required: true })
   id: string;
@@ -14,7 +14,7 @@ export class LinkedAccount {
   @Prop({ required: true })
   linkedAt: Date;
 
-  @Prop({ required: true })
+  @Prop()
   email?: string;
 }
 

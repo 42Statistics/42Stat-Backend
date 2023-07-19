@@ -2,11 +2,10 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AccountModule } from 'src/api/account/account.module';
+import { TokenModule } from 'src/api/token/token.module';
 import { ConfigRegister } from 'src/config/config.register';
 import { ConfigRegisterModule } from 'src/config/config.register.module';
-import { TokenSchema, token } from './db/token.database.schema';
 import { LoginResolver } from './login.resolver';
 import { LoginService } from './login.service';
 
@@ -17,7 +16,7 @@ import { LoginService } from './login.service';
       secret: process.env.JWT_SECRET,
     }),
     AccountModule,
-    MongooseModule.forFeature([{ name: token.name, schema: TokenSchema }]),
+    TokenModule,
     HttpModule,
     ConfigRegisterModule,
   ],

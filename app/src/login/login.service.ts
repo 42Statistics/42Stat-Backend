@@ -2,24 +2,24 @@ import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
-import type { Model } from 'mongoose';
 import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import { AccountService } from 'src/api/account/account.service';
+import type { token } from 'src/api/token/db/token.database.schema';
+import { TokenService } from 'src/api/token/token.service';
 import { ConfigRegister } from 'src/config/config.register';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
-import { account } from '../api/account/db/account.database.schema';
-import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
+  Account,
   LinkedAccount,
   LoginResult,
   LoginSuccess,
@@ -29,12 +29,11 @@ import type {
 @Injectable()
 export class LoginService {
   constructor(
-    @InjectModel(token.name)
-    private tokenModel: Model<token>,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly configRegister: ConfigRegister,
     private readonly accountService: AccountService,
+    private readonly tokenService: TokenService,
   ) {}
 
   /**
@@ -44,9 +43,15 @@ export class LoginService {
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
-    await this.upsertAccount(userId);
+    const user = await this.accountService.findOne({ userId });
 
-    return await this.updateToken(userId);
+    if (!user) {
+      await this.createAccount(userId);
+    }
+
+    const token = await this.createToken(userId);
+
+    return token;
   }
 
   /**
@@ -66,15 +71,17 @@ export class LoginService {
     if (ftCode) {
       const userId = await this.getFtUser(ftCode);
 
-      await this.upsertAccount(userId);
+      await this.createAccount(userId);
 
       await this.linkGoogle(userId, googleUser);
 
-      return await this.updateToken(userId);
+      const token = await this.createToken(userId);
+
+      return token;
     }
 
     const linkedUser = await this.accountService.findOne({
-      'linkedAccount.linkedPlatform': 'google',
+      'linkedAccount.platform': 'google',
       'linkedAccount.id': googleUser.id,
     });
 
@@ -84,7 +91,9 @@ export class LoginService {
       };
     }
 
-    return await this.updateToken(linkedUser.userId);
+    const token = await this.createToken(linkedUser.userId);
+
+    return token;
   }
 
   /**
@@ -157,7 +166,7 @@ export class LoginService {
     }
 
     return {
-      linkedPlatform: 'google',
+      platform: 'google',
       id: sub,
       email: email,
       // StatDate 사용 시 mongoose 가 제대로 처리하지 못하는 문제가 있음
@@ -169,14 +178,8 @@ export class LoginService {
    *
    * userId로 조회 후 user가 없으면 새로 생성
    */
-  async upsertAccount(userId: number): Promise<account> {
-    const user = await this.accountService.findOneAndUpdate(
-      { userId },
-      { userId },
-      { upsert: true, new: true },
-    );
-
-    return user;
+  async createAccount(userId: number): Promise<Account> {
+    return await this.accountService.create(userId);
   }
 
   /**
@@ -186,21 +189,18 @@ export class LoginService {
    *
    * userId, accessToken, refreshToken을 반환함
    */
-  async updateToken(userId: number): Promise<LoginSuccess> {
+  async createToken(userId: number): Promise<LoginSuccess> {
     const { accessToken, refreshToken } = await this.generateTokenPair(userId);
 
-    const newToken = await this.tokenModel.findOneAndUpdate(
-      { userId },
-      { userId, accessToken, refreshToken },
-      { upsert: true, new: true, lean: true },
-    );
-
-    if (!newToken) {
-      throw new BadRequestException();
-    }
+    // const newToken =
+    await this.tokenService.create(userId, accessToken, refreshToken);
 
     return {
-      ...newToken,
+      //todo: find lean
+      // ...newToken,
+      userId,
+      accessToken,
+      refreshToken,
       message: 'OK',
     };
   }
@@ -212,28 +212,32 @@ export class LoginService {
    * userId로 find 후 구글 정보들을 upsert 후 업데이트된 데이터를 반환
    * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
-  async linkGoogle(userId: number, account: LinkedAccount): Promise<account> {
+  async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
     const update = await this.accountService.findOne({
       userId,
-      'linkedAccount.linkedPlatform': account.linkedPlatform,
+      'linkedAccount.platform': account.platform,
     });
 
     if (update) {
       const updatedAccount = await this.accountService.findOneAndUpdate(
         {
           userId,
-          'linkedAccount.linkedPlatform': account.linkedPlatform,
+          'linkedAccount.platform': account.platform,
         },
         {
           $set: {
             'linkedAccount.$.id': account.id,
             'linkedAccount.$.email': account.email,
             'linkedAccount.$.linkedAt': account.linkedAt,
-            'linkedAccount.$.linkedPlatform': account.linkedPlatform,
+            'linkedAccount.$.platform': account.platform,
           },
         },
         { new: true },
       );
+
+      if (!updatedAccount) {
+        throw new InternalServerErrorException();
+      }
 
       return updatedAccount;
     } else {
@@ -242,6 +246,10 @@ export class LoginService {
         { $push: { linkedAccount: { ...account } } },
         { upsert: true, new: true },
       );
+
+      if (!updatedAccount) {
+        throw new InternalServerErrorException();
+      }
 
       return updatedAccount;
     }
@@ -256,14 +264,18 @@ export class LoginService {
   async unlinkAccount(
     userId: number,
     targetPlatform: string,
-  ): Promise<account> {
+  ): Promise<Account> {
     const user = await this.accountService.findOneAndUpdate(
       { userId },
       {
-        $pull: { linkedAccount: { linkedPlatform: targetPlatform } },
+        $pull: { linkedAccount: { platform: targetPlatform } },
       },
       { new: true },
     );
+
+    if (!user) {
+      throw new InternalServerErrorException();
+    }
 
     return user;
   }
@@ -305,7 +317,7 @@ export class LoginService {
 
     const accessToken = await this.generateToken(userId, jwt.ACCESS_EXPIRES);
 
-    const newTokens = await this.tokenModel.findOneAndUpdate(
+    const newTokens = await this.tokenService.findOneAndUpdate(
       { refreshToken },
       { userId, accessToken, refreshToken },
       { new: true, lean: true },
@@ -328,11 +340,9 @@ export class LoginService {
    * 지운 토큰의 수를 반환함 (1)
    */
   async logout(accessToken: string): Promise<number> {
-    const { deletedCount } = await this.tokenModel.deleteOne({
+    return await this.tokenService.deleteOne({
       accessToken,
     });
-
-    return deletedCount;
   }
 
   /**
@@ -343,7 +353,7 @@ export class LoginService {
    * 지운 계정의 수를 반환함 (1)
    */
   async deleteAccount(userId: number): Promise<number> {
-    await this.tokenModel.deleteMany({ userId });
+    await this.tokenService.deleteMany({ userId });
 
     return await this.accountService.deleteOne({ userId });
   }
@@ -367,7 +377,7 @@ export class LoginService {
   async deleteTokens() {
     const beforeOneWeek = new StatDate().moveWeek(-1);
 
-    await this.tokenModel.deleteMany({
+    await this.tokenService.deleteMany({
       _id: {
         $lt: mongoose.Types.ObjectId.createFromTime(
           Math.floor(beforeOneWeek.getTime() / StatDate.SEC),
