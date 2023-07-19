@@ -17,7 +17,7 @@ import { lastValueFrom } from 'rxjs';
 import { ConfigRegister } from 'src/config/config.register';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
-import { account, type AccountDocument } from './db/account.database.schema';
+import { account } from './db/account.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
@@ -56,7 +56,7 @@ export class LoginService {
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
-    await this.upsertLogin(userId);
+    await this.upsertAccount(userId);
 
     return await this.updateToken(userId);
   }
@@ -78,13 +78,16 @@ export class LoginService {
     if (ftCode) {
       const userId = await this.getFtUser(ftCode);
 
-      await this.upsertLogin(userId, googleUser);
+      await this.upsertAccount(userId);
+
+      await this.linkGoogle(userId, googleUser);
 
       return await this.updateToken(userId);
     }
 
     const linkedUser = await this.accountModel.findOne({
-      googleId: googleUser.id,
+      'linkedAccount.linkedPlatform': 'google',
+      'linkedAccount.id': googleUser.id,
     });
 
     if (!linkedUser) {
@@ -105,25 +108,25 @@ export class LoginService {
    * userId 반환
    */
   async getFtUser(ftCode: string): Promise<number> {
-    const client = this.configRegister.getClient();
+    const ftClient = this.configRegister.getFtClient();
 
     const params = new URLSearchParams();
     params.set('grant_type', 'authorization_code');
-    params.set('client_id', client.ID);
-    params.set('client_secret', client.SECRET);
+    params.set('client_id', ftClient.ID);
+    params.set('client_secret', ftClient.SECRET);
     params.set('code', ftCode);
-    params.set('redirect_uri', client.REDIRECT_URI);
+    params.set('redirect_uri', ftClient.REDIRECT_URI);
 
     try {
       const tokens = await lastValueFrom(
         this.httpService.post<{ access_token: string }>(
-          client.INTRA_TOKEN_URI,
+          ftClient.INTRA_TOKEN_URI,
           params,
         ),
       );
 
       const userInfo = await lastValueFrom(
-        this.httpService.get<{ id: number }>(client.INTRA_ME_URI, {
+        this.httpService.get<{ id: number }>(ftClient.INTRA_ME_URI, {
           headers: { Authorization: `Bearer ${tokens.data.access_token}` },
         }),
       );
@@ -150,7 +153,7 @@ export class LoginService {
    * googleInput이 만료된 경우 -> 400 반환
    */
   async getGoogleUser(input: GoogleLoginInput): Promise<LinkedAccount> {
-    const google = this.configRegister.getGoogle();
+    const googleClient = this.configRegister.getGoogleClient();
 
     const oAuth2Client = new OAuth2Client();
 
@@ -159,11 +162,9 @@ export class LoginService {
       audience: input.clientId,
     });
 
-    const { sub, email, aud } = ticket.getPayload()!; //todo
+    const { sub, email, aud } = ticket.getPayload()!;
 
-    console.log(aud, google.CLIENT_ID);
-
-    if (aud !== google.CLIENT_ID) {
+    if (aud !== googleClient.CLIENT_ID) {
       throw new BadRequestException();
     }
 
@@ -179,32 +180,17 @@ export class LoginService {
   /**
    *
    * userId로 조회 후 user가 없으면 새로 생성
-   * googleUser도 들어왔을 경우 google 정보도 업데이트
    */
-  async upsertLogin(
-    userId: number,
-    linkedAccount?: LinkedAccount,
-  ): Promise<account> {
-    const updateData: account = linkedAccount
-      ? {
-          userId,
-          //todo: 배열에 insert
-          linkedAccount: [
-            {
-              linkedPlatform: 'google',
-              id: linkedAccount.id,
-              email: linkedAccount.email,
-              linkedAt: linkedAccount.linkedAt,
-            },
-          ],
-        }
-      : { userId, linkedAccount: [] };
-
+  async upsertAccount(userId: number): Promise<account> {
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
-      updateData,
+      { userId },
       { upsert: true, new: true },
     );
+
+    if (!user) {
+      throw new InternalServerErrorException();
+    }
 
     return user;
   }
@@ -239,32 +225,50 @@ export class LoginService {
    *
    * header에 첨부된 accessToken을 decoding해 userId를 가져옴
    * googleInput을 통해 googleId, googleEmail, linkedAt을 받아옴
-   * userId로 find 후 구글 정보들을 upsert 혹은 새로 만든 후 업데이트 전 데이터를 반환 //todo
+   * userId로 find 후 구글 정보들을 upsert 후 업데이트된 데이터를 반환
    * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
-  async linkGoogle(userId: number, google: GoogleLoginInput): Promise<account> {
-    const googleUser = await this.getGoogleUser(google);
-    const user = await this.accountModel.findOneAndUpdate(
-      { userId },
-      {
-        userId,
-        linkedAccount: [
-          {
-            id: googleUser.id,
-            email: googleUser.email,
-            linkedAt: googleUser.linkedAt,
-            linkedPlatform: 'google',
+  async linkGoogle(userId: number, account: LinkedAccount): Promise<account> {
+    const update = await this.accountModel.findOne({
+      userId,
+      'linkedAccount.linkedPlatform': account.linkedPlatform,
+    });
+
+    if (update) {
+      const updatedAccount = await this.accountModel.findOneAndUpdate(
+        {
+          userId,
+          'linkedAccount.linkedPlatform': account.linkedPlatform,
+        },
+        {
+          $set: {
+            'linkedAccount.$.id': account.id,
+            'linkedAccount.$.email': account.email,
+            'linkedAccount.$.linkedAt': account.linkedAt,
+            'linkedAccount.$.linkedPlatform': account.linkedPlatform,
           },
-        ],
-      },
-      { upsert: true, new: true },
-    );
+        },
+        { new: true },
+      );
 
-    if (!user) {
-      throw new InternalServerErrorException();
+      if (!updatedAccount) {
+        throw new InternalServerErrorException();
+      }
+
+      return updatedAccount;
+    } else {
+      const updatedAccount = await this.accountModel.findOneAndUpdate(
+        { userId },
+        { $push: { linkedAccount: { ...account } } },
+        { upsert: true, new: true },
+      );
+
+      if (!updatedAccount) {
+        throw new InternalServerErrorException();
+      }
+
+      return updatedAccount;
     }
-
-    return user;
   }
 
   /**
@@ -273,12 +277,14 @@ export class LoginService {
    * userId로 find 후 google과 관련된 정보를 삭제함
    * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
-  async unlinkGoogle(userId: number): Promise<account> {
+  async unlinkAccount(
+    userId: number,
+    targetPlatform: string,
+  ): Promise<account> {
     const user = await this.accountModel.findOneAndUpdate(
       { userId },
-      //todo: linkedPlatform만 제거되는지 확인
       {
-        $pull: { linkedAccount: { linkedPlatform: 'google' } },
+        $pull: { linkedAccount: { linkedPlatform: targetPlatform } },
       },
       { new: true },
     );
@@ -330,7 +336,7 @@ export class LoginService {
     const newTokens = await this.tokenModel.findOneAndUpdate(
       { refreshToken },
       { userId, accessToken, refreshToken },
-      { new: true },
+      { new: true, lean: true },
     );
 
     if (!newTokens) {

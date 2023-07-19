@@ -102,8 +102,12 @@ type UserAccount {
 type LinkedAccount {
   linkedPlatform: String!
   id: String!
+<<<<<<< HEAD
   email: String!
 >>>>>>> 9ef48c2... feat: :sparkles: linked Account로 추상화
+=======
+  email: String
+>>>>>>> edb9f1f... refactor: :recycle: upsertLogin에서 하던 일을 분리, unlinkGoogle을 unlinkAccount로 통합
   linkedAt: DateTime!
 }
 
@@ -515,7 +519,7 @@ type Mutation {
   ftLogin(ftCode: String!): LoginSuccess!
   googleLogin(google: GoogleLoginInput!, ftCode: String): LoginResult!
   linkGoogle(google: GoogleLoginInput!): Account!
-  unlinkGoogle: Account!
+  unlinkAccount(targetPlatform: String!): Account!
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
