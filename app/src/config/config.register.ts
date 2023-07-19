@@ -22,7 +22,8 @@ export class ConfigRegister implements OnModuleInit {
   onModuleInit(): void {
     const ftClient = this.configService.get<FtClientConfig>('ftClient');
     const database = this.configService.get<DatabaseConfig>('database');
-    const googleClient = this.configService.get<GoogleClientConfig>('google');
+    const googleClient =
+      this.configService.get<GoogleClientConfig>('googleClient');
     const jwt = this.configService.get<JwtConfig>('jwt');
     const timezone = this.configService.get<string>('timezone');
 

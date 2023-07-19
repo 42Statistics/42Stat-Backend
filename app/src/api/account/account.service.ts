@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-  UseFilters,
-} from '@nestjs/common';
+import { Injectable, UseFilters } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, QueryOptions, UpdateQuery } from 'mongoose';
-import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { account } from 'src/api/account/db/account.database.schema';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 
 @UseFilters(HttpExceptionFilter)
 @Injectable()
@@ -17,33 +12,21 @@ export class AccountService {
     private accountModel: Model<account>,
   ) {}
 
-  async findOne(filter?: FilterQuery<account>): Promise<account> {
-    const account = await this.accountModel.findOne(filter).lean();
+  async create(userId: number): Promise<account> {
+    const newAccount = new this.accountModel({ userId });
+    return await this.accountModel.create(newAccount);
+  }
 
-    if (!account) {
-      throw new NotFoundException();
-    }
-
-    return account;
+  async findOne(filter?: FilterQuery<account>): Promise<account | null> {
+    return await this.accountModel.findOne(filter).lean();
   }
 
   async findOneAndUpdate(
     filter: FilterQuery<account>,
     update: UpdateQuery<account>,
     options?: QueryOptions<account>,
-  ): Promise<account> {
-    const account = await this.accountModel.findOneAndUpdate(
-      filter,
-      update,
-      options,
-    );
-
-    if (!account) {
-      //todo: 500반환 안하고 생성하는지 확인. 사용하는 쿼리 테스트해보기
-      throw new InternalServerErrorException();
-    }
-
-    return account;
+  ): Promise<account | null> {
+    return await this.accountModel.findOneAndUpdate(filter, update, options);
   }
 
   async deleteOne(filter?: FilterQuery<account>): Promise<number> {

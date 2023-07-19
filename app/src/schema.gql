@@ -100,7 +100,7 @@ type UserAccount {
   googleEmail: String!
 =======
 type LinkedAccount {
-  linkedPlatform: String!
+  platform: String!
   id: String!
 <<<<<<< HEAD
   email: String!
