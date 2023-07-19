@@ -15,31 +15,29 @@ export class StatAuthGuard implements CanActivate {
     const gqlExecutionContext = GqlExecutionContext.create(executionContext);
     const context = gqlExecutionContext.getContext();
 
-    const accessToken = context.req.header('Authorization');
+    const authString = context.req.header('Authorization');
 
-    const { userId, token } = await this.verifyToken(accessToken);
-
-    context.userId = userId;
-    context.accessToken = token;
+    const VerifyContext = await this.verifyToken(authString);
+    Object.assign(context, VerifyContext);
 
     return true;
   }
 
   async verifyToken(
-    accessToken: string | undefined,
-  ): Promise<{ userId: number; token: string }> {
-    if (!accessToken || !accessToken.startsWith('Bearer ')) {
-      throw new UnauthorizedException('Invalid token format');
+    authString: string | undefined,
+  ): Promise<{ userId: number; accessToken: string }> {
+    if (!authString || !authString.startsWith('Bearer ')) {
+      throw new UnauthorizedException();
     }
 
-    const token = accessToken.split(' ')[1];
+    const accessToken = authString.split(' ')[1];
 
     try {
       const { userId } = await this.jwtService.verifyAsync<{
         userId: number;
-      }>(token);
+      }>(accessToken);
 
-      return { userId, token };
+      return { userId, accessToken };
     } catch (e) {
       throw new UnauthorizedException();
     }

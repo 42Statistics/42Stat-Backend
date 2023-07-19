@@ -31,13 +31,17 @@ export class LoginResolver {
     @MyUserId() userId: number,
     @Args('google') google: GoogleLoginInput,
   ): Promise<Account> {
-    return await this.loginService.linkGoogle(userId, google);
+    const googleUser = await this.loginService.getGoogleUser(google);
+    return await this.loginService.linkGoogle(userId, googleUser);
   }
 
   @UseGuards(StatAuthGuard)
   @Mutation((_returns) => Account)
-  async unlinkGoogle(@MyUserId() userId: number): Promise<Account> {
-    return await this.loginService.unlinkGoogle(userId);
+  async unlinkAccount(
+    @MyUserId() userId: number,
+    @Args('targetPlatform') targetPlatform: string,
+  ): Promise<Account> {
+    return await this.loginService.unlinkAccount(userId, targetPlatform);
   }
 
   @Mutation((_returns) => LoginSuccess)

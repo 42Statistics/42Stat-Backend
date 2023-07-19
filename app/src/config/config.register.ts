@@ -4,51 +4,51 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ClientConfig } from './configuration/client.config';
 import { DatabaseConfig } from './configuration/database.config';
-import { GoogleConfig } from './configuration/google.config';
+import { FtClientConfig } from './configuration/ftClient.config';
+import { GoogleClientConfig } from './configuration/googleClient.config';
 import { JwtConfig } from './configuration/jwt.config';
 
 @Injectable()
 export class ConfigRegister implements OnModuleInit {
-  private client: ClientConfig;
+  private ftClient: FtClientConfig;
   private database: DatabaseConfig;
-  private google: GoogleConfig;
+  private googleClient: GoogleClientConfig;
   private jwt: JwtConfig;
   private timezone: string;
 
   constructor(private readonly configService: ConfigService) {}
 
   onModuleInit(): void {
-    const client = this.configService.get<ClientConfig>('client');
+    const ftClient = this.configService.get<FtClientConfig>('ftClient');
     const database = this.configService.get<DatabaseConfig>('database');
-    const google = this.configService.get<GoogleConfig>('google');
+    const googleClient = this.configService.get<GoogleClientConfig>('google');
     const jwt = this.configService.get<JwtConfig>('jwt');
     const timezone = this.configService.get<string>('timezone');
 
-    if (!client || !database || !google || !jwt || !timezone) {
+    if (!ftClient || !database || !googleClient || !jwt || !timezone) {
       throw new InternalServerErrorException(
         'Missing environment configuration',
       );
     }
 
-    this.client = client;
+    this.ftClient = ftClient;
     this.database = database;
-    this.google = google;
+    this.googleClient = googleClient;
     this.jwt = jwt;
     this.timezone = timezone;
   }
 
-  getClient(): ClientConfig {
-    return this.client;
+  getFtClient(): FtClientConfig {
+    return this.ftClient;
   }
 
   getDatabase(): DatabaseConfig {
     return this.database;
   }
 
-  getGoogle(): GoogleConfig {
-    return this.google;
+  getGoogleClient(): GoogleClientConfig {
+    return this.googleClient;
   }
 
   getJwt(): JwtConfig {

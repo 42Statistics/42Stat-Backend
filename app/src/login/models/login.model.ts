@@ -8,7 +8,7 @@ export class LinkedAccount {
   @Field()
   id: string;
 
-  @Field()
+  @Field({ nullable: true })
   email?: string;
 
   @Field()
