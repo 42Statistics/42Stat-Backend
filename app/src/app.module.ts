@@ -12,9 +12,9 @@ import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
-import clientConfig from './config/configuration/ftClient.config';
 import databaseConfig from './config/configuration/database.config';
-import googleConfig from './config/configuration/googleClient.config';
+import ftClientConfig from './config/configuration/ftClient.config';
+import googleClientConfig from './config/configuration/googleClient.config';
 import jwtConfig from './config/configuration/jwt.config';
 import timezoneConfig from './config/configuration/timezone.config';
 import { LambdaModule } from './lambda/lambda.module';
@@ -36,10 +36,10 @@ import { SettingModule } from './page/setting/setting.module';
       // cache: true,
       envFilePath: '../env/.env',
       load: [
-        clientConfig,
         databaseConfig,
+        ftClientConfig,
+        googleClientConfig,
         jwtConfig,
-        googleConfig,
         timezoneConfig,
       ],
     }),

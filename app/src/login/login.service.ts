@@ -2,8 +2,6 @@ import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
-  NotFoundException,
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
@@ -11,13 +9,14 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
-import type { FilterQuery, Model } from 'mongoose';
+import type { Model } from 'mongoose';
 import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
+import { AccountService } from 'src/api/account/account.service';
 import { ConfigRegister } from 'src/config/config.register';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
-import { account } from './db/account.database.schema';
+import { account } from '../api/account/db/account.database.schema';
 import { token } from './db/token.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
@@ -30,24 +29,13 @@ import type {
 @Injectable()
 export class LoginService {
   constructor(
-    @InjectModel(account.name)
-    private accountModel: Model<account>,
     @InjectModel(token.name)
     private tokenModel: Model<token>,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly configRegister: ConfigRegister,
+    private readonly accountService: AccountService,
   ) {}
-
-  async findOneAccount(filter?: FilterQuery<account>): Promise<account> {
-    const account = await this.accountModel.findOne(filter).lean();
-
-    if (!account) {
-      throw new NotFoundException();
-    }
-
-    return account;
-  }
 
   /**
    *
@@ -85,7 +73,7 @@ export class LoginService {
       return await this.updateToken(userId);
     }
 
-    const linkedUser = await this.accountModel.findOne({
+    const linkedUser = await this.accountService.findOne({
       'linkedAccount.linkedPlatform': 'google',
       'linkedAccount.id': googleUser.id,
     });
@@ -182,15 +170,11 @@ export class LoginService {
    * userId로 조회 후 user가 없으면 새로 생성
    */
   async upsertAccount(userId: number): Promise<account> {
-    const user = await this.accountModel.findOneAndUpdate(
+    const user = await this.accountService.findOneAndUpdate(
       { userId },
       { userId },
       { upsert: true, new: true },
     );
-
-    if (!user) {
-      throw new InternalServerErrorException();
-    }
 
     return user;
   }
@@ -224,18 +208,18 @@ export class LoginService {
   /**
    *
    * header에 첨부된 accessToken을 decoding해 userId를 가져옴
-   * googleInput을 통해 googleId, googleEmail, linkedAt을 받아옴
+   * account 통해 id, email, linkedAt을 받아옴
    * userId로 find 후 구글 정보들을 upsert 후 업데이트된 데이터를 반환
    * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
    */
   async linkGoogle(userId: number, account: LinkedAccount): Promise<account> {
-    const update = await this.accountModel.findOne({
+    const update = await this.accountService.findOne({
       userId,
       'linkedAccount.linkedPlatform': account.linkedPlatform,
     });
 
     if (update) {
-      const updatedAccount = await this.accountModel.findOneAndUpdate(
+      const updatedAccount = await this.accountService.findOneAndUpdate(
         {
           userId,
           'linkedAccount.linkedPlatform': account.linkedPlatform,
@@ -251,21 +235,13 @@ export class LoginService {
         { new: true },
       );
 
-      if (!updatedAccount) {
-        throw new InternalServerErrorException();
-      }
-
       return updatedAccount;
     } else {
-      const updatedAccount = await this.accountModel.findOneAndUpdate(
+      const updatedAccount = await this.accountService.findOneAndUpdate(
         { userId },
         { $push: { linkedAccount: { ...account } } },
         { upsert: true, new: true },
       );
-
-      if (!updatedAccount) {
-        throw new InternalServerErrorException();
-      }
 
       return updatedAccount;
     }
@@ -281,7 +257,7 @@ export class LoginService {
     userId: number,
     targetPlatform: string,
   ): Promise<account> {
-    const user = await this.accountModel.findOneAndUpdate(
+    const user = await this.accountService.findOneAndUpdate(
       { userId },
       {
         $pull: { linkedAccount: { linkedPlatform: targetPlatform } },
@@ -289,16 +265,12 @@ export class LoginService {
       { new: true },
     );
 
-    if (!user) {
-      throw new InternalServerErrorException();
-    }
-
     return user;
   }
 
   /**
    *
-   * input에 들어오는 userId는 AccountModel에 존재하는 유저이어야함
+   * input에 들어오는 userId는 accountService에 존재하는 유저이어야함
    * userId를 이용해 token을 생성함
    */
   async generateToken(userId: number, expiresIn: string): Promise<string> {
@@ -373,9 +345,7 @@ export class LoginService {
   async deleteAccount(userId: number): Promise<number> {
     await this.tokenModel.deleteMany({ userId });
 
-    const { deletedCount } = await this.accountModel.deleteOne({ userId });
-
-    return deletedCount;
+    return await this.accountService.deleteOne({ userId });
   }
 
   async verifyToken(targetToken: string): Promise<number> {
