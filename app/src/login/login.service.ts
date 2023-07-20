@@ -204,15 +204,14 @@ export class LoginService {
   async createToken(userId: number): Promise<LoginSuccess> {
     const { accessToken, refreshToken } = await this.generateTokenPair(userId);
 
-    // const newToken =
-    await this.tokenService.create(userId, accessToken, refreshToken);
-
-    return {
-      //todo: find lean
-      // ...newToken,
+    const newToken = await this.tokenService.create(
       userId,
       accessToken,
       refreshToken,
+    );
+
+    return {
+      ...newToken,
       message: 'OK',
     };
   }
@@ -311,7 +310,7 @@ export class LoginService {
     const newTokens = await this.tokenService.findOneAndUpdate(
       { refreshToken },
       { userId, accessToken, refreshToken },
-      { new: true, lean: true },
+      { new: true },
     );
 
     if (!newTokens) {
