@@ -8,10 +8,10 @@ export default registerAs('ftClient', () => ({
   INTRA_ME_URI: process.env.INTRA_ME_URI,
 }));
 
-export interface FtClientConfig {
+export type FtClientConfig = {
   ID: string;
   SECRET: string;
   REDIRECT_URI: string;
   INTRA_TOKEN_URI: string;
   INTRA_ME_URI: string;
-}
+};
