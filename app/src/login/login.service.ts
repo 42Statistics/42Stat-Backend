@@ -6,6 +6,7 @@ import {
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
@@ -14,7 +15,9 @@ import { lastValueFrom } from 'rxjs';
 import { AccountService } from 'src/api/account/account.service';
 import type { token } from 'src/api/token/db/token.database.schema';
 import { TokenService } from 'src/api/token/token.service';
-import { ConfigRegister } from 'src/config/config.register';
+import type { FtClientConfig } from 'src/config/configuration/ftClient.config';
+import type { GoogleClientConfig } from 'src/config/configuration/googleClient.config';
+import type { JwtConfig } from 'src/config/configuration/jwt.config';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { StatDate } from 'src/statDate/StatDate';
 import type { GoogleLoginInput } from './dtos/login.dto';
@@ -28,13 +31,22 @@ import type {
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
+  private jwt;
+  private ftClient;
+  private googleClient;
+
   constructor(
+    private readonly accountService: AccountService,
+    private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
-    private readonly configRegister: ConfigRegister,
-    private readonly accountService: AccountService,
     private readonly tokenService: TokenService,
-  ) {}
+  ) {
+    this.jwt = this.configService.getOrThrow<JwtConfig>('jwt');
+    this.ftClient = this.configService.getOrThrow<FtClientConfig>('ftClient');
+    this.googleClient =
+      this.configService.getOrThrow<GoogleClientConfig>('googleClient');
+  }
 
   /**
    *
@@ -49,9 +61,9 @@ export class LoginService {
       await this.createAccount(userId);
     }
 
-    const token = await this.createToken(userId);
+    const loginUser = await this.createToken(userId);
 
-    return token;
+    return loginUser;
   }
 
   /**
@@ -72,12 +84,11 @@ export class LoginService {
       const userId = await this.getFtUser(ftCode);
 
       await this.createAccount(userId);
-
       await this.linkGoogle(userId, googleUser);
 
-      const token = await this.createToken(userId);
+      const loginUser = await this.createToken(userId);
 
-      return token;
+      return loginUser;
     }
 
     const linkedUser = await this.accountService.findOne({
@@ -105,25 +116,23 @@ export class LoginService {
    * userId 반환
    */
   async getFtUser(ftCode: string): Promise<number> {
-    const ftClient = this.configRegister.getFtClient();
-
     const params = new URLSearchParams();
     params.set('grant_type', 'authorization_code');
-    params.set('client_id', ftClient.ID);
-    params.set('client_secret', ftClient.SECRET);
+    params.set('client_id', this.ftClient.ID);
+    params.set('client_secret', this.ftClient.SECRET);
     params.set('code', ftCode);
-    params.set('redirect_uri', ftClient.REDIRECT_URI);
+    params.set('redirect_uri', this.ftClient.REDIRECT_URI);
 
     try {
       const tokens = await lastValueFrom(
         this.httpService.post<{ access_token: string }>(
-          ftClient.INTRA_TOKEN_URI,
+          this.ftClient.INTRA_TOKEN_URI,
           params,
         ),
       );
 
       const userInfo = await lastValueFrom(
-        this.httpService.get<{ id: number }>(ftClient.INTRA_ME_URI, {
+        this.httpService.get<{ id: number }>(this.ftClient.INTRA_ME_URI, {
           headers: { Authorization: `Bearer ${tokens.data.access_token}` },
         }),
       );
@@ -135,10 +144,14 @@ export class LoginService {
   }
 
   async generateTokenPair(userId: number): Promise<Omit<token, 'userId'>> {
-    const jwt = this.configRegister.getJwt();
-
-    const accessToken = await this.generateToken(userId, jwt.ACCESS_EXPIRES);
-    const refreshToken = await this.generateToken(userId, jwt.REFRESH_EXPIRES);
+    const accessToken = await this.generateToken(
+      userId,
+      this.jwt.ACCESS_EXPIRES,
+    );
+    const refreshToken = await this.generateToken(
+      userId,
+      this.jwt.REFRESH_EXPIRES,
+    );
 
     return { accessToken, refreshToken };
   }
@@ -150,8 +163,6 @@ export class LoginService {
    * googleInput이 만료된 경우 -> 400 반환
    */
   async getGoogleUser(input: GoogleLoginInput): Promise<LinkedAccount> {
-    const googleClient = this.configRegister.getGoogleClient();
-
     const oAuth2Client = new OAuth2Client();
 
     const ticket = await oAuth2Client.verifyIdToken({
@@ -161,7 +172,7 @@ export class LoginService {
 
     const { sub, email, aud } = ticket.getPayload()!;
 
-    if (aud !== googleClient.CLIENT_ID) {
+    if (aud !== this.googleClient.CLIENT_ID) {
       throw new BadRequestException();
     }
 
@@ -286,13 +297,11 @@ export class LoginService {
    * userId를 이용해 token을 생성함
    */
   async generateToken(userId: number, expiresIn: string): Promise<string> {
-    const jwt = this.configRegister.getJwt();
-
     return await this.jwtService.signAsync(
       { userId },
       {
         expiresIn: expiresIn,
-        secret: jwt.SECRET,
+        secret: this.jwt.SECRET,
       },
     );
   }
@@ -313,9 +322,10 @@ export class LoginService {
       throw new BadRequestException('유효하지 않은 refreshToken');
     }
 
-    const jwt = this.configRegister.getJwt();
-
-    const accessToken = await this.generateToken(userId, jwt.ACCESS_EXPIRES);
+    const accessToken = await this.generateToken(
+      userId,
+      this.jwt.ACCESS_EXPIRES,
+    );
 
     const newTokens = await this.tokenService.findOneAndUpdate(
       { refreshToken },
