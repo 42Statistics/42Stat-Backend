@@ -64,61 +64,18 @@ type ProjectPreview {
   url: String!
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-"""
-A field whose value conforms to the standard URL format as specified in RFC3986: https://www.ietf.org/rfc/rfc3986.txt.
-"""
-scalar URL
-
-=======
->>>>>>> 6a2112e... feat: :sparkles: 회원가입시 account에 저장하도록 추가 및 토큰관련 반환 값 맞추기
-type UserPreviewWithDisplayname {
-  id: Int!
-  login: String!
-  imgUrl: String
-  displayname: String!
-=======
-type Token {
-  userId: Int!
-  accessToken: String!
-  refreshToken: String!
->>>>>>> 8a5c9de... refactor: :recycle: unionType 및 userPreview 제공 제거
-}
-
->>>>>>> ede1df1... feat: :sparkles: userPreview 및 userFullName 추가
-=======
->>>>>>> c4374f0... refactor: :recycle: UnionType에 NoAssociated 추가
-=======
-type UserAccount {
-  googleId: String!
-  googleEmail: String!
-=======
 type LinkedAccount {
   platform: String!
   id: String!
-<<<<<<< HEAD
-  email: String!
->>>>>>> 9ef48c2... feat: :sparkles: linked Account로 추상화
-=======
   email: String
->>>>>>> edb9f1f... refactor: :recycle: upsertLogin에서 하던 일을 분리, unlinkGoogle을 unlinkAccount로 통합
   linkedAt: DateTime!
 }
 
 type Account {
   userId: Int!
-  linkedAccount: [LinkedAccount!]!
+  linkedAccounts: [LinkedAccount!]!
 }
 
-<<<<<<< HEAD
->>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
-=======
 type LoginSuccess {
   accessToken: String!
   refreshToken: String!
@@ -126,7 +83,6 @@ type LoginSuccess {
   message: String!
 }
 
->>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -525,74 +481,12 @@ type Mutation {
   deleteAccount: Int!
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-union StatusUnion = SuccessType | BadRequestType | UnauthorizedType | NotFoundType | InternalServerErrorType
-
-type SuccessType {
-  status: Int!
-  accessToken: String!
-  refreshToken: String!
-  userPreview: UserPreviewWithDisplayname!
-}
-<<<<<<< HEAD
-=======
-
-type BadRequestType {
-  status: Int!
-  message: String!
-}
->>>>>>> 6a2112e... feat: :sparkles: 회원가입시 account에 저장하도록 추가 및 토큰관련 반환 값 맞추기
-
-type UnauthorizedType {
-  status: Int!
-  message: String!
-}
-
-type NotFoundType {
-  status: Int!
-  message: String!
-}
-
-type InternalServerErrorType {
-  status: Int!
-  message: String!
-}
-
-=======
->>>>>>> 8a5c9de... refactor: :recycle: unionType 및 userPreview 제공 제거
-=======
-union StatusUnion = Success | NoAssociated
-=======
-union LoginResult = Success | NotLinked
->>>>>>> 749da80... refactor: :recycle: 변수 및 반환타입 변경
-=======
 union LoginResult = LoginSuccess | LoginNotLinked
->>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 
 type LoginNotLinked {
   message: String!
 }
 
-<<<<<<< HEAD
-type NotLinked {
-  message: String!
-}
-
-<<<<<<< HEAD
->>>>>>> c4374f0... refactor: :recycle: UnionType에 NoAssociated 추가
-input loginInput {
-=======
-input LoginInput {
->>>>>>> 9a8dced... style: :art: loginInput -> LoginInput
-  google: GoogleLoginInput
-  ftCode: String
-}
-
-=======
->>>>>>> 79224a3... feat: :sparkles: config module에서 load할 파일 변경
 input GoogleLoginInput {
   clientId: String!
   credential: String!

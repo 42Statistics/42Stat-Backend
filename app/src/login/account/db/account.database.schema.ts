@@ -24,7 +24,7 @@ export class account {
   userId: number;
 
   @Prop({ required: true })
-  linkedAccount: LinkedAccount[];
+  linkedAccounts: LinkedAccount[];
 }
 
 export const AccountSchema = SchemaFactory.createForClass(account);

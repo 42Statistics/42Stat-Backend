@@ -7,17 +7,17 @@ export class SettingService {
   constructor(private readonly accountService: AccountService) {}
 
   async setting(userId: number): Promise<Setting> {
-    const linkedAccount = await this.accountService.findOne({
+    const linkedAccounts = await this.accountService.findOne({
       userId,
     });
 
-    if (!linkedAccount) {
+    if (!linkedAccounts) {
       throw new NotFoundException();
     }
 
     return {
       account: {
-        ...linkedAccount,
+        ...linkedAccounts,
       },
     };
   }

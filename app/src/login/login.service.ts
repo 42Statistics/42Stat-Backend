@@ -93,8 +93,8 @@ export class LoginService {
     }
 
     const linkedUser = await this.accountService.findOne({
-      'linkedAccount.platform': 'google',
-      'linkedAccount.id': googleUser.id,
+      'linkedAccounts.platform': 'google',
+      'linkedAccounts.id': googleUser.id,
     });
 
     if (!linkedUser) {
@@ -226,7 +226,7 @@ export class LoginService {
   async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
     const update = await this.accountService.findOne({
       userId,
-      'linkedAccount.platform': account.platform,
+      'linkedAccounts.platform': account.platform,
     });
 
     if (update) {
@@ -235,7 +235,7 @@ export class LoginService {
 
     const updatedAccount = await this.accountService.findOneAndUpdate(
       { userId },
-      { $push: { linkedAccount: { ...account } } },
+      { $push: { linkedAccounts: { ...account } } },
       { upsert: true, new: true },
     );
 
@@ -259,7 +259,7 @@ export class LoginService {
     const user = await this.accountService.findOneAndUpdate(
       { userId },
       {
-        $pull: { linkedAccount: { platform: targetPlatform } },
+        $pull: { linkedAccounts: { platform: targetPlatform } },
       },
       { new: true },
     );
