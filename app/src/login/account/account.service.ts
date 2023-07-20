@@ -1,8 +1,12 @@
 import { Injectable, UseFilters } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, QueryOptions, UpdateQuery } from 'mongoose';
-import { account } from 'src/login/account/db/account.database.schema';
+import { type QueryOneArgs, findOne } from 'src/common/db/common.db.query';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
+import {
+  type AccountDocument,
+  account,
+} from 'src/login/account/db/account.database.schema';
 
 @UseFilters(HttpExceptionFilter)
 @Injectable()
@@ -16,8 +20,10 @@ export class AccountService {
     return await this.accountModel.create({ userId });
   }
 
-  async findOne(filter?: FilterQuery<account>): Promise<account | null> {
-    return await this.accountModel.findOne(filter).lean();
+  async findOne(
+    queryOneArgs: QueryOneArgs<account>,
+  ): Promise<AccountDocument | null> {
+    return await findOne(queryOneArgs)(this.accountModel).lean();
   }
 
   async findOneAndUpdate(

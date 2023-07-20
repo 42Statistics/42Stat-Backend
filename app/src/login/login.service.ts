@@ -56,7 +56,7 @@ export class LoginService {
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
-    const user = await this.accountService.findOne({ userId });
+    const user = await this.accountService.findOne({ filter: { userId } });
 
     if (!user) {
       await this.createAccount(userId);
@@ -93,8 +93,10 @@ export class LoginService {
     }
 
     const linkedUser = await this.accountService.findOne({
-      'linkedAccounts.platform': 'google',
-      'linkedAccounts.id': googleUser.id,
+      filter: {
+        'linkedAccounts.platform': 'google',
+        'linkedAccounts.id': googleUser.id,
+      },
     });
 
     if (!linkedUser) {
@@ -225,8 +227,7 @@ export class LoginService {
    */
   async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
     const update = await this.accountService.findOne({
-      userId,
-      'linkedAccounts.platform': account.platform,
+      filter: { userId, 'linkedAccounts.platform': account.platform },
     });
 
     if (update) {
