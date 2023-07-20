@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AccountModule } from 'src/api/account/account.module';
+import { AccountModule } from 'src/login/account/account.module';
 import { SettingResolver } from './setting.resolver';
 import { SettingService } from './setting.service';
 

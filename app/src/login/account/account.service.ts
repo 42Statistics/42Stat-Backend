@@ -1,7 +1,7 @@
 import { Injectable, UseFilters } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, QueryOptions, UpdateQuery } from 'mongoose';
-import { account } from 'src/api/account/db/account.database.schema';
+import { account } from 'src/login/account/db/account.database.schema';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 
 @UseFilters(HttpExceptionFilter)

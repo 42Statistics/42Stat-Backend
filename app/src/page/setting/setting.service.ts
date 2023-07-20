@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AccountService } from 'src/api/account/account.service';
+import { AccountService } from 'src/login/account/account.service';
 import type { Setting } from './models/setting.model';
 
 @Injectable()
