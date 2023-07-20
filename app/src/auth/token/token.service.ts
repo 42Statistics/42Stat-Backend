@@ -17,16 +17,13 @@ export class TokenService {
     accessToken: string,
     refreshToken: string,
   ): Promise<token> {
-    const newToken = new this.tokenModel({
+    const newToken = await new this.tokenModel({
       userId,
       accessToken,
       refreshToken,
-    });
-    return await this.tokenModel.create(newToken);
-  }
+    }).save();
 
-  async findOne(filter?: FilterQuery<token>): Promise<token | null> {
-    return await this.tokenModel.findOne(filter).lean();
+    return newToken.toObject();
   }
 
   async findOneAndUpdate(
@@ -34,16 +31,20 @@ export class TokenService {
     update: UpdateQuery<token>,
     options?: QueryOptions<token>,
   ): Promise<token | null> {
-    return await this.tokenModel.findOneAndUpdate(filter, update, options);
+    return await this.tokenModel
+      .findOneAndUpdate(filter, update, options)
+      .lean();
   }
 
   async deleteOne(filter?: FilterQuery<token>): Promise<number> {
     const { deletedCount } = await this.tokenModel.deleteOne(filter);
+
     return deletedCount;
   }
 
   async deleteMany(filter?: FilterQuery<token>): Promise<number> {
     const { deletedCount } = await this.tokenModel.deleteMany(filter);
+
     return deletedCount;
   }
 }

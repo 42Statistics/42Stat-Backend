@@ -13,8 +13,7 @@ export class AccountService {
   ) {}
 
   async create(userId: number): Promise<account> {
-    const newAccount = new this.accountModel({ userId });
-    return await this.accountModel.create(newAccount);
+    return await this.accountModel.create({ userId });
   }
 
   async findOne(filter?: FilterQuery<account>): Promise<account | null> {
