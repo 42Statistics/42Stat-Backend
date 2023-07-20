@@ -6,8 +6,8 @@ export default registerAs('googleClient', () => ({
   REDIRECT_URI: process.env.GOOGLE_REDIRECT_URI,
 }));
 
-export interface GoogleClientConfig {
+export type GoogleClientConfig = {
   CLIENT_ID: string;
   CLIENT_SECRET: string;
   REDIRECT_URI: string;
-}
+};
