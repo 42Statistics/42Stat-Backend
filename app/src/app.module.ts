@@ -30,7 +30,6 @@ import { SettingModule } from './page/setting/setting.module';
 
 @Module({
   imports: [
-    //todo: appmodule에서 말고 필요한 module에서 필요한 config만 load하기
     ConfigModule.forRoot({
       // isGlobal: true,
       // cache: true,
