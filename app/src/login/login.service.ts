@@ -3,6 +3,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
@@ -230,40 +231,20 @@ export class LoginService {
     });
 
     if (update) {
-      const updatedAccount = await this.accountService.findOneAndUpdate(
-        {
-          userId,
-          'linkedAccount.platform': account.platform,
-        },
-        {
-          $set: {
-            'linkedAccount.$.id': account.id,
-            'linkedAccount.$.email': account.email,
-            'linkedAccount.$.linkedAt': account.linkedAt,
-            'linkedAccount.$.platform': account.platform,
-          },
-        },
-        { new: true },
-      );
-
-      if (!updatedAccount) {
-        throw new InternalServerErrorException();
-      }
-
-      return updatedAccount;
-    } else {
-      const updatedAccount = await this.accountService.findOneAndUpdate(
-        { userId },
-        { $push: { linkedAccount: { ...account } } },
-        { upsert: true, new: true },
-      );
-
-      if (!updatedAccount) {
-        throw new InternalServerErrorException();
-      }
-
-      return updatedAccount;
+      throw new Error();
     }
+
+    const updatedAccount = await this.accountService.findOneAndUpdate(
+      { userId },
+      { $push: { linkedAccount: { ...account } } },
+      { upsert: true, new: true },
+    );
+
+    if (!updatedAccount) {
+      throw new NotFoundException();
+    }
+
+    return updatedAccount;
   }
 
   /**
