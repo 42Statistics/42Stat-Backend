@@ -2,8 +2,8 @@ import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { AccountModule } from 'src/api/account/account.module';
-import { TokenModule } from 'src/api/token/token.module';
+import { AccountModule } from 'src/login/account/account.module';
+import { TokenModule } from 'src/auth/token/token.module';
 import { LoginResolver } from './login.resolver';
 import { LoginService } from './login.service';
 

@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   AccountSchema,
   account,
-} from 'src/api/account/db/account.database.schema';
+} from 'src/login/account/db/account.database.schema';
 import { AccountService } from './account.service';
 
 @Module({
