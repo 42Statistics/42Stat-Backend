@@ -2,7 +2,6 @@ import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
   UseFilters,
@@ -13,13 +12,13 @@ import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
 import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
-import { AccountService } from 'src/login/account/account.service';
 import type { token } from 'src/auth/token/db/token.database.schema';
 import { TokenService } from 'src/auth/token/token.service';
 import type { FtClientConfig } from 'src/config/configuration/ftClient.config';
 import type { GoogleClientConfig } from 'src/config/configuration/googleClient.config';
 import type { JwtConfig } from 'src/config/configuration/jwt.config';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
+import { AccountService } from 'src/login/account/account.service';
 import { StatDate } from 'src/statDate/StatDate';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
@@ -49,10 +48,6 @@ export class LoginService {
       this.configService.getOrThrow<GoogleClientConfig>('googleClient');
   }
 
-  /**
-   *
-   * 42 code를 통해 로그인 하거나 가입
-   */
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
@@ -69,11 +64,8 @@ export class LoginService {
 
   /**
    *
-   * (google)
-   *   42연동이 필요한 유저이면 -> union 중 NotLinked타입 반환 {message: 'NotLinked'}
-   *   이미 있는 유저이면 -> 조회 후 그 유저의 새로운 토큰 반환
-   * (google, ftCode)
-   *   가입 & 연동 후 유저의 새로운 토큰 반환
+   * @returns 연동이 필요한 계정: LoginNotLinked
+   * @returns 존재하는 유저: LoginSuccess
    */
   async googleLogin(
     google: GoogleLoginInput,
@@ -112,11 +104,7 @@ export class LoginService {
 
   /**
    *
-   * ftCode를 받아 userId를 반환함
-   * env가 설정되지 않은 경우 -> 500
-   * ftCode가 유효하지 않은 경우 -> 400
-   *
-   * userId 반환
+   * @throws {BadRequestException} ftCode가 유효하지 않은 경우
    */
   async getFtUser(ftCode: string): Promise<number> {
     const params = new URLSearchParams();
@@ -161,9 +149,7 @@ export class LoginService {
 
   /**
    *
-   * googleInput을 받아 디코딩 한 결과와 계정 연동한 시간을 반환
-   * googleId, email, time
-   * googleInput이 만료된 경우 -> 400 반환
+   * @throws {BadRequestException} 외부 사이트에서 인증된 googleInput인 경우
    */
   async getGoogleUser(input: GoogleLoginInput): Promise<LinkedAccount> {
     const oAuth2Client = new OAuth2Client();
@@ -183,26 +169,14 @@ export class LoginService {
       platform: 'google',
       id: sub,
       email: email,
-      // StatDate 사용 시 mongoose 가 제대로 처리하지 못하는 문제가 있음
       linkedAt: new Date(),
     };
   }
 
-  /**
-   *
-   * userId로 조회 후 user가 없으면 새로 생성
-   */
   async createAccount(userId: number): Promise<Account> {
     return await this.accountService.create(userId);
   }
 
-  /**
-   *
-   * userId로 조회 후 accessToken과 refreshToken을 등록
-   * userId로 조회되지 않는 경우 -> 400반환
-   *
-   * userId, accessToken, refreshToken을 반환함
-   */
   async createToken(userId: number): Promise<LoginSuccess> {
     const { accessToken, refreshToken } = await this.generateTokenPair(userId);
 
@@ -219,11 +193,8 @@ export class LoginService {
   }
 
   /**
-   *
-   * header에 첨부된 accessToken을 decoding해 userId를 가져옴
-   * account 통해 id, email, linkedAt을 받아옴
-   * userId로 find 후 구글 정보들을 upsert 후 업데이트된 데이터를 반환
-   * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
+   * @throws {Error} 이미 연동되어있는 유저인 경우
+   * @throws {NotFoundException} 없는 유저인 경우
    */
   async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
     const update = await this.accountService.findOne({
@@ -249,9 +220,7 @@ export class LoginService {
 
   /**
    *
-   * header에 첨부된 accessToken을 decoding해 userId를 가져옴
-   * userId로 find 후 google과 관련된 정보를 삭제함
-   * 없는 유저가 이 함수를 시도할 경우 -> 500 반환
+   * @throws {NotFoundException} 없는 유저인 경우
    */
   async unlinkAccount(
     userId: number,
@@ -266,17 +235,12 @@ export class LoginService {
     );
 
     if (!user) {
-      throw new InternalServerErrorException();
+      throw new NotFoundException();
     }
 
     return user;
   }
 
-  /**
-   *
-   * input에 들어오는 userId는 accountService에 존재하는 유저이어야함
-   * userId를 이용해 token을 생성함
-   */
   async generateToken(userId: number, expiresIn: string): Promise<string> {
     return await this.jwtService.signAsync(
       { userId },
@@ -289,10 +253,7 @@ export class LoginService {
 
   /**
    *
-   * accessToken이 만료되어 401이 반환된 경우 재발급받기위한 함수
-   * refreshToken도 만료된 경우 -> 400 반환
-   * refreshToken이 만료되지 않은 경우 userId를 통해 find 후
-   * 새로 받급받은 accessToken과 기존 refreshToken으로 업데이트함
+   * @throws {BadRequestException} 유효하지 않은 refreshToken 인 경우
    */
   async refreshToken(refreshToken: string): Promise<LoginSuccess> {
     let userId: number;
@@ -324,25 +285,12 @@ export class LoginService {
     };
   }
 
-  /**
-   *
-   * header에 첨부된 accessToken을 가져옴
-   * tokenDB에서 가져온 accessToken을 통해 find하고 해당 데이터를 삭제함
-   * 지운 토큰의 수를 반환함 (1)
-   */
   async logout(accessToken: string): Promise<number> {
     return await this.tokenService.deleteOne({
       accessToken,
     });
   }
 
-  /**
-   *
-   * header에 첨부된 accessToken을 decoding해 userId를 가져옴
-   * userId로 로그인했던 모든 토큰기록을 삭제함
-   * userId로 가입했던 정보를 삭제함
-   * 지운 계정의 수를 반환함 (1)
-   */
   async deleteAccount(userId: number): Promise<number> {
     await this.tokenService.deleteMany({ userId });
 
@@ -360,9 +308,7 @@ export class LoginService {
   }
 
   /**
-   *
-   * 매일 5시에 자동으로 실행되는 함수
-   * 로그인 후 1주일이 지난 토큰을 삭제함
+   * @description 매일 05:00에 로그인 후 1주일이 지난 토큰을 삭제
    */
   @Cron('0 5 * * *')
   async deleteTokens() {
