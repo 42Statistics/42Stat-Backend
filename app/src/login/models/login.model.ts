@@ -21,7 +21,7 @@ export class Account {
   userId: number;
 
   @Field((_type) => [LinkedAccount])
-  linkedAccount: LinkedAccount[];
+  linkedAccounts: LinkedAccount[];
 }
 
 @ObjectType()
