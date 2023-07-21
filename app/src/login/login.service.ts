@@ -159,6 +159,9 @@ export class LoginService {
       audience: input.clientId,
     });
 
+    // https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/oauth2client.ts#L1277
+    // https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/loginticket.ts#L26
+    // eslint-disable-next-line
     const { sub, email, aud } = ticket.getPayload()!;
 
     if (aud !== this.googleClient.CLIENT_ID) {
