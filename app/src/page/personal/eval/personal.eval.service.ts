@@ -9,7 +9,7 @@ import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onRe
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { PersonalEvalRoot } from './models/personal.eval.model';
 
 @Injectable()
@@ -52,8 +52,7 @@ export class PersonalEvalService {
     };
   }
 
-  @CacheOnReturn()
-  async count(
+  private async count(
     userId: number,
     filter?: FilterQuery<scale_team>,
   ): Promise<number> {
@@ -63,7 +62,7 @@ export class PersonalEvalService {
     });
   }
 
-  async countByDateRange(
+  private async countByDateRange(
     userId: number,
     dateRange: DateRange,
   ): Promise<IntDateRanged> {
@@ -80,6 +79,12 @@ export class PersonalEvalService {
     dateTemplate: DateTemplate,
   ): Promise<IntDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
+
+    if (dateTemplate === DateTemplate.TOTAL) {
+      const count = await this.count(userId);
+
+      return this.dateRangeService.toDateRanged(count, dateRange);
+    }
 
     return await this.countByDateRange(userId, dateRange);
   }
@@ -121,6 +126,13 @@ export class PersonalEvalService {
     });
   }
 
+  /**
+   *
+   * @description
+   * cache 에 nullable 한 값이 들어갈 수 없기 때문에, object 로 한번 감싸서 반환합니다.
+   * `CacheOnReturn` 데코레이터 자체를 object 로 감싸서 저장하도록 수정할 수 있지만,
+   * 일단 이런 상황이 다른 곳에선 발생할 일이 없어서 보류 중 입니다.
+   */
   @CacheOnReturn()
   async recentComment(userId: number): Promise<{ value: string | null }> {
     const scaleTeams = await this.scaleTeamService.findAll({

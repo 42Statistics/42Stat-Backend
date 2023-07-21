@@ -26,13 +26,13 @@ export class HomeEvalService {
     private dateRangeService: DateRangeService,
   ) {}
 
-  @CacheOnReturn()
-  async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
+  private async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     return await this.scaleTeamService.evalCount(filter);
   }
 
-  @CacheOnReturn()
-  async evalCountByDateRange(dateRange: DateRange): Promise<IntDateRanged> {
+  private async evalCountByDateRange(
+    dateRange: DateRange,
+  ): Promise<IntDateRanged> {
     const evalFilter: FilterQuery<scale_team> = {
       beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
     };

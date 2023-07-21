@@ -27,6 +27,7 @@ import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SettingModule } from './page/setting/setting.module';
+import { StatDate } from './statDate/StatDate';
 
 @Module({
   imports: [
@@ -44,7 +45,10 @@ import { SettingModule } from './page/setting/setting.module';
     }),
     CacheModule.register({
       isGlobal: true,
-      store: new ShallowStore(),
+      store: new ShallowStore({
+        max: 100000,
+        ttl: StatDate.MIN * 3,
+      }),
     }),
     LoginModule,
     MongooseModule.forRoot(

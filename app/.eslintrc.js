@@ -18,6 +18,7 @@ module.exports = {
   },
   ignorePatterns: ['.eslintrc.js'],
   rules: {
+    // 'no-magic-numbers': 'warn',
     'no-used-vars': 'off',
     '@typescript-eslint/no-unused-vars': [
       'warn',

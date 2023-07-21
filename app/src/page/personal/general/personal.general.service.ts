@@ -40,13 +40,6 @@ export class PersonalGeneralService {
   ) {}
 
   @CacheOnReturn()
-  async findUserIdByLogin(login: string): Promise<number> {
-    const cursusUser = await this.cursusUserService.findOneByLogin(login);
-
-    return cursusUser.user.id;
-  }
-
-  @CacheOnReturn()
   async personalGeneralProfile(userId: number): Promise<PersonalGeneralRoot> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
@@ -119,8 +112,7 @@ export class PersonalGeneralService {
     };
   }
 
-  @CacheOnReturn()
-  async logtimeByDateRange(
+  private async logtimeByDateRange(
     userId: number,
     dateRange: DateRange,
   ): Promise<IntDateRanged> {
@@ -134,6 +126,7 @@ export class PersonalGeneralService {
     );
   }
 
+  @CacheOnReturn()
   async logtimeByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
@@ -143,15 +136,14 @@ export class PersonalGeneralService {
     return await this.logtimeByDateRange(userId, dateRange);
   }
 
-  @CacheOnReturn()
-  async preferredTime(
+  private async preferredTime(
     userId: number,
     filter: FilterQuery<location>,
   ): Promise<PreferredTime> {
     return await this.locationService.preferredTime(userId, filter);
   }
 
-  async preferredTimeByDateRange(
+  private async preferredTimeByDateRange(
     userId: number,
     dateRange: DateRange,
   ): Promise<PreferredTimeDateRanged> {
@@ -161,6 +153,7 @@ export class PersonalGeneralService {
     return this.dateRangeService.toDateRanged(preferredTime, dateRange);
   }
 
+  @CacheOnReturn()
   async preferredTimeByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
@@ -170,8 +163,7 @@ export class PersonalGeneralService {
     return await this.preferredTimeByDateRange(userId, dateRange);
   }
 
-  @CacheOnReturn()
-  async preferredCluster(
+  private async preferredCluster(
     userId: number,
     filter?: FilterQuery<location>,
   ): Promise<PreferredCluster> {
@@ -182,7 +174,7 @@ export class PersonalGeneralService {
     };
   }
 
-  async preferredClusterByDateRange(
+  private async preferredClusterByDateRange(
     userId: number,
     dateRange: DateRange,
   ): Promise<PreferredClusterDateRanged> {
@@ -192,6 +184,7 @@ export class PersonalGeneralService {
     return this.dateRangeService.toDateRanged(preferredCluster, dateRange);
   }
 
+  @CacheOnReturn()
   async preferredClusterByDateTemplate(
     userId: number,
     dateTemplate: DateTemplate,
@@ -230,14 +223,14 @@ export class PersonalGeneralService {
     });
   }
 
-  @CacheOnReturn()
+  @CacheOnReturn(StatDate.MIN * 10)
   async promoLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
       ...promoFilter(new StatDate(beginAt)),
     });
   }
 
-  @CacheOnReturn()
+  @CacheOnReturn(StatDate.MIN * 10)
   async promoMemberLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
       ...promoFilter(new StatDate(beginAt)),

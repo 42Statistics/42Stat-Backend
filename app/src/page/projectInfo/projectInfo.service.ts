@@ -20,16 +20,18 @@ export class ProjectInfoService {
     private teamService: TeamService,
   ) {}
 
-  @CacheOnReturn()
   async projectInfo(projectName: string): Promise<ProjectInfo> {
-    const project = await this.projectService.findOne({
-      filter: { name: projectName },
-    });
+    const project: { id: number; name: string } =
+      await this.projectService.findOne({
+        filter: { name: projectName },
+        select: { id: 1, name: 1 },
+      });
 
     const projectId = project.id;
 
     const projectTeamInfo = await this.projectTeamInfo(projectId);
     const projectSessionsInfo = await this.projectSessionInfo(projectId);
+
     return {
       id: projectId,
       name: project.name,
@@ -39,12 +41,14 @@ export class ProjectInfoService {
     };
   }
 
+  @CacheOnReturn()
   private async projectSessionInfo(
     projectId: number,
   ): Promise<ProjectSessionInfo> {
     return await this.projectSessionService.projectSessionInfo(projectId);
   }
 
+  @CacheOnReturn()
   private async projectTeamInfo(projectId: number): Promise<ProjectTeamInfo> {
     const currRegisteredTeamCount = await this.teamService.count({
       projectId: projectId,
