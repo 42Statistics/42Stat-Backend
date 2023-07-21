@@ -126,8 +126,7 @@ export class PersonalGeneralCharacterService {
       });
   }
 
-  @CacheOnReturn()
-  async characterScore(
+  private async characterScore(
     userId: number,
   ): Promise<{ effort: number; talent: number } | null> {
     const questsUserDate: QuestsUserDate = await this.questsUserService.findOne(

@@ -18,7 +18,7 @@ export class LandingService {
     private projectsUserService: ProjectsUserService,
   ) {}
 
-  @CacheOnReturn(StatDate.MIN * 5)
+  @CacheOnReturn(StatDate.MIN * 10)
   async landing(): Promise<Landing> {
     const daysAfterBeginAt = Math.floor(
       StatDate.dateGap(

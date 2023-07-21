@@ -18,7 +18,6 @@ import {
   UserScoreInfo,
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
-// import { findPokemon } from './character/personal.general.character.pokemon';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
@@ -118,16 +117,7 @@ export class PersonalGeneralResolver {
     );
   }
 
-  // test 함수들. 이후 진짜 test 파일로 분리해야 합니다.
-  // @ResolveField((_returns) => String, { nullable: true })
-  // async characterCode(
-  //   @Root() root: PersonalGeneralRoot,
-  //   @Args('code') code: string,
-  // ): Promise<Character> {
-  //   const [effort, talent] = code.split(',');
-  //   return findPokemon(parseInt(effort), parseInt(talent));
-  // }
-
+  // test 함수. 이후 진짜 test 파일로 분리해야 합니다.
   // @ResolveField((_returns) => String)
   // async characterTest() {
   //   await this.personalGeneralCharacterService.test();

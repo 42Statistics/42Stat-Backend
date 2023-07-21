@@ -12,7 +12,10 @@ import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { UserRank } from 'src/common/models/common.user.model';
-import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import {
+  DateTemplate,
+  DateTemplateArgs,
+} from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
@@ -42,9 +45,22 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.pesronalEvalProfile(targetUserId);
   }
 
-  @ResolveField((_returns) => Int)
+  /**
+   *
+   * @deprecated
+   * @use countByDateTemplate
+   */
+  @ResolveField((_returns) => Int, {
+    deprecationReason: 'byDateTemplate 사용하도록 통일',
+  })
   async totalCount(@Root() root: PersonalEvalRoot): Promise<number> {
-    return await this.personalEvalService.count(root.userProfile.id);
+    const countByDateTempate =
+      await this.personalEvalService.countByDateTemplate(
+        root.userProfile.id,
+        DateTemplate.TOTAL,
+      );
+
+    return countByDateTempate.data.valueOf();
   }
 
   @ResolveField((_returns) => IntDateRanged)
