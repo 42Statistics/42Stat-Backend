@@ -24,9 +24,9 @@ import { PersonalGeneralService } from './personal.general.service';
 @Resolver((_of: unknown) => PersonalGeneral)
 export class PersonalGeneralResolver {
   constructor(
-    private personalGeneralService: PersonalGeneralService,
-    private personalUtilService: PersonalUtilService,
-    private personalGeneralCharacterService: PersonalGeneralCharacterService,
+    private readonly personalGeneralService: PersonalGeneralService,
+    private readonly personalUtilService: PersonalUtilService,
+    private readonly personalGeneralCharacterService: PersonalGeneralCharacterService,
   ) {}
 
   @Query((_returns) => PersonalGeneral)

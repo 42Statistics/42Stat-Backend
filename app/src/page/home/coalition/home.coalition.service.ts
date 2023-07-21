@@ -16,9 +16,9 @@ import type {
 @Injectable()
 export class HomeCoalitionService {
   constructor(
-    private scoreService: ScoreService,
-    private scoreCacheService: ScoreCacheService,
-    private dateRangeService: DateRangeService,
+    private readonly scoreService: ScoreService,
+    private readonly scoreCacheService: ScoreCacheService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   async totalScoresPerCoalition(): Promise<IntPerCoalition[]> {

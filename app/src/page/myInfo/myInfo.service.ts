@@ -27,17 +27,17 @@ import type { MyInfoRoot } from './models/myInfo.model';
 @Injectable()
 export class MyInfoService {
   constructor(
-    private cursusUserService: CursusUserService,
-    private cursusUserCacheService: CursusUserCacheService,
-    private questsUserService: QuestsUserService,
-    private teamService: TeamService,
-    private experienceUserService: ExperienceUserService,
-    private experienceUserCacheService: ExperienceUserCacheService,
-    private scoreService: ScoreService,
-    private scoreCacheService: ScoreCacheService,
-    private scaleTeamService: ScaleTeamService,
-    private scaleTeamCacheService: ScaleTeamCacheService,
-    private dateRangeService: DateRangeService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
+    private readonly questsUserService: QuestsUserService,
+    private readonly teamService: TeamService,
+    private readonly experienceUserService: ExperienceUserService,
+    private readonly experienceUserCacheService: ExperienceUserCacheService,
+    private readonly scoreService: ScoreService,
+    private readonly scoreCacheService: ScoreCacheService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly scaleTeamCacheService: ScaleTeamCacheService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()

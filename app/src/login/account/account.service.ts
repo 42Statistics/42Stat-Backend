@@ -13,7 +13,7 @@ import {
 export class AccountService {
   constructor(
     @InjectModel(account.name)
-    private accountModel: Model<account>,
+    private readonly accountModel: Model<account>,
   ) {}
 
   async create(userId: number): Promise<account> {

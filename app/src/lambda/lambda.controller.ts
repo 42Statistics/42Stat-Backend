@@ -10,7 +10,7 @@ import { LambdaService } from './lambda.service';
 
 @Controller('lambda')
 export class LambdaController {
-  constructor(private lambdaService: LambdaService) {}
+  constructor(private readonly lambdaService: LambdaService) {}
 
   @Post()
   @HttpCode(HttpStatus.OK)

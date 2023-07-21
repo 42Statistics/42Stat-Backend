@@ -11,7 +11,7 @@ import { MyInfoService } from './myInfo.service';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => MyInfo)
 export class MyInfoResolver {
-  constructor(private myInfoService: MyInfoService) {}
+  constructor(private readonly myInfoService: MyInfoService) {}
 
   @Query((_returns) => MyInfo)
   async getMyInfo(@MyUserId() myUserId: number): Promise<MyInfoRoot> {

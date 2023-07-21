@@ -7,11 +7,11 @@ import { ONRETURN } from './cache.decorator.onReturn.symbol';
 @Injectable()
 export class CacheDecoratorOnReturnRegister implements OnModuleInit {
   constructor(
-    private discoveryService: DiscoveryService,
-    private metadataScanner: MetadataScanner,
-    private reflactor: Reflector,
+    private readonly discoveryService: DiscoveryService,
+    private readonly metadataScanner: MetadataScanner,
+    private readonly reflactor: Reflector,
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache,
+    private readonly cacheManager: Cache,
   ) {}
 
   onModuleInit() {

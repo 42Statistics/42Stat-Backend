@@ -18,7 +18,7 @@ import {
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeUser)
 export class HomeUserResolver {
-  constructor(private homeUserService: HomeUserService) {}
+  constructor(private readonly homeUserService: HomeUserService) {}
 
   @Query((_of) => HomeUser)
   async getHomeUser() {

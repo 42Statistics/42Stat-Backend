@@ -6,7 +6,7 @@ import { ProjectService } from './project.service';
 
 @Resolver((_of: unknown) => Project)
 export class ProjectResolver {
-  constructor(private projectService: ProjectService) {}
+  constructor(private readonly projectService: ProjectService) {}
 
   @Query((_returns) => [ProjectPreview])
   async findProjectPreview(

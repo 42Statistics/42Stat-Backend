@@ -24,7 +24,7 @@ const enum PartitionState {
 export class LocationService {
   constructor(
     @InjectModel(location.name)
-    private locationModel: Model<location>,
+    private readonly locationModel: Model<location>,
   ) {}
 
   async preferredTime(

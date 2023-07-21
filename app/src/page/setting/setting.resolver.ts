@@ -10,7 +10,7 @@ import { SettingService } from './setting.service';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => Setting)
 export class SettingResolver {
-  constructor(private settingService: SettingService) {}
+  constructor(private readonly settingService: SettingService) {}
 
   @Query((_returns) => Setting)
   async getSetting(@MyUserId() myUserId: number): Promise<Setting> {

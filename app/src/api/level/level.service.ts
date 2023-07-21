@@ -8,7 +8,7 @@ import { level, type LevelDocument } from './db/level.database.schema';
 export class LevelService {
   constructor(
     @InjectModel(level.name)
-    private levelModel: Model<level>,
+    private readonly levelModel: Model<level>,
   ) {}
 
   async findAll(queryArgs?: QueryArgs<level>): Promise<LevelDocument[]> {

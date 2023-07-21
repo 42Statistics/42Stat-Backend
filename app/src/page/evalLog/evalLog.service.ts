@@ -23,10 +23,10 @@ type EvalLogCursorField = [number, Date];
 @Injectable()
 export class EvalLogService {
   constructor(
-    private scaleTeamService: ScaleTeamService,
-    private projectService: ProjectService,
-    private cursusUserService: CursusUserService,
-    private paginationCursorService: PaginationCursorService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly projectService: ProjectService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly paginationCursorService: PaginationCursorService,
   ) {}
 
   async evalLogs({

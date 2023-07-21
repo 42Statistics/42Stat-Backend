@@ -1,6 +1,5 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model } from 'mongoose';
+import type { FilterQuery } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { LevelRecord } from 'src/page/personal/general/models/personal.general.model';
@@ -16,11 +15,8 @@ import { experience_user } from './db/experienceUser.database.schema';
 @Injectable()
 export class ExperienceUserService {
   constructor(
-    // eslint-disable-next-line
-    @InjectModel(experience_user.name)
-    private experienceUserModel: Model<experience_user>,
-    private cursusUserService: CursusUserService,
-    private levelService: LevelService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly levelService: LevelService,
   ) {}
 
   async increamentRanking(

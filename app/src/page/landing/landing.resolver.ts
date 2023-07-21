@@ -7,7 +7,7 @@ import { Landing } from './models/landing.model';
 @UseFilters(HttpExceptionFilter)
 @Resolver((_of: unknown) => Landing)
 export class LandingResolver {
-  constructor(private landingService: LandingService) {}
+  constructor(private readonly landingService: LandingService) {}
 
   @Query((_returns) => Landing)
   async getLanding(): Promise<Landing> {

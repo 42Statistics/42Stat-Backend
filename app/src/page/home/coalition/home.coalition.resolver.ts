@@ -15,7 +15,7 @@ import {
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeCoalition)
 export class HomeCoalitionResolver {
-  constructor(private homeCoalitionService: HomeCoalitionService) {}
+  constructor(private readonly homeCoalitionService: HomeCoalitionService) {}
 
   @Query((_of) => HomeCoalition)
   async getHomeCoalition() {

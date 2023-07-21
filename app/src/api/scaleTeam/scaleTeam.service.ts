@@ -24,8 +24,8 @@ export const OUTSTANDING_FLAG_ID = 9;
 export class ScaleTeamService {
   constructor(
     @InjectModel(scale_team.name)
-    private scaleTeamModel: Model<scale_team>,
-    private cursusUserService: CursusUserService,
+    private readonly scaleTeamModel: Model<scale_team>,
+    private readonly cursusUserService: CursusUserService,
   ) {}
 
   async findAll(

@@ -15,9 +15,9 @@ import {
 @Injectable()
 export class ProjectInfoService {
   constructor(
-    private projectService: ProjectService,
-    private projectSessionService: ProjectSessionService,
-    private teamService: TeamService,
+    private readonly projectService: ProjectService,
+    private readonly projectSessionService: ProjectSessionService,
+    private readonly teamService: TeamService,
   ) {}
 
   async projectInfo(projectName: string): Promise<ProjectInfo> {

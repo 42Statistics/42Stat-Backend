@@ -17,7 +17,9 @@ import { LeaderboardScore } from './models/leaderboard.score.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => LeaderboardScore)
 export class LeaderboardScoreResolver {
-  constructor(private leaderboardScoreService: LeaderboardScoreService) {}
+  constructor(
+    private readonly leaderboardScoreService: LeaderboardScoreService,
+  ) {}
 
   @Query((_returns) => LeaderboardScore)
   async getLeaderboardScore() {

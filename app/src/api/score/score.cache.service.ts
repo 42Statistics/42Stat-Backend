@@ -20,7 +20,7 @@ export type ScoreRecordsKey = typeof SCORE_RECORDS;
 
 @Injectable()
 export class ScoreCacheService {
-  constructor(private cacheUtilService: CacheUtilService) {}
+  constructor(private readonly cacheUtilService: CacheUtilService) {}
 
   async getScoreRank(
     dateTemplate: ScoreRankingSupportedDateTemplate,

@@ -15,11 +15,11 @@ import type { PersonalEvalRoot } from './models/personal.eval.model';
 @Injectable()
 export class PersonalEvalService {
   constructor(
-    private teamService: TeamService,
-    private scaleTeamService: ScaleTeamService,
-    private dateRangeService: DateRangeService,
-    private cursusUserSevice: CursusUserService,
-    private cursusUserCacheService: CursusUserCacheService,
+    private readonly teamService: TeamService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly dateRangeService: DateRangeService,
+    private readonly cursusUserSevice: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
   ) {}
 
   @CacheOnReturn()

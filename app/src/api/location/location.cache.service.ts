@@ -15,7 +15,7 @@ export const LOGTIME_RANKING = 'logtimeRanking';
 
 @Injectable()
 export class LocationCacheService {
-  constructor(private cacheUtilService: CacheUtilService) {}
+  constructor(private readonly cacheUtilService: CacheUtilService) {}
 
   async getLogtimeRank(
     dateTemplate: LogtimeRankingCacheSupportedDateTemplate,

@@ -27,7 +27,7 @@ export const SEOUL_CAMPUS_ID = 29;
 export class ProjectService {
   constructor(
     @InjectModel(project.name)
-    private projectModel: Model<project>,
+    private readonly projectModel: Model<project>,
   ) {}
 
   async findAll(queryArgs?: QueryArgs<project>): Promise<ProjectDocument[]> {

@@ -10,7 +10,7 @@ export const SEOUL_COALITION_ID = [85, 86, 87, 88] as const;
 export class CoalitionService {
   constructor(
     @InjectModel(coalition.name)
-    private coalitionModel: Model<coalition>,
+    private readonly coalitionModel: Model<coalition>,
   ) {}
 
   async findAll(queryArgs?: QueryArgs<coalition>): Promise<coalition[]> {

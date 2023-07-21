@@ -17,9 +17,9 @@ import {
 @Injectable()
 export class LeaderboardLevelService {
   constructor(
-    private leaderboardUtilService: LeaderboardUtilService,
-    private cursusUserService: CursusUserService,
-    private cursusUserCacheService: CursusUserCacheService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
   ) {}
 
   rankingByDateTemplate: RankingByDateTemplateFn<cursus_user> = async (

@@ -41,7 +41,7 @@ import {
 export class CursusUserService {
   constructor(
     @InjectModel(cursus_user.name)
-    private cursusUserModel: Model<cursus_user>,
+    private readonly cursusUserModel: Model<cursus_user>,
   ) {}
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {

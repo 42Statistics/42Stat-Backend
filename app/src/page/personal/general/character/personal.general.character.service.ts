@@ -38,12 +38,12 @@ type ProjectsUserForCharacter = Pick<projects_user, 'finalMark'> & {
 @Injectable()
 export class PersonalGeneralCharacterService {
   constructor(
-    private cursusUserCacheService: CursusUserCacheService,
-    private projectsUserService: ProjectsUserService,
-    private questsUserService: QuestsUserService,
-    private locationCacheService: LocationCacheService,
-    private scaleTeamService: ScaleTeamService,
-    private scaleTeamCacheService: ScaleTeamCacheService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
+    private readonly projectsUserService: ProjectsUserService,
+    private readonly questsUserService: QuestsUserService,
+    private readonly locationCacheService: LocationCacheService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly scaleTeamCacheService: ScaleTeamCacheService,
   ) {}
 
   @CacheOnReturn()

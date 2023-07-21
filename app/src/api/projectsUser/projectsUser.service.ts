@@ -15,7 +15,7 @@ import {
 export class ProjectsUserService {
   constructor(
     @InjectModel(projects_user.name)
-    private projectsUserModel: Model<projects_user>,
+    private readonly projectsUserModel: Model<projects_user>,
   ) {}
 
   async findAll(

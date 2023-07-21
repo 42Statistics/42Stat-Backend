@@ -47,12 +47,12 @@ export const LAMBDA_UPDATED_AT = 'lambdaUpdatedAt';
 @Injectable()
 export class LambdaService {
   constructor(
-    private cacheUtilService: CacheUtilService,
-    private cursusUserService: CursusUserService,
-    private scaleTeamService: ScaleTeamService,
-    private scoreService: ScoreService,
-    private experienceUserService: ExperienceUserService,
-    private locationService: LocationService,
+    private readonly cacheUtilService: CacheUtilService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly scoreService: ScoreService,
+    private readonly experienceUserService: ExperienceUserService,
+    private readonly locationService: LocationService,
   ) {}
 
   async updatePreloadCache(timestamp: number) {

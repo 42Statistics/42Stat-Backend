@@ -17,7 +17,9 @@ import { LeaderboardEval } from './models/leaderboard.eval.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => LeaderboardEval)
 export class LeaderboardEvalResolver {
-  constructor(private leaderboardEvalService: LeaderboardEvalService) {}
+  constructor(
+    private readonly leaderboardEvalService: LeaderboardEvalService,
+  ) {}
 
   @Query((_returns) => LeaderboardEval)
   async getLeaderboardEvalCount() {

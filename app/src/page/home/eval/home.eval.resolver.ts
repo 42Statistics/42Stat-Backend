@@ -14,7 +14,7 @@ import { HomeEval } from './models/home.eval.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeEval)
 export class HomeEvalResolver {
-  constructor(private homeEvalService: HomeEvalService) {}
+  constructor(private readonly homeEvalService: HomeEvalService) {}
 
   @Query((_of) => HomeEval)
   async getHomeEval() {

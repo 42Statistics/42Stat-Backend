@@ -15,7 +15,7 @@ import {
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeTeam)
 export class HomeTeamResolver {
-  constructor(private homeTeamService: HomeTeamService) {}
+  constructor(private readonly homeTeamService: HomeTeamService) {}
 
   @Query((_of) => HomeTeam)
   async getHomeTeam() {
