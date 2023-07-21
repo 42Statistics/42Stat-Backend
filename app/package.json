@@ -1,8 +1,8 @@
 {
   "name": "42stat",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "",
-  "author": "",
+  "author": "jpham005, niamu01",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
