@@ -18,7 +18,7 @@ import type { UserRank } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
 
 @Injectable()
@@ -32,12 +32,12 @@ export class HomeUserService {
 
   @CacheOnReturn()
   async aliveUserCountRecords(): Promise<IntRecord[]> {
-    const now = new StatDate();
+    const now = new DateWrapper();
     const lastYear = now.startOfMonth().moveMonth(1).moveYear(-1);
 
     const dateRange: DateRange = {
-      start: lastYear,
-      end: now,
+      start: lastYear.toDate(),
+      end: now.toDate(),
     };
 
     const newPromoCounts = await this.cursusUserService.userCountPerMonth(
@@ -50,12 +50,12 @@ export class HomeUserService {
       dateRange,
     );
 
-    const dates = StatDate.partitionByMonth(dateRange);
+    const dates = DateWrapper.partitionByMonth(dateRange);
 
     return dates.reduce(
       ([valueRecords, aliveUserCount], date, index) => {
-        const newPromo = StatDate.getValueByDate(date, newPromoCounts);
-        const blackholed = StatDate.getValueByDate(date, blackholedCounts);
+        const newPromo = DateWrapper.getValueByDate(date, newPromoCounts);
+        const blackholed = DateWrapper.getValueByDate(date, blackholedCounts);
 
         const currAliveUserCount = aliveUserCount + newPromo - blackholed;
 
@@ -123,7 +123,7 @@ export class HomeUserService {
     start,
     end,
   }: DateRange): Promise<IntDateRanged> {
-    const now = new StatDate();
+    const now = new Date();
 
     const dateRange: DateRange = {
       start,

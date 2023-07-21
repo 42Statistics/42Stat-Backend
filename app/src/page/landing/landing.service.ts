@@ -7,7 +7,7 @@ import {
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { Landing } from './models/landing.model';
 
 @Injectable()
@@ -18,13 +18,11 @@ export class LandingService {
     private readonly projectsUserService: ProjectsUserService,
   ) {}
 
-  @CacheOnReturn(StatDate.MIN * 10)
+  @CacheOnReturn(DateWrapper.MIN * 10)
   async landing(): Promise<Landing> {
     const daysAfterBeginAt = Math.floor(
-      StatDate.dateGap(
-        new StatDate(),
-        new StatDate('2020-01-20T00:00:00.000Z'),
-      ) / StatDate.DAY,
+      DateWrapper.dateGap(new Date(), new Date('2020-01-20T00:00:00.000Z')) /
+        DateWrapper.DAY,
     );
 
     const aliveCount = await this.cursusUserService.userCount(aliveUserFilter);

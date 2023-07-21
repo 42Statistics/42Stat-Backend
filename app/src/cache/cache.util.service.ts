@@ -9,7 +9,7 @@ import type {
 } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 
 const USER_FULL_PROFILE = 'userFullProfile';
 
@@ -68,7 +68,7 @@ export class CacheUtilService {
     await this.cacheManager.set(
       key,
       { data, updatedAt },
-      ttl ?? StatDate.DAY * 15,
+      ttl ?? DateWrapper.DAY * 15,
     );
   }
 
@@ -286,9 +286,13 @@ const isReusable = (
     case DateTemplate.TOTAL:
       return true;
     case DateTemplate.CURR_WEEK:
-      return cacheUpdatedAt.getTime() >= StatDate.currWeek().getTime();
+      return (
+        cacheUpdatedAt.getTime() >= DateWrapper.currWeek().toDate().getTime()
+      );
     case DateTemplate.CURR_MONTH:
-      return cacheUpdatedAt.getTime() >= StatDate.currMonth().getTime();
+      return (
+        cacheUpdatedAt.getTime() >= DateWrapper.currMonth().toDate().getTime()
+      );
     default:
       return false;
   }
@@ -305,7 +309,9 @@ const isUpToDate = (
     case DateTemplate.CURR_MONTH:
       return cacheUpdatedAt.getTime() === newUpdatedAt.getTime();
     case DateTemplate.LAST_MONTH:
-      return cacheUpdatedAt.getTime() === StatDate.lastMonth().getTime();
+      return (
+        cacheUpdatedAt.getTime() === DateWrapper.lastMonth().toDate().getTime()
+      );
     default:
       return false;
   }

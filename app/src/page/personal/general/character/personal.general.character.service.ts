@@ -24,7 +24,7 @@ import {
   SCORE_TABLE,
   Table,
 } from 'src/page/personal/general/character/personal.general.characer.table';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { Character } from './models/personal.general.character.model';
 import { findPokemon } from './personal.general.character.pokemon';
 
@@ -252,7 +252,8 @@ export class PersonalGeneralCharacterService {
   ): number {
     const commonCoreDuration = commonCoreEnd
       ? Math.floor(
-          (commonCoreEnd.getTime() - commonCoreBegin.getTime()) / StatDate.DAY,
+          (commonCoreEnd.getTime() - commonCoreBegin.getTime()) /
+            DateWrapper.DAY,
         )
       : null;
 

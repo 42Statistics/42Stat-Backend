@@ -27,7 +27,7 @@ import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SettingModule } from './page/setting/setting.module';
-import { StatDate } from './statDate/StatDate';
+import { DateWrapper } from './statDate/StatDate';
 
 @Module({
   imports: [
@@ -47,7 +47,7 @@ import { StatDate } from './statDate/StatDate';
       isGlobal: true,
       store: new ShallowStore({
         max: 100000,
-        ttl: StatDate.MIN * 3,
+        ttl: DateWrapper.MIN * 3,
       }),
     }),
     LoginModule,

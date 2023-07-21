@@ -4,7 +4,7 @@ import type { FilterQuery, Model } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import { PROJECT_BASE_URL } from '../project/project.service';
 import {
   projects_user,
@@ -36,7 +36,7 @@ export class ProjectsUserService {
       .match({
         ...filter,
         status: 'in_progress',
-        createdAt: { $gte: new StatDate().moveMonth(-4) },
+        createdAt: { $gte: new DateWrapper().moveMonth(-4).toDate() },
       })
       .group({
         _id: '$project.id',

@@ -4,7 +4,7 @@ import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type {
   ExamResult,
   ExamResultDateRanged,
@@ -28,7 +28,7 @@ export class HomeTeamService {
   @CacheOnReturn()
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
     const targetExam = await this.examService.findOne({
-      filter: { endAt: { $lt: new StatDate() } },
+      filter: { endAt: { $lt: new Date() } },
       sort: { beginAt: -1 },
       skip: after,
     });
@@ -37,7 +37,9 @@ export class HomeTeamService {
       throw new NotFoundException();
     }
 
-    const adjustTargetEndAt = new StatDate(targetExam.endAt).moveHour(1);
+    const adjustTargetEndAt = new DateWrapper(targetExam.endAt)
+      .moveHour(1)
+      .toDate();
 
     const resultPerRank = await this.teamService.examResult(
       targetExam.beginAt,
