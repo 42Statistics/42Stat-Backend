@@ -29,14 +29,14 @@ import type {
 @Injectable()
 export class PersonalGeneralService {
   constructor(
-    private cursusUserService: CursusUserService,
-    private cursusUserCacheService: CursusUserCacheService,
-    private locationService: LocationService,
-    private scoreService: ScoreService,
-    private scoreCacheService: ScoreCacheService,
-    private teamService: TeamService,
-    private experineceUserService: ExperienceUserService,
-    private dateRangeService: DateRangeService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
+    private readonly locationService: LocationService,
+    private readonly scoreService: ScoreService,
+    private readonly scoreCacheService: ScoreCacheService,
+    private readonly teamService: TeamService,
+    private readonly experineceUserService: ExperienceUserService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()

@@ -15,7 +15,7 @@ export const EXAM_PROJECT_IDS = [1320, 1321, 1322, 1323, 1324];
 export class ExamService {
   constructor(
     @InjectModel(exam.name)
-    private examModel: Model<exam>,
+    private readonly examModel: Model<exam>,
   ) {}
 
   async findAll(queryArgs?: QueryArgs<exam>): Promise<ExamDocument[]> {

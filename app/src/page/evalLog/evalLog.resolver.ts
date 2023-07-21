@@ -10,7 +10,7 @@ import { EvalLog, EvalLogsPaginated } from './models/evalLog.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => EvalLog)
 export class EvalLogResolver {
-  constructor(private evalLogService: EvalLogService) {}
+  constructor(private readonly evalLogService: EvalLogService) {}
 
   @Query((_returns) => EvalLogsPaginated)
   async getEvalLogs(@Args() args: GetEvalLogsArgs): Promise<EvalLogsPaginated> {

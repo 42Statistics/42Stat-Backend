@@ -14,9 +14,9 @@ import {
 @Injectable()
 export class LeaderboardEvalService {
   constructor(
-    private leaderboardUtilService: LeaderboardUtilService,
-    private scaleTeamService: ScaleTeamService,
-    private scaleTeamCacheService: ScaleTeamCacheService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly scaleTeamCacheService: ScaleTeamCacheService,
   ) {}
 
   rankingByDateTemplate: RankingByDateTemplateFn<

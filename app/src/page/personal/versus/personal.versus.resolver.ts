@@ -12,8 +12,8 @@ import { PersonalVersusService } from './personal.versus.service';
 @Resolver((_of: unknown) => PersonalVersus)
 export class PersonalVersusResolver {
   constructor(
-    private personalVersusService: PersonalVersusService,
-    private personalUtilService: PersonalUtilService,
+    private readonly personalVersusService: PersonalVersusService,
+    private readonly personalUtilService: PersonalUtilService,
   ) {}
 
   @Query((_returns) => PersonalVersus, { nullable: true })

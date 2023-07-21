@@ -5,7 +5,7 @@ import { userSearchInput } from './dtos/cursusUser.dto';
 
 @Resolver((_of: unknown) => UserPreview)
 export class CursusUserResolver {
-  constructor(private cursusUserService: CursusUserService) {}
+  constructor(private readonly cursusUserService: CursusUserService) {}
 
   @Query((_returns) => [UserPreview])
   async findUserPreview(

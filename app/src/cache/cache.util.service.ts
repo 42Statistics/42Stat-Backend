@@ -41,8 +41,8 @@ type QueryRankingFn = (dateRange: DateRange) => Promise<UserRank[]>;
 export class CacheUtilService {
   constructor(
     @Inject(CACHE_MANAGER)
-    private cacheManager: Cache,
-    private dateRangeService: DateRangeService,
+    private readonly cacheManager: Cache,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   async get<T>(key: string): Promise<T | undefined> {

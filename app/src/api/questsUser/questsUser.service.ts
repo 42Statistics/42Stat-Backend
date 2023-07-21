@@ -23,13 +23,13 @@ export const INNER_QUEST_IDS = [
 export class QuestsUserService {
   constructor(
     @InjectModel(quests_user.name)
-    private questUserModel: Model<quests_user>, //todo: s
+    private readonly questsUserModel: Model<quests_user>,
   ) {}
 
   async findOne(
     queryOneArgs: QueryOneArgs<quests_user>,
   ): Promise<QuestsUserDocument> {
-    const questsUser = await findOne(queryOneArgs)(this.questUserModel);
+    const questsUser = await findOne(queryOneArgs)(this.questsUserModel);
 
     if (!questsUser) {
       throw new NotFoundException();
@@ -39,7 +39,7 @@ export class QuestsUserService {
   }
 
   async firstCircleDuration(userId?: number): Promise<IntPerCircle> {
-    const aggregate = this.questUserModel.aggregate<IntPerCircle>();
+    const aggregate = this.questsUserModel.aggregate<IntPerCircle>();
 
     if (userId) {
       aggregate.match({ 'user.id': userId });
@@ -99,7 +99,7 @@ export class QuestsUserService {
     result.push(await this.firstCircleDuration(userId));
 
     for (let i = 0; i < questId.length - 1; i++) {
-      const aggregate = this.questUserModel.aggregate<IntPerCircle>();
+      const aggregate = this.questsUserModel.aggregate<IntPerCircle>();
 
       if (userId) {
         aggregate.match({ 'user.id': userId });

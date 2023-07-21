@@ -17,7 +17,7 @@ import { LeaderboardExp } from './models/leaderboard.exp.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => LeaderboardExp)
 export class LeaderboardExpResolver {
-  constructor(private leaderboardExpService: LeaderboardExpService) {}
+  constructor(private readonly leaderboardExpService: LeaderboardExpService) {}
 
   @Query((_returns) => LeaderboardExp)
   async getLeaderboardExpIncrement() {

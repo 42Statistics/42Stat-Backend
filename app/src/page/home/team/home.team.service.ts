@@ -14,10 +14,10 @@ import type {
 @Injectable()
 export class HomeTeamService {
   constructor(
-    private projectsUserService: ProjectsUserService,
-    private teamService: TeamService,
-    private examService: ExamService,
-    private dateRangeService: DateRangeService,
+    private readonly projectsUserService: ProjectsUserService,
+    private readonly teamService: TeamService,
+    private readonly examService: ExamService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()

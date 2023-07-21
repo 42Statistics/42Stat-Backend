@@ -15,7 +15,7 @@ export const EXP_INCREAMENT_RANKING = 'expIncRanking';
 
 @Injectable()
 export class ExperienceUserCacheService {
-  constructor(private cacheUtilService: CacheUtilService) {}
+  constructor(private readonly cacheUtilService: CacheUtilService) {}
 
   async getExpIncreamentRank(
     dateTemplate: ExpIncreamentRankingCacheSupportedDateTemplate,

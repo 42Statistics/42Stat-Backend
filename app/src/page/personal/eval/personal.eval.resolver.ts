@@ -26,8 +26,8 @@ import { PersonalEvalService } from './personal.eval.service';
 @Resolver((_of: unknown) => PersonalEval)
 export class PersonalEvalResolver {
   constructor(
-    private personalEvalService: PersonalEvalService,
-    private personalUtilService: PersonalUtilService,
+    private readonly personalEvalService: PersonalEvalService,
+    private readonly personalUtilService: PersonalUtilService,
   ) {}
 
   @Query((_returns) => PersonalEval)

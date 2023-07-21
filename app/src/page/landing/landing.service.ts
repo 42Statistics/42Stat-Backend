@@ -13,9 +13,9 @@ import type { Landing } from './models/landing.model';
 @Injectable()
 export class LandingService {
   constructor(
-    private cursusUserService: CursusUserService,
-    private scaleTeamService: ScaleTeamService,
-    private projectsUserService: ProjectsUserService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly projectsUserService: ProjectsUserService,
   ) {}
 
   @CacheOnReturn(StatDate.MIN * 10)

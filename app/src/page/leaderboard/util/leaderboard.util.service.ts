@@ -40,8 +40,8 @@ export type RankingByDateTemplateFn<
 @Injectable()
 export class LeaderboardUtilService {
   constructor(
-    private paginationIndexService: PaginationIndexService,
-    private dateRangeService: DateRangeService,
+    private readonly paginationIndexService: PaginationIndexService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   // eslint-disable-next-line

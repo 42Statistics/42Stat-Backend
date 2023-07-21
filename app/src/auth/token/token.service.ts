@@ -9,7 +9,7 @@ import { token } from './db/token.database.schema';
 export class TokenService {
   constructor(
     @InjectModel(token.name)
-    private tokenModel: Model<token>,
+    private readonly tokenModel: Model<token>,
   ) {}
 
   async create(

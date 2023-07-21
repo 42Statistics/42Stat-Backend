@@ -23,7 +23,7 @@ export type UserFullProfileCache = Awaited<
 
 @Injectable()
 export class CursusUserCacheService {
-  constructor(private cacheUtilService: CacheUtilService) {}
+  constructor(private readonly cacheUtilService: CacheUtilService) {}
 
   async getUserFullProfile(
     userId: number,

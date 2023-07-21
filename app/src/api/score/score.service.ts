@@ -24,9 +24,9 @@ import { score } from './db/score.database.schema';
 export class ScoreService {
   constructor(
     @InjectModel(score.name)
-    private scoreModel: Model<score>,
-    private coalitionService: CoalitionService,
-    private cursusUserService: CursusUserService,
+    private readonly scoreModel: Model<score>,
+    private readonly coalitionService: CoalitionService,
+    private readonly cursusUserService: CursusUserService,
   ) {}
 
   async scoreRanking(

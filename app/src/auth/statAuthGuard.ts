@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class StatAuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   async canActivate(executionContext: ExecutionContext): Promise<boolean> {
     const gqlExecutionContext = GqlExecutionContext.create(executionContext);

@@ -24,10 +24,10 @@ import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
 @Injectable()
 export class HomeUserService {
   constructor(
-    private cursusUserService: CursusUserService,
-    private cursusUserCacheService: CursusUserCacheService,
-    private questsUserService: QuestsUserService,
-    private dateRangeService: DateRangeService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
+    private readonly questsUserService: QuestsUserService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()

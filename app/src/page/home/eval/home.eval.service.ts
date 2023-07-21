@@ -20,10 +20,10 @@ import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 @Injectable()
 export class HomeEvalService {
   constructor(
-    private scaleTeamService: ScaleTeamService,
-    private scaleTeamCacheService: ScaleTeamCacheService,
-    private cursusUserService: CursusUserService,
-    private dateRangeService: DateRangeService,
+    private readonly scaleTeamService: ScaleTeamService,
+    private readonly scaleTeamCacheService: ScaleTeamCacheService,
+    private readonly cursusUserService: CursusUserService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   private async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {

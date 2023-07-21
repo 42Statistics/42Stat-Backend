@@ -24,7 +24,7 @@ import { team, type TeamDocument } from './db/team.database.schema';
 export class TeamService {
   constructor(
     @InjectModel(team.name)
-    private teamModel: Model<team>,
+    private readonly teamModel: Model<team>,
   ) {}
 
   async findAll(queryArgs?: QueryArgs<team>): Promise<TeamDocument[]> {

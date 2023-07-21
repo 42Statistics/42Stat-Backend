@@ -14,9 +14,9 @@ import {
 @Injectable()
 export class LeaderboardExpService {
   constructor(
-    private leaderboardUtilService: LeaderboardUtilService,
-    private experienceUserService: ExperienceUserService,
-    private experienceUserCacheService: ExperienceUserCacheService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
+    private readonly experienceUserService: ExperienceUserService,
+    private readonly experienceUserCacheService: ExperienceUserCacheService,
   ) {}
 
   rankingByDateTemplate: RankingByDateTemplateFn<

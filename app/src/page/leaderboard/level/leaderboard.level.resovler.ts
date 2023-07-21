@@ -17,7 +17,9 @@ import { LeaderboardLevel } from './models/leaderboard.level.model';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => LeaderboardLevel)
 export class LeaderboardLevelResolver {
-  constructor(private leaderboardLevelService: LeaderboardLevelService) {}
+  constructor(
+    private readonly leaderboardLevelService: LeaderboardLevelService,
+  ) {}
 
   @Query((_returns) => LeaderboardLevel)
   async getLeaderboardLevel() {

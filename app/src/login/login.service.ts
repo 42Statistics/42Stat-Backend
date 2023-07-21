@@ -31,9 +31,9 @@ import type {
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
-  private jwt;
-  private ftClient;
-  private googleClient;
+  private readonly jwt;
+  private readonly ftClient;
+  private readonly googleClient;
 
   constructor(
     private readonly accountService: AccountService,

@@ -27,7 +27,7 @@ type AverageReviewLengthCache = Awaited<
 
 @Injectable()
 export class ScaleTeamCacheService {
-  constructor(private cacheUtilService: CacheUtilService) {}
+  constructor(private readonly cacheUtilService: CacheUtilService) {}
 
   async getEvalCountRank(
     dateTemplate: EvalCountRankingSupportedDateTemplate,

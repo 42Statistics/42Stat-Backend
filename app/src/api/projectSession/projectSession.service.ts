@@ -14,7 +14,7 @@ import {
 export class ProjectSessionService {
   constructor(
     @InjectModel(project_session.name)
-    private projectSessionModel: Model<project_session>,
+    private readonly projectSessionModel: Model<project_session>,
   ) {}
 
   async projectSessionInfo(projectId: number): Promise<ProjectSessionInfo> {

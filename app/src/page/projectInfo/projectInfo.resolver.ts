@@ -9,7 +9,7 @@ import { ProjectInfoService } from './projectInfo.service';
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => ProjectInfo)
 export class ProjectInfoResolver {
-  constructor(private projectInfoService: ProjectInfoService) {}
+  constructor(private readonly projectInfoService: ProjectInfoService) {}
 
   @Query((_returns) => ProjectInfo)
   async getProjectInfo(

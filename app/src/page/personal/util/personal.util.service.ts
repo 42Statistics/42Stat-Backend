@@ -3,7 +3,7 @@ import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 
 @Injectable()
 export class PersonalUtilService {
-  constructor(private cursusUserService: CursusUserService) {}
+  constructor(private readonly cursusUserService: CursusUserService) {}
 
   async selectUserId(
     myId: number,
