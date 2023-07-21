@@ -32,8 +32,6 @@ import { DateWrapper } from './statDate/StatDate';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      // isGlobal: true,
-      // cache: true,
       envFilePath: '../env/.env',
       load: [
         databaseConfig,
