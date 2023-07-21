@@ -21,4 +21,5 @@ import { LoginService } from './login.service';
   providers: [LoginResolver, LoginService],
   exports: [LoginService],
 })
+// eslint-disable-next-line
 export class LoginModule {}

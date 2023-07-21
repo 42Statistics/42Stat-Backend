@@ -1,5 +1,5 @@
-import { registerAs } from "@nestjs/config";
+import { registerAs } from '@nestjs/config';
 
 export default registerAs('timezone', () => ({
-    TIMEZONE: process.env.TZ,
-}))
+  TIMEZONE: process.env.TZ,
+}));

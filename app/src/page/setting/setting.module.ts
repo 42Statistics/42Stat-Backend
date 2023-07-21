@@ -7,5 +7,5 @@ import { SettingService } from './setting.service';
   imports: [AccountModule],
   providers: [SettingResolver, SettingService],
 })
-// eslint-diable-next-line
+// eslint-disable-next-line
 export class SettingModule {}
