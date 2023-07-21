@@ -1,7 +1,7 @@
 import type { CacheStore } from '@nestjs/cache-manager';
 import type { Milliseconds } from 'cache-manager';
 import { LRUCache } from 'lru-cache';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 
 const clone = <T>(value: T): object => {
   if (typeof value === 'object') {
@@ -22,7 +22,7 @@ export class ShallowStore implements CacheStore {
     this.lruOpts = {
       ttlAutopurge: true,
       max: args?.max ?? 100000,
-      ttl: args?.ttl ?? StatDate.MIN * 3,
+      ttl: args?.ttl ?? DateWrapper.MIN * 3,
     };
 
     this.lruCache = new LRUCache(this.lruOpts);

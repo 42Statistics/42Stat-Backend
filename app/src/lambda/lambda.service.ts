@@ -35,7 +35,7 @@ import {
 } from 'src/cache/cache.util.service';
 import { assertExist } from 'src/common/assertExist';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 
 type UpdateRankingByDateTemplateFn = (
   updatedAt: Date,
@@ -56,7 +56,7 @@ export class LambdaService {
   ) {}
 
   async updatePreloadCache(timestamp: number) {
-    const updatedAt = new StatDate(timestamp);
+    const updatedAt = new Date(timestamp);
 
     if (isNaN(updatedAt.getTime())) {
       throw new BadRequestException();
@@ -208,12 +208,12 @@ export class LambdaService {
   }
 
   private async updateScoreRecords(updatedAt: Date): Promise<void> {
-    const currMonth = StatDate.currMonth();
+    const currMonth = DateWrapper.currMonth();
     const lastYear = currMonth.moveYear(-1);
 
     const dateRange: DateRange = {
-      start: lastYear,
-      end: currMonth,
+      start: lastYear.toDate(),
+      end: currMonth.toDate(),
     };
 
     const scoreRecords = await this.scoreService.scoreRecordsPerCoalition(

@@ -14,7 +14,7 @@ import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onRe
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type {
   LevelRecord,
   PersonalGeneralRoot,
@@ -223,17 +223,17 @@ export class PersonalGeneralService {
     });
   }
 
-  @CacheOnReturn(StatDate.MIN * 10)
+  @CacheOnReturn(DateWrapper.MIN * 10)
   async promoLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
-      ...promoFilter(new StatDate(beginAt)),
+      ...promoFilter(beginAt),
     });
   }
 
-  @CacheOnReturn(StatDate.MIN * 10)
+  @CacheOnReturn(DateWrapper.MIN * 10)
   async promoMemberLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
-      ...promoFilter(new StatDate(beginAt)),
+      ...promoFilter(beginAt),
       grade: 'Member',
     });
   }

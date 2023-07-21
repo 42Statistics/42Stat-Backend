@@ -20,7 +20,7 @@ import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onRe
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
 import type { MyInfoRoot } from './models/myInfo.model';
 
@@ -73,7 +73,7 @@ export class MyInfoService {
     }
 
     const dateGap = Math.floor(
-      StatDate.dateGap(new StatDate(), validatedAt) / StatDate.DAY,
+      DateWrapper.dateGap(new Date(), validatedAt) / DateWrapper.DAY,
     );
 
     return dateGap < 8;

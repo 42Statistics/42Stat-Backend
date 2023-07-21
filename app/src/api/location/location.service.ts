@@ -8,7 +8,7 @@ import type {
 } from 'src/common/models/common.user.model';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { PreferredTime } from 'src/page/personal/general/models/personal.general.model';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import { locationDateRangeFilter } from './db/location.database.aggregate';
 import { location } from './db/location.database.schema';
 
@@ -32,7 +32,7 @@ export class LocationService {
     filter?: FilterQuery<location>,
   ): Promise<PreferredTime> {
     const locations = await this.locationModel
-      .find<{ beginAt: Date; endAt: Date }>({
+      .find<{ beginAt: Date; endAt?: Date }>({
         'user.id': userId,
         ...filter,
       })
@@ -41,7 +41,7 @@ export class LocationService {
     // 이제부터 날짜를 전부 millisecond 로 사용합니다
     const { total, morning, daytime, evening, night } = locations.reduce(
       (acc, { beginAt, endAt }) => {
-        const end = (endAt ?? new StatDate()).getTime();
+        const end = (endAt ?? new Date()).getTime();
 
         let state = initPartitionStateByHour(beginAt);
         let partitionPoint = initPartitionPoint(beginAt, state);
@@ -85,11 +85,11 @@ export class LocationService {
     );
 
     return {
-      total: Math.floor(total / StatDate.MIN),
-      morning: Math.floor(morning / StatDate.MIN),
-      daytime: Math.floor(daytime / StatDate.MIN),
-      evening: Math.floor(evening / StatDate.MIN),
-      night: Math.floor(night / StatDate.MIN),
+      total: Math.floor(total / DateWrapper.MIN),
+      morning: Math.floor(morning / DateWrapper.MIN),
+      daytime: Math.floor(daytime / DateWrapper.MIN),
+      evening: Math.floor(evening / DateWrapper.MIN),
+      night: Math.floor(night / DateWrapper.MIN),
     };
   }
 
@@ -204,14 +204,14 @@ const toNextPartitionState = (state: PartitionState): PartitionState =>
   ((state + 1) % PartitionState.__STATE_COUNT__) as PartitionState;
 
 const initPartitionPoint = (date: Date, state: PartitionState) => {
-  const beginPoint = new StatDate(date);
+  const beginPoint = new Date(date);
   beginPoint.setHours(state * (24 / PartitionState.__STATE_COUNT__), 0, 0, 0);
 
   return beginPoint.getTime();
 };
 
 const toNextPartitionPoint = (partitionPoint: number): number =>
-  partitionPoint + StatDate.HOUR * 6;
+  partitionPoint + DateWrapper.HOUR * 6;
 
 const sliceLogtime = (
   {
@@ -228,18 +228,18 @@ const sliceLogtime = (
   let newValue = value;
 
   if (first.beginAt < start) {
-    newValue -= StatDate.dateGap(start, first.beginAt);
+    newValue -= DateWrapper.dateGap(start, first.beginAt);
   }
 
   if (!last.endAt) {
-    const now = new StatDate();
+    const now = new Date();
 
-    newValue += StatDate.dateGap(now < end ? now : end, last.beginAt);
+    newValue += DateWrapper.dateGap(now < end ? now : end, last.beginAt);
   }
 
   if (last.endAt && end < last.endAt) {
-    newValue -= StatDate.dateGap(last.endAt, end);
+    newValue -= DateWrapper.dateGap(last.endAt, end);
   }
 
-  return Math.floor(newValue / StatDate.MIN);
+  return Math.floor(newValue / DateWrapper.MIN);
 };

@@ -6,7 +6,7 @@ import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type {
   IntPerCoalition,
   IntPerCoalitionDateRanged,
@@ -31,12 +31,12 @@ export class HomeCoalitionService {
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
     const cachedScoreRecords = await this.scoreCacheService.getScoreRecords();
 
-    const currMonth = new StatDate().startOfMonth();
+    const currMonth = new DateWrapper().startOfMonth();
     const lastYear = currMonth.moveYear(-1);
 
     const dateRange: DateRange = {
-      start: lastYear,
-      end: currMonth,
+      start: lastYear.toDate(),
+      end: currMonth.toDate(),
     };
 
     return (

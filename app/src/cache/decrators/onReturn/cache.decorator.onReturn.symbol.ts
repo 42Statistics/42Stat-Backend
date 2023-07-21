@@ -1,7 +1,7 @@
 import { SetMetadata } from '@nestjs/common';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 
-const DEFAULT_CACHE_TIME = StatDate.MIN * 2;
+const DEFAULT_CACHE_TIME = DateWrapper.MIN * 3;
 
 export const ONRETURN = Symbol('ONRETURN');
 export const CacheOnReturn = (ttl: number = DEFAULT_CACHE_TIME) =>

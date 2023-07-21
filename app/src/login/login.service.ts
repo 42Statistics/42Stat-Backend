@@ -19,7 +19,7 @@ import type { GoogleClientConfig } from 'src/config/configuration/googleClient.c
 import type { JwtConfig } from 'src/config/configuration/jwt.config';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
   Account,
@@ -315,12 +315,12 @@ export class LoginService {
    */
   @Cron('0 5 * * *')
   async deleteTokens() {
-    const beforeOneWeek = new StatDate().moveWeek(-1);
+    const beforeOneWeek = new DateWrapper().moveWeek(-1).toDate();
 
     await this.tokenService.deleteMany({
       _id: {
         $lt: mongoose.Types.ObjectId.createFromTime(
-          Math.floor(beforeOneWeek.getTime() / StatDate.SEC),
+          Math.floor(beforeOneWeek.getTime() / DateWrapper.SEC),
         ),
       },
     });

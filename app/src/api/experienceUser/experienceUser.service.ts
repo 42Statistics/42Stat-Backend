@@ -3,7 +3,7 @@ import type { FilterQuery } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { LevelRecord } from 'src/page/personal/general/models/personal.general.model';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
 import type { cursus_user } from '../cursusUser/db/cursusUser.database.schema';
@@ -72,7 +72,7 @@ export class ExperienceUserService {
                   unit: 'millisecond',
                 },
               },
-              StatDate.DAY * 30,
+              DateWrapper.DAY * 30,
             ],
           },
         },
@@ -102,7 +102,9 @@ export class ExperienceUserService {
     );
 
     const gapFromBeginAt = Math.min(
-      Math.ceil(StatDate.dateGap(new Date(), beginAt) / (StatDate.DAY * 30)),
+      Math.ceil(
+        DateWrapper.dateGap(new Date(), beginAt) / (DateWrapper.DAY * 30),
+      ),
       24,
     );
 

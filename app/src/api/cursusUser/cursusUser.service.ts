@@ -17,7 +17,7 @@ import type {
   IntPerCircle,
   UserCountPerLevel,
 } from 'src/page/home/user/models/home.user.model';
-import { StatDate } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/statDate/StatDate';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
@@ -185,7 +185,7 @@ export class CursusUserService {
     key: 'beginAt' | 'blackholedAt',
     dateRange: DateRangeArgs,
   ): Promise<AggrNumericPerDateBucket[]> {
-    const dates = StatDate.partitionByMonth(dateRange);
+    const dates = DateWrapper.partitionByMonth(dateRange);
 
     const aggregate =
       this.cursusUserModel.aggregate<AggrNumericPerDateBucket>();
