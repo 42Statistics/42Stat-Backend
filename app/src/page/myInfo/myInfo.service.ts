@@ -12,7 +12,7 @@ import {
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import type { score } from 'src/api/score/db/score.database.schema';
+import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
@@ -133,11 +133,9 @@ export class MyInfoService {
       DateTemplate.CURR_WEEK,
     );
 
-    const dateFilter: FilterQuery<score> = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
-
-    const ranking = await this.scoreService.scoreRanking(dateFilter);
+    const ranking = await this.scoreService.scoreRanking({
+      filter: scoreDateRangeFilter(dateRange),
+    });
 
     return findUserRank(ranking, userId)?.rank;
   }

@@ -7,6 +7,7 @@ import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.ser
 import { locationDateRangeFilter } from 'src/api/location/db/location.database.aggregate';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
+import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
@@ -80,14 +81,13 @@ export class PersonalGeneralService {
       dateTemplate,
     );
 
-    const dateFilter = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(
-        this.dateRangeService.dateRangeFromTemplate(dateTemplate),
-      ),
-    };
+    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     const scoreRanking =
-      scoreRankingCache ?? (await this.scoreService.scoreRanking(dateFilter));
+      scoreRankingCache ??
+      (await this.scoreService.scoreRanking({
+        filter: scoreDateRangeFilter(dateRange),
+      }));
 
     const me = scoreRanking.find(
       ({ userPreview }) => userPreview.id === userId,

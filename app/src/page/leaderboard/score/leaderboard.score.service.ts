@@ -31,7 +31,8 @@ export class LeaderboardScoreService {
       dateTemplate,
       rankingArgs,
       () => this.scoreCacheService.getScoreRanking(dateTemplate),
-      (filter?: FilterQuery<score>) => this.scoreService.scoreRanking(filter),
+      (filter?: FilterQuery<score>) =>
+        this.scoreService.scoreRanking({ filter }),
     );
   };
 }

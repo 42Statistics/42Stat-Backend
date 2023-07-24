@@ -18,10 +18,7 @@ import {
   EVAL_COUNT_RANKING,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import {
-  scoreDateRangeFilter,
-  scoreRecordsFilter,
-} from 'src/api/score/db/score.database.aggregate';
+import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import {
   SCORE_RANKING,
   SCORE_RECORDS,
@@ -31,7 +28,7 @@ import { ScoreService } from 'src/api/score/score.service';
 import {
   CacheSupportedDateTemplate,
   CacheUtilService,
-  RankingCacheMap,
+  type RankingCacheMap,
 } from 'src/cache/cache.util.service';
 import { assertExist } from 'src/common/assertExist';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
@@ -193,7 +190,9 @@ export class LambdaService {
       updatedAt,
       dateTemplate,
       (dateRange) =>
-        this.scoreService.scoreRanking(scoreDateRangeFilter(dateRange)),
+        this.scoreService.scoreRanking({
+          filter: scoreDateRangeFilter(dateRange),
+        }),
     );
   };
 
@@ -216,9 +215,9 @@ export class LambdaService {
       end: currMonth.toDate(),
     };
 
-    const scoreRecords = await this.scoreService.scoreRecordsPerCoalition(
-      scoreRecordsFilter(dateRange),
-    );
+    const scoreRecords = await this.scoreService.scoreRecordsPerCoalition({
+      filter: scoreDateRangeFilter(dateRange),
+    });
 
     await this.cacheUtilService.setWithDate(
       SCORE_RECORDS,

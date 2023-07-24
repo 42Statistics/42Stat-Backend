@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
-import { scoreRecordsFilter } from 'src/api/score/db/score.database.aggregate';
+import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
@@ -41,9 +40,9 @@ export class HomeCoalitionService {
 
     return (
       cachedScoreRecords ??
-      (await this.scoreService.scoreRecordsPerCoalition(
-        scoreRecordsFilter(dateRange),
-      ))
+      (await this.scoreService.scoreRecordsPerCoalition({
+        filter: scoreDateRangeFilter(dateRange),
+      }))
     );
   }
 
@@ -53,14 +52,9 @@ export class HomeCoalitionService {
   ): Promise<IntPerCoalitionDateRanged> {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    const dateFilter = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
-
-    const tigCountPerCoalition = await this.scoreService.tigCountPerCoalition(
-      SEOUL_COALITION_ID,
-      dateFilter,
-    );
+    const tigCountPerCoalition = await this.scoreService.tigCountPerCoalition({
+      filter: scoreDateRangeFilter(dateRange),
+    });
 
     return this.dateRangeService.toDateRanged(tigCountPerCoalition, dateRange);
   }

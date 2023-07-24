@@ -1,5 +1,4 @@
 import type { FilterQuery } from 'mongoose';
-import { SEOUL_COALITION_ID } from 'src/api/coalition/coalition.service';
 import {
   CollectionLookup,
   lookupStage,
@@ -15,12 +14,6 @@ export const scoreDateRangeFilter = ({
   end,
 }: DateRange): FilterQuery<score> => ({
   createdAt: { $gte: start, $lt: end },
-});
-
-export const scoreRecordsFilter = (dateRange: DateRange) => ({
-  ...scoreDateRangeFilter(dateRange),
-  coalitionsUserId: { $ne: null },
-  coalitionId: { $in: SEOUL_COALITION_ID },
 });
 
 /**
