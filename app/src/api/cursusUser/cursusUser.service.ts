@@ -18,7 +18,9 @@ import type {
   UserCountPerLevel,
 } from 'src/page/home/user/models/home.user.model';
 import { DateWrapper } from 'src/statDate/StatDate';
+import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
+import type { Coalition } from '../coalition/models/coalition.model';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
 import {
@@ -26,8 +28,10 @@ import {
   INNER_QUEST_IDS,
 } from '../questsUser/questsUser.service';
 import { lookupTitle } from '../title/db/title.database.aggregate';
+import type { title } from '../title/db/title.database.schema';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import type { UserFullProfile } from './db/cursusUser.database.aggregate';
+import type { titles_user } from '../titlesUser/db/titlesUser.database.schema';
+import type { UserFullProfileAggr } from './db/cursusUser.database.aggregate';
 import {
   aliveUserFilter,
   blackholedUserFilterByDateRange,
@@ -37,11 +41,20 @@ import {
   type CursusUserDocument,
 } from './db/cursusUser.database.schema';
 
+export type UserFullProfile = {
+  cursusUser: cursus_user;
+  coalition?: Coalition;
+  titlesUsers: (titles_user & {
+    titles: title;
+  })[];
+};
+
 @Injectable()
 export class CursusUserService {
   constructor(
     @InjectModel(cursus_user.name)
     private readonly cursusUserModel: Model<cursus_user>,
+    private readonly coalitionService: CoalitionService,
   ) {}
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
@@ -128,13 +141,13 @@ export class CursusUserService {
   async userFullProfile(
     filter?: FilterQuery<cursus_user>,
   ): Promise<UserFullProfile[]> {
-    const aggregate = this.cursusUserModel.aggregate<UserFullProfile>();
+    const aggregate = this.cursusUserModel.aggregate<UserFullProfileAggr>();
 
     if (filter) {
       aggregate.match(filter);
     }
 
-    const userFullProfiles = await aggregate
+    const userFullProfileAggr = await aggregate
       .addFields({
         cursusUser: '$$ROOT',
       })
@@ -156,7 +169,18 @@ export class CursusUserService {
         titlesUsers: '$titles_users',
       });
 
-    return userFullProfiles;
+    return userFullProfileAggr.map((userFullProfile) => {
+      return this.toUserFullProfileDto(userFullProfile);
+    });
+  }
+
+  private toUserFullProfileDto(dao: UserFullProfileAggr): UserFullProfile {
+    return {
+      ...dao,
+      coalition: dao.coalition
+        ? this.coalitionService.daoToDto(dao.coalition)
+        : undefined,
+    };
   }
 
   async findOneUserFullProfilebyUserId(

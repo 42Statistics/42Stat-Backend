@@ -11,14 +11,14 @@ export class Coalition {
   @Field()
   slug: string;
 
-  @Field({ nullable: true })
-  imageUrl?: string;
+  @Field()
+  imageUrl: string;
 
-  @Field({ nullable: true })
-  coverUrl?: string;
+  @Field()
+  coverUrl: string;
 
-  @Field({ nullable: true })
-  color?: string;
+  @Field()
+  color: string;
 
   @Field()
   score: number;

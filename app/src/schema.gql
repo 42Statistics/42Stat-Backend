@@ -6,9 +6,9 @@ type Coalition {
   id: Int!
   name: String!
   slug: String!
-  imageUrl: String
-  coverUrl: String
-  color: String
+  imageUrl: String!
+  coverUrl: String!
+  color: String!
   score: Int!
 
   """코알리숑 마스터의 user id 입니다."""

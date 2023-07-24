@@ -4,8 +4,10 @@ import {
   USER_LEVEL_RANKING,
   USER_WALLET_RANKING,
 } from 'src/api/cursusUser/cursusUser.cache.service';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type { UserFullProfile } from 'src/api/cursusUser/db/cursusUser.database.aggregate';
+import {
+  CursusUserService,
+  type UserFullProfile,
+} from 'src/api/cursusUser/cursusUser.service';
 import { expIncreamentDateFilter } from 'src/api/experienceUser/db/experiecneUser.database.aggregate';
 import { EXP_INCREAMENT_RANKING } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
