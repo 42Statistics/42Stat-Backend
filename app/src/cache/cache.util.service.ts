@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
-import type { UserFullProfile } from 'src/api/cursusUser/db/cursusUser.database.aggregate';
+import type { UserFullProfile } from 'src/api/cursusUser/cursusUser.service';
 import { assertExist } from 'src/common/assertExist';
 import type {
   UserPreview,

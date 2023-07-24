@@ -1,16 +1,12 @@
 import type { PipelineStage } from 'mongoose';
 import type { coalition } from 'src/api/coalition/db/coalition.database.schema';
-import type { title } from 'src/api/title/db/title.database.schema';
-import type { titles_user } from 'src/api/titlesUser/db/titlesUser.database.schema';
 import { lookupStage } from 'src/common/db/common.db.aggregation';
+import type { UserFullProfile } from '../cursusUser.service';
+// eslint-disable-next-line
 import type { cursus_user } from './cursusUser.database.schema';
 
-export type UserFullProfile = {
-  cursusUser: cursus_user;
+export type UserFullProfileAggr = Omit<UserFullProfile, 'coalition'> & {
   coalition?: coalition;
-  titlesUsers: (titles_user & {
-    titles: title;
-  })[];
 };
 
 /**
