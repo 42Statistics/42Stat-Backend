@@ -16,15 +16,15 @@ export const findOne =
     const query = model.findOne(queryOneArgs?.filter ?? {});
 
     if (queryOneArgs?.sort) {
-      query.sort(queryOneArgs?.sort);
+      query.sort(queryOneArgs.sort);
     }
 
     if (queryOneArgs?.skip) {
-      query.skip(queryOneArgs?.skip);
+      query.skip(queryOneArgs.skip);
     }
 
     if (queryOneArgs?.select) {
-      query.select(queryOneArgs?.select);
+      query.select(queryOneArgs.select);
     }
 
     return query;
@@ -36,19 +36,19 @@ export const findAll =
     const query = model.find(queryArgs?.filter ?? {});
 
     if (queryArgs?.sort) {
-      query.sort(queryArgs?.sort);
+      query.sort(queryArgs.sort);
     }
 
     if (queryArgs?.skip) {
-      query.skip(queryArgs?.skip);
+      query.skip(queryArgs.skip);
     }
 
     if (queryArgs?.limit) {
-      query.limit(queryArgs?.limit);
+      query.limit(queryArgs.limit);
     }
 
     if (queryArgs?.select) {
-      query.select(queryArgs?.select);
+      query.select(queryArgs.select);
     }
 
     return query;

@@ -6,10 +6,7 @@ import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
 } from 'src/page/home/coalition/models/home.coalition.model';
-import {
-  CoalitionService,
-  SEOUL_COALITION_ID,
-} from '../coalition/coalition.service';
+import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -29,9 +26,13 @@ export class ScoreService {
     private readonly cursusUserService: CursusUserService,
   ) {}
 
-  async scoreRanking(
-    filter?: FilterQuery<score>,
-  ): Promise<UserRankWithCoalitionId[]> {
+  async scoreRanking(args?: {
+    targetCoalitionIds?: readonly number[];
+    filter?: FilterQuery<score>;
+  }): Promise<UserRankWithCoalitionId[]> {
+    const targetCoalitionIds =
+      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+
     const aggregate =
       this.cursusUserService.aggregate<UserRankWithCoalitionId>();
 
@@ -40,7 +41,7 @@ export class ScoreService {
         lookupCoalitionsUser('user.id', 'userId', [
           {
             $match: {
-              coalitionId: { $in: SEOUL_COALITION_ID },
+              coalitionId: { $in: targetCoalitionIds },
             },
           },
         ]),
@@ -51,7 +52,7 @@ export class ScoreService {
         lookupScores(
           'coalitions_users.id',
           'coalitionsUserId',
-          filter ? [{ $match: filter }] : undefined,
+          args?.filter ? [{ $match: args.filter }] : undefined,
         ),
       )
       .addFields({
@@ -72,11 +73,19 @@ export class ScoreService {
       });
   }
 
-  async scoresPerCoalition(): Promise<IntPerCoalition[]> {
+  async scoresPerCoalition(args?: {
+    targetCoalitionIds?: readonly number[];
+  }): Promise<IntPerCoalition[]> {
+    const targetCoalitionIds =
+      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+
     const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
 
     return await aggregate
-      .match({ coalitionsUserId: { $ne: null } })
+      .match({
+        coalitionsUserId: { $ne: null },
+        coalitionId: { $in: targetCoalitionIds },
+      })
       .group({ _id: '$coalitionId', value: { $sum: '$value' } })
       .lookup({
         from: 'coalitions',
@@ -88,16 +97,21 @@ export class ScoreService {
       .project({ _id: 0, coalition: { $first: '$coalition' }, value: 1 });
   }
 
-  async scoreRecordsPerCoalition(
-    filter?: FilterQuery<score>,
-  ): Promise<ScoreRecordPerCoalition[]> {
+  async scoreRecordsPerCoalition(args?: {
+    targetCoalitionIds?: readonly number[];
+    filter?: FilterQuery<score>;
+  }): Promise<ScoreRecordPerCoalition[]> {
+    const targetCoalitionIds =
+      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+
     const aggregate = this.scoreModel.aggregate<ScoreRecordPerCoalition>();
 
-    if (filter) {
-      aggregate.match(filter);
-    }
-
     return await aggregate
+      .match({
+        ...args?.filter,
+        coalitionsUserId: { $ne: null },
+        coalitionId: { $in: targetCoalitionIds },
+      })
       .group({
         _id: {
           coalitionId: '$coalitionId',
@@ -131,14 +145,17 @@ export class ScoreService {
       .project({ _id: 0, coalition: { $first: '$coalitions' }, records: 1 });
   }
 
-  async tigCountPerCoalition(
-    targetCoalitionId: readonly number[],
-    filter?: FilterQuery<score>,
-  ): Promise<IntPerCoalition[]> {
+  async tigCountPerCoalition(args?: {
+    targetCoalitionIds?: readonly number[];
+    filter?: FilterQuery<score>;
+  }): Promise<IntPerCoalition[]> {
+    const targetCoalitionIds =
+      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+
     const aggregate = this.coalitionService.aggregate<IntPerCoalition>();
 
     return await aggregate
-      .match({ id: { $in: targetCoalitionId } })
+      .match({ id: { $in: targetCoalitionIds } })
       .addFields({
         coalition: '$$ROOT',
       })
@@ -146,7 +163,7 @@ export class ScoreService {
         lookupScores('id', 'coalitionId', [
           {
             $match: {
-              ...filter,
+              ...args?.filter,
               coalitionsUserId: { $ne: null },
               value: { $lt: 0 },
             },

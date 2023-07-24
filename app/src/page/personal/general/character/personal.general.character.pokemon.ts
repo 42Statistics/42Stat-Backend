@@ -114,7 +114,7 @@ const POKEMON = {
     name: '파이리',
     types: [POKEMON_TYPE.STARTING],
     imgUrl:
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png',
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png',
   },
   MACHOP: {
     name: '알통몬',

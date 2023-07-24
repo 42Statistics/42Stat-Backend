@@ -12,6 +12,7 @@ import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
+import { apiConfig } from './config/api';
 import { databaseConfig } from './config/database';
 import { ftClientConfig } from './config/ftClient';
 import { googleClientConfig } from './config/googleClient';
@@ -40,6 +41,7 @@ import { DateWrapper } from './statDate/StatDate';
         googleClientConfig,
         jwtConfig,
         timezoneConfig,
+        apiConfig,
       ],
     }),
     CacheModule.register({
