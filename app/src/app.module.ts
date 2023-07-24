@@ -12,11 +12,11 @@ import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
-import databaseConfig from './config/configuration/database.config';
-import ftClientConfig from './config/configuration/ftClient.config';
-import googleClientConfig from './config/configuration/googleClient.config';
-import jwtConfig from './config/configuration/jwt.config';
-import timezoneConfig from './config/configuration/timezone.config';
+import { databaseConfig } from './config/database';
+import { ftClientConfig } from './config/ftClient';
+import { googleClientConfig } from './config/googleClient';
+import { jwtConfig } from './config/jwt';
+import { timezoneConfig } from './config/timezone';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
@@ -32,6 +32,7 @@ import { DateWrapper } from './statDate/StatDate';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      isGlobal: true,
       envFilePath: '../env/.env',
       load: [
         databaseConfig,

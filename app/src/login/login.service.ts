@@ -14,9 +14,12 @@ import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import type { token } from 'src/auth/token/db/token.database.schema';
 import { TokenService } from 'src/auth/token/token.service';
-import type { FtClientConfig } from 'src/config/configuration/ftClient.config';
-import type { GoogleClientConfig } from 'src/config/configuration/googleClient.config';
-import type { JwtConfig } from 'src/config/configuration/jwt.config';
+import { FT_CLIENT_CONFIG, type FtClientConfig } from 'src/config/ftClient';
+import {
+  GOOGLE_CLIENT_CONFIG,
+  type GoogleClientConfig,
+} from 'src/config/googleClient';
+import { JWT_CONFIG, type JwtConfig } from 'src/config/jwt';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
 import { DateWrapper } from 'src/statDate/StatDate';
@@ -31,9 +34,9 @@ import type {
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
-  private readonly jwt;
-  private readonly ftClient;
-  private readonly googleClient;
+  private readonly jwtConfig;
+  private readonly ftClientConfig;
+  private readonly googleClientConfig;
 
   constructor(
     private readonly accountService: AccountService,
@@ -42,10 +45,11 @@ export class LoginService {
     private readonly jwtService: JwtService,
     private readonly tokenService: TokenService,
   ) {
-    this.jwt = this.configService.getOrThrow<JwtConfig>('jwt');
-    this.ftClient = this.configService.getOrThrow<FtClientConfig>('ftClient');
-    this.googleClient =
-      this.configService.getOrThrow<GoogleClientConfig>('googleClient');
+    this.jwtConfig = this.configService.getOrThrow<JwtConfig>(JWT_CONFIG);
+    this.ftClientConfig =
+      this.configService.getOrThrow<FtClientConfig>(FT_CLIENT_CONFIG);
+    this.googleClientConfig =
+      this.configService.getOrThrow<GoogleClientConfig>(GOOGLE_CLIENT_CONFIG);
   }
 
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
@@ -109,21 +113,21 @@ export class LoginService {
   async getFtUser(ftCode: string): Promise<number> {
     const params = new URLSearchParams();
     params.set('grant_type', 'authorization_code');
-    params.set('client_id', this.ftClient.ID);
-    params.set('client_secret', this.ftClient.SECRET);
+    params.set('client_id', this.ftClientConfig.ID);
+    params.set('client_secret', this.ftClientConfig.SECRET);
     params.set('code', ftCode);
-    params.set('redirect_uri', this.ftClient.REDIRECT_URI);
+    params.set('redirect_uri', this.ftClientConfig.REDIRECT_URI);
 
     try {
       const tokens = await lastValueFrom(
         this.httpService.post<{ access_token: string }>(
-          this.ftClient.INTRA_TOKEN_URI,
+          this.ftClientConfig.INTRA_TOKEN_URL,
           params,
         ),
       );
 
       const userInfo = await lastValueFrom(
-        this.httpService.get<{ id: number }>(this.ftClient.INTRA_ME_URI, {
+        this.httpService.get<{ id: number }>(this.ftClientConfig.INTRA_ME_URL, {
           headers: { Authorization: `Bearer ${tokens.data.access_token}` },
         }),
       );
@@ -137,11 +141,11 @@ export class LoginService {
   async generateTokenPair(userId: number): Promise<Omit<token, 'userId'>> {
     const accessToken = await this.generateToken(
       userId,
-      this.jwt.ACCESS_EXPIRES,
+      this.jwtConfig.ACCESS_EXPIRES,
     );
     const refreshToken = await this.generateToken(
       userId,
-      this.jwt.REFRESH_EXPIRES,
+      this.jwtConfig.REFRESH_EXPIRES,
     );
 
     return { accessToken, refreshToken };
@@ -164,7 +168,7 @@ export class LoginService {
     // eslint-disable-next-line
     const { sub, email, aud } = ticket.getPayload()!;
 
-    if (aud !== this.googleClient.CLIENT_ID) {
+    if (aud !== this.googleClientConfig.CLIENT_ID) {
       throw new BadRequestException();
     }
 
@@ -249,7 +253,7 @@ export class LoginService {
       { userId },
       {
         expiresIn: expiresIn,
-        secret: this.jwt.SECRET,
+        secret: this.jwtConfig.SECRET,
       },
     );
   }
@@ -269,7 +273,7 @@ export class LoginService {
 
     const accessToken = await this.generateToken(
       userId,
-      this.jwt.ACCESS_EXPIRES,
+      this.jwtConfig.ACCESS_EXPIRES,
     );
 
     const newTokens = await this.tokenService.findOneAndUpdate(
