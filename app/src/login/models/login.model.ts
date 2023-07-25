@@ -1,7 +1,7 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 
 @ObjectType()
-export class LinkedAccount {
+export class LinkableAccount {
   @Field()
   platform: string;
 
@@ -20,8 +20,8 @@ export class Account {
   @Field()
   userId: number;
 
-  @Field((_type) => [LinkedAccount])
-  linkedAccounts: LinkedAccount[];
+  @Field((_type) => [LinkableAccount])
+  linkedAccounts: LinkableAccount[];
 }
 
 @ObjectType()

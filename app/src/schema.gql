@@ -64,7 +64,7 @@ type ProjectPreview {
   url: String!
 }
 
-type LinkedAccount {
+type LinkableAccount {
   platform: String!
   id: String!
   email: String
@@ -73,7 +73,7 @@ type LinkedAccount {
 
 type Account {
   userId: Int!
-  linkedAccounts: [LinkedAccount!]!
+  linkedAccounts: [LinkableAccount!]!
 }
 
 type LoginSuccess {

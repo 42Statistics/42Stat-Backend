@@ -26,7 +26,7 @@ import { DateWrapper } from 'src/statDate/StatDate';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
   Account,
-  LinkedAccount,
+  LinkableAccount,
   LoginResult,
   LoginSuccess,
 } from './models/login.model';
@@ -55,11 +55,7 @@ export class LoginService {
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
-    const user = await this.accountService.findOne({ filter: { userId } });
-
-    if (!user) {
-      await this.createAccount(userId);
-    }
+    await this.accountService.createIfNotexist(userId);
 
     const loginUser = await this.createToken(userId);
 
@@ -80,8 +76,9 @@ export class LoginService {
     if (ftCode) {
       const userId = await this.getFtUser(ftCode);
 
-      await this.createAccount(userId);
-      await this.linkGoogle(userId, googleUser);
+      await this.accountService.createIfNotexist(userId);
+
+      await this.linkAccount(userId, googleUser);
 
       const loginUser = await this.createToken(userId);
 
@@ -90,7 +87,7 @@ export class LoginService {
 
     const linkedUser = await this.accountService.findOne({
       filter: {
-        'linkedAccounts.platform': 'google',
+        'linkedAccounts.platform': googleUser.platform,
         'linkedAccounts.id': googleUser.id,
       },
     });
@@ -155,7 +152,7 @@ export class LoginService {
    *
    * @throws {BadRequestException} 외부 사이트에서 인증된 googleInput인 경우
    */
-  async getGoogleUser(input: GoogleLoginInput): Promise<LinkedAccount> {
+  async getGoogleUser(input: GoogleLoginInput): Promise<LinkableAccount> {
     const oAuth2Client = new OAuth2Client();
 
     const ticket = await oAuth2Client.verifyIdToken({
@@ -180,10 +177,6 @@ export class LoginService {
     };
   }
 
-  async createAccount(userId: number): Promise<Account> {
-    return await this.accountService.create(userId);
-  }
-
   async createToken(userId: number): Promise<LoginSuccess> {
     const { accessToken, refreshToken } = await this.generateTokenPair(userId);
 
@@ -200,18 +193,34 @@ export class LoginService {
   }
 
   /**
-   * @throws {Error} 이미 연동되어있는 유저인 경우
+   *
+   * @throws {Error} 연동된 계정이 아닌 계정으로 로그인을 시도하였을 때
+   * @throws {Error} 다른 유저에 연동되어있는 계정인 경우
    * @throws {NotFoundException} 없는 유저인 경우
    */
-  async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
-    const linkedGoogle = await this.accountService.findOne({
+  async linkAccount(
+    userId: number,
+    account: LinkableAccount,
+  ): Promise<Account> {
+    const duplicateLinkable = await this.accountService.findOne({
       filter: {
         'linkedAccounts.id': account.id,
         'linkedAccounts.platform': account.platform,
       },
     });
 
-    if (linkedGoogle) {
+    if (duplicateLinkable) {
+      throw new Error();
+    }
+
+    const duplicatePlatform = await this.accountService.findOne({
+      filter: {
+        userId,
+        'linkedAccounts.platform': account.platform,
+      },
+    });
+
+    if (duplicatePlatform) {
       throw new Error();
     }
 
