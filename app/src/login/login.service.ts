@@ -204,11 +204,14 @@ export class LoginService {
    * @throws {NotFoundException} 없는 유저인 경우
    */
   async linkGoogle(userId: number, account: LinkedAccount): Promise<Account> {
-    const update = await this.accountService.findOne({
-      filter: { userId, 'linkedAccounts.platform': account.platform },
+    const linkedGoogle = await this.accountService.findOne({
+      filter: {
+        'linkedAccounts.id': account.id,
+        'linkedAccounts.platform': account.platform,
+      },
     });
 
-    if (update) {
+    if (linkedGoogle) {
       throw new Error();
     }
 
