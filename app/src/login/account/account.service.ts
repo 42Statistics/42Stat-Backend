@@ -16,8 +16,14 @@ export class AccountService {
     private readonly accountModel: Model<account>,
   ) {}
 
-  async create(userId: number): Promise<account> {
-    return await this.accountModel.create({ userId });
+  async createIfNotexist(userId: number): Promise<account> {
+    const user = await this.accountModel.findOne({ userId });
+
+    if (!user) {
+      return await this.accountModel.create({ userId });
+    }
+
+    return user;
   }
 
   async findOne(

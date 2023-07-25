@@ -32,7 +32,7 @@ export class LoginResolver {
     @Args('google') google: GoogleLoginInput,
   ): Promise<Account> {
     const googleUser = await this.loginService.getGoogleUser(google);
-    return await this.loginService.linkGoogle(userId, googleUser);
+    return await this.loginService.linkAccount(userId, googleUser);
   }
 
   @UseGuards(StatAuthGuard)
