@@ -17,13 +17,13 @@ export class TokenService {
     accessToken: string,
     refreshToken: string,
   ): Promise<token> {
-    const newToken = await new this.tokenModel({
-      userId,
-      accessToken,
-      refreshToken,
-    }).save();
-
-    return newToken.toObject();
+    return await this.tokenModel
+      .create({
+        userId,
+        accessToken,
+        refreshToken,
+      })
+      .then((result) => result.toObject());
   }
 
   async findOneAndUpdate(
@@ -37,14 +37,14 @@ export class TokenService {
   }
 
   async deleteOne(filter?: FilterQuery<token>): Promise<number> {
-    const { deletedCount } = await this.tokenModel.deleteOne(filter);
-
-    return deletedCount;
+    return await this.tokenModel
+      .deleteOne(filter)
+      .then((result) => result.deletedCount);
   }
 
   async deleteMany(filter?: FilterQuery<token>): Promise<number> {
-    const { deletedCount } = await this.tokenModel.deleteMany(filter);
-
-    return deletedCount;
+    return await this.tokenModel
+      .deleteMany(filter)
+      .then((result) => result.deletedCount);
   }
 }

@@ -1,4 +1,4 @@
-import type { FilterQuery, Model, SortValues } from 'mongoose';
+import type { FilterQuery, Model, QueryOptions, SortValues } from 'mongoose';
 
 export type QueryArgs<T> = Partial<{
   filter: FilterQuery<T>;
@@ -6,6 +6,7 @@ export type QueryArgs<T> = Partial<{
   sort: Record<string, SortValues>;
   limit: number;
   skip: number;
+  options?: QueryOptions<T> | null;
 }>;
 
 export type QueryOneArgs<T> = Omit<QueryArgs<T>, 'limit'>;
@@ -25,6 +26,10 @@ export const findOne =
 
     if (queryOneArgs?.select) {
       query.select(queryOneArgs.select);
+    }
+
+    if (queryOneArgs?.options?.lean) {
+      query.lean();
     }
 
     return query;

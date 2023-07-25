@@ -9,6 +9,7 @@ export class SettingService {
   async setting(userId: number): Promise<Setting> {
     const linkedAccounts = await this.accountService.findOne({
       filter: { userId },
+      options: { lean: true },
     });
 
     if (!linkedAccounts) {

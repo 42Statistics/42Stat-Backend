@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -55,7 +56,7 @@ export class LoginService {
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
 
-    await this.accountService.createIfNotexist(userId);
+    await this.accountService.createIfNotExist(userId);
 
     const loginUser = await this.createToken(userId);
 
@@ -76,7 +77,7 @@ export class LoginService {
     if (ftCode) {
       const userId = await this.getFtUser(ftCode);
 
-      await this.accountService.createIfNotexist(userId);
+      await this.accountService.createIfNotExist(userId);
 
       await this.linkAccount(userId, googleUser);
 
@@ -90,6 +91,7 @@ export class LoginService {
         'linkedAccounts.platform': googleUser.platform,
         'linkedAccounts.id': googleUser.id,
       },
+      options: { lean: true },
     });
 
     if (!linkedUser) {
@@ -192,10 +194,16 @@ export class LoginService {
     };
   }
 
+  async linkGoogle(userId: number, google: GoogleLoginInput): Promise<Account> {
+    const googleUser = await this.getGoogleUser(google);
+
+    return await this.linkAccount(userId, googleUser);
+  }
+
   /**
    *
-   * @throws {Error} 연동된 계정이 아닌 계정으로 로그인을 시도하였을 때
-   * @throws {Error} 다른 유저에 연동되어있는 계정인 경우
+   * @throws {ConflictException} 이미 같은 플랫폼의 다른 계정이 연동되어있는 경우
+   * @throws {ConflictException} 연동하려는 계정이 이미 다른 곳에 연동되어있는 경우
    * @throws {NotFoundException} 없는 유저인 경우
    */
   async linkAccount(
@@ -204,37 +212,37 @@ export class LoginService {
   ): Promise<Account> {
     const duplicateLinkable = await this.accountService.findOne({
       filter: {
-        'linkedAccounts.id': account.id,
         'linkedAccounts.platform': account.platform,
+        'linkedAccounts.id': account.id,
       },
+      options: { lean: true },
     });
 
     if (duplicateLinkable) {
-      throw new Error();
+      console.log('이미 연동된 계정 있음');
+      throw new ConflictException();
     }
 
-    const duplicatePlatform = await this.accountService.findOne({
-      filter: {
-        userId,
-        'linkedAccounts.platform': account.platform,
-      },
+    const userAccount = await this.accountService.findOne({
+      filter: { userId },
     });
 
-    if (duplicatePlatform) {
-      throw new Error();
-    }
-
-    const updatedAccount = await this.accountService.findOneAndUpdate(
-      { userId },
-      { $push: { linkedAccounts: { ...account } } },
-      { upsert: true, new: true },
-    );
-
-    if (!updatedAccount) {
+    if (!userAccount) {
       throw new NotFoundException();
     }
 
-    return updatedAccount;
+    const existingLinkedAccount = userAccount.linkedAccounts.find(
+      (linkedAccount) => linkedAccount.platform === account.platform,
+    );
+
+    if (existingLinkedAccount) {
+      console.log('다른 계정이 연동됨');
+      throw new ConflictException();
+    }
+
+    userAccount.linkedAccounts.push(account);
+
+    return await userAccount.save().then((result) => result.toObject());
   }
 
   /**
