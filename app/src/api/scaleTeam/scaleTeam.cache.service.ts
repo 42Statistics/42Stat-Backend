@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
-  type CacheSupportedDateTemplate,
   CacheUtilService,
+  type CacheSupportedDateTemplate,
+  type GetRankArgs,
+  type GetRankingArgs,
   type RankCache,
-  RankingCacheMap,
 } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { ScaleTeamService } from './scaleTeam.service';
@@ -33,29 +34,32 @@ export class ScaleTeamCacheService {
     dateTemplate: EvalCountRankingSupportedDateTemplate,
     userId: number,
   ): Promise<RankCache | undefined> {
-    return await this.cacheUtilService.getRank({
+    const args: GetRankArgs = {
       keyBase: EVAL_COUNT_RANKING,
       userId,
       dateTemplate,
-    });
+    };
+
+    if (dateTemplate === DateTemplate.TOTAL) {
+      return await this.cacheUtilService.getRawRank(args);
+    }
+
+    return await this.cacheUtilService.getRank(args);
   }
 
   async getEvalCountRanking(
     dateTemplate: EvalCountRankingSupportedDateTemplate,
   ): Promise<RankCache[] | undefined> {
-    return await this.cacheUtilService.getRanking({
+    const args: GetRankingArgs = {
       keyBase: EVAL_COUNT_RANKING,
       dateTemplate,
-    });
-  }
+    };
 
-  async getEvalCountRankingMap(
-    dateTemplate: EvalCountRankingSupportedDateTemplate,
-  ): Promise<RankingCacheMap | undefined> {
-    return await this.cacheUtilService.getRankingMap({
-      keyBase: EVAL_COUNT_RANKING,
-      dateTemplate,
-    });
+    if (dateTemplate === DateTemplate.TOTAL) {
+      return await this.cacheUtilService.getRawRanking(args);
+    }
+
+    return await this.cacheUtilService.getRanking(args);
   }
 
   async getAverageReviewLength(

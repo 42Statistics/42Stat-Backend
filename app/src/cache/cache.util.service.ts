@@ -106,7 +106,34 @@ export class CacheUtilService {
     return this.getWithoutDate<UserFullProfileMap>(USER_FULL_PROFILE);
   }
 
-  async getRank({
+  async getRank(args: GetRankArgs): Promise<RankCache | undefined> {
+    const rankCache = await this.getRawRank(args);
+    if (!rankCache) {
+      return undefined;
+    }
+
+    if (rankCache.value <= 0) {
+      return {
+        ...rankCache,
+        rank: 0,
+      };
+    }
+
+    return rankCache;
+  }
+
+  async getRanking(args: GetRankingArgs): Promise<RankCache[] | undefined> {
+    const rankingCache = await this.getRawRanking(args);
+    if (!rankingCache) {
+      return undefined;
+    }
+
+    const sliceIndex = rankingCache.findIndex((rank) => rank.value <= 0);
+
+    return rankingCache.slice(0, sliceIndex !== -1 ? sliceIndex : undefined);
+  }
+
+  async getRawRank({
     keyBase,
     userId,
     dateTemplate,
@@ -116,24 +143,21 @@ export class CacheUtilService {
     return await this.getMapValue(key, userId);
   }
 
-  async getRanking({
+  async getRawRanking({
     keyBase,
     dateTemplate,
   }: GetRankingArgs): Promise<RankCache[] | undefined> {
     const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
 
-    return await this.getMapValues<RankCache>(key).then((rankingValues) =>
-      rankingValues?.sort((a, b) => a.rank - b.rank),
+    const rankingCache = await this.getMapValues<RankCache>(key).then(
+      (ranking) => ranking?.sort((a, b) => a.rank - b.rank),
     );
-  }
 
-  async getRankingMap({
-    keyBase,
-    dateTemplate,
-  }: GetRankingArgs): Promise<RankingCacheMap | undefined> {
-    const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
+    if (!rankingCache) {
+      return undefined;
+    }
 
-    return await this.getMap(key);
+    return rankingCache;
   }
 
   async setUserFullProfiles(

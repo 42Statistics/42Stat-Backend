@@ -42,9 +42,10 @@ export class LeaderboardEvalResolver {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardEvalService.rankingByDateTemplate(
+    return await this.leaderboardEvalService.rankingByDateTemplate({
       dateTemplate,
-      { userId: myUserId, paginationIndexArgs },
-    );
+      userId: myUserId,
+      paginationIndexArgs,
+    });
   }
 }
