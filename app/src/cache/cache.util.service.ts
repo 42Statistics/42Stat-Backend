@@ -35,7 +35,7 @@ export type GetRankingArgs = {
 
 export type GetRankArgs = GetRankingArgs & { userId: number };
 
-type QueryRankingFn = (dateRange: DateRange) => Promise<UserRank[]>;
+type QueryRankingByDateRangeFn = (dateRange: DateRange) => Promise<UserRank[]>;
 
 @Injectable()
 export class CacheUtilService {
@@ -152,112 +152,115 @@ export class CacheUtilService {
     await this.setWithDate(USER_FULL_PROFILE, userFullProfileMap, updatedAt);
   }
 
-  private async generateEmptyRanking(): Promise<RankingCacheMap> {
-    const userFullProfiles = await this.getUserFullProfiles();
+  async updateRanking({
+    keyBase,
+    newUpdatedAt,
+    dateTemplate,
+    queryRankingFn,
+    sortFn,
+  }: {
+    keyBase: string;
+    newUpdatedAt: Date;
+    dateTemplate: CacheSupportedDateTemplate;
+    queryRankingFn: QueryRankingByDateRangeFn;
+    sortFn?: Parameters<RankCache[]['sort']>[0];
+  }): Promise<void> {
+    const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
 
-    assertExist(userFullProfiles);
+    const updatedRanking = await this.generateUpdatedRanking(
+      key,
+      newUpdatedAt,
+      dateTemplate,
+      queryRankingFn,
+    );
 
-    const emptyMap: RankingCacheMap = new Map();
+    this.fixRanking(updatedRanking, sortFn);
 
-    userFullProfiles.forEach((userFullProfile) => {
-      emptyMap.set(userFullProfile.cursusUser.user.id, {
-        ...userFullProfile,
-        userPreview: this.extractUserPreviewFromFullProfile(userFullProfile),
-        rank: -1,
-        value: 0,
-      });
-    });
-
-    return emptyMap;
+    await this.setWithDate(key, updatedRanking, newUpdatedAt);
   }
 
-  async updateRanking(
-    keyBase: string,
+  private async generateUpdatedRanking(
+    key: string,
     newUpdatedAt: Date,
     dateTemplate: CacheSupportedDateTemplate,
-    queryRankingByDateRangeFn: (dateRange: DateRange) => Promise<UserRank[]>,
-  ): Promise<void> {
-    const key = this.buildKey(keyBase, DateTemplate[dateTemplate]);
+    queryRankingFn: QueryRankingByDateRangeFn,
+  ): Promise<RankingCacheMap> {
     const cached = await this.cacheManager.get<CacheWithDate<RankingCacheMap>>(
       key,
     );
 
-    const newRanking = await this.queryRanking(
-      cached ?? {
-        data: await this.generateEmptyRanking(),
-        updatedAt: new Date(0),
-      },
-      newUpdatedAt,
-      dateTemplate,
-      queryRankingByDateRangeFn,
-    );
+    if (cached) {
+      if (isUpToDate(cached.updatedAt, newUpdatedAt, dateTemplate)) {
+        return cached.data;
+      }
 
-    await this.setWithDate(key, newRanking, newUpdatedAt);
-  }
+      if (isReusable(cached.updatedAt, dateTemplate)) {
+        const dateRange =
+          this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-  private async queryRanking(
-    cached: CacheWithDate<RankingCacheMap>,
-    newUpdatedAt: Date,
-    dateTemplate: CacheSupportedDateTemplate,
-    queryRankingByDateRangeFn: QueryRankingFn,
-  ): Promise<RankingCacheMap> {
-    if (isUpToDate(cached.updatedAt, newUpdatedAt, dateTemplate)) {
-      return cached.data;
+        dateRange.start = cached.updatedAt;
+
+        const newUserRanking = await queryRankingFn(dateRange);
+        const newRankingCache = await this.toRankingCache(newUserRanking);
+
+        return this.mergeRankingCacheToMap(cached.data, newRankingCache);
+      }
     }
 
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
-    if (isReusable(cached.updatedAt, dateTemplate)) {
-      dateRange.start = cached.updatedAt;
-    }
+    const newRanking = await queryRankingFn(dateRange);
+    const rankingCache = await this.toRankingCache(newRanking);
 
-    const updated = await queryRankingByDateRangeFn(dateRange);
-    const newRanking = await this.mergeRanking(cached.data, updated);
+    return rankingCache.reduce((rankingCacheMap, rankCache) => {
+      rankingCacheMap.set(rankCache.cursusUser.user.id, rankCache);
 
-    return newRanking;
+      return rankingCacheMap;
+    }, new Map() as RankingCacheMap);
   }
 
-  private async mergeRanking(
-    cached: RankingCacheMap,
-    updatedRanking: UserRank[],
-  ): Promise<RankingCacheMap> {
-    const newMap = new Map(cached);
+  private async toRankingCache(userRanking: UserRank[]): Promise<RankCache[]> {
+    const userFullProfileMap = await this.getUserFullProfileMap();
+    assertExist(userFullProfileMap);
 
-    for (const updatedRank of updatedRanking) {
-      const cached = newMap.get(updatedRank.userPreview.id);
+    return userRanking.map((userRank) => {
+      const userFullProfile = userFullProfileMap.get(userRank.userPreview.id);
+      assertExist(userFullProfile);
 
-      if (!cached) {
-        const userFullProfile = await this.getUserFullProfile(
-          updatedRank.userPreview.id,
-        );
+      return {
+        ...userFullProfile,
+        ...userRank,
+      };
+    });
+  }
 
-        assertExist(userFullProfile);
+  private mergeRankingCacheToMap(
+    rankingCacheMap: RankingCacheMap,
+    rankingCache: RankCache[],
+  ): RankingCacheMap {
+    rankingCache.forEach((rankCache) => {
+      const prev = rankingCacheMap.get(rankCache.cursusUser.user.id);
 
-        newMap.set(updatedRank.userPreview.id, {
-          ...userFullProfile,
-          ...updatedRank,
-        });
-
-        continue;
+      if (prev) {
+        prev.value += rankCache.value;
+        return;
       }
 
-      cached.value += updatedRank.value;
-    }
+      rankingCacheMap.set(rankCache.cursusUser.user.id, rankCache);
+    });
 
-    this.sortRankingMap(newMap);
-
-    return newMap;
+    return rankingCacheMap;
   }
 
   buildKey(...args: string[]): string {
     return args.join(':');
   }
 
-  sortRankingMap(
-    rankingMap: RankingCacheMap,
+  fixRanking(
+    rankingCacheMap: RankingCacheMap,
     sortFn: Parameters<RankCache[]['sort']>[0] = (a, b) => b.value - a.value,
   ): void {
-    [...rankingMap.values()].sort(sortFn).reduce(
+    [...rankingCacheMap.values()].sort(sortFn).reduce(
       ({ prevRank, prevValue }, userRank, index) => {
         userRank.rank = prevValue === userRank.value ? prevRank : index + 1;
 
