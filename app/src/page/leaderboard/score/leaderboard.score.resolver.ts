@@ -43,9 +43,10 @@ export class LeaderboardScoreResolver {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardScoreService.rankingByDateTemplate(
+    return await this.leaderboardScoreService.rankingByDateTemplate({
       dateTemplate,
-      { userId: myUserId, paginationIndexArgs },
-    );
+      userId: myUserId,
+      paginationIndexArgs,
+    });
   }
 }

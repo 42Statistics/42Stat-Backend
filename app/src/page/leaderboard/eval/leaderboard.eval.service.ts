@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
-import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
   ScaleTeamCacheService,
   type EvalCountRankingSupportedDateTemplate,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
+import { assertExist } from 'src/common/assertExist';
+import type { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import {
   LeaderboardUtilService,
-  type RankingByDateTemplateFn,
+  type RankingByDateTemplateArgs,
 } from '../util/leaderboard.util.service';
 
 @Injectable()
@@ -19,16 +19,26 @@ export class LeaderboardEvalService {
     private readonly scaleTeamCacheService: ScaleTeamCacheService,
   ) {}
 
-  rankingByDateTemplate: RankingByDateTemplateFn<
-    scale_team,
-    EvalCountRankingSupportedDateTemplate
-  > = async (dateTemplate, rankingArgs) => {
-    return await this.leaderboardUtilService.rankingByDateTemplateImpl(
+  async rankingByDateTemplate({
+    dateTemplate,
+    userId,
+    paginationIndexArgs,
+  }: RankingByDateTemplateArgs<EvalCountRankingSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
+    const rank = await this.scaleTeamCacheService.getEvalCountRank(
       dateTemplate,
-      rankingArgs,
-      () => this.scaleTeamCacheService.getEvalCountRanking(dateTemplate),
-      (filter?: FilterQuery<scale_team>) =>
-        this.scaleTeamService.evalCountRanking(filter),
+      userId,
     );
-  };
+
+    const ranking = await this.scaleTeamCacheService.getEvalCountRanking(
+      dateTemplate,
+    );
+    assertExist(ranking);
+
+    return this.leaderboardUtilService.toLeaderboardElementDateRanged({
+      rank,
+      ranking,
+      paginationIndexArgs,
+      dateTemplate,
+    });
+  }
 }
