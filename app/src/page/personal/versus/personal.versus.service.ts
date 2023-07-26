@@ -21,19 +21,28 @@ export class PersonalVersusService {
 
   async personalVersus(userId: number): Promise<PersonalVersus | null> {
     try {
+      const levelRanking = await this.cursusUserCacheService.getUserRanking(
+        USER_LEVEL_RANKING,
+      );
+
       const levelRank = await this.cursusUserCacheService.getUserRank(
         USER_LEVEL_RANKING,
         userId,
       );
 
-      assertExist(levelRank);
+      const totalScoreRanking = await this.scoreCacheService.getScoreRanking(
+        DateTemplate.TOTAL,
+      );
 
       const totalScoreRank = await this.scoreCacheService.getScoreRank(
         DateTemplate.TOTAL,
         userId,
       );
 
-      assertExist(totalScoreRank);
+      const totalEvalCountRanking =
+        await this.scaleTeamCacheService.getEvalCountRanking(
+          DateTemplate.TOTAL,
+        );
 
       const totalEvalCountRank =
         await this.scaleTeamCacheService.getEvalCountRank(
@@ -41,38 +50,74 @@ export class PersonalVersusService {
           userId,
         );
 
-      assertExist(totalEvalCountRank);
+      const currMonthExpIncreamentRanking =
+        await this.experienceUserCacheService.getExpIncreamentRanking(
+          DateTemplate.CURR_MONTH,
+        );
 
-      const currWeekExpIncreamentRank =
+      const currMonthExpIncreamentRank =
         await this.experienceUserCacheService.getExpIncreamentRank(
-          DateTemplate.CURR_WEEK,
+          DateTemplate.CURR_MONTH,
           userId,
         );
 
-      assertExist(currWeekExpIncreamentRank);
+      const currMonthScoreRanking =
+        await this.scoreCacheService.getScoreRanking(DateTemplate.CURR_MONTH);
 
-      const currWeekScoreRank = await this.scoreCacheService.getScoreRank(
-        DateTemplate.CURR_WEEK,
+      const currMonthScoreRank = await this.scoreCacheService.getScoreRank(
+        DateTemplate.CURR_MONTH,
         userId,
       );
 
-      assertExist(currWeekScoreRank);
+      const currMonthEvalCountRanking =
+        await this.scaleTeamCacheService.getEvalCountRanking(
+          DateTemplate.CURR_MONTH,
+        );
 
-      const currWeekEvalCountRank =
+      const currMonthEvalCountRank =
         await this.scaleTeamCacheService.getEvalCountRank(
-          DateTemplate.CURR_WEEK,
+          DateTemplate.CURR_MONTH,
           userId,
         );
 
-      assertExist(currWeekEvalCountRank);
+      assertExist(levelRanking);
+      assertExist(levelRank);
+      assertExist(totalScoreRanking);
+      assertExist(totalScoreRank);
+      assertExist(totalEvalCountRanking);
+      assertExist(totalEvalCountRank);
+      assertExist(currMonthExpIncreamentRanking);
+      assertExist(currMonthExpIncreamentRank);
+      assertExist(currMonthScoreRanking);
+      assertExist(currMonthScoreRank);
+      assertExist(currMonthEvalCountRanking);
+      assertExist(currMonthEvalCountRank);
 
       return {
-        levelRank,
-        totalScoreRank,
-        totalEvalCountRank,
-        currWeekExpIncreamentRank,
-        currWeekScoreRank,
-        currWeekEvalCountRank,
+        levelRankWithTotal: {
+          ...levelRank,
+          totalUserCount: levelRanking.length,
+        },
+        totalScoreRankWithTotal: {
+          ...totalScoreRank,
+          totalUserCount: totalScoreRanking.length,
+        },
+        totalEvalCountRankWithTotal: {
+          ...totalEvalCountRank,
+          totalUserCount: totalEvalCountRanking.length,
+        },
+        currMonthExpIncreamentRankWithTotal: {
+          ...currMonthExpIncreamentRank,
+          totalUserCount: currMonthExpIncreamentRanking.length,
+        },
+        currMonthScoreRankWithTotal: {
+          ...currMonthScoreRank,
+          totalUserCount: currMonthScoreRanking.length,
+        },
+        currMonthEvalCountRankWithTotal: {
+          ...currMonthEvalCountRank,
+          totalUserCount: currMonthEvalCountRanking.length,
+        },
       };
     } catch {
       return null;

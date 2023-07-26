@@ -1,23 +1,31 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { UserRank } from 'src/common/models/common.user.model';
 
+// todo: dateTemplate 인자 받는 형식 고치면 그에 맞게 수정
+
+@ObjectType()
+export class UserRankWithTotal extends UserRank {
+  @Field()
+  totalUserCount: number;
+}
+
 @ObjectType()
 export class PersonalVersus {
   @Field()
-  levelRank: UserRank;
+  levelRankWithTotal: UserRankWithTotal;
 
   @Field()
-  totalScoreRank: UserRank;
+  totalScoreRankWithTotal: UserRankWithTotal;
 
   @Field()
-  totalEvalCountRank: UserRank;
+  totalEvalCountRankWithTotal: UserRankWithTotal;
 
   @Field()
-  currWeekExpIncreamentRank: UserRank;
+  currMonthExpIncreamentRankWithTotal: UserRankWithTotal;
 
   @Field()
-  currWeekScoreRank: UserRank;
+  currMonthScoreRankWithTotal: UserRankWithTotal;
 
   @Field()
-  currWeekEvalCountRank: UserRank;
+  currMonthEvalCountRankWithTotal: UserRankWithTotal;
 }

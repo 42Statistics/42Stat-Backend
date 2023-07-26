@@ -413,13 +413,20 @@ type PersonalEval {
   recentComment: String
 }
 
+type UserRankWithTotal {
+  userPreview: UserPreview!
+  value: Float!
+  rank: Int!
+  totalUserCount: Int!
+}
+
 type PersonalVersus {
-  levelRank: UserRank!
-  totalScoreRank: UserRank!
-  totalEvalCountRank: UserRank!
-  currWeekExpIncreamentRank: UserRank!
-  currWeekScoreRank: UserRank!
-  currWeekEvalCountRank: UserRank!
+  levelRankWithTotal: UserRankWithTotal!
+  totalScoreRankWithTotal: UserRankWithTotal!
+  totalEvalCountRankWithTotal: UserRankWithTotal!
+  currMonthExpIncreamentRankWithTotal: UserRankWithTotal!
+  currMonthScoreRankWithTotal: UserRankWithTotal!
+  currMonthEvalCountRankWithTotal: UserRankWithTotal!
 }
 
 type ProjectInfo {
