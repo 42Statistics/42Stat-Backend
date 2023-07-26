@@ -58,9 +58,7 @@ export class LoginService {
 
     await this.accountService.createIfNotExist(userId);
 
-    const loginUser = await this.createToken(userId);
-
-    return loginUser;
+    return await this.createToken(userId);
   }
 
   /**
@@ -86,12 +84,11 @@ export class LoginService {
       return loginUser;
     }
 
-    const linkedUser = await this.accountService.findOne({
+    const linkedUser = await this.accountService.findOneAndLean({
       filter: {
         'linkedAccounts.platform': googleUser.platform,
         'linkedAccounts.id': googleUser.id,
       },
-      options: { lean: true },
     });
 
     if (!linkedUser) {
@@ -100,9 +97,7 @@ export class LoginService {
       };
     }
 
-    const token = await this.createToken(linkedUser.userId);
-
-    return token;
+    return await this.createToken(linkedUser.userId);
   }
 
   /**
@@ -202,24 +197,22 @@ export class LoginService {
 
   /**
    *
-   * @throws {ConflictException} 이미 같은 플랫폼의 다른 계정이 연동되어있는 경우
-   * @throws {ConflictException} 연동하려는 계정이 이미 다른 곳에 연동되어있는 경우
+   * @throws {ConflictException}
+   * @throws {ConflictException}
    * @throws {NotFoundException} 없는 유저인 경우
    */
   async linkAccount(
     userId: number,
     account: LinkableAccount,
   ): Promise<Account> {
-    const duplicateLinkable = await this.accountService.findOne({
+    const duplicateLinkable = await this.accountService.findOneAndLean({
       filter: {
         'linkedAccounts.platform': account.platform,
         'linkedAccounts.id': account.id,
       },
-      options: { lean: true },
     });
 
     if (duplicateLinkable) {
-      console.log('이미 연동된 계정 있음');
       throw new ConflictException();
     }
 
@@ -231,12 +224,11 @@ export class LoginService {
       throw new NotFoundException();
     }
 
-    const existingLinkedAccount = userAccount.linkedAccounts.find(
+    const alreadyLinkedPlatform = userAccount.linkedAccounts.find(
       (linkedAccount) => linkedAccount.platform === account.platform,
     );
 
-    if (existingLinkedAccount) {
-      console.log('다른 계정이 연동됨');
+    if (alreadyLinkedPlatform) {
       throw new ConflictException();
     }
 
@@ -253,13 +245,12 @@ export class LoginService {
     userId: number,
     targetPlatform: string,
   ): Promise<Account> {
-    const user = await this.accountService.findOneAndUpdate(
-      { userId },
-      {
+    const user = await this.accountService.findOneAndUpdateAndLean({
+      filter: { userId },
+      update: {
         $pull: { linkedAccounts: { platform: targetPlatform } },
       },
-      { new: true },
-    );
+    });
 
     if (!user) {
       throw new NotFoundException();
@@ -296,11 +287,10 @@ export class LoginService {
       this.jwtConfig.ACCESS_EXPIRES,
     );
 
-    const newTokens = await this.tokenService.findOneAndUpdate(
-      { refreshToken },
-      { userId, accessToken, refreshToken },
-      { new: true },
-    );
+    const newTokens = await this.tokenService.findOneAndUpdateAndLean({
+      filter: { refreshToken },
+      update: { userId, accessToken, refreshToken },
+    });
 
     if (!newTokens) {
       throw new BadRequestException();

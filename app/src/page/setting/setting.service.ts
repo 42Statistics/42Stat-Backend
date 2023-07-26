@@ -7,9 +7,8 @@ export class SettingService {
   constructor(private readonly accountService: AccountService) {}
 
   async setting(userId: number): Promise<Setting> {
-    const linkedAccounts = await this.accountService.findOne({
+    const linkedAccounts = await this.accountService.findOneAndLean({
       filter: { userId },
-      options: { lean: true },
     });
 
     if (!linkedAccounts) {
