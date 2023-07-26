@@ -84,11 +84,6 @@ export class LambdaService {
       USER_CORRECTION_POINT_RANKING,
       updatedAt,
       ({ cursusUser }) => cursusUser.user.correctionPoint,
-      // todo: 다른 로직 중 겹치는 부분 있으면 통합
-      ({ cursusUser }) =>
-        (cursusUser.grade === 'Learner' &&
-          cursusUser.blackholedAt &&
-          cursusUser.blackholedAt.getTime() >= new Date().getTime()) === true,
     );
 
     await this.updateEvalCountRanking(updatedAt, DateTemplate.TOTAL);
@@ -144,7 +139,7 @@ export class LambdaService {
       });
     });
 
-    this.cacheUtilService.sortRankingMap(rankingMap);
+    this.cacheUtilService.fixRanking(rankingMap);
 
     await this.cacheUtilService.setWithDate(key, rankingMap, updatedAt);
   }
@@ -153,15 +148,15 @@ export class LambdaService {
     updatedAt: Date,
     dateTemplate: CacheSupportedDateTemplate,
   ) => {
-    await this.cacheUtilService.updateRanking(
-      EVAL_COUNT_RANKING,
-      updatedAt,
+    await this.cacheUtilService.updateRanking({
+      keyBase: EVAL_COUNT_RANKING,
+      newUpdatedAt: updatedAt,
       dateTemplate,
-      (dateRange) =>
+      queryRankingFn: (dateRange) =>
         this.scaleTeamService.evalCountRanking(
           evalCountDateRangeFilter(dateRange),
         ),
-    );
+    });
   };
 
   private updateAverageReviewLength = async (updatedAt: Date) => {
@@ -187,15 +182,15 @@ export class LambdaService {
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheUtilService.updateRanking(
-      SCORE_RANKING,
-      updatedAt,
+    await this.cacheUtilService.updateRanking({
+      keyBase: SCORE_RANKING,
+      newUpdatedAt: updatedAt,
       dateTemplate,
-      (dateRange) =>
+      queryRankingFn: (dateRange) =>
         this.scoreService.scoreRanking({
           filter: scoreDateRangeFilter(dateRange),
         }),
-    );
+    });
   };
 
   private async updateTotalScoresPerCoalition(updatedAt: Date): Promise<void> {
@@ -232,26 +227,27 @@ export class LambdaService {
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheUtilService.updateRanking(
-      EXP_INCREAMENT_RANKING,
-      updatedAt,
+    await this.cacheUtilService.updateRanking({
+      keyBase: EXP_INCREAMENT_RANKING,
+      newUpdatedAt: updatedAt,
       dateTemplate,
-      (dateRange) =>
+      queryRankingFn: (dateRange) =>
         this.experienceUserService.increamentRanking(
           expIncreamentDateFilter(dateRange),
         ),
-    );
+    });
   };
 
   private updateLogtimeRanking: UpdateRankingByDateTemplateFn = async (
     updatedAt,
     dateTemplate,
   ) => {
-    await this.cacheUtilService.updateRanking(
-      LOGTIME_RANKING,
-      updatedAt,
+    await this.cacheUtilService.updateRanking({
+      keyBase: LOGTIME_RANKING,
+      newUpdatedAt: updatedAt,
       dateTemplate,
-      (dateRange) => this.locationService.logtimeRanking(dateRange),
-    );
+      queryRankingFn: (dateRange) =>
+        this.locationService.logtimeRanking(dateRange),
+    });
   };
 }

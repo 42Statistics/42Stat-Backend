@@ -39,7 +39,6 @@ export class ScaleTeamService {
     return await this.scaleTeamModel.countDocuments(filter);
   }
 
-  // total의 경우 5초, 기간 한정하는 경우 1초 이내
   async evalCountRanking(
     filter?: FilterQuery<scale_team>,
   ): Promise<UserRank[]> {
