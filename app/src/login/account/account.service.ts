@@ -1,9 +1,11 @@
 import { Injectable, UseFilters } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model, QueryOptions, UpdateQuery } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
 import {
-  findAll,
+  UpdateQueryArgs,
   findOne,
+  findOneAndLean,
+  findOneAndUpdateAndLean,
   type QueryOneArgs,
 } from 'src/common/db/common.db.query';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
@@ -21,7 +23,9 @@ export class AccountService {
   ) {}
 
   async createIfNotExist(userId: number): Promise<account> {
-    const user = await this.accountModel.findOne({ userId });
+    const queryOneArgs: QueryOneArgs<account> = { filter: { userId } };
+
+    const user = await findOneAndLean(queryOneArgs)(this.accountModel);
 
     if (!user) {
       return await this.accountModel.create({ userId });
@@ -30,24 +34,22 @@ export class AccountService {
     return user;
   }
 
-  async findAll(
-    queryOneArgs: QueryOneArgs<account>,
-  ): Promise<AccountDocument[] | null> {
-    return await findAll(queryOneArgs)(this.accountModel);
-  }
-
   async findOne(
     queryOneArgs: QueryOneArgs<account>,
   ): Promise<AccountDocument | null> {
     return await findOne(queryOneArgs)(this.accountModel);
   }
 
-  async findOneAndUpdate(
-    filter: FilterQuery<account>,
-    update: UpdateQuery<account>,
-    options?: QueryOptions<account>,
+  async findOneAndLean(
+    queryOneArgs: QueryOneArgs<account>,
   ): Promise<account | null> {
-    return await this.accountModel.findOneAndUpdate(filter, update, options);
+    return await findOneAndLean(queryOneArgs)(this.accountModel);
+  }
+
+  async findOneAndUpdateAndLean(
+    updateQueryArgs: UpdateQueryArgs<account>,
+  ): Promise<account | null> {
+    return await findOneAndUpdateAndLean(updateQueryArgs)(this.accountModel);
   }
 
   async deleteOne(filter?: FilterQuery<account>): Promise<number> {

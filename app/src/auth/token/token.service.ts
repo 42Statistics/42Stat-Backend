@@ -1,6 +1,10 @@
 import { Injectable, UseFilters } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import type { FilterQuery, Model, QueryOptions, UpdateQuery } from 'mongoose';
+import type { FilterQuery, Model } from 'mongoose';
+import {
+  UpdateQueryArgs,
+  findOneAndUpdateAndLean,
+} from 'src/common/db/common.db.query';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { token } from './db/token.database.schema';
 
@@ -26,14 +30,10 @@ export class TokenService {
       .then((result) => result.toObject());
   }
 
-  async findOneAndUpdate(
-    filter: FilterQuery<token>,
-    update: UpdateQuery<token>,
-    options?: QueryOptions<token>,
+  async findOneAndUpdateAndLean(
+    updateQueryArgs: UpdateQueryArgs<token>,
   ): Promise<token | null> {
-    return await this.tokenModel
-      .findOneAndUpdate(filter, update, options)
-      .lean();
+    return await findOneAndUpdateAndLean(updateQueryArgs)(this.tokenModel);
   }
 
   async deleteOne(filter?: FilterQuery<token>): Promise<number> {
