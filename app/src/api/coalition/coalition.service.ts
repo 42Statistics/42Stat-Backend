@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
-import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import { coalition } from './db/coalition.database.schema';
 import { CDN_CONFIG, type CdnConfig } from 'src/config/cdn';
 import { API_CONFIG, ApiConfig } from 'src/config/api';
@@ -22,10 +21,6 @@ export class CoalitionService {
       this.configService.getOrThrow<CdnConfig>(CDN_CONFIG).URL + '/coalition';
     this.seoulCoalitionIds =
       this.configService.getOrThrow<ApiConfig>(API_CONFIG).SEOUL_COALITION_ID;
-  }
-
-  async findAll(queryArgs?: QueryArgs<coalition>): Promise<coalition[]> {
-    return await findAll(queryArgs)(this.coalitionModel);
   }
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {

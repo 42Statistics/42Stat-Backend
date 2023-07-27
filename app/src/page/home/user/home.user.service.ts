@@ -9,7 +9,7 @@ import {
   aliveUserFilter,
   blackholedUserFilterByDateRange,
 } from 'src/api/cursusUser/db/cursusUser.database.query';
-import type { CursusUserDocument } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
@@ -163,7 +163,7 @@ export class HomeUserService {
       ? cachedRanking.slice(0, limit)
       : await this.cursusUserService.ranking(
           { sort: { 'user.wallet': -1 }, limit },
-          (doc: CursusUserDocument) => doc.user.wallet,
+          (cursusUser: cursus_user) => cursusUser.user.wallet,
         );
 
     return walletRanking;
@@ -182,7 +182,7 @@ export class HomeUserService {
             sort: { 'user.correctionPoint': -1 },
             limit,
           },
-          (doc: CursusUserDocument) => doc.user.correctionPoint,
+          (cursusUser: cursus_user) => cursusUser.user.correctionPoint,
         );
   }
 

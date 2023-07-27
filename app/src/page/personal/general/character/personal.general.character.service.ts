@@ -129,15 +129,14 @@ export class PersonalGeneralCharacterService {
   private async characterScore(
     userId: number,
   ): Promise<{ effort: number; talent: number } | null> {
-    const questsUserDate: QuestsUserDate = await this.questsUserService.findOne(
-      {
+    const questsUserDate: QuestsUserDate =
+      await this.questsUserService.findOneAndLean({
         filter: { 'quest.id': COMMON_CORE_QUEST_ID },
         select: { createdAt: 1, validatedAt: 1 },
-      },
-    );
+      });
 
     const projectsUsers: ProjectsUserForCharacter[] =
-      await this.projectsUserService.findAll({
+      await this.projectsUserService.findAllAndLean({
         filter: { 'user.id': userId, 'validated?': { $ne: null } },
         select: {
           'teams.finalMark': 1,

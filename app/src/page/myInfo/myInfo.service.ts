@@ -61,7 +61,7 @@ export class MyInfoService {
 
   @CacheOnReturn()
   async isNewMember(userId: number): Promise<boolean> {
-    const { validatedAt } = await this.questsUserService.findOne({
+    const { validatedAt } = await this.questsUserService.findOneAndLean({
       filter: {
         'user.id': userId,
         questId: COMMON_CORE_QUEST_ID,
