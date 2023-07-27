@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
@@ -27,9 +27,16 @@ export class PersonalEvalService {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
 
-    const { cursusUser, coalition, titlesUsers } =
+
+    const userFullProfile =
       cachedUserFullProfile ??
       (await this.cursusUserSevice.findOneUserFullProfilebyUserId(userId));
+
+    if (!userFullProfile) {
+      throw new NotFoundException();
+    }
+
+    const { cursusUser, coalition, titlesUsers } = userFullProfile;
 
     return {
       userProfile: {
