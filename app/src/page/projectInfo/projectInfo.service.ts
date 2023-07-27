@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   ProjectService,
   projectUrlById,
@@ -21,11 +21,15 @@ export class ProjectInfoService {
   ) {}
 
   async projectInfo(projectName: string): Promise<ProjectInfo> {
-    const project: { id: number; name: string } =
+    const project: { id: number; name: string } | null =
       await this.projectService.findOneAndLean({
         filter: { name: projectName },
         select: { id: 1, name: 1 },
       });
+
+    if (!project) {
+      throw new NotFoundException();
+    }
 
     const projectId = project.id;
 

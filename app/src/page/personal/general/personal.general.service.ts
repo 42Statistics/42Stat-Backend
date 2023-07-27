@@ -49,6 +49,10 @@ export class PersonalGeneralService {
       cachedUserFullProfile ??
       (await this.cursusUserService.findOneUserFullProfilebyUserId(userId));
 
+    if (!userFullProfile) {
+      throw new NotFoundException();
+    }
+
     const { cursusUser, coalition, titlesUsers } = userFullProfile;
 
     return {

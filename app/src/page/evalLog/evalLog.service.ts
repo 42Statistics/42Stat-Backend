@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { ProjectService } from 'src/api/project/project.service';
@@ -30,8 +30,8 @@ export class EvalLogService {
   ) {}
 
   async evalLogs({
-    corrector,
-    corrected,
+    corrector: correctorLogin,
+    corrected: correctedLogin,
     projectName,
     outstandingOnly,
     sortOrder,
@@ -40,20 +40,28 @@ export class EvalLogService {
   }: GetEvalLogsArgs): Promise<EvalLogsPaginated> {
     const filter: FilterQuery<scale_team> = {};
 
-    if (corrector) {
-      const correctorDocument = await this.cursusUserService.findOneByLogin(
-        corrector,
+    if (correctorLogin) {
+      const corrector = await this.cursusUserService.findOneAndLeanByLogin(
+        correctorLogin,
       );
 
-      filter['corrector.id'] = correctorDocument.user.id;
+      if (!corrector) {
+        throw new NotFoundException();
+      }
+
+      filter['corrector.id'] = corrector.user.id;
     }
 
-    if (corrected) {
-      const correctedDocument = await this.cursusUserService.findOneByLogin(
-        corrected,
+    if (correctedLogin) {
+      const corrected = await this.cursusUserService.findOneAndLeanByLogin(
+        correctedLogin,
       );
 
-      filter['correcteds.id'] = correctedDocument.user.id;
+      if (!corrected) {
+        throw new NotFoundException();
+      }
+
+      filter['correcteds.id'] = corrected.user.id;
     }
 
     if (projectName) {

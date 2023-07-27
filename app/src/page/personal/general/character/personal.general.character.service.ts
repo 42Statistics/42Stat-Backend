@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { EXAM_PROJECT_IDS } from 'src/api/exam/exam.service';
 import { LocationCacheService } from 'src/api/location/location.cache.service';
@@ -129,11 +129,15 @@ export class PersonalGeneralCharacterService {
   private async characterScore(
     userId: number,
   ): Promise<{ effort: number; talent: number } | null> {
-    const questsUserDate: QuestsUserDate =
+    const questsUserDate: QuestsUserDate | null =
       await this.questsUserService.findOneAndLean({
         filter: { 'quest.id': COMMON_CORE_QUEST_ID },
         select: { createdAt: 1, validatedAt: 1 },
       });
+
+    if (!questsUserDate) {
+      throw new NotFoundException();
+    }
 
     const projectsUsers: ProjectsUserForCharacter[] =
       await this.projectsUserService.findAllAndLean({

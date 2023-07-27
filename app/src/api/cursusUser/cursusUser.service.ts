@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
 import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
@@ -66,21 +66,15 @@ export class CursusUserService {
 
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<cursus_user>,
-  ): Promise<cursus_user> {
-    const cursusUser = await findOneAndLean(queryOneArgs)(this.cursusUserModel);
-
-    if (!cursusUser) {
-      throw new NotFoundException();
-    }
-
-    return cursusUser;
+  ): Promise<cursus_user | null> {
+    return await findOneAndLean(queryOneArgs)(this.cursusUserModel);
   }
 
-  async findOneByUserId(userId: number): Promise<cursus_user> {
+  async findOneAndLeanByUserId(userId: number): Promise<cursus_user | null> {
     return await this.findOneAndLean({ filter: { 'user.id': userId } });
   }
 
-  async findOneByLogin(login: string): Promise<cursus_user> {
+  async findOneAndLeanByLogin(login: string): Promise<cursus_user | null> {
     return await this.findOneAndLean({ filter: { 'user.login': login } });
   }
 
@@ -182,16 +176,12 @@ export class CursusUserService {
 
   async findOneUserFullProfilebyUserId(
     userId: number,
-  ): Promise<UserFullProfile> {
-    const [userFullProfiles] = await this.userFullProfile({
+  ): Promise<UserFullProfile | null> {
+    const userFullProfile = await this.userFullProfile({
       'user.id': userId,
-    });
+    }).then((result) => result.at(0));
 
-    if (!userFullProfiles) {
-      throw new NotFoundException();
-    }
-
-    return userFullProfiles;
+    return userFullProfile ?? null;
   }
 
   async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {

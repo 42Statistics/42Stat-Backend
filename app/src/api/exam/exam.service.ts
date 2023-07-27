@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import {
@@ -19,12 +19,6 @@ export class ExamService {
   async findOneAndLean(
     queryOneArgs?: QueryOneArgs<exam>,
   ): Promise<exam | null> {
-    const exam = await findOneAndLean(queryOneArgs)(this.examModel);
-
-    if (!exam) {
-      throw new NotFoundException();
-    }
-
-    return exam;
+    return await findOneAndLean(queryOneArgs)(this.examModel);
   }
 }

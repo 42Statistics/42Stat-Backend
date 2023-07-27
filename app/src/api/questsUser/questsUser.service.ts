@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import {
@@ -28,14 +28,8 @@ export class QuestsUserService {
 
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<quests_user>,
-  ): Promise<quests_user> {
-    const questsUser = await findOneAndLean(queryOneArgs)(this.questsUserModel);
-
-    if (!questsUser) {
-      throw new NotFoundException();
-    }
-
-    return questsUser;
+  ): Promise<quests_user | null> {
+    return await findOneAndLean(queryOneArgs)(this.questsUserModel);
   }
 
   async firstCircleDuration(userId?: number): Promise<IntPerCircle> {
