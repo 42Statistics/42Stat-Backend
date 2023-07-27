@@ -135,7 +135,7 @@ export class PersonalEvalService {
    */
   @CacheOnReturn()
   async recentComment(userId: number): Promise<{ value: string | null }> {
-    const scaleTeams = await this.scaleTeamService.findAll({
+    const scaleTeams = await this.scaleTeamService.findAllAndLean({
       filter: { 'corrector.id': userId },
       sort: { beginAt: -1, id: -1 },
       limit: 1,

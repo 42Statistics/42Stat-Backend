@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { addRank } from 'src/common/db/common.db.aggregation';
-import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
@@ -18,7 +17,7 @@ import {
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
-import { team, type TeamDocument } from './db/team.database.schema';
+import { team } from './db/team.database.schema';
 
 @Injectable()
 export class TeamService {
@@ -26,10 +25,6 @@ export class TeamService {
     @InjectModel(team.name)
     private readonly teamModel: Model<team>,
   ) {}
-
-  async findAll(queryArgs?: QueryArgs<team>): Promise<TeamDocument[]> {
-    return await findAll(queryArgs)(this.teamModel);
-  }
 
   async count(filter?: FilterQuery<team>): Promise<number> {
     if (!filter) {

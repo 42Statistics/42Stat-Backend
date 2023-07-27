@@ -3,8 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
 import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
 import {
-  findAll,
-  findOne,
+  findAllAndLean,
+  findOneAndLean,
   type QueryArgs,
   type QueryOneArgs,
 } from 'src/common/db/common.db.query';
@@ -36,10 +36,7 @@ import {
   aliveUserFilter,
   blackholedUserFilterByDateRange,
 } from './db/cursusUser.database.query';
-import {
-  cursus_user,
-  type CursusUserDocument,
-} from './db/cursusUser.database.schema';
+import { cursus_user } from './db/cursusUser.database.schema';
 
 export type UserFullProfile = {
   cursusUser: cursus_user;
@@ -61,16 +58,16 @@ export class CursusUserService {
     return this.cursusUserModel.aggregate<ReturnType>();
   }
 
-  async findAll(
+  async findAllAndLean(
     queryArgs?: QueryArgs<cursus_user>,
-  ): Promise<CursusUserDocument[]> {
-    return await findAll(queryArgs)(this.cursusUserModel);
+  ): Promise<cursus_user[]> {
+    return await findAllAndLean(queryArgs)(this.cursusUserModel);
   }
 
-  async findOne(
+  async findOneAndLean(
     queryOneArgs: QueryOneArgs<cursus_user>,
-  ): Promise<CursusUserDocument> {
-    const cursusUser = await findOne(queryOneArgs)(this.cursusUserModel);
+  ): Promise<cursus_user> {
+    const cursusUser = await findOneAndLean(queryOneArgs)(this.cursusUserModel);
 
     if (!cursusUser) {
       throw new NotFoundException();
@@ -79,12 +76,12 @@ export class CursusUserService {
     return cursusUser;
   }
 
-  async findOneByUserId(userId: number): Promise<CursusUserDocument> {
-    return await this.findOne({ filter: { 'user.id': userId } });
+  async findOneByUserId(userId: number): Promise<cursus_user> {
+    return await this.findOneAndLean({ filter: { 'user.id': userId } });
   }
 
-  async findOneByLogin(login: string): Promise<CursusUserDocument> {
-    return await this.findOne({ filter: { 'user.login': login } });
+  async findOneByLogin(login: string): Promise<cursus_user> {
+    return await this.findOneAndLean({ filter: { 'user.login': login } });
   }
 
   async findUserPreviewByLogin(
@@ -103,7 +100,7 @@ export class CursusUserService {
 
     const prefixMatches: {
       user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
-    }[] = await this.findAll({
+    }[] = await this.findAllAndLean({
       filter: { 'user.login': new RegExp(`^${escapedLogin}`, 'i') },
       select: previewProjection,
       limit,
@@ -120,7 +117,7 @@ export class CursusUserService {
     if (prefixMatches.length < limit) {
       const matches: {
         user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
-      }[] = await this.findAll({
+      }[] = await this.findAllAndLean({
         filter: { 'user.login': new RegExp(`.${escapedLogin}`, 'i') },
         select: previewProjection,
         limit: limit - result.size,
@@ -318,9 +315,9 @@ export class CursusUserService {
     }: Omit<QueryArgs<cursus_user>, 'sort'> & {
       sort: Record<string, SortValues>;
     },
-    valueExtractor: (doc: CursusUserDocument) => UserRank['value'],
+    valueExtractor: (cursusUser: cursus_user) => UserRank['value'],
   ): Promise<UserRank[]> {
-    const rawRanking = await this.findAll({ filter, sort, limit });
+    const rawRanking = await this.findAllAndLean({ filter, sort, limit });
 
     return rawRanking.map((rawRank, index) => ({
       userPreview: {

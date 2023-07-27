@@ -5,10 +5,7 @@ import {
   USER_LEVEL_RANKING,
 } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type {
-  CursusUserDocument,
-  cursus_user,
-} from 'src/api/cursusUser/db/cursusUser.database.schema';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import {
   LeaderboardUtilService,
   type RankingByDateTemplateFn,
@@ -33,7 +30,7 @@ export class LeaderboardLevelService {
       (filter?: FilterQuery<cursus_user>) =>
         this.cursusUserService.ranking(
           { sort: { level: -1 }, ...filter },
-          (doc: CursusUserDocument) => doc.level,
+          (cursusUser: cursus_user) => cursusUser.level,
         ),
     );
   };

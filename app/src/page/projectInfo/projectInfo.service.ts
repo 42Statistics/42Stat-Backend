@@ -22,7 +22,7 @@ export class ProjectInfoService {
 
   async projectInfo(projectName: string): Promise<ProjectInfo> {
     const project: { id: number; name: string } =
-      await this.projectService.findOne({
+      await this.projectService.findOneAndLean({
         filter: { name: projectName },
         select: { id: 1, name: 1 },
       });

@@ -7,7 +7,7 @@ import { DateWrapper } from 'src/statDate/StatDate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
 import type { cursus_user } from '../cursusUser/db/cursusUser.database.schema';
-import type { LevelDocument } from '../level/db/level.database.schema';
+import type { level } from '../level/db/level.database.schema';
 import { LevelService } from '../level/level.service';
 import { lookupExperienceUsers } from './db/experiecneUser.database.aggregate';
 import { experience_user } from './db/experienceUser.database.schema';
@@ -47,7 +47,9 @@ export class ExperienceUserService {
     beginAt: Date,
     filter?: FilterQuery<cursus_user>,
   ): Promise<LevelRecord[]> {
-    const levelTable = await this.levelService.findAll({ sort: { lvl: 1 } });
+    const levelTable = await this.levelService.findAllAndLean({
+      sort: { lvl: 1 },
+    });
     const userCount = await this.cursusUserService.userCount(filter);
     const aggregate = this.cursusUserService.aggregate<{
       _id: number;
@@ -119,7 +121,7 @@ export class ExperienceUserService {
   }
 }
 
-const calculateLevel = (levelTable: LevelDocument[], exp: number): number => {
+const calculateLevel = (levelTable: level[], exp: number): number => {
   const upper = levelTable.find(({ xp }) => xp > exp);
   assertsLevelFound(upper);
 
@@ -135,10 +137,8 @@ const calculateLevel = (levelTable: LevelDocument[], exp: number): number => {
   return Math.floor((lowerLevel + levelFloat) * 100 + Number.EPSILON) / 100;
 };
 
-function assertsLevelFound(
-  levelDoc: LevelDocument | undefined,
-): asserts levelDoc is LevelDocument {
-  if (!levelDoc) {
+function assertsLevelFound(level: level | undefined): asserts level is level {
+  if (!level) {
     throw new InternalServerErrorException();
   }
 }

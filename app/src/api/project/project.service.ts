@@ -2,12 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import {
-  findAll,
-  findOne,
+  findAllAndLean,
+  findOneAndLean,
   type QueryArgs,
   type QueryOneArgs,
 } from 'src/common/db/common.db.query';
-import { ProjectDocument, project } from './db/project.database.schema';
+import { project } from './db/project.database.schema';
 import type { ProjectPreview } from './models/project.preview';
 
 export const PROJECT_BASE_URL = 'https://projects.intra.42.fr/projects';
@@ -30,12 +30,12 @@ export class ProjectService {
     private readonly projectModel: Model<project>,
   ) {}
 
-  async findAll(queryArgs?: QueryArgs<project>): Promise<ProjectDocument[]> {
-    return await findAll(queryArgs)(this.projectModel);
+  async findAllAndLean(queryArgs?: QueryArgs<project>): Promise<project[]> {
+    return await findAllAndLean(queryArgs)(this.projectModel);
   }
 
-  async findOne(queryOneArgs: QueryOneArgs<project>): Promise<ProjectDocument> {
-    const project = await findOne(queryOneArgs)(this.projectModel);
+  async findOneAndLean(queryOneArgs: QueryOneArgs<project>): Promise<project> {
+    const project = await findOneAndLean(queryOneArgs)(this.projectModel);
 
     if (!project) {
       throw new NotFoundException();
@@ -58,7 +58,7 @@ export class ProjectService {
     };
 
     const prefixMatches: Pick<ProjectPreview, 'id' | 'name'>[] =
-      await this.findAll({
+      await this.findAllAndLean({
         filter: { name: new RegExp(`^${escapedName}`, 'i') },
         select: previewProjection,
         limit,
@@ -73,13 +73,12 @@ export class ProjectService {
     );
 
     if (prefixMatches.length < limit) {
-      const matches: Pick<ProjectPreview, 'id' | 'name'>[] = await this.findAll(
-        {
+      const matches: Pick<ProjectPreview, 'id' | 'name'>[] =
+        await this.findAllAndLean({
           filter: { name: new RegExp(`.${escapedName}`, 'i') },
           select: previewProjection,
           limit,
-        },
-      );
+        });
 
       matches.forEach((project) =>
         result.set(project.id, {

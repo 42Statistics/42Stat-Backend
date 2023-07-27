@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { findOne, type QueryOneArgs } from 'src/common/db/common.db.query';
-import type { IntPerCircle } from 'src/page/home/user/models/home.user.model';
 import {
-  quests_user,
-  type QuestsUserDocument,
-} from './db/questsUser.database.schema';
+  findOneAndLean,
+  type QueryOneArgs,
+} from 'src/common/db/common.db.query';
+import type { IntPerCircle } from 'src/page/home/user/models/home.user.model';
+import { quests_user } from './db/questsUser.database.schema';
 
 export const COMMON_CORE_QUEST_ID = 37;
 export const INNER_QUEST_IDS = [
@@ -26,10 +26,10 @@ export class QuestsUserService {
     private readonly questsUserModel: Model<quests_user>,
   ) {}
 
-  async findOne(
+  async findOneAndLean(
     queryOneArgs: QueryOneArgs<quests_user>,
-  ): Promise<QuestsUserDocument> {
-    const questsUser = await findOne(queryOneArgs)(this.questsUserModel);
+  ): Promise<quests_user> {
+    const questsUser = await findOneAndLean(queryOneArgs)(this.questsUserModel);
 
     if (!questsUser) {
       throw new NotFoundException();

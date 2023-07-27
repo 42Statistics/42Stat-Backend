@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
-import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
+import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
@@ -13,10 +13,7 @@ import {
 } from '../cursusUser/db/cursusUser.database.aggregate';
 import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
-import {
-  scale_team,
-  type ScaleTeamDocument,
-} from './db/scaleTeam.database.schema';
+import { scale_team } from './db/scaleTeam.database.schema';
 
 export const OUTSTANDING_FLAG_ID = 9;
 
@@ -28,10 +25,10 @@ export class ScaleTeamService {
     private readonly cursusUserService: CursusUserService,
   ) {}
 
-  async findAll(
+  async findAllAndLean(
     queryArgs?: QueryArgs<scale_team>,
-  ): Promise<ScaleTeamDocument[]> {
-    return await findAll(queryArgs)(this.scaleTeamModel);
+  ): Promise<scale_team[]> {
+    return await findAllAndLean(queryArgs)(this.scaleTeamModel);
   }
 
   async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {

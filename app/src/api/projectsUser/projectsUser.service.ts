@@ -2,14 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
-import { findAll, type QueryArgs } from 'src/common/db/common.db.query';
+import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import { DateWrapper } from 'src/statDate/StatDate';
 import { PROJECT_BASE_URL } from '../project/project.service';
-import {
-  projects_user,
-  type ProjectsUserDocument,
-} from './db/projectsUser.database.schema';
+import { projects_user } from './db/projectsUser.database.schema';
 
 @Injectable()
 export class ProjectsUserService {
@@ -18,10 +15,10 @@ export class ProjectsUserService {
     private readonly projectsUserModel: Model<projects_user>,
   ) {}
 
-  async findAll(
+  async findAllAndLean(
     queryArgs?: QueryArgs<projects_user>,
-  ): Promise<ProjectsUserDocument[]> {
-    return await findAll(queryArgs)(this.projectsUserModel);
+  ): Promise<projects_user[]> {
+    return await findAllAndLean(queryArgs)(this.projectsUserModel);
   }
 
   // todo: limit 을 주기보단 pagination 방식으로 바꾸는게 더 적절해보임. 애초에 이 경우는 전부
