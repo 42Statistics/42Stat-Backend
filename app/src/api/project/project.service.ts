@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import {
@@ -34,14 +34,10 @@ export class ProjectService {
     return await findAllAndLean(queryArgs)(this.projectModel);
   }
 
-  async findOneAndLean(queryOneArgs: QueryOneArgs<project>): Promise<project> {
-    const project = await findOneAndLean(queryOneArgs)(this.projectModel);
-
-    if (!project) {
-      throw new NotFoundException();
-    }
-
-    return project;
+  async findOneAndLean(
+    queryOneArgs: QueryOneArgs<project>,
+  ): Promise<project | null> {
+    return await findOneAndLean(queryOneArgs)(this.projectModel);
   }
 
   async findProjectPreviewByName(

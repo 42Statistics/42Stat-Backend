@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
@@ -47,7 +47,11 @@ export class MyInfoService {
 
     const cursusUser =
       cachedUserFullProfile?.cursusUser ??
-      (await this.cursusUserService.findOneByUserId(userId));
+      (await this.cursusUserService.findOneAndLeanByUserId(userId));
+
+    if (!cursusUser) {
+      throw new NotFoundException();
+    }
 
     return {
       userPreview: {
@@ -61,19 +65,25 @@ export class MyInfoService {
 
   @CacheOnReturn()
   async isNewMember(userId: number): Promise<boolean> {
-    const { validatedAt } = await this.questsUserService.findOneAndLean({
-      filter: {
-        'user.id': userId,
-        questId: COMMON_CORE_QUEST_ID,
-      },
-    });
+    const questsUser: { validatedAt?: Date } | null =
+      await this.questsUserService.findOneAndLean({
+        filter: {
+          'user.id': userId,
+          questId: COMMON_CORE_QUEST_ID,
+        },
+        select: { validatedAt: 1 },
+      });
 
-    if (!validatedAt) {
+    if (!questsUser) {
+      throw new NotFoundException();
+    }
+
+    if (!questsUser.validatedAt) {
       return false;
     }
 
     const dateGap = Math.floor(
-      DateWrapper.dateGap(new Date(), validatedAt) / DateWrapper.DAY,
+      DateWrapper.dateGap(new Date(), questsUser.validatedAt) / DateWrapper.DAY,
     );
 
     return dateGap < 8;

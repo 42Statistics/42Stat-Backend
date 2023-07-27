@@ -1,5 +1,6 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { assertExist } from 'src/common/assertExist';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { LevelRecord } from 'src/page/personal/general/models/personal.general.model';
@@ -123,7 +124,7 @@ export class ExperienceUserService {
 
 const calculateLevel = (levelTable: level[], exp: number): number => {
   const upper = levelTable.find(({ xp }) => xp > exp);
-  assertsLevelFound(upper);
+  assertExist(upper);
 
   const { lvl: upperLevel, xp: upperNeed } = upper;
   const { lvl: lowerLevel, xp: lowerNeed } = levelTable[upperLevel - 1];
@@ -136,9 +137,3 @@ const calculateLevel = (levelTable: level[], exp: number): number => {
 
   return Math.floor((lowerLevel + levelFloat) * 100 + Number.EPSILON) / 100;
 };
-
-function assertsLevelFound(level: level | undefined): asserts level is level {
-  if (!level) {
-    throw new InternalServerErrorException();
-  }
-}
