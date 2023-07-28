@@ -10,9 +10,11 @@ import {
   TeamStatus,
   UserTeam,
 } from 'src/page/personal/general/models/personal.general.model';
-import { lookupProjects } from '../project/db/project.database.aggregate';
+import {
+  conditionalProjectPreview,
+  lookupProjects,
+} from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
-import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
 
@@ -49,7 +51,7 @@ export class TeamService {
             cond: { $eq: ['$$user.id', userId] },
           },
         },
-        projects: { $first: '$projects' },
+        project: { $first: '$projects' },
       })
       .project({
         _id: 0,
@@ -57,11 +59,7 @@ export class TeamService {
         name: 1,
         occurrence: { $first: '$users.occurrence' },
         projectPreview: {
-          id: '$projects.id',
-          name: '$projects.name',
-          url: {
-            $concat: [PROJECT_BASE_URL, '/', { $toString: '$projectId' }],
-          },
+          ...conditionalProjectPreview('projectId', 'project'),
         },
         status: 1,
         lastEventTime: {
@@ -85,11 +83,10 @@ export class TeamService {
       })
       .sort({ lastEventTime: -1 });
 
+    teamsAggr.forEach((curr) => console.log(curr));
+
     return teamsAggr.map((team) => ({
       ...team,
-      projectPreview: team.projectPreview.id
-        ? team.projectPreview
-        : NETWHAT_PREVIEW,
       status: convertStauts(team.status),
     }));
   }

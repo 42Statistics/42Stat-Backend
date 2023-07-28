@@ -1,11 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import {
-  ProjectService,
-  projectUrlById,
-} from 'src/api/project/project.service';
+import { ProjectService } from 'src/api/project/project.service';
 import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
+import { projectUrlById } from 'src/config/api';
 import {
   ProjectInfo,
   ProjectSessionInfo,

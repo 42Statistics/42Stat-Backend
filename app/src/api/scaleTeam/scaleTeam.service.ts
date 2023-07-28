@@ -7,7 +7,10 @@ import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
-import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
+import {
+  concatProjectUserUrl,
+  conditionalProjectPreview,
+} from '../project/db/project.database.aggregate';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
 import { scale_team } from './db/scaleTeam.database.schema';
@@ -173,36 +176,15 @@ export class ScaleTeamService {
             id: '$team.id',
             name: '$team.name',
             url: {
-              $concat: [
-                PROJECT_BASE_URL,
-                '/',
-                { $toString: '$team.projectId' },
-                '/projects_users/',
-                {
-                  $toString: {
-                    $first: '$team.users.projectsUserId',
-                  },
-                },
-              ],
+              ...concatProjectUserUrl(
+                'team.projectId',
+                'team.users.projectsUserId',
+              ),
             },
           },
           beginAt: '$beginAt',
           projectPreview: {
-            $cond: {
-              if: { $eq: [{ $size: '$projects' }, 0] },
-              then: NETWHAT_PREVIEW,
-              else: {
-                id: '$project.id',
-                name: '$project.name',
-                url: {
-                  $concat: [
-                    PROJECT_BASE_URL,
-                    '/',
-                    { $toString: '$project.id' },
-                  ],
-                },
-              },
-            },
+            ...conditionalProjectPreview('team.projectId', 'project'),
           },
           flag: {
             id: '$flag.id',
