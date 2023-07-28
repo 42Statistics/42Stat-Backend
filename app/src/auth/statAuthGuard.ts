@@ -17,8 +17,8 @@ export class StatAuthGuard implements CanActivate {
 
     const authString = context.req.header('Authorization');
 
-    const VerifyContext = await this.verifyToken(authString);
-    Object.assign(context, VerifyContext);
+    const verifyContext = await this.verifyToken(authString);
+    Object.assign(context, verifyContext);
 
     return true;
   }
