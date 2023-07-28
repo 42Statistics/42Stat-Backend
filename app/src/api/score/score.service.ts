@@ -10,7 +10,7 @@ import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
-import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
+import { addUserPreview } from '../user/db/user.database.aggregate';
 import {
   UserRankWithCoalitionId,
   lookupScores,

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { User } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { user } from 'src/api/user/db/user.database.schema';
 
 export type LocationDocument = HydratedDocument<location>;
 
@@ -25,7 +25,7 @@ export class location {
   primary: boolean;
 
   @Prop({ required: true })
-  user: User;
+  user: user;
 }
 
 export const LocationSchema = SchemaFactory.createForClass(location);

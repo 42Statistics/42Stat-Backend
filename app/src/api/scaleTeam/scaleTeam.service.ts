@@ -7,11 +7,8 @@ import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
-import {
-  addUserPreview,
-  lookupCursusUser,
-} from '../cursusUser/db/cursusUser.database.aggregate';
 import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
+import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
 import { scale_team } from './db/scaleTeam.database.schema';
 
@@ -158,19 +155,19 @@ export class ScaleTeamService {
         foreignField: 'id',
         as: 'projects',
       })
-      .append(lookupCursusUser('corrector.id', 'user.id'))
+      .append(lookupUser('corrector.id', 'id'))
       .addFields({
         project: { $first: '$projects' },
-        corrector: { $first: '$cursus_users' },
+        corrector: { $first: '$users' },
       })
       .project({
         _id: 0,
         id: '$id',
         header: {
           corrector: {
-            id: '$corrector.user.id',
-            login: '$corrector.user.login',
-            imgUrl: '$corrector.user.image.link',
+            id: '$corrector.id',
+            login: '$corrector.login',
+            imgUrl: '$corrector.image.link',
           },
           teamPreview: {
             id: '$team.id',

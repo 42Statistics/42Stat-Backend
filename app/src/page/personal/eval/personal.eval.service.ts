@@ -27,7 +27,6 @@ export class PersonalEvalService {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
 
-
     const userFullProfile =
       cachedUserFullProfile ??
       (await this.cursusUserSevice.findOneUserFullProfilebyUserId(userId));

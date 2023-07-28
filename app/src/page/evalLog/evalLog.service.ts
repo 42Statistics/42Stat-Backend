@@ -1,12 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { ProjectService } from 'src/api/project/project.service';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
   OUTSTANDING_FLAG_ID,
   ScaleTeamService,
 } from 'src/api/scaleTeam/scaleTeam.service';
+import { UserService } from 'src/api/user/user.service';
 import {
   CursorExtractor,
   FieldExtractor,
@@ -23,9 +23,9 @@ type EvalLogCursorField = [number, Date];
 @Injectable()
 export class EvalLogService {
   constructor(
+    private readonly userService: UserService,
     private readonly scaleTeamService: ScaleTeamService,
     private readonly projectService: ProjectService,
-    private readonly cursusUserService: CursusUserService,
     private readonly paginationCursorService: PaginationCursorService,
   ) {}
 
@@ -41,27 +41,27 @@ export class EvalLogService {
     const filter: FilterQuery<scale_team> = {};
 
     if (correctorLogin) {
-      const corrector = await this.cursusUserService.findOneAndLeanByLogin(
+      const corrector = await this.userService.findOneAndLeanByLogin(
         correctorLogin,
       );
 
       if (!corrector) {
-        throw new NotFoundException();
+        return this.generateEmptyLog();
       }
 
-      filter['corrector.id'] = corrector.user.id;
+      filter['corrector.id'] = corrector.id;
     }
 
     if (correctedLogin) {
-      const corrected = await this.cursusUserService.findOneAndLeanByLogin(
+      const corrected = await this.userService.findOneAndLeanByLogin(
         correctedLogin,
       );
 
       if (!corrected) {
-        throw new NotFoundException();
+        return this.generateEmptyLog();
       }
 
-      filter['correcteds.id'] = corrected.user.id;
+      filter['correcteds.id'] = corrected.id;
     }
 
     if (projectName) {
@@ -71,12 +71,7 @@ export class EvalLogService {
       );
 
       if (!projectList.length) {
-        return this.paginationCursorService.toPaginated<EvalLog>(
-          [],
-          0,
-          false,
-          cursorExtractor,
-        );
+        return this.generateEmptyLog();
       }
 
       const exactMatchProject = projectList.find(
@@ -126,6 +121,15 @@ export class EvalLogService {
       evalLogs.slice(0, first),
       totalCount,
       evalLogs.length > first,
+      cursorExtractor,
+    );
+  }
+
+  private generateEmptyLog(): EvalLogsPaginated {
+    return this.paginationCursorService.toPaginated<EvalLog>(
+      [],
+      0,
+      false,
       cursorExtractor,
     );
   }
