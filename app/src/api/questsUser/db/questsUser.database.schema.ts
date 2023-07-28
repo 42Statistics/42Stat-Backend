@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { User } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { user } from 'src/api/user/db/user.database.schema';
 
 export type QuestsUserDocument = HydratedDocument<quests_user>;
 
@@ -70,7 +70,7 @@ export class quests_user {
   updatedAt: Date;
 
   @Prop({ required: true })
-  user: User;
+  user: user;
 
   @Prop({ required: true })
   validatedAt?: Date;

@@ -10,13 +10,10 @@ import {
   TeamStatus,
   UserTeam,
 } from 'src/page/personal/general/models/personal.general.model';
-import {
-  addUserPreview,
-  lookupCursusUser,
-} from '../cursusUser/db/cursusUser.database.aggregate';
 import { lookupProjects } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from '../project/project.service';
+import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
 
 @Injectable()
@@ -259,9 +256,9 @@ export class TeamService {
       })
       .append(addRank())
       .limit(limit)
-      .append(lookupCursusUser('_id', 'user.id'))
-      .unwind('cursus_users')
-      .append(addUserPreview('cursus_users.user'))
+      .append(lookupUser('_id', 'id'))
+      .unwind('users')
+      .append(addUserPreview('users'))
       .project({
         _id: 0,
         value: 1,

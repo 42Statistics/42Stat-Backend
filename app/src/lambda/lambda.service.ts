@@ -131,7 +131,7 @@ export class LambdaService {
       rankingMap.set(userId, {
         ...userFullProfile,
         userPreview:
-          this.cacheUtilService.extractUserPreviewFromFullProfile(
+          this.cursusUserService.extractUserPreviewFromFullProfile(
             userFullProfile,
           ),
         value: valueExtractor(userFullProfile),

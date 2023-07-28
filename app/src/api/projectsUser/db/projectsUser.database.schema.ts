@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { User } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { ProjectBase } from 'src/api/project/db/project.database.schema';
 import { team } from 'src/api/team/db/team.database.schema';
+import { user } from 'src/api/user/db/user.database.schema';
 
 export type ProjectsUserDocument = HydratedDocument<projects_user>;
 
@@ -42,7 +42,7 @@ export class projects_user {
   updatedAt: Date;
 
   @Prop({ required: true })
-  user: User;
+  user: user;
 
   @Prop({ required: true })
   'validated?'?: boolean;

@@ -319,4 +319,14 @@ export class CursusUserService {
       rank: index + 1,
     }));
   }
+
+  extractUserPreviewFromFullProfile(
+    userFullProfile: UserFullProfile,
+  ): UserPreview {
+    return {
+      id: userFullProfile.cursusUser.user.id,
+      login: userFullProfile.cursusUser.user.login,
+      imgUrl: userFullProfile.cursusUser.user.image.link,
+    };
+  }
 }

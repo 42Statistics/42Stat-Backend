@@ -6,10 +6,10 @@ import type { UserRank } from 'src/common/models/common.user.model';
 import type { LevelRecord } from 'src/page/personal/general/models/personal.general.model';
 import { DateWrapper } from 'src/statDate/StatDate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
-import { addUserPreview } from '../cursusUser/db/cursusUser.database.aggregate';
 import type { cursus_user } from '../cursusUser/db/cursusUser.database.schema';
 import type { level } from '../level/db/level.database.schema';
 import { LevelService } from '../level/level.service';
+import { addUserPreview } from '../user/db/user.database.aggregate';
 import { lookupExperienceUsers } from './db/experiecneUser.database.aggregate';
 import { experience_user } from './db/experienceUser.database.schema';
 

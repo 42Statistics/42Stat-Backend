@@ -293,16 +293,6 @@ export class CacheUtilService {
       { prevRank: 0, prevValue: Number.MIN_SAFE_INTEGER },
     );
   }
-
-  extractUserPreviewFromFullProfile(
-    userFullProfile: UserFullProfile,
-  ): UserPreview {
-    return {
-      id: userFullProfile.cursusUser.user.id,
-      login: userFullProfile.cursusUser.user.login,
-      imgUrl: userFullProfile.cursusUser.user.image.link,
-    };
-  }
 }
 
 const isReusable = (
