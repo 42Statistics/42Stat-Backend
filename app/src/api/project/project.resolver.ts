@@ -1,8 +1,13 @@
+import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { ProjectPreview } from 'src/common/models/common.project.model';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { projectSearchInput } from './dtos/project.dto';
 import { ProjectService } from './project.service';
 
+@UseFilters(HttpExceptionFilter)
+@UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => ProjectPreview)
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
