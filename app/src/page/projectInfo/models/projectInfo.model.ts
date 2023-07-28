@@ -1,4 +1,6 @@
 import { Field, ObjectType } from '@nestjs/graphql';
+import type { project } from 'src/api/project/db/project.database.schema';
+import type { ProjectPreview } from 'src/common/models/common.project.model';
 import { Rate } from 'src/common/models/common.rate.model';
 
 export type ProjectSessionInfo = Pick<
@@ -21,7 +23,11 @@ export type ProjectTeamInfo = Pick<
 >;
 
 @ObjectType()
-export class ProjectInfo {
+export class ProjectInfo
+  implements
+    Pick<project, 'id' | 'name' | 'difficulty'>,
+    Pick<ProjectPreview, 'circle' | 'url'>
+{
   @Field()
   id: number;
 
@@ -30,6 +36,9 @@ export class ProjectInfo {
 
   @Field()
   url: string;
+
+  @Field()
+  circle?: number;
 
   @Field((_type) => [String])
   objectives: string[];

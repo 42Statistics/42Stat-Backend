@@ -65,10 +65,11 @@ export class EvalLogService {
     }
 
     if (projectName) {
-      const projectList = await this.projectService.findProjectPreviewByName(
-        projectName,
-        100,
-      );
+      const projectList =
+        await this.projectService.findAllProjectPreviewAndLean({
+          filter: { name: projectName },
+          limit: 100,
+        });
 
       if (!projectList.length) {
         return this.generateEmptyLog();

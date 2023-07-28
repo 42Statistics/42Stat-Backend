@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { ProjectPreview } from 'src/api/project/models/project.preview';
+import { ProjectPreview } from 'src/common/models/common.project.model';
 import { UserPreview } from 'src/common/models/common.user.model';
 import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
 

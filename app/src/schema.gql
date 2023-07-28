@@ -81,6 +81,7 @@ type ProjectPreview {
   id: Int!
   name: String!
   url: String!
+  circle: Int
 }
 
 type CursorPageInfo {
@@ -433,6 +434,7 @@ type ProjectInfo {
   id: Int!
   name: String!
   url: String!
+  circle: Int!
   objectives: [String!]!
   skills: [String!]!
   description: String!
