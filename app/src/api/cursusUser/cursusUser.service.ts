@@ -78,6 +78,34 @@ export class CursusUserService {
     return await this.findOneAndLean({ filter: { 'user.login': login } });
   }
 
+  async findAllUserPreviewAndLean(
+    queryArgs?: Omit<QueryArgs<cursus_user>, 'select'>,
+  ): Promise<UserPreview[]> {
+    const cursusUsers: {
+      user: {
+        id: number;
+        login: string;
+        image: {
+          link?: string;
+        };
+      };
+    }[] = await this.findAllAndLean({
+      ...queryArgs,
+      select: {
+        'user.id': 1,
+        'user.login': 1,
+        'user.image.link': 1,
+      },
+    });
+
+    return cursusUsers.map(({ user }) => ({
+      id: user.id,
+      login: user.login,
+      imgUrl: user.image.link,
+    }));
+  }
+
+  // todo: deprecated at v0.6.0
   async findUserPreviewByLogin(
     login: string,
     limit: number,

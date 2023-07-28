@@ -58,12 +58,6 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type ProjectPreview {
-  id: Int!
-  name: String!
-  url: String!
-}
-
 type LinkableAccount {
   platform: String!
   id: String!
@@ -81,6 +75,12 @@ type LoginSuccess {
   refreshToken: String!
   userId: Int!
   message: String!
+}
+
+type ProjectPreview {
+  id: Int!
+  name: String!
+  url: String!
 }
 
 type CursorPageInfo {
@@ -448,15 +448,21 @@ type ProjectInfo {
   validatedRate: Rate!
 }
 
+type SearchResult {
+  userPreviews: [UserPreview!]!
+  projectPreviews: [ProjectPreview!]!
+}
+
 type Setting {
   account: Account!
 }
 
 type Query {
-  findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]!
-  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview!]!
   getLanding: Landing!
+  findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]! @deprecated(reason: "search module 로 분리")
   getMyInfo: MyInfo!
+  getSearchResult(input: String!, limit: Int! = 10): SearchResult!
+  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview!]! @deprecated(reason: "search module 로 분리")
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!
   getHomeCoalition: HomeCoalition!
