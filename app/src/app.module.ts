@@ -6,8 +6,6 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
-import { CursusUserModule } from './api/cursusUser/cursusUser.module';
-import { ProjectModule } from './api/project/project.module';
 import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
@@ -28,6 +26,7 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
+import { SearchModule } from './page/search/search.module';
 import { SettingModule } from './page/setting/setting.module';
 import { DateWrapper } from './statDate/StatDate';
 
@@ -58,10 +57,9 @@ import { DateWrapper } from './statDate/StatDate';
       `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
     ),
     ScheduleModule.forRoot(),
-    CursusUserModule,
-    ProjectModule,
     LandingModule,
     MyInfoModule,
+    SearchModule,
     HomeModule,
     PersonalModule,
     ProjectInfoModule,

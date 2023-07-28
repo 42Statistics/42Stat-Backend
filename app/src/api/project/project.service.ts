@@ -40,6 +40,24 @@ export class ProjectService {
     return await findOneAndLean(queryOneArgs)(this.projectModel);
   }
 
+  async findAllProjectPreviewAndLean(
+    queryArgs?: Omit<QueryArgs<project>, 'select'>,
+  ): Promise<ProjectPreview[]> {
+    const projects: { id: number; name: string }[] = await this.findAllAndLean({
+      ...queryArgs,
+      select: {
+        id: 1,
+        name: 1,
+      },
+    });
+
+    return projects.map((project) => ({
+      ...project,
+      url: projectUrlById(project.id),
+    }));
+  }
+
+  // todo: deprecated at v0.6.0
   async findProjectPreviewByName(
     name: string,
     limit: number,

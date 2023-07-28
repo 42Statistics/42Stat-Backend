@@ -8,7 +8,10 @@ import { ProjectService } from './project.service';
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 
-  @Query((_returns) => [ProjectPreview])
+  // todo: deprecated at v0.6.0
+  @Query((_returns) => [ProjectPreview], {
+    deprecationReason: 'search module 로 분리',
+  })
   async findProjectPreview(
     @Args() { name, limit }: projectSearchInput,
   ): Promise<ProjectPreview[]> {
