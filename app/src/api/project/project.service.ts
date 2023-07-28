@@ -9,19 +9,7 @@ import {
 } from 'src/common/db/common.db.query';
 import { project } from './db/project.database.schema';
 import type { ProjectPreview } from './models/project.preview';
-
-export const PROJECT_BASE_URL = 'https://projects.intra.42.fr/projects';
-
-export const projectUrlById = (id: number): string =>
-  [PROJECT_BASE_URL, id.toString()].join('/');
-
-export const NETWHAT_PREVIEW: ProjectPreview = {
-  id: 1318,
-  name: 'netwhat',
-  url: projectUrlById(1318),
-};
-
-export const SEOUL_CAMPUS_ID = 29;
+import { projectUrlById } from 'src/config/api';
 
 @Injectable()
 export class ProjectService {

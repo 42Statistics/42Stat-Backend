@@ -4,6 +4,45 @@ import {
 } from 'src/common/db/common.db.aggregation';
 // eslint-disable-next-line
 import type { project } from './project.database.schema';
+import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from 'src/config/api';
+
+export const conditionalProjectPreview = (
+  projectIdField: string,
+  projectField: string,
+) => ({
+  $cond: {
+    if: { $eq: [`$${projectIdField}`, NETWHAT_PREVIEW.id] },
+    then: NETWHAT_PREVIEW,
+    else: {
+      id: `$${projectField}.id`,
+      name: `$${projectField}.name`,
+      url: {
+        $concat: [PROJECT_BASE_URL, '/', { $toString: `$${projectField}.id` }],
+      },
+    },
+  },
+});
+
+export const concatProjectUrl = (projectIdField: string) => ({
+  $concat: [PROJECT_BASE_URL, '/', { $toString: `$${projectIdField}` }],
+});
+
+export const concatProjectUserUrl = (
+  projectIdField: string,
+  projectUserIdField: string,
+) => ({
+  $concat: [
+    PROJECT_BASE_URL,
+    '/',
+    { $toString: `$${projectIdField}` },
+    '/projects_users/',
+    {
+      $toString: {
+        $first: `$${projectUserIdField}`,
+      },
+    },
+  ],
+});
 
 /**
  *

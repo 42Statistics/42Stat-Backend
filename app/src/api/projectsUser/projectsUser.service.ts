@@ -5,7 +5,7 @@ import { addRank } from 'src/common/db/common.db.aggregation';
 import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import { DateWrapper } from 'src/statDate/StatDate';
-import { PROJECT_BASE_URL } from '../project/project.service';
+import { concatProjectUrl } from '../project/db/project.database.aggregate';
 import { projects_user } from './db/projectsUser.database.schema';
 
 @Injectable()
@@ -46,9 +46,7 @@ export class ProjectsUserService {
         projectPreview: {
           id: '$_id',
           name: '$name',
-          url: {
-            $concat: [PROJECT_BASE_URL, '/', { $toString: '$_id' }],
-          },
+          url: { ...concatProjectUrl('_id') },
         },
         value: 1,
         rank: 1,
