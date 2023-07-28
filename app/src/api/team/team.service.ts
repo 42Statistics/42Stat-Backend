@@ -1,12 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
-import { API_CONFIG, type ApiConfig } from 'src/config/api';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
 import {
   TeamStatus,
@@ -22,16 +20,10 @@ import { team } from './db/team.database.schema';
 
 @Injectable()
 export class TeamService {
-  private readonly PROJECT_CIRCLES: Record<number, number>;
-
   constructor(
     @InjectModel(team.name)
     private readonly teamModel: Model<team>,
-    private readonly configService: ConfigService,
-  ) {
-    this.PROJECT_CIRCLES =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
-  }
+  ) {}
 
   async count(filter?: FilterQuery<team>): Promise<number> {
     if (!filter) {
@@ -93,10 +85,6 @@ export class TeamService {
 
     return teamsAggr.map((team) => ({
       ...team,
-      projectPreview: {
-        ...team.projectPreview,
-        circle: this.PROJECT_CIRCLES[team.projectPreview.id],
-      },
       status: convertStauts(team.status),
     }));
   }

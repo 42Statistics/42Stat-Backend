@@ -18,7 +18,7 @@ export class ProjectBase {
 // todo: 현재는 project base 기준, 추후 확장시 더 가져와야 함.
 @Schema()
 export class project extends ProjectBase {
-  @Prop({ required: false, type: Number })
+  @Prop()
   difficulty?: number;
 
   // parent: z
@@ -40,6 +40,9 @@ export class project extends ProjectBase {
 
   @Prop()
   exam: boolean;
+
+  @Prop()
+  circle?: number;
 
   // git_id: z.number().nullable(),
   // repository: z.string().nullable(),

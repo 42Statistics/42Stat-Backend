@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
 import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
 import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
 import type { UserRank } from 'src/common/models/common.user.model';
-import { API_CONFIG, type ApiConfig } from 'src/config/api';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -21,17 +19,11 @@ export const OUTSTANDING_FLAG_ID = 9;
 
 @Injectable()
 export class ScaleTeamService {
-  private readonly PROJECT_CIRCLES: Record<number, number>;
-
   constructor(
     @InjectModel(scale_team.name)
     private readonly scaleTeamModel: Model<scale_team>,
     private readonly cursusUserService: CursusUserService,
-    private readonly configService: ConfigService,
-  ) {
-    this.PROJECT_CIRCLES =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
-  }
+  ) {}
 
   async findAllAndLean(
     queryArgs?: QueryArgs<scale_team>,
@@ -214,22 +206,7 @@ export class ScaleTeamService {
             },
           },
         },
-      })
-      .then((evalLogs) =>
-        evalLogs.map((evalLog) => ({
-          ...evalLog,
-          header: {
-            ...evalLog.header,
-            teamPreview: {
-              ...evalLog.header.teamPreview,
-              projectPreview: {
-                ...evalLog.header.projectPreview,
-                circle: this.PROJECT_CIRCLES[evalLog.header.projectPreview.id],
-              },
-            },
-          },
-        })),
-      );
+      });
   }
 }
 
