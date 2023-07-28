@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type { ProjectPreview } from 'src/api/project/models/project.preview';
 import { ProjectService } from 'src/api/project/project.service';
+import type { ProjectPreview } from 'src/common/models/common.project.model';
 import type { UserPreview } from 'src/common/models/common.user.model';
 import { API_CONFIG, type ApiConfig } from 'src/config/api';
 import type { SearchResult } from './models/search.model';

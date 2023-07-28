@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
+import { API_CONFIG, type ApiConfig } from 'src/config/api';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import { DateWrapper } from 'src/statDate/StatDate';
 import { concatProjectUrl } from '../project/db/project.database.aggregate';
@@ -10,10 +12,16 @@ import { projects_user } from './db/projectsUser.database.schema';
 
 @Injectable()
 export class ProjectsUserService {
+  private readonly PROJECT_CIRCLES: Record<number, number>;
+
   constructor(
     @InjectModel(projects_user.name)
     private readonly projectsUserModel: Model<projects_user>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.PROJECT_CIRCLES =
+      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
+  }
 
   async findAllAndLean(
     queryArgs?: QueryArgs<projects_user>,
@@ -51,6 +59,15 @@ export class ProjectsUserService {
         value: 1,
         rank: 1,
       })
-      .limit(limit);
+      .limit(limit)
+      .then((projectRanking) =>
+        projectRanking.map((projectRank) => ({
+          ...projectRank,
+          projectPreview: {
+            ...projectRank.projectPreview,
+            circle: this.PROJECT_CIRCLES[projectRank.projectPreview.id],
+          },
+        })),
+      );
   }
 }

@@ -1,10 +1,9 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
+import { ProjectPreview } from 'src/common/models/common.project.model';
 import { projectSearchInput } from './dtos/project.dto';
-import { Project } from './models/project.model';
-import { ProjectPreview } from './models/project.preview';
 import { ProjectService } from './project.service';
 
-@Resolver((_of: unknown) => Project)
+@Resolver((_of: unknown) => ProjectPreview)
 export class ProjectResolver {
   constructor(private readonly projectService: ProjectService) {}
 

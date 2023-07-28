@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { ProjectService } from 'src/api/project/project.service';
 import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { projectUrlById } from 'src/config/api';
+import { API_CONFIG, projectUrlById, type ApiConfig } from 'src/config/api';
 import {
   ProjectInfo,
   ProjectSessionInfo,
@@ -12,11 +13,17 @@ import {
 
 @Injectable()
 export class ProjectInfoService {
+  private readonly PROJECT_CIRCLES: Record<number, number>;
+
   constructor(
     private readonly projectService: ProjectService,
     private readonly projectSessionService: ProjectSessionService,
     private readonly teamService: TeamService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.PROJECT_CIRCLES =
+      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
+  }
 
   async projectInfo(projectName: string): Promise<ProjectInfo> {
     const project: { id: number; name: string } | null =
@@ -38,6 +45,7 @@ export class ProjectInfoService {
       id: projectId,
       name: project.name,
       url: projectUrlById(projectId),
+      circle: this.PROJECT_CIRCLES[projectId],
       ...projectTeamInfo,
       ...projectSessionsInfo,
     };

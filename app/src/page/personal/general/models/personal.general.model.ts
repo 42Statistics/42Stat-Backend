@@ -1,6 +1,6 @@
 import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { ProjectPreview } from 'src/api/project/models/project.preview';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import { ProjectPreview } from 'src/common/models/common.project.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';

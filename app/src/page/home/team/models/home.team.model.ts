@@ -1,6 +1,6 @@
 import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
 import { Min } from 'class-validator';
-import { ProjectPreview } from 'src/api/project/models/project.preview';
+import { ProjectPreview } from 'src/common/models/common.project.model';
 import { Rate } from 'src/common/models/common.rate.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 
