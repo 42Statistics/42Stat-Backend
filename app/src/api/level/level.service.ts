@@ -12,6 +12,6 @@ export class LevelService {
   ) {}
 
   async findAllAndLean(queryArgs?: QueryArgs<level>): Promise<level[]> {
-    return await findAllAndLean(queryArgs)(this.levelModel);
+    return await findAllAndLean(this.levelModel, queryArgs);
   }
 }

@@ -17,7 +17,7 @@ export class UserService {
   async findOneAndLean(
     queryOneArgs?: QueryOneArgs<user>,
   ): Promise<user | null> {
-    return await findOneAndLean(queryOneArgs)(this.userModel);
+    return await findOneAndLean(this.userModel, queryOneArgs);
   }
 
   async findOneAndLeanByLogin(login: string): Promise<user | null> {

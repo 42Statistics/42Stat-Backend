@@ -28,7 +28,7 @@ export class ScaleTeamService {
   async findAllAndLean(
     queryArgs?: QueryArgs<scale_team>,
   ): Promise<scale_team[]> {
-    return await findAllAndLean(queryArgs)(this.scaleTeamModel);
+    return await findAllAndLean(this.scaleTeamModel, queryArgs);
   }
 
   async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {

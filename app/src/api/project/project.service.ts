@@ -19,13 +19,13 @@ export class ProjectService {
   ) {}
 
   async findAllAndLean(queryArgs?: QueryArgs<project>): Promise<project[]> {
-    return await findAllAndLean(queryArgs)(this.projectModel);
+    return await findAllAndLean(this.projectModel, queryArgs);
   }
 
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<project>,
   ): Promise<project | null> {
-    return await findOneAndLean(queryOneArgs)(this.projectModel);
+    return await findOneAndLean(this.projectModel, queryOneArgs);
   }
 
   async findOneProjectPreviewAndLean(

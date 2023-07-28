@@ -29,7 +29,7 @@ export class QuestsUserService {
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<quests_user>,
   ): Promise<quests_user | null> {
-    return await findOneAndLean(queryOneArgs)(this.questsUserModel);
+    return await findOneAndLean(this.questsUserModel, queryOneArgs);
   }
 
   async firstCircleDuration(userId?: number): Promise<IntPerCircle> {

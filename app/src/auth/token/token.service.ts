@@ -33,7 +33,7 @@ export class TokenService {
   async findOneAndUpdateAndLean(
     updateQueryArgs: UpdateQueryArgs<token>,
   ): Promise<token | null> {
-    return await findOneAndUpdateAndLean(updateQueryArgs)(this.tokenModel);
+    return await findOneAndUpdateAndLean(this.tokenModel, updateQueryArgs);
   }
 
   async deleteOne(filter?: FilterQuery<token>): Promise<number> {
