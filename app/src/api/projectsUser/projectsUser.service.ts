@@ -21,7 +21,7 @@ export class ProjectsUserService {
   async findAllAndLean(
     queryArgs?: QueryArgs<projects_user>,
   ): Promise<projects_user[]> {
-    return await findAllAndLean(queryArgs)(this.projectsUserModel);
+    return await findAllAndLean(this.projectsUserModel, queryArgs);
   }
 
   // todo: limit 을 주기보단 pagination 방식으로 바꾸는게 더 적절해보임. 애초에 이 경우는 전부

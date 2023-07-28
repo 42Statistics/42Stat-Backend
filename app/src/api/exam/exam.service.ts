@@ -19,6 +19,6 @@ export class ExamService {
   async findOneAndLean(
     queryOneArgs?: QueryOneArgs<exam>,
   ): Promise<exam | null> {
-    return await findOneAndLean(queryOneArgs)(this.examModel);
+    return await findOneAndLean(this.examModel, queryOneArgs);
   }
 }

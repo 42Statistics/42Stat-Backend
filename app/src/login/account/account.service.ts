@@ -25,7 +25,7 @@ export class AccountService {
   async createIfNotExist(userId: number): Promise<account> {
     const queryOneArgs: QueryOneArgs<account> = { filter: { userId } };
 
-    const user = await findOneAndLean(queryOneArgs)(this.accountModel);
+    const user = await findOneAndLean(this.accountModel, queryOneArgs);
 
     if (!user) {
       return await this.accountModel.create({ userId });
@@ -37,19 +37,19 @@ export class AccountService {
   async findOne(
     queryOneArgs: QueryOneArgs<account>,
   ): Promise<AccountDocument | null> {
-    return await findOne(queryOneArgs)(this.accountModel);
+    return await findOne(this.accountModel, queryOneArgs);
   }
 
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<account>,
   ): Promise<account | null> {
-    return await findOneAndLean(queryOneArgs)(this.accountModel);
+    return await findOneAndLean(this.accountModel, queryOneArgs);
   }
 
   async findOneAndUpdateAndLean(
     updateQueryArgs: UpdateQueryArgs<account>,
   ): Promise<account | null> {
-    return await findOneAndUpdateAndLean(updateQueryArgs)(this.accountModel);
+    return await findOneAndUpdateAndLean(this.accountModel, updateQueryArgs);
   }
 
   async deleteOne(filter?: FilterQuery<account>): Promise<number> {

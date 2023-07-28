@@ -61,13 +61,13 @@ export class CursusUserService {
   async findAllAndLean(
     queryArgs?: QueryArgs<cursus_user>,
   ): Promise<cursus_user[]> {
-    return await findAllAndLean(queryArgs)(this.cursusUserModel);
+    return await findAllAndLean(this.cursusUserModel, queryArgs);
   }
 
   async findOneAndLean(
     queryOneArgs: QueryOneArgs<cursus_user>,
   ): Promise<cursus_user | null> {
-    return await findOneAndLean(queryOneArgs)(this.cursusUserModel);
+    return await findOneAndLean(this.cursusUserModel, queryOneArgs);
   }
 
   async findOneAndLeanByUserId(userId: number): Promise<cursus_user | null> {
