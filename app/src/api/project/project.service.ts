@@ -8,22 +8,15 @@ import {
   type QueryOneArgs,
 } from 'src/common/db/common.db.query';
 import type { ProjectPreview } from 'src/common/models/common.project.model';
-import { API_CONFIG, type ApiConfig, projectUrlById } from 'src/config/api';
+import { projectUrlById } from 'src/config/api';
 import { project } from './db/project.database.schema';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProjectService {
-  private readonly PROJECT_CIRCLES: Record<number, number>;
-
   constructor(
     @InjectModel(project.name)
     private readonly projectModel: Model<project>,
-    private readonly configService: ConfigService,
-  ) {
-    this.PROJECT_CIRCLES =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
-  }
+  ) {}
 
   async findAllAndLean(queryArgs?: QueryArgs<project>): Promise<project[]> {
     return await findAllAndLean(queryArgs)(this.projectModel);
@@ -35,21 +28,43 @@ export class ProjectService {
     return await findOneAndLean(queryOneArgs)(this.projectModel);
   }
 
+  async findOneProjectPreviewAndLean(
+    queryArgs?: Omit<QueryArgs<project>, 'select'>,
+  ): Promise<ProjectPreview | null> {
+    const project: Pick<project, 'id' | 'name' | 'circle'> | null =
+      await this.findOneAndLean({
+        ...queryArgs,
+        select: {
+          id: 1,
+          name: 1,
+          circle: 1,
+        },
+      });
+
+    return project
+      ? {
+          ...project,
+          url: projectUrlById(project.id),
+        }
+      : null;
+  }
+
   async findAllProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview[]> {
-    const projects: { id: number; name: string }[] = await this.findAllAndLean({
-      ...queryArgs,
-      select: {
-        id: 1,
-        name: 1,
-      },
-    });
+    const projects: { id: number; name: string; circle?: number }[] =
+      await this.findAllAndLean({
+        ...queryArgs,
+        select: {
+          id: 1,
+          name: 1,
+          circle: 1,
+        },
+      });
 
     return projects.map((project) => ({
       ...project,
       url: projectUrlById(project.id),
-      circle: this.PROJECT_CIRCLES[project.id],
     }));
   }
 
@@ -65,9 +80,10 @@ export class ProjectService {
     const previewProjection = {
       id: 1,
       name: 1,
+      circle: 1,
     };
 
-    const prefixMatches: Pick<ProjectPreview, 'id' | 'name'>[] =
+    const prefixMatches: Pick<ProjectPreview, 'id' | 'name' | 'circle'>[] =
       await this.findAllAndLean({
         filter: { name: new RegExp(`^${escapedName}`, 'i') },
         select: previewProjection,
@@ -99,9 +115,6 @@ export class ProjectService {
       );
     }
 
-    return [...result.values()].map((el) => ({
-      ...el,
-      circle: this.PROJECT_CIRCLES[el.id],
-    }));
+    return [...result.values()];
   }
 }

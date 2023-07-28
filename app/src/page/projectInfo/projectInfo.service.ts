@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { ProjectService } from 'src/api/project/project.service';
 import { ProjectSessionService } from 'src/api/projectSession/projectSession.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { API_CONFIG, projectUrlById, type ApiConfig } from 'src/config/api';
+import { projectUrlById } from 'src/config/api';
 import {
   ProjectInfo,
   ProjectSessionInfo,
@@ -13,39 +12,32 @@ import {
 
 @Injectable()
 export class ProjectInfoService {
-  private readonly PROJECT_CIRCLES: Record<number, number>;
-
   constructor(
     private readonly projectService: ProjectService,
     private readonly projectSessionService: ProjectSessionService,
     private readonly teamService: TeamService,
-    private readonly configService: ConfigService,
-  ) {
-    this.PROJECT_CIRCLES =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).PROJECT_CIRCLES;
-  }
+  ) {}
 
   async projectInfo(projectName: string): Promise<ProjectInfo> {
-    const project: { id: number; name: string } | null =
-      await this.projectService.findOneAndLean({
+    const projectPreview =
+      await this.projectService.findOneProjectPreviewAndLean({
         filter: { name: projectName },
-        select: { id: 1, name: 1 },
       });
 
-    if (!project) {
+    if (!projectPreview) {
       throw new NotFoundException();
     }
 
-    const projectId = project.id;
+    const projectId = projectPreview.id;
 
     const projectTeamInfo = await this.projectTeamInfo(projectId);
     const projectSessionsInfo = await this.projectSessionInfo(projectId);
 
     return {
       id: projectId,
-      name: project.name,
+      name: projectPreview.name,
       url: projectUrlById(projectId),
-      circle: this.PROJECT_CIRCLES[projectId],
+      circle: projectPreview.circle,
       ...projectTeamInfo,
       ...projectSessionsInfo,
     };

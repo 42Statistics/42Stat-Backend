@@ -16,6 +16,7 @@ export const conditionalProjectPreview = (
     else: {
       id: `$${projectField}.id`,
       name: `$${projectField}.name`,
+      circle: `$${projectField}.circle`,
       url: {
         $concat: [PROJECT_BASE_URL, '/', { $toString: `$${projectField}.id` }],
       },
