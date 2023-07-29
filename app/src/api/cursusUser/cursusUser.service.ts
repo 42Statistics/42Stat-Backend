@@ -13,7 +13,7 @@ import type {
   UserRank,
 } from 'src/common/models/common.user.model';
 import type { UserFullProfile } from 'src/common/userFullProfile';
-import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   IntPerCircle,
   UserCountPerLevel,
@@ -35,6 +35,33 @@ import {
   blackholedUserFilterByDateRange,
 } from './db/cursusUser.database.query';
 import { cursus_user } from './db/cursusUser.database.schema';
+
+const isLearner = (
+  cursusUser: cursus_user,
+): cursusUser is Omit<cursus_user, 'blackholedAt'> & { blackholedAt: Date } =>
+  cursusUser.grade === 'Learner';
+
+// todo: 적절한 위치 찾기
+export const isBlackholed = (
+  cursusUser: cursus_user,
+  dateRange?: DateRange,
+): boolean => {
+  if (!isLearner(cursusUser)) {
+    return false;
+  }
+
+  const blackholedAt = cursusUser.blackholedAt;
+  const now = new Date();
+
+  if (dateRange) {
+    return (
+      dateRange.start <= blackholedAt &&
+      blackholedAt < (dateRange.end < now ? dateRange.end : now)
+    );
+  }
+
+  return blackholedAt < now;
+};
 
 @Injectable()
 export class CursusUserService {
@@ -204,7 +231,7 @@ export class CursusUserService {
 
   async userCountPerMonth(
     key: 'beginAt' | 'blackholedAt',
-    dateRange: DateRangeArgs,
+    dateRange: DateRange,
   ): Promise<AggrNumericPerDateBucket[]> {
     const dates = DateWrapper.partitionByMonth(dateRange);
 

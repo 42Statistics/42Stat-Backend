@@ -4,7 +4,10 @@ import {
   USER_LEVEL_RANKING,
   USER_WALLET_RANKING,
 } from 'src/api/cursusUser/cursusUser.cache.service';
-import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import {
+  CursusUserService,
+  isBlackholed,
+} from 'src/api/cursusUser/cursusUser.service';
 import { expIncreamentDateFilter } from 'src/api/experienceUser/db/experiecneUser.database.aggregate';
 import { EXP_INCREAMENT_RANKING } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
@@ -86,6 +89,7 @@ export class LambdaService {
       keyBase: USER_CORRECTION_POINT_RANKING,
       updatedAt,
       valueExtractor: ({ cursusUser }) => cursusUser.user.correctionPoint,
+      userFilter: ({ cursusUser }) => isBlackholed(cursusUser),
     });
 
     await this.updateEvalCountRanking(
