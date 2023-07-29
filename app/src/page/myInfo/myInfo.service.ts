@@ -2,9 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
+import type { quests_user } from 'src/api/questsUser/db/questsUser.database.schema';
 import {
   COMMON_CORE_QUEST_ID,
   QuestsUserService,
@@ -45,9 +47,20 @@ export class MyInfoService {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
 
-    const cursusUser =
+    const cursusUser: {
+      user: { id: number; login: string; image: { link?: string } };
+      blackholedAt?: Date;
+    } | null =
       cachedUserFullProfile?.cursusUser ??
-      (await this.cursusUserService.findOneAndLeanByUserId(userId));
+      (await this.cursusUserService.findOneAndLean({
+        filter: { 'user.id': userId },
+        select: {
+          'user.id': 1,
+          'user.login': 1,
+          'user.image.link': 1,
+          blackholedAt: 1,
+        },
+      }));
 
     if (!cursusUser) {
       throw new NotFoundException();
@@ -65,7 +78,7 @@ export class MyInfoService {
 
   @CacheOnReturn()
   async isNewMember(userId: number): Promise<boolean> {
-    const questsUser: { validatedAt?: Date } | null =
+    const questsUser: Pick<quests_user, 'validatedAt'> | null =
       await this.questsUserService.findOneAndLean({
         filter: {
           'user.id': userId,

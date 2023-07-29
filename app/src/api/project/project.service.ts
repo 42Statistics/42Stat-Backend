@@ -52,7 +52,7 @@ export class ProjectService {
   async findAllProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview[]> {
-    const projects: { id: number; name: string; circle?: number }[] =
+    const projects: Pick<project, 'id' | 'name' | 'circle'>[] =
       await this.findAllAndLean({
         ...queryArgs,
         select: {

@@ -70,14 +70,6 @@ export class CursusUserService {
     return await findOneAndLean(this.cursusUserModel, queryOneArgs);
   }
 
-  async findOneAndLeanByUserId(userId: number): Promise<cursus_user | null> {
-    return await this.findOneAndLean({ filter: { 'user.id': userId } });
-  }
-
-  async findOneAndLeanByLogin(login: string): Promise<cursus_user | null> {
-    return await this.findOneAndLean({ filter: { 'user.login': login } });
-  }
-
   async findAllUserPreviewAndLean(
     queryArgs?: Omit<QueryArgs<cursus_user>, 'select'>,
   ): Promise<UserPreview[]> {
@@ -325,6 +317,7 @@ export class CursusUserService {
     }));
   }
 
+  //todo: ranking field 외부에서 받도록 변경
   async ranking(
     {
       filter,

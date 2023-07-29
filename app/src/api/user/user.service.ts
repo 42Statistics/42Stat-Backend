@@ -20,7 +20,12 @@ export class UserService {
     return await findOneAndLean(this.userModel, queryOneArgs);
   }
 
-  async findOneAndLeanByLogin(login: string): Promise<user | null> {
-    return await this.findOneAndLean({ filter: { login: login } });
+  async findUserIdByLoginAndLean(
+    login: string,
+  ): Promise<Pick<user, 'id'> | null> {
+    return await this.findOneAndLean({
+      filter: { login: login },
+      select: { id: 1 },
+    });
   }
 }

@@ -48,9 +48,11 @@ export class ExperienceUserService {
     beginAt: Date,
     filter?: FilterQuery<cursus_user>,
   ): Promise<LevelRecord[]> {
-    const levelTable = await this.levelService.findAllAndLean({
-      sort: { lvl: 1 },
-    });
+    const levelTable: Pick<level, 'lvl' | 'xp'>[] =
+      await this.levelService.findAllAndLean({
+        sort: { lvl: 1 },
+        select: { lvl: 1, xp: 1 },
+      });
     const userCount = await this.cursusUserService.userCount(filter);
     const aggregate = this.cursusUserService.aggregate<{
       _id: number;
@@ -122,7 +124,10 @@ export class ExperienceUserService {
   }
 }
 
-const calculateLevel = (levelTable: level[], exp: number): number => {
+const calculateLevel = (
+  levelTable: Pick<level, 'lvl' | 'xp'>[],
+  exp: number,
+): number => {
   const upper = levelTable.find(({ xp }) => xp > exp);
   assertExist(upper);
 

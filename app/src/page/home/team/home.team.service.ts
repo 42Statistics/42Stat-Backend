@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import type { exam } from 'src/api/exam/db/exam.database.schema';
 import { ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
@@ -27,10 +28,21 @@ export class HomeTeamService {
 
   @CacheOnReturn()
   async recentExamResult(after: number): Promise<ExamResultDateRanged> {
-    const targetExam = await this.examService.findOneAndLean({
+    const targetExam: Pick<
+      exam,
+      'beginAt' | 'endAt' | 'location' | 'maxPeople' | 'name' | 'projects'
+    > | null = await this.examService.findOneAndLean({
       filter: { endAt: { $lt: new Date() } },
       sort: { beginAt: -1 },
       skip: after,
+      select: {
+        beginAt: 1,
+        endAt: 1,
+        location: 1,
+        maxPeople: 1,
+        name: 1,
+        projects: 1,
+      },
     });
 
     if (!targetExam) {

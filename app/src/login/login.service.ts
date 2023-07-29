@@ -24,6 +24,7 @@ import { JWT_CONFIG, type JwtConfig } from 'src/config/jwt';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
 import { DateWrapper } from 'src/statDate/StatDate';
+import type { account } from './account/db/account.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
   Account,
@@ -84,12 +85,14 @@ export class LoginService {
       return loginUser;
     }
 
-    const linkedUser = await this.accountService.findOneAndLean({
-      filter: {
-        'linkedAccounts.platform': googleUser.platform,
-        'linkedAccounts.id': googleUser.id,
-      },
-    });
+    const linkedUser: Pick<account, 'userId'> | null =
+      await this.accountService.findOneAndLean({
+        filter: {
+          'linkedAccounts.platform': googleUser.platform,
+          'linkedAccounts.id': googleUser.id,
+        },
+        select: { userId: 1 },
+      });
 
     if (!linkedUser) {
       return {
@@ -197,8 +200,8 @@ export class LoginService {
 
   /**
    *
-   * @throws {ConflictException}
-   * @throws {ConflictException}
+   * @throws {ConflictException} 연동하려는 소셜 계정이 이미 42계정에서 사용중인 경우
+   * @throws {ConflictException} 연동하려는 소셜 플랫폼이 이미 다른 계정으로 연결되어있는 경우
    * @throws {NotFoundException} 없는 유저인 경우
    */
   async linkAccount(
@@ -210,6 +213,7 @@ export class LoginService {
         'linkedAccounts.platform': account.platform,
         'linkedAccounts.id': account.id,
       },
+      select: {},
     });
 
     if (duplicateLinkable) {
