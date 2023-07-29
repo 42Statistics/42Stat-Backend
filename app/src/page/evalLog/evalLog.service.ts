@@ -6,6 +6,7 @@ import {
   OUTSTANDING_FLAG_ID,
   ScaleTeamService,
 } from 'src/api/scaleTeam/scaleTeam.service';
+import type { user } from 'src/api/user/db/user.database.schema';
 import { UserService } from 'src/api/user/user.service';
 import {
   CursorExtractor,
@@ -41,9 +42,8 @@ export class EvalLogService {
     const filter: FilterQuery<scale_team> = {};
 
     if (correctorLogin) {
-      const corrector = await this.userService.findOneAndLeanByLogin(
-        correctorLogin,
-      );
+      const corrector: Pick<user, 'id'> | null =
+        await this.userService.findUserIdByLoginAndLean(correctorLogin);
 
       if (!corrector) {
         return this.generateEmptyLog();
@@ -53,9 +53,8 @@ export class EvalLogService {
     }
 
     if (correctedLogin) {
-      const corrected = await this.userService.findOneAndLeanByLogin(
-        correctedLogin,
-      );
+      const corrected: Pick<user, 'id'> | null =
+        await this.userService.findUserIdByLoginAndLean(correctedLogin);
 
       if (!corrected) {
         return this.generateEmptyLog();

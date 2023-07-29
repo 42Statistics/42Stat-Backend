@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 
 @Injectable()
 export class PersonalUtilService {
@@ -11,9 +12,11 @@ export class PersonalUtilService {
     login?: string,
   ): Promise<number> {
     if (login) {
-      const cursusUser = await this.cursusUserService.findOneAndLeanByLogin(
-        login,
-      );
+      const cursusUser: { user: { id: number } } | null =
+        await this.cursusUserService.findOneAndLean({
+          filter: { 'user.login': login },
+          select: { 'user.id': 1 },
+        });
 
       if (!cursusUser) {
         throw new NotFoundException();

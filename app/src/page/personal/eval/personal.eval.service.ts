@@ -9,7 +9,7 @@ import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onRe
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { type DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { PersonalEvalRoot } from './models/personal.eval.model';
 
 @Injectable()
@@ -141,11 +141,13 @@ export class PersonalEvalService {
    */
   @CacheOnReturn()
   async recentComment(userId: number): Promise<{ value: string | null }> {
-    const scaleTeams = await this.scaleTeamService.findAllAndLean({
-      filter: { 'corrector.id': userId },
-      sort: { beginAt: -1, id: -1 },
-      limit: 1,
-    });
+    const scaleTeams: Pick<scale_team, 'comment'>[] =
+      await this.scaleTeamService.findAllAndLean({
+        filter: { 'corrector.id': userId },
+        sort: { beginAt: -1, id: -1 },
+        limit: 1,
+        select: { comment: 1 },
+      });
 
     return { value: scaleTeams.at(0)?.comment ?? null };
   }
