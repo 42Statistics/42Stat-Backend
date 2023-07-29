@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 
 @Injectable()
 export class PersonalUtilService {
