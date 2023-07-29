@@ -108,11 +108,13 @@ export class CacheUtilRankingService {
     keyBase,
     updatedAt,
     valueExtractor,
+    userFilter,
   }: {
     userFullProfiles: UserFullProfile[];
     keyBase: string;
     updatedAt: Date;
     valueExtractor: (userFullProfile: UserFullProfile) => number;
+    userFilter?: (userFullProfile: UserFullProfile) => boolean;
   }): Promise<void> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
@@ -122,6 +124,10 @@ export class CacheUtilRankingService {
     const rankingMap: RankingCacheMap = new Map();
 
     userFullProfiles.forEach((userFullProfile) => {
+      if (userFilter && userFilter(userFullProfile)) {
+        return;
+      }
+
       rankingMap.set(userFullProfile.cursusUser.user.id, {
         ...userFullProfile,
         userPreview: toUserPreviewFromFullProfile(userFullProfile),
