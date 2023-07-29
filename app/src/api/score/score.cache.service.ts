@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CacheUtilService,
-  type CacheSupportedDateTemplate,
+  CacheUtilRankingService,
+  type RankingSupportedDateTemplate,
   type RankCache,
-} from 'src/cache/cache.util.service';
+} from 'src/cache/cache.util.ranking.service';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { ScoreService } from './score.service';
 
@@ -12,7 +13,7 @@ export const TOTAL_SCORES_BY_COALITION = 'totalScoresByCoalition';
 export const SCORE_RECORDS = 'scoreRecords';
 
 export type ScoreRankingSupportedDateTemplate = Extract<
-  CacheSupportedDateTemplate,
+  RankingSupportedDateTemplate,
   DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
 >;
 
@@ -20,13 +21,16 @@ export type ScoreRecordsKey = typeof SCORE_RECORDS;
 
 @Injectable()
 export class ScoreCacheService {
-  constructor(private readonly cacheUtilService: CacheUtilService) {}
+  constructor(
+    private readonly cacheUtilService: CacheUtilService,
+    private readonly cacheUtilRankingService: CacheUtilRankingService,
+  ) {}
 
   async getScoreRank(
     dateTemplate: ScoreRankingSupportedDateTemplate,
     userId: number,
   ): Promise<RankCache | undefined> {
-    return await this.cacheUtilService.getRank({
+    return await this.cacheUtilRankingService.getRank({
       keyBase: SCORE_RANKING,
       userId,
       dateTemplate,
@@ -36,7 +40,7 @@ export class ScoreCacheService {
   async getScoreRanking(
     dateTemplate: ScoreRankingSupportedDateTemplate,
   ): Promise<RankCache[] | undefined> {
-    return await this.cacheUtilService.getRanking({
+    return await this.cacheUtilRankingService.getRanking({
       keyBase: SCORE_RANKING,
       dateTemplate,
     });

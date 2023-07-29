@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CacheUtilService,
-  type CacheSupportedDateTemplate,
+  CacheUtilRankingService,
+  type RankingSupportedDateTemplate,
   type GetRankArgs,
   type GetRankingArgs,
   type RankCache,
-} from 'src/cache/cache.util.service';
+} from 'src/cache/cache.util.ranking.service';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { ScaleTeamService } from './scaleTeam.service';
 
@@ -14,7 +15,7 @@ export const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
 export const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
 
 export type EvalCountRankingSupportedDateTemplate = Extract<
-  CacheSupportedDateTemplate,
+  RankingSupportedDateTemplate,
   DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
 >;
 
@@ -28,7 +29,10 @@ type AverageReviewLengthCache = Awaited<
 
 @Injectable()
 export class ScaleTeamCacheService {
-  constructor(private readonly cacheUtilService: CacheUtilService) {}
+  constructor(
+    private readonly cacheUtilService: CacheUtilService,
+    private readonly cacheUtilRankingService: CacheUtilRankingService,
+  ) {}
 
   async getEvalCountRank(
     dateTemplate: EvalCountRankingSupportedDateTemplate,
@@ -41,10 +45,10 @@ export class ScaleTeamCacheService {
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
-      return await this.cacheUtilService.getRawRank(args);
+      return await this.cacheUtilRankingService.getRawRank(args);
     }
 
-    return await this.cacheUtilService.getRank(args);
+    return await this.cacheUtilRankingService.getRank(args);
   }
 
   async getEvalCountRanking(
@@ -56,10 +60,10 @@ export class ScaleTeamCacheService {
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
-      return await this.cacheUtilService.getRawRanking(args);
+      return await this.cacheUtilRankingService.getRawRanking(args);
     }
 
-    return await this.cacheUtilService.getRanking(args);
+    return await this.cacheUtilRankingService.getRanking(args);
   }
 
   async getAverageReviewLength(
