@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import type {
-  CacheSupportedDateTemplate,
+  RankingSupportedDateTemplate,
   RankCache,
-} from 'src/cache/cache.util.service';
+} from 'src/cache/cache.util.ranking.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
@@ -22,7 +22,7 @@ import type {
 // RankType extends UserRank = UserRank
 
 export type RankingByDateTemplateArgs<
-  SupportDateTemplate extends DateTemplate = CacheSupportedDateTemplate,
+  SupportDateTemplate extends DateTemplate = RankingSupportedDateTemplate,
 > = {
   userId: number;
   paginationIndexArgs: PaginationIndexArgs;
@@ -30,7 +30,7 @@ export type RankingByDateTemplateArgs<
 };
 
 export type LeaderboardElementConvertorArgs<
-  SupportDateTemplate extends DateTemplate = CacheSupportedDateTemplate,
+  SupportDateTemplate extends DateTemplate = RankingSupportedDateTemplate,
 > = {
   rank: RankCache | undefined;
   ranking: RankCache[];
@@ -47,7 +47,7 @@ export class LeaderboardUtilService {
   ) {}
 
   async toLeaderboardElementDateRanged<
-    SupportDateTemplate extends DateTemplate = CacheSupportedDateTemplate,
+    SupportDateTemplate extends DateTemplate = RankingSupportedDateTemplate,
   >({
     rank,
     ranking,

@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CacheUtilService,
-  type CacheSupportedDateTemplate,
+  CacheUtilRankingService,
+  type RankingSupportedDateTemplate,
   type GetRankArgs,
   type GetRankingArgs,
   type RankCache,
-} from 'src/cache/cache.util.service';
+} from 'src/cache/cache.util.ranking.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 export type LogtimeRankingCacheSupportedDateTemplate = Extract<
-  CacheSupportedDateTemplate,
+  RankingSupportedDateTemplate,
   DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.LAST_MONTH
 >;
 
@@ -17,7 +17,9 @@ export const LOGTIME_RANKING = 'logtimeRanking';
 
 @Injectable()
 export class LocationCacheService {
-  constructor(private readonly cacheUtilService: CacheUtilService) {}
+  constructor(
+    private readonly cacheUtilRankingService: CacheUtilRankingService,
+  ) {}
 
   async getLogtimeRank(
     dateTemplate: LogtimeRankingCacheSupportedDateTemplate,
@@ -30,10 +32,10 @@ export class LocationCacheService {
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
-      return await this.cacheUtilService.getRawRank(args);
+      return await this.cacheUtilRankingService.getRawRank(args);
     }
 
-    return await this.cacheUtilService.getRank(args);
+    return await this.cacheUtilRankingService.getRank(args);
   }
 
   async getLogtimeRanking(
@@ -45,9 +47,9 @@ export class LocationCacheService {
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
-      return await this.cacheUtilService.getRawRanking(args);
+      return await this.cacheUtilRankingService.getRawRanking(args);
     }
 
-    return await this.cacheUtilService.getRanking(args);
+    return await this.cacheUtilRankingService.getRanking(args);
   }
 }

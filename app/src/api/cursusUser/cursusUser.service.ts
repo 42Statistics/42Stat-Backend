@@ -12,6 +12,7 @@ import type {
   UserPreview,
   UserRank,
 } from 'src/common/models/common.user.model';
+import type { UserFullProfile } from 'src/common/userFullProfile';
 import type { DateRangeArgs } from 'src/dateRange/dtos/dateRange.dto';
 import type {
   IntPerCircle,
@@ -20,7 +21,6 @@ import type {
 import { DateWrapper } from 'src/statDate/StatDate';
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
-import type { Coalition } from '../coalition/models/coalition.model';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
 import {
@@ -28,23 +28,13 @@ import {
   INNER_QUEST_IDS,
 } from '../questsUser/questsUser.service';
 import { lookupTitle } from '../title/db/title.database.aggregate';
-import type { title } from '../title/db/title.database.schema';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
-import type { titles_user } from '../titlesUser/db/titlesUser.database.schema';
 import type { UserFullProfileAggr } from './db/cursusUser.database.aggregate';
 import {
   aliveUserFilter,
   blackholedUserFilterByDateRange,
 } from './db/cursusUser.database.query';
 import { cursus_user } from './db/cursusUser.database.schema';
-
-export type UserFullProfile = {
-  cursusUser: cursus_user;
-  coalition?: Coalition;
-  titlesUsers: (titles_user & {
-    titles: title;
-  })[];
-};
 
 @Injectable()
 export class CursusUserService {
@@ -339,15 +329,5 @@ export class CursusUserService {
       value: valueExtractor(rawRank),
       rank: index + 1,
     }));
-  }
-
-  extractUserPreviewFromFullProfile(
-    userFullProfile: UserFullProfile,
-  ): UserPreview {
-    return {
-      id: userFullProfile.cursusUser.user.id,
-      login: userFullProfile.cursusUser.user.login,
-      imgUrl: userFullProfile.cursusUser.user.image.link,
-    };
   }
 }

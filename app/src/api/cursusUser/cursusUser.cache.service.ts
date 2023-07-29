@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CacheUtilService,
+  CacheUtilRankingService,
   type RankCache,
+} from 'src/cache/cache.util.ranking.service';
+import {
+  CacheUtilService,
   type UserFullProfileMap,
 } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
@@ -22,7 +25,10 @@ export type UserFullProfileCache = Awaited<
 
 @Injectable()
 export class CursusUserCacheService {
-  constructor(private readonly cacheUtilService: CacheUtilService) {}
+  constructor(
+    private readonly cacheUtilService: CacheUtilService,
+    private readonly cacheUtilRankingService: CacheUtilRankingService,
+  ) {}
 
   async getUserFullProfile(
     userId: number,
@@ -38,7 +44,7 @@ export class CursusUserCacheService {
     keyBase: UserRankingKey,
     userId: number,
   ): Promise<RankCache | undefined> {
-    return await this.cacheUtilService.getRawRank({
+    return await this.cacheUtilRankingService.getRawRank({
       keyBase,
       userId,
       dateTemplate: DateTemplate.TOTAL,
@@ -48,7 +54,7 @@ export class CursusUserCacheService {
   async getUserRanking(
     keyBase: UserRankingKey,
   ): Promise<RankCache[] | undefined> {
-    return await this.cacheUtilService.getRawRanking({
+    return await this.cacheUtilRankingService.getRawRanking({
       keyBase,
       dateTemplate: DateTemplate.TOTAL,
     });

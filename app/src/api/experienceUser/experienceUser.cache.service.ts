@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CacheUtilService,
-  type CacheSupportedDateTemplate,
+  CacheUtilRankingService,
+  type RankingSupportedDateTemplate,
   type RankCache,
-} from 'src/cache/cache.util.service';
+} from 'src/cache/cache.util.ranking.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 export type ExpIncreamentRankingCacheSupportedDateTemplate = Extract<
-  CacheSupportedDateTemplate,
+  RankingSupportedDateTemplate,
   DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
 >;
 
@@ -15,13 +15,15 @@ export const EXP_INCREAMENT_RANKING = 'expIncRanking';
 
 @Injectable()
 export class ExperienceUserCacheService {
-  constructor(private readonly cacheUtilService: CacheUtilService) {}
+  constructor(
+    private readonly cacheUtilRankingService: CacheUtilRankingService,
+  ) {}
 
   async getExpIncreamentRank(
     dateTemplate: ExpIncreamentRankingCacheSupportedDateTemplate,
     userId: number,
   ): Promise<RankCache | undefined> {
-    return await this.cacheUtilService.getRank({
+    return await this.cacheUtilRankingService.getRank({
       keyBase: EXP_INCREAMENT_RANKING,
       dateTemplate,
       userId,
@@ -31,7 +33,7 @@ export class ExperienceUserCacheService {
   async getExpIncreamentRanking(
     dateTemplate: ExpIncreamentRankingCacheSupportedDateTemplate,
   ): Promise<RankCache[] | undefined> {
-    return await this.cacheUtilService.getRanking({
+    return await this.cacheUtilRankingService.getRanking({
       keyBase: EXP_INCREAMENT_RANKING,
       dateTemplate,
     });
