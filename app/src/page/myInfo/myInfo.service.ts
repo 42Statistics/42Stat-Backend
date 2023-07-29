@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
-import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
