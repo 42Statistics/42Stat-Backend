@@ -4,19 +4,23 @@ import type { FilterQuery, Model } from 'mongoose';
 import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
 import { addRank } from 'src/common/db/common.db.aggregation';
 import type { Rate } from 'src/common/models/common.rate.model';
-import type { UserRank } from 'src/common/models/common.user.model';
+import type {
+  UserPreview,
+  UserRank,
+} from 'src/common/models/common.user.model';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
+import type { UserTeam } from 'src/page/personal/general/models/personal.general.model';
+import type { TeamInfo } from 'src/page/teamInfo/models/teamInfo.model';
+import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
 import {
-  TeamStatus,
-  UserTeam,
-} from 'src/page/personal/general/models/personal.general.model';
-import {
+  concatProjectUserUrl,
   conditionalProjectPreview,
   lookupProjects,
 } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
+import { lookupScaleTeams } from '../scaleTeam/db/scaleTeam.database.aggregate';
 
 @Injectable()
 export class TeamService {
@@ -85,8 +89,108 @@ export class TeamService {
 
     return teamsAggr.map((team) => ({
       ...team,
-      status: convertStauts(team.status),
+      status: convertTeamStauts(team.status),
     }));
+  }
+
+  async teamInfo(id: number): Promise<TeamInfo | null> {
+    const aggregate = this.teamModel.aggregate<
+      Omit<TeamInfo, 'status' | 'evalLogs' | 'users' | 'moulinette'> &
+        Pick<team, 'status' | 'users' | 'teamsUploads'> & {
+          evalLogs: team['scaleTeams'];
+          userPreviews: UserPreview[];
+        }
+    >();
+
+    const [teamInfoAggr] = await aggregate
+      .match({ id })
+      .append(lookupProjects('projectId', 'id'))
+      .append(lookupScaleTeams('id', 'team.id'))
+      .addFields({
+        userIds: { $concatArrays: ['$users.id', '$scale_teams.corrector.id'] },
+      })
+      .lookup({
+        from: 'users',
+        localField: 'userIds',
+        foreignField: 'id',
+        as: 'userPreviews',
+        pipeline: [
+          {
+            $project: {
+              id: 1,
+              login: 1,
+              imgUrl: '$image.link',
+            },
+          },
+        ],
+      })
+      .addFields({ project: { $first: '$projects' } })
+      .project({
+        id: 1,
+        name: 1,
+        url: {
+          ...concatProjectUserUrl('projectId', 'users.projectsUserId'),
+        },
+        users: 1,
+        status: 1,
+        lockedAt: 1,
+        closedAt: 1,
+        teamsUploads: 1,
+        projectPreview: {
+          ...conditionalProjectPreview('projectId', 'project'),
+        },
+        evalLogs: '$scale_teams',
+        userPreviews: 1,
+      });
+
+    if (!teamInfoAggr) {
+      return null;
+    }
+
+    return {
+      ...teamInfoAggr,
+      users: teamInfoAggr.users.map(
+        (us) => teamInfoAggr.userPreviews.find((pv) => pv.id === us.id)!,
+      ),
+      status: convertTeamStauts(teamInfoAggr.status),
+      moulinette: teamInfoAggr.teamsUploads.length
+        ? {
+            id: teamInfoAggr.teamsUploads[0].id,
+            finalMark: teamInfoAggr.teamsUploads[0].finalMark,
+            comment: teamInfoAggr.teamsUploads[0].comment,
+            createdAt: teamInfoAggr.teamsUploads[0].createdAt,
+          }
+        : undefined,
+      evalLogs: teamInfoAggr.evalLogs
+        .filter((log) => (log.corrector as unknown) !== 'invisible')
+        .map((log) => ({
+          id: log.id,
+          header: {
+            corrector: teamInfoAggr.userPreviews.find(
+              (pv) => pv.id === log.corrector.id,
+            )!,
+            beginAt: log.beginAt,
+            flag: {
+              id: log.flag.id,
+              name: log.flag.name,
+              isPositive: log.flag.positive,
+            },
+          },
+          correctorReview: {
+            mark: log.finalMark!,
+            review: log.comment!,
+          },
+          correctedsReview: log.feedback
+            ? {
+                mark: log.feedbacks.reduce(
+                  (acc, curr) => Math.max(acc, curr.rating),
+                  0,
+                ),
+                review: log.feedback,
+              }
+            : undefined,
+        })),
+    };
   }
 
   /**
@@ -263,7 +367,7 @@ export class TeamService {
   }
 }
 
-const convertStauts = (status: team['status']): TeamStatus => {
+const convertTeamStauts = (status: team['status']): TeamStatus => {
   switch (status) {
     case 'creating_group':
       return TeamStatus.REGISTERED;

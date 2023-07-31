@@ -23,7 +23,7 @@ import type {
   PreferredClusterDateRanged,
   PreferredTime,
   PreferredTimeDateRanged,
-  TeamInfo,
+  UserTeamInfo,
   UserScoreInfo,
 } from './models/personal.general.model';
 
@@ -199,7 +199,7 @@ export class PersonalGeneralService {
   }
 
   @CacheOnReturn()
-  async teamInfo(userId: number): Promise<TeamInfo> {
+  async teamInfo(userId: number): Promise<UserTeamInfo> {
     const userTeams = await this.teamService.userTeams(userId);
 
     const lastRegistered = [...userTeams]

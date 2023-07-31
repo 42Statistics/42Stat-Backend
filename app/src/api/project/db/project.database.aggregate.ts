@@ -28,6 +28,7 @@ export const concatProjectUrl = (projectIdField: string) => ({
   $concat: [PROJECT_BASE_URL, '/', { $toString: `$${projectIdField}` }],
 });
 
+// todo: projectsUserId 가 배열이 아닌 경우
 export const concatProjectUserUrl = (
   projectIdField: string,
   projectUserIdField: string,

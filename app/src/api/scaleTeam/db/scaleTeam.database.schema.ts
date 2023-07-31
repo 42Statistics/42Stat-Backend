@@ -144,7 +144,7 @@ export class ScaleTeamBase {
   feedback?: string;
 
   @Prop()
-  feedbacks: Feedback;
+  feedbacks: Feedback[];
 
   @Prop()
   filledAt?: Date;

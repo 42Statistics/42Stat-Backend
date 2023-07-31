@@ -28,6 +28,7 @@ import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SearchModule } from './page/search/search.module';
 import { SettingModule } from './page/setting/setting.module';
+import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
 import { DateWrapper } from './statDate/StatDate';
 
 @Module({
@@ -63,6 +64,7 @@ import { DateWrapper } from './statDate/StatDate';
     HomeModule,
     PersonalModule,
     ProjectInfoModule,
+    TeamInfoModule,
     LeaderboardModule,
     EvalLogModule,
     SettingModule,

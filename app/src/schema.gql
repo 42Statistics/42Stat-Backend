@@ -187,101 +187,6 @@ type HomeEval {
   averageCommentLength: Int!
 }
 
-type CharacterType {
-  name: String!
-  description: String!
-  color: String!
-}
-
-type Character {
-  name: String!
-  types: [CharacterType!]!
-  imgUrl: String!
-}
-
-type UserTeam {
-  id: Int!
-  name: String!
-  occurrence: Int!
-  projectPreview: ProjectPreview!
-  status: TeamStatus!
-  lastEventTime: DateTime!
-  isValidated: Boolean
-  finalMark: Int
-}
-
-enum TeamStatus {
-  REGISTERED
-  IN_PROGRESS
-  WAITING_FOR_CORRECTION
-  FINISHED
-}
-
-type PreferredTime {
-  total: Int!
-
-  """06 ~ 12"""
-  morning: Int!
-
-  """12 ~ 18"""
-  daytime: Int!
-
-  """18 ~ 24"""
-  evening: Int!
-
-  """24 ~ 06"""
-  night: Int!
-}
-
-type PreferredTimeDateRanged {
-  data: PreferredTime!
-  start: DateTime!
-  end: DateTime!
-}
-
-type PreferredCluster {
-  name: String
-}
-
-type PreferredClusterDateRanged {
-  data: PreferredCluster!
-  start: DateTime!
-  end: DateTime!
-}
-
-type TeamInfo {
-  lastRegistered: String
-  lastPassed: String
-  teams: [UserTeam!]!
-}
-
-type LevelRecord {
-  monthsPassed: Int!
-  level: Float!
-}
-
-type UserScoreInfo {
-  value: Int!
-  rankInCoalition: Int
-  rankInTotal: Int!
-}
-
-type PersonalGeneral {
-  userProfile: UserProfile!
-  beginAt: DateTime!
-  blackholedAt: DateTime
-  wallet: Int!
-  scoreInfo: UserScoreInfo!
-  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
-  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
-  teamInfo: TeamInfo!
-  userLevelRecords: [LevelRecord!]!
-  promoLevelRecords: [LevelRecord!]!
-  promoMemberLevelRecords: [LevelRecord!]!
-  character: Character
-}
-
 type Pair {
   key: String!
   value: Int!
@@ -390,6 +295,101 @@ type LeaderboardScore {
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
+type CharacterType {
+  name: String!
+  description: String!
+  color: String!
+}
+
+type Character {
+  name: String!
+  types: [CharacterType!]!
+  imgUrl: String!
+}
+
+type UserTeam {
+  id: Int!
+  name: String!
+  occurrence: Int!
+  projectPreview: ProjectPreview!
+  status: TeamStatus!
+  lastEventTime: DateTime!
+  isValidated: Boolean
+  finalMark: Int
+}
+
+enum TeamStatus {
+  REGISTERED
+  IN_PROGRESS
+  WAITING_FOR_CORRECTION
+  FINISHED
+}
+
+type PreferredTime {
+  total: Int!
+
+  """06 ~ 12"""
+  morning: Int!
+
+  """12 ~ 18"""
+  daytime: Int!
+
+  """18 ~ 24"""
+  evening: Int!
+
+  """24 ~ 06"""
+  night: Int!
+}
+
+type PreferredTimeDateRanged {
+  data: PreferredTime!
+  start: DateTime!
+  end: DateTime!
+}
+
+type PreferredCluster {
+  name: String
+}
+
+type PreferredClusterDateRanged {
+  data: PreferredCluster!
+  start: DateTime!
+  end: DateTime!
+}
+
+type UserTeamInfo {
+  lastRegistered: String
+  lastPassed: String
+  teams: [UserTeam!]!
+}
+
+type LevelRecord {
+  monthsPassed: Int!
+  level: Float!
+}
+
+type UserScoreInfo {
+  value: Int!
+  rankInCoalition: Int
+  rankInTotal: Int!
+}
+
+type PersonalGeneral {
+  userProfile: UserProfile!
+  beginAt: DateTime!
+  blackholedAt: DateTime
+  wallet: Int!
+  scoreInfo: UserScoreInfo!
+  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
+  preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
+  teamInfo: UserTeamInfo!
+  userLevelRecords: [LevelRecord!]!
+  promoLevelRecords: [LevelRecord!]!
+  promoMemberLevelRecords: [LevelRecord!]!
+  character: Character
+}
+
 type MyInfo {
   userPreview: UserPreview!
   isNewMember: Boolean!
@@ -459,6 +459,41 @@ type Setting {
   account: Account!
 }
 
+type TeamUpload {
+  id: Int!
+  finalMark: Int!
+  comment: String!
+  createdAt: DateTime!
+}
+
+type TeamEvalLogHeader {
+  corrector: UserPreview!
+  beginAt: DateTime!
+  flag: Flag!
+}
+
+type TeamEvalLog {
+  id: Int!
+  correctorReview: EvalReview!
+  correctedsReview: EvalReview
+  header: TeamEvalLogHeader!
+}
+
+type TeamInfo {
+  id: Int!
+  name: String!
+  url: String!
+  users: [UserPreview!]!
+
+  """기계 채점 결과"""
+  moulinette: TeamUpload
+  status: TeamStatus!
+  lockedAt: DateTime
+  closedAt: DateTime
+  projectPreview: ProjectPreview!
+  evalLogs: [TeamEvalLog!]!
+}
+
 type Query {
   getLanding: Landing!
   findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]! @deprecated(reason: "search module 로 분리")
@@ -473,6 +508,7 @@ type Query {
   getPersonalEval(userId: Int, login: String): PersonalEval!
   getPersonalVersus(login: String, userId: Int): PersonalVersus
   getProjectInfo(projectName: String! = "Libft"): ProjectInfo!
+  getTeamInfo(id: Int!): TeamInfo!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
