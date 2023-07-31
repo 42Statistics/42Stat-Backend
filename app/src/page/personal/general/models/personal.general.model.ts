@@ -1,18 +1,10 @@
-import { Field, Float, ObjectType, registerEnumType } from '@nestjs/graphql';
+import { Field, Float, ObjectType } from '@nestjs/graphql';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { ProjectPreview } from 'src/common/models/common.project.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
+import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
 import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
-
-export enum TeamStatus {
-  REGISTERED,
-  IN_PROGRESS,
-  WAITING_FOR_CORRECTION,
-  FINISHED,
-}
-
-registerEnumType(TeamStatus, { name: 'TeamStatus' });
 
 @ObjectType()
 export class UserTeam {
@@ -72,7 +64,7 @@ export class PreferredCluster {
 export class PreferredClusterDateRanged extends DateRanged(PreferredCluster) {}
 
 @ObjectType()
-export class TeamInfo {
+export class UserTeamInfo {
   @Field({ nullable: true })
   lastRegistered?: string;
 
@@ -136,7 +128,7 @@ export class PersonalGeneral {
   preferredClusterByDateTemplate: PreferredClusterDateRanged;
 
   @Field()
-  teamInfo: TeamInfo;
+  teamInfo: UserTeamInfo;
 
   @Field((_type) => [LevelRecord])
   userLevelRecords: LevelRecord[];

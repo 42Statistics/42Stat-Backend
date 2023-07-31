@@ -33,7 +33,7 @@ export class TeamsUpload {
   comment: string;
 
   @Prop()
-  createdAt: string; //todo: Date?
+  createdAt: Date;
 
   @Prop()
   uploadId: number;
@@ -109,7 +109,7 @@ export class team extends TeamBase {
   repoUuid: string;
 
   @Prop()
-  teamsUploads: TeamsUpload;
+  teamsUploads: TeamsUpload[];
 }
 
 export const TeamSchema = SchemaFactory.createForClass(team);

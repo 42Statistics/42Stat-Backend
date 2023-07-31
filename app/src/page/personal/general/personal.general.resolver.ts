@@ -14,7 +14,7 @@ import {
   PersonalGeneralRoot,
   PreferredClusterDateRanged,
   PreferredTimeDateRanged,
-  TeamInfo,
+  UserTeamInfo,
   UserScoreInfo,
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
@@ -86,8 +86,8 @@ export class PersonalGeneralResolver {
     );
   }
 
-  @ResolveField((_returns) => TeamInfo)
-  async teamInfo(@Root() root: PersonalGeneralRoot): Promise<TeamInfo> {
+  @ResolveField((_returns) => UserTeamInfo)
+  async teamInfo(@Root() root: PersonalGeneralRoot): Promise<UserTeamInfo> {
     return await this.personalGeneralService.teamInfo(root.userProfile.id);
   }
 

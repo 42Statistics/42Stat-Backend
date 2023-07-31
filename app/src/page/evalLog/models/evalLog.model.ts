@@ -1,19 +1,15 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType, PickType } from '@nestjs/graphql';
 import { ProjectPreview } from 'src/common/models/common.project.model';
 import { UserPreview } from 'src/common/models/common.user.model';
+import { TeamInfoBase } from 'src/page/teamInfo/models/teamInfo.base.model';
 import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
 
 @ObjectType()
-export class TeamPreview {
-  @Field()
-  id: number;
-
-  @Field()
-  name: string;
-
-  @Field()
-  url: string;
-}
+export class TeamPreview extends PickType(TeamInfoBase, [
+  'id',
+  'name',
+  'url',
+]) {}
 
 @ObjectType()
 export class Flag {
