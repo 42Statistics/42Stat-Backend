@@ -141,6 +141,34 @@ export class CacheUtilRankingService {
     await this.cacheUtilService.setWithDate(key, rankingMap, updatedAt);
   }
 
+  async setRanking<T extends UserRank>(
+    ranking: T[],
+    updatedAt: Date,
+    keyBase: string,
+    dateTemplate: DateTemplate,
+  ) {
+    const key = this.cacheUtilService.buildKey(
+      keyBase,
+      DateTemplate[dateTemplate],
+    );
+
+    const userFullProfileMap =
+      await this.cacheUtilService.getUserFullProfileMap();
+
+    assertExist(userFullProfileMap);
+
+    const res = ranking.reduce((acc, curr) => {
+      acc.set(curr.userPreview.id, {
+        ...userFullProfileMap.get(curr.userPreview.id)!,
+        ...curr,
+      });
+
+      return acc;
+    }, new Map() as RankingCacheMap);
+
+    await this.cacheUtilService.setWithDate(key, res, updatedAt);
+  }
+
   async updateRanking({
     userFullProfiles,
     keyBase,
