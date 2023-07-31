@@ -8,6 +8,7 @@ import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { LambdaController } from './lambda.controller';
 import { LambdaRegister } from './lambda.register';
 import { LambdaService } from './lambda.service';
+import { DateRangeModule } from 'src/dateRange/dateRange.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LambdaService } from './lambda.service';
     ScoreModule,
     ExperienceUserModule,
     LocationModule,
+    DateRangeModule,
   ],
   providers: [LambdaService, LambdaRegister],
   controllers: [LambdaController],

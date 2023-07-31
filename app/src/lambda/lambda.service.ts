@@ -33,6 +33,7 @@ import {
 } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import type { UserFullProfile } from 'src/common/userFullProfile';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/statDate/StatDate';
 
@@ -54,6 +55,7 @@ export class LambdaService {
     private readonly scoreService: ScoreService,
     private readonly experienceUserService: ExperienceUserService,
     private readonly locationService: LocationService,
+    private readonly dateRangeService: DateRangeService,
   ) {}
 
   async updatePreloadCache(timestamp: number) {
@@ -92,82 +94,120 @@ export class LambdaService {
       userFilter: ({ cursusUser }) => isBlackholed(cursusUser),
     });
 
-    await this.updateEvalCountRanking(
-      userFullProfiles,
-      updatedAt,
+    const total = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.TOTAL,
     );
 
-    await this.updateEvalCountRanking(
-      userFullProfiles,
-      updatedAt,
+    const currWeek = this.dateRangeService.dateRangeFromTemplate(
+      DateTemplate.CURR_WEEK,
+    );
+
+    const currMonth = this.dateRangeService.dateRangeFromTemplate(
       DateTemplate.CURR_MONTH,
     );
 
-    await this.updateEvalCountRanking(
-      userFullProfiles,
+    const totalEval = await this.scaleTeamService.evalCountRanking(
+      evalCountDateRangeFilter(total),
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      totalEval,
       updatedAt,
+      EVAL_COUNT_RANKING,
+      DateTemplate.TOTAL,
+    );
+
+    const currMonthEval = await this.scaleTeamService.evalCountRanking(
+      evalCountDateRangeFilter(currMonth),
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      currMonthEval,
+      updatedAt,
+      EVAL_COUNT_RANKING,
+      DateTemplate.CURR_MONTH,
+    );
+
+    const currWeekEval = await this.scaleTeamService.evalCountRanking(
+      evalCountDateRangeFilter(currWeek),
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      currWeekEval,
+      updatedAt,
+      EVAL_COUNT_RANKING,
       DateTemplate.CURR_WEEK,
     );
 
     await this.updateAverageReviewLength(updatedAt);
 
-    await this.updateScoreRanking(
-      userFullProfiles,
+    const totalScore = await this.scoreService.scoreRanking({
+      filter: scoreDateRangeFilter(total),
+    });
+
+    await this.cacheUtilRankingService.setRanking(
+      totalScore,
       updatedAt,
+      SCORE_RANKING,
       DateTemplate.TOTAL,
     );
 
-    await this.updateScoreRanking(
-      userFullProfiles,
+    const currMonthScore = await this.scoreService.scoreRanking({
+      filter: scoreDateRangeFilter(currMonth),
+    });
+
+    await this.cacheUtilRankingService.setRanking(
+      currMonthScore,
       updatedAt,
+      SCORE_RANKING,
       DateTemplate.CURR_MONTH,
     );
 
-    await this.updateScoreRanking(
-      userFullProfiles,
+    const currWeekScore = await this.scoreService.scoreRanking({
+      filter: scoreDateRangeFilter(currWeek),
+    });
+
+    await this.cacheUtilRankingService.setRanking(
+      currWeekScore,
       updatedAt,
+      SCORE_RANKING,
       DateTemplate.CURR_WEEK,
     );
 
     await this.updateTotalScoresPerCoalition(updatedAt);
     await this.updateScoreRecords(updatedAt);
 
-    await this.updateExpIncreamentRanking(
-      userFullProfiles,
+    const currMonthExp = await this.experienceUserService.increamentRanking(
+      expIncreamentDateFilter(currMonth),
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      currMonthExp,
       updatedAt,
+      EXP_INCREAMENT_RANKING,
       DateTemplate.CURR_MONTH,
     );
 
-    await this.updateExpIncreamentRanking(
-      userFullProfiles,
+    const currWeekExp = await this.experienceUserService.increamentRanking(
+      expIncreamentDateFilter(currWeek),
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      currWeekExp,
       updatedAt,
+      EXP_INCREAMENT_RANKING,
       DateTemplate.CURR_WEEK,
     );
 
-    await this.updateLogtimeRanking(
-      userFullProfiles,
+    const totalLog = await this.locationService.logtimeRanking(total);
+
+    await this.cacheUtilRankingService.setRanking(
+      totalLog,
       updatedAt,
+      LOGTIME_RANKING,
       DateTemplate.TOTAL,
     );
   }
-
-  private updateEvalCountRanking: UpdateRankingByDateTemplateFn = async (
-    userFullProfiles,
-    updatedAt: Date,
-    dateTemplate: RankingSupportedDateTemplate,
-  ) => {
-    await this.cacheUtilRankingService.updateRanking({
-      userFullProfiles,
-      keyBase: EVAL_COUNT_RANKING,
-      newUpdatedAt: updatedAt,
-      dateTemplate,
-      queryRankingFn: (dateRange) =>
-        this.scaleTeamService.evalCountRanking(
-          evalCountDateRangeFilter(dateRange),
-        ),
-    });
-  };
 
   private updateAverageReviewLength = async (updatedAt: Date) => {
     const comment = await this.scaleTeamService.averageReviewLength('comment');
@@ -186,23 +226,6 @@ export class LambdaService {
       feedback,
       updatedAt,
     );
-  };
-
-  private updateScoreRanking: UpdateRankingByDateTemplateFn = async (
-    userFullProfiles,
-    updatedAt,
-    dateTemplate,
-  ) => {
-    await this.cacheUtilRankingService.updateRanking({
-      userFullProfiles,
-      keyBase: SCORE_RANKING,
-      newUpdatedAt: updatedAt,
-      dateTemplate,
-      queryRankingFn: (dateRange) =>
-        this.scoreService.scoreRanking({
-          filter: scoreDateRangeFilter(dateRange),
-        }),
-    });
   };
 
   private async updateTotalScoresPerCoalition(updatedAt: Date): Promise<void> {
@@ -234,36 +257,4 @@ export class LambdaService {
       updatedAt,
     );
   }
-
-  private updateExpIncreamentRanking: UpdateRankingByDateTemplateFn = async (
-    userFullProfiles,
-    updatedAt,
-    dateTemplate,
-  ) => {
-    await this.cacheUtilRankingService.updateRanking({
-      userFullProfiles,
-      keyBase: EXP_INCREAMENT_RANKING,
-      newUpdatedAt: updatedAt,
-      dateTemplate,
-      queryRankingFn: (dateRange) =>
-        this.experienceUserService.increamentRanking(
-          expIncreamentDateFilter(dateRange),
-        ),
-    });
-  };
-
-  private updateLogtimeRanking: UpdateRankingByDateTemplateFn = async (
-    userFullProfiles,
-    updatedAt,
-    dateTemplate,
-  ) => {
-    await this.cacheUtilRankingService.updateRanking({
-      userFullProfiles,
-      keyBase: LOGTIME_RANKING,
-      newUpdatedAt: updatedAt,
-      dateTemplate,
-      queryRankingFn: (dateRange) =>
-        this.locationService.logtimeRanking(dateRange),
-    });
-  };
 }
