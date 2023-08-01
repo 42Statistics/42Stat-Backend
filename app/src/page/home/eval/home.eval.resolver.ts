@@ -1,14 +1,15 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Int, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { HttpExceptionFilter } from 'src/http-exception.filter';
+import { HomeEvalService } from './home.eval.service';
+import { HomeEval } from './models/home.eval.model';
 import {
   FloatDateRanged,
   IntDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
-import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { HomeEvalService } from './home.eval.service';
-import { HomeEval } from './models/home.eval.model';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
@@ -21,19 +22,26 @@ export class HomeEvalResolver {
     return {};
   }
 
-  @ResolveField((_returns) => IntDateRanged)
+  @ResolveField((_returns) => IntDateRanged, { deprecationReason: '0.6.0' })
   async evalCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<IntDateRanged> {
     return await this.homeEvalService.evalCountByDateTemplate(dateTemplate);
   }
 
-  @ResolveField((_returns) => FloatDateRanged)
+  @ResolveField((_returns) => FloatDateRanged, { deprecationReason: '0.6.0' })
   async averageEvalCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<FloatDateRanged> {
     return await this.homeEvalService.averageEvalCountByDateTemplate(
       dateTemplate,
+    );
+  }
+
+  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 60 일' })
+  async evalCountRecord(@Args('last') last: number): Promise<IntRecord[]> {
+    return await this.homeEvalService.evalCountRecord(
+      Math.max(Math.min(last, 60), 1),
     );
   }
 

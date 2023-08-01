@@ -1,10 +1,11 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { ProjectPreview } from 'src/common/models/common.project.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
 import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
+import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 
 @ObjectType()
 export class UserTeam {
@@ -118,8 +119,11 @@ export class PersonalGeneral {
   @Field()
   scoreInfo: UserScoreInfo;
 
-  @Field()
+  @Field({ deprecationReason: '0.6.0' })
   logtimeByDateTemplate: IntDateRanged;
+
+  @Field((_type) => [IntRecord])
+  logtimeRecord: IntRecord[];
 
   @Field()
   preferredTimeByDateTemplate: PreferredTimeDateRanged;

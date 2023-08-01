@@ -45,12 +45,21 @@ export class HomeUserResolver {
     return await this.homeUserService.blackholedRate();
   }
 
-  @ResolveField((_returns) => IntDateRanged)
+  @ResolveField((_returns) => IntDateRanged, { deprecationReason: '0.6.0' })
   async blackholedCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ) {
     return await this.homeUserService.blackholedCountByDateTemplate(
       dateTemplate,
+    );
+  }
+
+  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
+  async blackholedCountRecord(
+    @Args('last') last: number,
+  ): Promise<IntRecord[]> {
+    return await this.homeUserService.blackholedCountRecord(
+      Math.max(1, Math.min(last, 24)),
     );
   }
 

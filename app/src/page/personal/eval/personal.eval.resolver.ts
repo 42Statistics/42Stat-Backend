@@ -12,6 +12,7 @@ import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { UserRank } from 'src/common/models/common.user.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import {
   DateTemplate,
   DateTemplateArgs,
@@ -71,6 +72,17 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.countByDateTemplate(
       root.userProfile.id,
       dateTemplate,
+    );
+  }
+
+  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
+  async countRecord(
+    @Root() root: PersonalEvalRoot,
+    @Args('last') last: number,
+  ): Promise<IntRecord[]> {
+    return await this.personalEvalService.countRecord(
+      root.userProfile.id,
+      Math.max(1, Math.min(last, 24)),
     );
   }
 

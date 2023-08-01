@@ -12,6 +12,7 @@ import {
 import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
+import { assertExist } from 'src/common/assertExist';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
@@ -145,6 +146,45 @@ export class HomeUserService {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return await this.blackholedCountByDateRange(dateRange);
+  }
+
+  @CacheOnReturn()
+  async blackholedCountRecord(last: number): Promise<IntRecord[]> {
+    const range = new DateWrapper()
+      .startOfMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const res: { blackholedAt?: Date }[] =
+      await this.cursusUserService.findAllAndLean({
+        filter: blackholedUserFilterByDateRange({
+          start: range,
+          end: new Date(),
+        }),
+        select: { blackholedAt: 1 },
+      });
+
+    const map = res.reduce((acc, { blackholedAt }) => {
+      assertExist(blackholedAt);
+
+      const date = new DateWrapper(blackholedAt)
+        .startOfMonth()
+        .toDate()
+        .getTime();
+
+      const prev = acc.get(date);
+
+      acc.set(date, (prev ?? 0) + 1);
+
+      return acc;
+    }, new Map() as Map<number, number>);
+
+    return [...map.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map((curr) => ({
+        at: new Date(curr[0]),
+        value: curr[1],
+      }));
   }
 
   @CacheOnReturn()

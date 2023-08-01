@@ -11,6 +11,7 @@ import type { PreferredTime } from 'src/page/personal/general/models/personal.ge
 import { DateWrapper } from 'src/statDate/StatDate';
 import { locationDateRangeFilter } from './db/location.database.aggregate';
 import { location } from './db/location.database.schema';
+import { QueryArgs, findAllAndLean } from 'src/common/db/common.db.query';
 
 const enum PartitionState {
   NIGHT,
@@ -26,6 +27,10 @@ export class LocationService {
     @InjectModel(location.name)
     private readonly locationModel: Model<location>,
   ) {}
+
+  async findAllAndLean(queryArgs: QueryArgs<location>): Promise<location[]> {
+    return await findAllAndLean(this.locationModel, queryArgs);
+  }
 
   async preferredTime(
     userId: number,

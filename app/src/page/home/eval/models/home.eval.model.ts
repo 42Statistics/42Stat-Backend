@@ -1,16 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import {
-  FloatDateRanged,
-  IntDateRanged,
-} from 'src/common/models/common.dateRanaged.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 
 @ObjectType()
 export class HomeEval {
-  @Field()
-  evalCountByDateTemplate: IntDateRanged;
-
-  @Field()
-  averageEvalCountByDateTemplate: FloatDateRanged;
+  @Field((_type) => [IntRecord])
+  evalCountRecord: IntRecord[];
 
   @Field()
   averageFeedbackLength: number;

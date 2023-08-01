@@ -13,6 +13,7 @@ import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/statDate/StatDate';
@@ -23,8 +24,8 @@ import type {
   PreferredClusterDateRanged,
   PreferredTime,
   PreferredTimeDateRanged,
-  UserTeamInfo,
   UserScoreInfo,
+  UserTeamInfo,
 } from './models/personal.general.model';
 
 @Injectable()
@@ -98,7 +99,20 @@ export class PersonalGeneralService {
     );
 
     if (!me) {
-      throw new NotFoundException();
+      const filtered = await this.scoreCacheService.getScoreRank(
+        dateTemplate,
+        userId,
+      );
+
+      if (!filtered) {
+        throw new NotFoundException();
+      }
+
+      return {
+        value: filtered.value,
+        rankInTotal: filtered.rank,
+        rankInCoalition: filtered.rank,
+      };
     }
 
     const rankInCoalition = me.coalition
@@ -138,6 +152,29 @@ export class PersonalGeneralService {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return await this.logtimeByDateRange(userId, dateRange);
+  }
+
+  async logtimeRecord(userId: number, last: number): Promise<IntRecord[]> {
+    let range = new DateWrapper().startOfMonth();
+
+    const ret: IntRecord[] = [];
+
+    for (let i = 0; i < last; i++) {
+      const [curr] = await this.locationService.logtimeRanking(
+        { start: range.moveMonth(-1).toDate(), end: range.toDate() },
+        { 'user.id': userId },
+      );
+
+      if (!curr) {
+        break;
+      }
+
+      ret.push({ at: range.toDate(), value: curr.value });
+
+      range = range.moveMonth(-1);
+    }
+
+    return ret.sort((a, b) => a.at.getTime() - b.at.getTime());
   }
 
   private async preferredTime(
