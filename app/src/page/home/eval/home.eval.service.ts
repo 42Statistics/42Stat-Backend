@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
+import { FilterQuery } from 'mongoose';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { aliveUserFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
-import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
+import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
   AVERAGE_COMMENT_LENGTH,
   AVERAGE_FEEDBACK_LENGTH,
@@ -10,12 +10,14 @@ import {
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import type {
+import {
   FloatDateRanged,
   IntDateRanged,
 } from 'src/common/models/common.dateRanaged.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateWrapper } from 'src/statDate/StatDate';
 
 @Injectable()
 export class HomeEvalService {
@@ -40,6 +42,36 @@ export class HomeEvalService {
     const evalCount = await this.evalCount(evalFilter);
 
     return this.dateRangeService.toDateRanged(evalCount, dateRange);
+  }
+
+  async evalCountRecord(last: number): Promise<IntRecord[]> {
+    const range = new DateWrapper()
+      .startOfDate()
+      .moveDate(1 - last)
+      .toDate();
+
+    const evals: { beginAt: Date }[] =
+      await this.scaleTeamService.findAllAndLean({
+        filter: { beginAt: { $gte: range } },
+        select: { beginAt: 1 },
+      });
+
+    const res = evals.reduce((acc, { beginAt }) => {
+      const date = new DateWrapper(beginAt).startOfDate().toDate().getTime();
+
+      const prev = acc.get(date);
+
+      acc.set(date, (prev ?? 0) + 1);
+
+      return acc;
+    }, new Map() as Map<number, number>);
+
+    return [...res.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map((curr) => ({
+        at: new Date(curr[0]),
+        value: curr[1],
+      }));
   }
 
   @CacheOnReturn()

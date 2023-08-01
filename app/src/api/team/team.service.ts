@@ -21,6 +21,7 @@ import type { project } from '../project/db/project.database.schema';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
 import { lookupScaleTeams } from '../scaleTeam/db/scaleTeam.database.aggregate';
+import { QueryArgs, findAllAndLean } from 'src/common/db/common.db.query';
 
 @Injectable()
 export class TeamService {
@@ -28,6 +29,10 @@ export class TeamService {
     @InjectModel(team.name)
     private readonly teamModel: Model<team>,
   ) {}
+
+  async findAllAndLean(queryArgs: QueryArgs<team>): Promise<team[]> {
+    return await findAllAndLean(this.teamModel, queryArgs);
+  }
 
   async count(filter?: FilterQuery<team>): Promise<number> {
     if (!filter) {

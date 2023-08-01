@@ -1,5 +1,4 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
@@ -36,8 +35,8 @@ export class HomeUser {
   @Field()
   blackholedRate: Rate;
 
-  @Field()
-  blackholedCountByDateTemplate: IntDateRanged;
+  @Field((_type) => [IntRecord])
+  blackholedCountRecord: IntRecord[];
 
   @Field((_type) => [IntPerCircle])
   blackholedCountPerCircle: IntPerCircle[];

@@ -168,6 +168,14 @@ enum DateTemplate {
   TOTAL
 }
 
+type HomeEval {
+  evalCountRecord(last: Int!): [IntRecord!]!
+  averageFeedbackLength: Int!
+  averageCommentLength: Int!
+  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
+  averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged! @deprecated(reason: "0.6.0")
+}
+
 type IntDateRanged {
   data: Int!
   start: DateTime!
@@ -178,13 +186,6 @@ type FloatDateRanged {
   data: Float!
   start: DateTime!
   end: DateTime!
-}
-
-type HomeEval {
-  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
-  averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged!
-  averageFeedbackLength: Int!
-  averageCommentLength: Int!
 }
 
 type Pair {
@@ -225,6 +226,7 @@ type ExamResultDateRanged {
 }
 
 type HomeTeam {
+  teamCloseRecord(last: Int!): [IntRecord!]!
   currRegisteredCountRanking(limit: Int! = 3): [ProjectRank!]!
   recentExamResult(after: Int! = 0): ExamResultDateRanged!
 }
@@ -244,11 +246,12 @@ type HomeUser {
   userCountPerLevel: [UserCountPerLevel!]!
   memberRate: Rate!
   blackholedRate: Rate!
-  blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  blackholedCountRecord(last: Int!): [IntRecord!]!
   blackholedCountPerCircle: [IntPerCircle!]!
   walletRanking(limit: Int! = 5): [UserRank!]!
   correctionPointRanking(limit: Int! = 5): [UserRank!]!
   averageDurationPerCircle: [IntPerCircle!]!
+  blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
 }
 
 """누적 데이터 기준입니다."""
@@ -380,7 +383,8 @@ type PersonalGeneral {
   blackholedAt: DateTime
   wallet: Int!
   scoreInfo: UserScoreInfo!
-  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
+  logtimeRecord(last: Int!): [IntRecord!]!
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
   teamInfo: UserTeamInfo!
@@ -405,6 +409,7 @@ type PersonalEval {
   correctionPoint: Int!
   totalCount: Int!
   countByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
+  countRecord(last: Int!): [IntRecord!]!
   totalDuration: Int!
   averageDuration: Int!
   averageFinalMark: Float!

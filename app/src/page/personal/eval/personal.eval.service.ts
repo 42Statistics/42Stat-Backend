@@ -8,8 +8,10 @@ import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
+import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { type DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
+import { DateWrapper } from 'src/statDate/StatDate';
 import type { PersonalEvalRoot } from './models/personal.eval.model';
 
 @Injectable()
@@ -56,6 +58,42 @@ export class PersonalEvalService {
       },
       correctionPoint: cursusUser.user.correctionPoint,
     };
+  }
+
+  @CacheOnReturn()
+  async countRecord(userId: number, last: number): Promise<IntRecord[]> {
+    const range = new DateWrapper()
+      .startOfMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const evals: { beginAt: Date }[] =
+      await this.scaleTeamService.findAllAndLean({
+        filter: {
+          'corrector.id': userId,
+          beginAt: { $gte: range },
+        },
+        select: {
+          beginAt: 1,
+        },
+      });
+
+    const res = evals.reduce((acc, { beginAt }) => {
+      const date = new DateWrapper(beginAt).startOfMonth().toDate().getTime();
+
+      const prev = acc.get(date);
+
+      acc.set(date, (prev ?? 0) + 1);
+
+      return acc;
+    }, new Map() as Map<number, number>);
+
+    return [...res.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map((curr) => ({
+        at: new Date(curr[0]),
+        value: curr[1],
+      }));
   }
 
   private async count(
