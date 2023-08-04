@@ -129,7 +129,7 @@ type EvalLogEdge {
 
 type EvalLogsPaginated {
   edges: [EvalLogEdge!]!
-  pageInfo: CursorPageInfo
+  pageInfo: CursorPageInfo!
 }
 
 type IntRecord {
