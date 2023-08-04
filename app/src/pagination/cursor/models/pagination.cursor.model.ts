@@ -40,7 +40,7 @@ export function CursorPaginated<T>(
     @Field((_type) => [CursorEdgeType])
     edges: CursorEdgeType[];
 
-    @Field((_type) => CursorPageInfo, { nullable: true })
+    @Field()
     pageInfo: CursorPageInfo;
   }
 
