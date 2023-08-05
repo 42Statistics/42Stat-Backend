@@ -51,6 +51,7 @@ export class HomeUserService {
       dateRange,
     );
 
+    // 다른 record 반환 로직들 참고해서 수정하면 좋을 것.
     const dates = DateWrapper.partitionByMonth(dateRange);
 
     return dates.reduce(
@@ -150,21 +151,21 @@ export class HomeUserService {
 
   @CacheOnReturn()
   async blackholedCountRecord(last: number): Promise<IntRecord[]> {
-    const range = new DateWrapper()
+    const startDate = new DateWrapper()
       .startOfMonth()
       .moveMonth(1 - last)
       .toDate();
 
-    const res: { blackholedAt?: Date }[] =
+    const blackholeds: { blackholedAt?: Date }[] =
       await this.cursusUserService.findAllAndLean({
         filter: blackholedUserFilterByDateRange({
-          start: range,
+          start: startDate,
           end: new Date(),
         }),
         select: { blackholedAt: 1 },
       });
 
-    const map = res.reduce((acc, { blackholedAt }) => {
+    const res = blackholeds.reduce((acc, { blackholedAt }) => {
       assertExist(blackholedAt);
 
       const date = new DateWrapper(blackholedAt)
@@ -179,12 +180,15 @@ export class HomeUserService {
       return acc;
     }, new Map() as Map<number, number>);
 
-    return [...map.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map((curr) => ({
-        at: new Date(curr[0]),
-        value: curr[1],
-      }));
+    const records: IntRecord[] = [];
+
+    for (let i = 0; i < last; i++) {
+      const currDate = new DateWrapper(startDate).moveMonth(i).toDate();
+
+      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
+    }
+
+    return records;
   }
 
   @CacheOnReturn()

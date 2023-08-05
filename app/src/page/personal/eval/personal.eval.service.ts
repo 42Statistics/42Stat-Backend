@@ -62,7 +62,7 @@ export class PersonalEvalService {
 
   @CacheOnReturn()
   async countRecord(userId: number, last: number): Promise<IntRecord[]> {
-    const range = new DateWrapper()
+    const startDate = new DateWrapper()
       .startOfMonth()
       .moveMonth(1 - last)
       .toDate();
@@ -71,7 +71,7 @@ export class PersonalEvalService {
       await this.scaleTeamService.findAllAndLean({
         filter: {
           'corrector.id': userId,
-          beginAt: { $gte: range },
+          beginAt: { $gte: startDate },
         },
         select: {
           beginAt: 1,
@@ -88,12 +88,15 @@ export class PersonalEvalService {
       return acc;
     }, new Map() as Map<number, number>);
 
-    return [...res.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map((curr) => ({
-        at: new Date(curr[0]),
-        value: curr[1],
-      }));
+    const records: IntRecord[] = [];
+
+    for (let i = 0; i < last; i++) {
+      const currDate = new DateWrapper(startDate).moveMonth(i).toDate();
+
+      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
+    }
+
+    return records;
   }
 
   private async count(
