@@ -155,26 +155,25 @@ export class PersonalGeneralService {
   }
 
   async logtimeRecord(userId: number, last: number): Promise<IntRecord[]> {
-    let range = new DateWrapper().startOfMonth();
-
     const ret: IntRecord[] = [];
+    const startDate = new DateWrapper().startOfMonth().moveMonth(1 - last);
 
     for (let i = 0; i < last; i++) {
+      const currStartDate = startDate.moveMonth(i).toDate();
+      const currEndDate = startDate.moveMonth(i + 1).toDate();
+
       const [curr] = await this.locationService.logtimeRanking(
-        { start: range.moveMonth(-1).toDate(), end: range.toDate() },
+        {
+          start: currStartDate,
+          end: currEndDate,
+        },
         { 'user.id': userId },
       );
 
-      if (!curr) {
-        break;
-      }
-
-      ret.push({ at: range.toDate(), value: curr.value });
-
-      range = range.moveMonth(-1);
+      ret.push({ at: currStartDate, value: curr?.value ?? 0 });
     }
 
-    return ret.sort((a, b) => a.at.getTime() - b.at.getTime());
+    return ret;
   }
 
   private async preferredTime(

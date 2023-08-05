@@ -24,13 +24,13 @@ export class HomeTeamService {
 
   @CacheOnReturn()
   async teamCloseRecord(last: number): Promise<IntRecord[]> {
-    const range = new DateWrapper()
+    const startDate = new DateWrapper()
       .startOfDate()
       .moveDate(1 - last)
       .toDate();
 
     const teams: { closedAt?: Date }[] = await this.teamService.findAllAndLean({
-      filter: { closedAt: { $gte: range } },
+      filter: { closedAt: { $gte: startDate } },
       select: { closedAt: 1 },
     });
 
@@ -48,12 +48,15 @@ export class HomeTeamService {
       return acc;
     }, new Map() as Map<number, number>);
 
-    return [...res.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map((curr) => ({
-        at: new Date(curr[0]),
-        value: curr[1],
-      }));
+    const records: IntRecord[] = [];
+
+    for (let i = 0; i < last; i++) {
+      const currDate = new DateWrapper(startDate).moveDate(i).toDate();
+
+      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
+    }
+
+    return records;
   }
 
   @CacheOnReturn()

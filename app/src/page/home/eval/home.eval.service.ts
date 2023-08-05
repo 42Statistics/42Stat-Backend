@@ -45,14 +45,14 @@ export class HomeEvalService {
   }
 
   async evalCountRecord(last: number): Promise<IntRecord[]> {
-    const range = new DateWrapper()
+    const startDate = new DateWrapper()
       .startOfDate()
       .moveDate(1 - last)
       .toDate();
 
     const evals: { beginAt: Date }[] =
       await this.scaleTeamService.findAllAndLean({
-        filter: { beginAt: { $gte: range } },
+        filter: { beginAt: { $gte: startDate } },
         select: { beginAt: 1 },
       });
 
@@ -66,12 +66,15 @@ export class HomeEvalService {
       return acc;
     }, new Map() as Map<number, number>);
 
-    return [...res.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map((curr) => ({
-        at: new Date(curr[0]),
-        value: curr[1],
-      }));
+    const records: IntRecord[] = [];
+
+    for (let i = 0; i < last; i++) {
+      const currDate = new DateWrapper(startDate).moveDate(i).toDate();
+
+      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
+    }
+
+    return records;
   }
 
   @CacheOnReturn()
