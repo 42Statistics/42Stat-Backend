@@ -38,14 +38,6 @@ export class DateRangeService {
           start: now.startOfMonth().moveMonth(-1).toDate(),
           end: now.startOfMonth().toDate(),
         };
-      case DateTemplate.LAST_YEAR:
-        const nextMonth = now.moveMonth(1).startOfMonth();
-        const lastYear = nextMonth.moveYear(-1);
-
-        return {
-          start: lastYear.toDate(),
-          end: nextMonth.toDate(),
-        };
       case DateTemplate.TOTAL:
         return {
           start: new Date(0),

@@ -16,13 +16,6 @@ export enum DateTemplate {
    */
   CURR_MONTH,
   LAST_MONTH,
-  /**
-   *
-   * @description
-   * curr = 23-05-18
-   * lastYear = 22-06-01 ~ 23-06-01
-   */
-  LAST_YEAR,
 
   TOTAL,
 }
