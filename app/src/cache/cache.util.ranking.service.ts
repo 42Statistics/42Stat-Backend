@@ -17,7 +17,7 @@ import { CacheUtilService, type CacheWithDate } from './cache.util.service';
 
 export type RankingSupportedDateTemplate = Exclude<
   DateTemplate,
-  DateTemplate.LAST_WEEK | DateTemplate.LAST_YEAR
+  DateTemplate.LAST_WEEK
 >;
 
 export type RankCache = UserFullProfile & UserRank;

@@ -164,7 +164,6 @@ enum DateTemplate {
   LAST_WEEK
   CURR_MONTH
   LAST_MONTH
-  LAST_YEAR
   TOTAL
 }
 
