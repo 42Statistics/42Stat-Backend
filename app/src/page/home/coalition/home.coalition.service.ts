@@ -30,12 +30,12 @@ export class HomeCoalitionService {
   async scoreRecordsPerCoalition(): Promise<ScoreRecordPerCoalition[]> {
     const cachedScoreRecords = await this.scoreCacheService.getScoreRecords();
 
-    const currMonth = new DateWrapper().startOfMonth();
-    const lastYear = currMonth.moveYear(-1);
+    const nextMonth = new DateWrapper().startOfMonth().moveMonth(1);
+    const lastYear = nextMonth.moveYear(-1);
 
     const dateRange: DateRange = {
       start: lastYear.toDate(),
-      end: currMonth.toDate(),
+      end: nextMonth.toDate(),
     };
 
     return (
