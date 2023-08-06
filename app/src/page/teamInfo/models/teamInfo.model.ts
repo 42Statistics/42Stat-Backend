@@ -33,9 +33,21 @@ export class TeamEvalLog extends OmitType(EvalLog, ['header']) {
 }
 
 @ObjectType()
+export class TeamUserPreview extends UserPreview {
+  @Field()
+  occurrence: number;
+
+  @Field()
+  isLeader: boolean;
+}
+
+@ObjectType()
 export class TeamInfo extends TeamInfoBase {
-  @Field((_type) => [UserPreview])
-  users: UserPreview[];
+  @Field((_type) => [TeamUserPreview])
+  users: TeamUserPreview[];
+
+  @Field({ nullable: true })
+  finalMark?: number;
 
   @Field({ nullable: true, description: '기계 채점 결과' })
   moulinette?: TeamUpload;

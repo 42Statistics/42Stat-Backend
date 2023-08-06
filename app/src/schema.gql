@@ -483,11 +483,20 @@ type TeamEvalLog {
   header: TeamEvalLogHeader!
 }
 
+type TeamUserPreview {
+  id: Int!
+  login: String!
+  imgUrl: String
+  occurrence: Int!
+  isLeader: Boolean!
+}
+
 type TeamInfo {
   id: Int!
   name: String!
   url: String!
-  users: [UserPreview!]!
+  users: [TeamUserPreview!]!
+  finalMark: Int
 
   """기계 채점 결과"""
   moulinette: TeamUpload
