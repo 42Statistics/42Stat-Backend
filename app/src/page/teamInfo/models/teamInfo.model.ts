@@ -55,6 +55,12 @@ export class TeamInfo extends TeamInfoBase {
   @Field((_type) => TeamStatus)
   status: TeamStatus;
 
+  @Field()
+  lastEventTime: Date;
+
+  @Field()
+  createdAt: Date;
+
   @Field({ nullable: true })
   lockedAt?: Date;
 
