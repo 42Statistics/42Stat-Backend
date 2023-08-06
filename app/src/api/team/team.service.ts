@@ -137,6 +137,7 @@ export class TeamService {
           ...concatProjectUserUrl('projectId', 'users.projectsUserId'),
         },
         users: 1,
+        finalMark: 1,
         status: 1,
         lockedAt: 1,
         closedAt: 1,
@@ -154,9 +155,14 @@ export class TeamService {
 
     return {
       ...teamInfoAggr,
-      users: teamInfoAggr.users.map(
-        (us) => teamInfoAggr.userPreviews.find((pv) => pv.id === us.id)!,
-      ),
+      users: teamInfoAggr.users.map((user) => ({
+        ...teamInfoAggr.userPreviews.find(
+          (userPreview) => userPreview.id === user.id,
+          // todo: assertion
+        )!,
+        isLeader: user.leader === true,
+        occurrence: user.occurrence,
+      })),
       status: convertTeamStauts(teamInfoAggr.status),
       moulinette: teamInfoAggr.teamsUploads.length
         ? {
