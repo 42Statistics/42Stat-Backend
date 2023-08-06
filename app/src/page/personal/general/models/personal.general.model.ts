@@ -57,8 +57,8 @@ export class PreferredTimeDateRanged extends DateRanged(PreferredTime) {}
 
 @ObjectType()
 export class PreferredCluster {
-  @Field((_type) => String, { nullable: true })
-  name: string | null;
+  @Field({ nullable: true })
+  name?: string;
 }
 
 @ObjectType()

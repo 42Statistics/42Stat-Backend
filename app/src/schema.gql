@@ -438,7 +438,7 @@ type ProjectInfo {
   id: Int!
   name: String!
   url: String!
-  circle: Int!
+  circle: Int
   objectives: [String!]!
   skills: [String!]!
   description: String!
