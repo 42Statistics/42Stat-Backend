@@ -106,6 +106,7 @@ export class ScoreService {
 
     const aggregate = this.scoreModel.aggregate<ScoreRecordPerCoalition>();
 
+    // todo: 여기도 다른 record 처럼 통일하면 좋을 듯
     return await aggregate
       .match({
         ...args?.filter,

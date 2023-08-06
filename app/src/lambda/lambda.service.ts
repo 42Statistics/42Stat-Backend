@@ -239,12 +239,12 @@ export class LambdaService {
   }
 
   private async updateScoreRecords(updatedAt: Date): Promise<void> {
-    const currMonth = DateWrapper.currMonth();
-    const lastYear = currMonth.moveYear(-1);
+    const nextMonth = DateWrapper.currMonth().moveMonth(1);
+    const lastYear = nextMonth.moveYear(-1);
 
     const dateRange: DateRange = {
       start: lastYear.toDate(),
-      end: currMonth.toDate(),
+      end: nextMonth.toDate(),
     };
 
     const scoreRecords = await this.scoreService.scoreRecordsPerCoalition({
