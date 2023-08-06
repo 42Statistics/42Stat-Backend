@@ -101,7 +101,7 @@ export class LocationService {
   async preferredCluster(
     userId: number,
     filter?: FilterQuery<location>,
-  ): Promise<string | null> {
+  ): Promise<string | undefined> {
     const aggregate = this.locationModel.aggregate<AggrNumericPerCluster>();
 
     aggregate.match({ ...filter, 'user.id': userId });
@@ -125,7 +125,7 @@ export class LocationService {
       .limit(1)
       .project({ _id: 0, cluster: '$_id', value: 1 });
 
-    return durationTimePerCluster?.cluster ?? null;
+    return durationTimePerCluster?.cluster ?? undefined;
   }
 
   async logtimeRanking(

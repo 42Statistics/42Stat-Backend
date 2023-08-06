@@ -37,7 +37,7 @@ export class ProjectInfo
   @Field()
   url: string;
 
-  @Field()
+  @Field({ nullable: true })
   circle?: number;
 
   @Field((_type) => [String])
