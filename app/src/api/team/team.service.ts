@@ -100,7 +100,10 @@ export class TeamService {
 
   async teamInfo(id: number): Promise<TeamInfo | null> {
     const aggregate = this.teamModel.aggregate<
-      Omit<TeamInfo, 'status' | 'evalLogs' | 'users' | 'moulinette'> &
+      Omit<
+        TeamInfo,
+        'status' | 'evalLogs' | 'users' | 'moulinette' | 'lastEventTime'
+      > &
         Pick<team, 'status' | 'users' | 'teamsUploads'> & {
           evalLogs: team['scaleTeams'];
           userPreviews: UserPreview[];
@@ -139,6 +142,7 @@ export class TeamService {
         users: 1,
         finalMark: 1,
         status: 1,
+        createdAt: 1,
         lockedAt: 1,
         closedAt: 1,
         teamsUploads: 1,
@@ -164,6 +168,25 @@ export class TeamService {
         occurrence: user.occurrence,
       })),
       status: convertTeamStauts(teamInfoAggr.status),
+      lastEventTime: new Date(
+        Math.max(
+          teamInfoAggr.createdAt.getTime(),
+          teamInfoAggr.lockedAt?.getTime() ?? 0,
+          teamInfoAggr.closedAt?.getTime() ?? 0,
+          teamInfoAggr.status === 'finished'
+            ? teamInfoAggr.evalLogs.reduce(
+                (lastFilled, evalLog) =>
+                  Math.max(evalLog.filledAt!.getTime(), lastFilled),
+                0,
+              )
+            : 0,
+          teamInfoAggr.teamsUploads.reduce(
+            (lastUpload, upload) =>
+              Math.max(lastUpload, upload.createdAt.getTime()),
+            0,
+          ),
+        ),
+      ),
       moulinette: teamInfoAggr.teamsUploads.length
         ? {
             id: teamInfoAggr.teamsUploads[0].id,

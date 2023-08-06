@@ -501,6 +501,8 @@ type TeamInfo {
   """기계 채점 결과"""
   moulinette: TeamUpload
   status: TeamStatus!
+  lastEventTime: DateTime!
+  createdAt: DateTime!
   lockedAt: DateTime
   closedAt: DateTime
   projectPreview: ProjectPreview!
