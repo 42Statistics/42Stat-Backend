@@ -8,6 +8,7 @@ import type {
 } from 'src/page/home/coalition/models/home.coalition.model';
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
+import type { coalition } from '../coalition/db/coalition.database.schema';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
 import { addUserPreview } from '../user/db/user.database.aggregate';
@@ -153,7 +154,9 @@ export class ScoreService {
     const targetCoalitionIds =
       args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
 
-    const aggregate = this.coalitionService.aggregate<IntPerCoalition>();
+    const aggregate = this.coalitionService.aggregate<
+      Omit<IntPerCoalition, 'coalition'> & { coalition: coalition }
+    >();
 
     return await aggregate
       .match({ id: { $in: targetCoalitionIds } })
@@ -175,6 +178,14 @@ export class ScoreService {
         _id: 0,
         coalition: 1,
         value: { $size: '$scores' },
-      });
+      })
+      .then((tigCountPerCoalition) =>
+        tigCountPerCoalition.map((tigCountPerCurrCoalition) => ({
+          ...tigCountPerCurrCoalition,
+          coalition: this.coalitionService.daoToDto(
+            tigCountPerCurrCoalition.coalition,
+          ),
+        })),
+      );
   }
 }
