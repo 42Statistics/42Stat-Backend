@@ -18,7 +18,8 @@ export class CoalitionService {
     private readonly configService: ConfigService,
   ) {
     this.coalitionCdn =
-      this.configService.getOrThrow<CdnConfig>(CDN_CONFIG).URL + '/coalition';
+      this.configService.getOrThrow<CdnConfig>(CDN_CONFIG).COALITION;
+
     this.seoulCoalitionIds =
       this.configService.getOrThrow<ApiConfig>(API_CONFIG).SEOUL_COALITION_ID;
   }
