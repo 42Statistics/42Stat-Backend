@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { DateRangeArgs, DateTemplate } from './dtos/dateRange.dto';
 import type { IDateRangedType } from './models/dateRange.model';
 

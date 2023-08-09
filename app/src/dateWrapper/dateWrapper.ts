@@ -1,4 +1,3 @@
-import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 
 const SEC = 1000;
@@ -61,7 +60,7 @@ export class DateWrapper {
   /**
    *
    * @param date
-   * @returns date가 속한 날의 00시 00분 00초 를 반환합니다.
+   * @returns date가 속한 날의 00 시 00 분 00 초 00 밀리 초 를 반환합니다.
    */
   startOfDate = (): DateWrapper => {
     const copy = new DateWrapper(this.date);
@@ -124,7 +123,7 @@ export class DateWrapper {
   /**
    *
    * @description
-   * 두 날짜 사이의 시간 차를 millisecond 단위로 반환
+   * 두 날짜 사이의 시간 차를 밀리 초 단위로 반환
    */
   static dateGap = (a: Date, b: Date): number => {
     return a.getTime() - b.getTime();

@@ -5,7 +5,7 @@ import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   IntPerCoalition,
   IntPerCoalitionDateRanged,

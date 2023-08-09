@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
 import type { UserPreview } from 'src/common/models/common.user.model';
 import type { UserFullProfile } from 'src/common/userFullProfile';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 
 const USER_FULL_PROFILE = 'userFullProfile';
 

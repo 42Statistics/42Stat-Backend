@@ -17,6 +17,7 @@ import { ftClientConfig } from './config/ftClient';
 import { googleClientConfig } from './config/googleClient';
 import { jwtConfig } from './config/jwt';
 import { timezoneConfig } from './config/timezone';
+import { DateWrapper } from './dateWrapper/dateWrapper';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
@@ -29,7 +30,6 @@ import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
 import { SearchModule } from './page/search/search.module';
 import { SettingModule } from './page/setting/setting.module';
 import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
-import { DateWrapper } from './statDate/StatDate';
 
 @Module({
   imports: [

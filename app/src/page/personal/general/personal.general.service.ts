@@ -16,7 +16,7 @@ import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   LevelRecord,
   PersonalGeneralRoot,

@@ -6,7 +6,7 @@ import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   ExamResult,
   ExamResultDateRanged,
