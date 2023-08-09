@@ -1,5 +1,3 @@
-import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
-
 const SEC = 1000;
 const MIN = SEC * 60;
 const HOUR = MIN * 60;
@@ -95,29 +93,6 @@ export class DateWrapper {
 
   toDate = (): Date => {
     return new Date(this.date);
-  };
-
-  // todo: cursus user 로 이동?
-  /**
-   *
-   * @example
-   * start: 02-10, end: 04-20
-   * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
-   */
-  static partitionByMonth = ({ start, end }: DateRange): Date[] => {
-    const partitioned = [new Date(0), new Date(start)];
-
-    for (
-      let currDate = new DateWrapper(start).startOfMonth().moveMonth(1);
-      currDate.date < end;
-      currDate = currDate.moveMonth(1)
-    ) {
-      partitioned.push(currDate.toDate());
-    }
-
-    partitioned.push(new Date(end));
-
-    return partitioned;
   };
 
   /**

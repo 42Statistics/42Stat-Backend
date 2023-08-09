@@ -231,7 +231,8 @@ export class CursusUserService {
   }
 
   async aliveUserCountRecords(dateRange: DateRange): Promise<IntRecord[]> {
-    const dates = DateWrapper.partitionByMonth(dateRange);
+    const dates = partitionByMonthForAliveUserCountRecords(dateRange);
+
     const aggregate = this.cursusUserModel.aggregate<{
       begins: AggrNumericPerDateBucket[];
       blackholeds: AggrNumericPerDateBucket[];
@@ -394,3 +395,51 @@ export class CursusUserService {
     }));
   }
 }
+
+// todo: 그냥 이거 안쓰는게 제일 좋음
+/**
+ *
+ * @description
+ * @see CursusUserService.aliveUserCountRecords
+ * aliveUserCountRecords 에서만 사용해야 합니다.
+ *
+ * 주어진 dateRange 사이 범위를 월 단위로 Date 객체를 채워서 반환하는 함수 입니다.
+ *
+ * start, end 를 제외하고, 무조건 n 월 1 일으로 채우기 때문에, end 가 1 일 00:00:00.000 인
+ * 경우 bucket aggregation 이 오류를 발생시킵니다. 때문에 1ms 를 더하여 실제 의도보다 1ms 이후를
+ * 같이 계산하도록 합니다.
+ *
+ * end 값을 어떻게 활용하고 싶냐에 따라서 로직이 수정되어야 하기 때문에, (ex. 현재 날짜와 상관없이
+ * 계산하고 싶을 경우) 여러 로직에서 범용으로 사용해선 안됩니다.
+ *
+ * @example
+ * start: 02-10, end: 04-20
+ * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
+ *
+ * start: 02-10, end: 04-01
+ * return: [ 1970-01-01, 02-10, 03-01, 04-01, (04-01 + 1ms)]
+ */
+const partitionByMonthForAliveUserCountRecords = ({
+  start,
+  end,
+}: DateRange): Date[] => {
+  const partitioned = [new Date(0), new Date(start)];
+
+  for (
+    let currDate = new DateWrapper(start).startOfMonth().moveMonth(1);
+    currDate.toDate() < end;
+    currDate = currDate.moveMonth(1)
+  ) {
+    partitioned.push(currDate.toDate());
+  }
+
+  if (
+    end.getTime() !== new DateWrapper(end).startOfMonth().toDate().getTime()
+  ) {
+    partitioned.push(new Date(end.getTime() + 1));
+  } else {
+    partitioned.push(new Date(end));
+  }
+
+  return partitioned;
+};
