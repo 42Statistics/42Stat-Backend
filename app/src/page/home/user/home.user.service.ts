@@ -41,36 +41,7 @@ export class HomeUserService {
       end: now.toDate(),
     };
 
-    const newPromoCounts = await this.cursusUserService.userCountPerMonth(
-      'beginAt',
-      dateRange,
-    );
-
-    const blackholedCounts = await this.cursusUserService.userCountPerMonth(
-      'blackholedAt',
-      dateRange,
-    );
-
-    // 다른 record 반환 로직들 참고해서 수정하면 좋을 것.
-    const dates = DateWrapper.partitionByMonth(dateRange);
-
-    return dates.reduce(
-      ([valueRecords, aliveUserCount], date, index) => {
-        const newPromo = DateWrapper.getValueByDate(date, newPromoCounts);
-        const blackholed = DateWrapper.getValueByDate(date, blackholedCounts);
-
-        const currAliveUserCount = aliveUserCount + newPromo - blackholed;
-
-        const at = dates.at(index + 1);
-
-        if (at) {
-          valueRecords.push({ at, value: currAliveUserCount });
-        }
-
-        return [valueRecords, currAliveUserCount] as const;
-      },
-      [[], 0] as readonly [IntRecord[], number],
-    )[0];
+    return await this.cursusUserService.aliveUserCountRecords(dateRange);
   }
 
   @CacheOnReturn()

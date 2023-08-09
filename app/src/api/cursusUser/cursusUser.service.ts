@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
-import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
+import {
+  findByDateFromAggrDateBucket,
+  type AggrNumericPerDateBucket,
+} from 'src/common/db/common.db.aggregation';
 import {
   findAllAndLean,
   findOneAndLean,
@@ -12,6 +15,7 @@ import type {
   UserPreview,
   UserRank,
 } from 'src/common/models/common.user.model';
+import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import type { UserFullProfile } from 'src/common/userFullProfile';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type {
@@ -30,10 +34,7 @@ import {
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import type { UserFullProfileAggr } from './db/cursusUser.database.aggregate';
-import {
-  aliveUserFilter,
-  blackholedUserFilterByDateRange,
-} from './db/cursusUser.database.query';
+import { aliveUserFilter } from './db/cursusUser.database.query';
 import { cursus_user } from './db/cursusUser.database.schema';
 
 const isLearner = (
@@ -229,36 +230,71 @@ export class CursusUserService {
     return await this.cursusUserModel.countDocuments(filter);
   }
 
-  async userCountPerMonth(
-    key: 'beginAt' | 'blackholedAt',
-    dateRange: DateRange,
-  ): Promise<AggrNumericPerDateBucket[]> {
+  async aliveUserCountRecords(dateRange: DateRange): Promise<IntRecord[]> {
     const dates = DateWrapper.partitionByMonth(dateRange);
+    const aggregate = this.cursusUserModel.aggregate<{
+      begins: AggrNumericPerDateBucket[];
+      blackholeds: AggrNumericPerDateBucket[];
+    }>();
 
-    const aggregate =
-      this.cursusUserModel.aggregate<AggrNumericPerDateBucket>();
-
-    if (key === 'blackholedAt') {
-      aggregate.match(blackholedUserFilterByDateRange());
-    }
-
-    return await aggregate
-      .append({
+    const bucketUserCountRecordsByKey = (key: string) => [
+      {
         $bucket: {
           groupBy: `$${key}`,
           boundaries: dates,
           default: 'default',
         },
-      })
-      .addFields({
-        date: '$_id',
-        value: '$count',
-      })
-      .sort({ date: 1 })
-      .project({
-        _id: 0,
-        count: 0,
-      });
+      },
+      {
+        $addFields: {
+          at: '$_id',
+          value: '$count',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          count: 0,
+        },
+      },
+    ];
+
+    const [{ begins, blackholeds }] = await aggregate.facet({
+      begins: bucketUserCountRecordsByKey('beginAt'),
+      blackholeds: bucketUserCountRecordsByKey('blackholedAt'),
+    });
+
+    const calculateChangedCount = (
+      begins: AggrNumericPerDateBucket[],
+      blackholeds: AggrNumericPerDateBucket[],
+      date: Date,
+    ) => {
+      return (
+        (findByDateFromAggrDateBucket(begins, date)?.value ?? 0) -
+        (findByDateFromAggrDateBucket(blackholeds, date)?.value ?? 0)
+      );
+    };
+
+    const initialAliveCount = calculateChangedCount(
+      begins,
+      blackholeds,
+      dates[0],
+    );
+
+    return dates.slice(1, -1).reduce(
+      ([accRecords, accAliveCount], date) => {
+        const changedCount = calculateChangedCount(begins, blackholeds, date);
+        const currAliveCount = accAliveCount + changedCount;
+
+        accRecords.push({
+          at: date,
+          value: currAliveCount,
+        });
+
+        return [accRecords, currAliveCount] as const;
+      },
+      [[], initialAliveCount] as readonly [IntRecord[], number],
+    )[0];
   }
 
   async userCountPerLevels(): Promise<UserCountPerLevel[]> {

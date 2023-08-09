@@ -124,23 +124,6 @@ export class DateWrapper {
   /**
    *
    * @description
-   * AggrNumericPerDate[] 타입 [{ date: Date, value: number }] 에서
-   * 인자로 들어온 date로 find해 해당하는 object의 value를 반환
-   *
-   * find에 실패시 0을 반환
-   */
-  static getValueByDate = (
-    date: Date,
-    elements: AggrNumericPerDateBucket[],
-  ): number =>
-    elements.find(
-      (element) =>
-        element.date !== 'default' && element.date.getTime() === date.getTime(),
-    )?.value ?? 0;
-
-  /**
-   *
-   * @description
    * 두 날짜 사이의 시간 차를 millisecond 단위로 반환
    */
   static dateGap = (a: Date, b: Date): number => {
