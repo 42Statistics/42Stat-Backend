@@ -1,7 +1,7 @@
 import type { FilterQuery } from 'mongoose';
-import { DateWrapper } from 'src/statDate/StatDate';
-import type { cursus_user } from './cursusUser.database.schema';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
+import type { cursus_user } from './cursusUser.database.schema';
 
 export const promoFilter = (date: Date): FilterQuery<cursus_user> => {
   const dateWrapper = new DateWrapper(date);

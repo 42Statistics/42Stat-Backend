@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
-import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
+import {
+  findByDateFromAggrDateBucket,
+  type AggrNumericPerDateBucket,
+} from 'src/common/db/common.db.aggregation';
 import {
   findAllAndLean,
   findOneAndLean,
@@ -12,13 +15,14 @@ import type {
   UserPreview,
   UserRank,
 } from 'src/common/models/common.user.model';
+import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import type { UserFullProfile } from 'src/common/userFullProfile';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   IntPerCircle,
   UserCountPerLevel,
 } from 'src/page/home/user/models/home.user.model';
-import { DateWrapper } from 'src/statDate/StatDate';
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
@@ -30,10 +34,7 @@ import {
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import type { UserFullProfileAggr } from './db/cursusUser.database.aggregate';
-import {
-  aliveUserFilter,
-  blackholedUserFilterByDateRange,
-} from './db/cursusUser.database.query';
+import { aliveUserFilter } from './db/cursusUser.database.query';
 import { cursus_user } from './db/cursusUser.database.schema';
 
 const isLearner = (
@@ -229,36 +230,72 @@ export class CursusUserService {
     return await this.cursusUserModel.countDocuments(filter);
   }
 
-  async userCountPerMonth(
-    key: 'beginAt' | 'blackholedAt',
-    dateRange: DateRange,
-  ): Promise<AggrNumericPerDateBucket[]> {
-    const dates = DateWrapper.partitionByMonth(dateRange);
+  async aliveUserCountRecords(dateRange: DateRange): Promise<IntRecord[]> {
+    const dates = partitionByMonthForAliveUserCountRecords(dateRange);
 
-    const aggregate =
-      this.cursusUserModel.aggregate<AggrNumericPerDateBucket>();
+    const aggregate = this.cursusUserModel.aggregate<{
+      begins: AggrNumericPerDateBucket[];
+      blackholeds: AggrNumericPerDateBucket[];
+    }>();
 
-    if (key === 'blackholedAt') {
-      aggregate.match(blackholedUserFilterByDateRange());
-    }
-
-    return await aggregate
-      .append({
+    const bucketUserCountRecordsByKey = (key: string) => [
+      {
         $bucket: {
           groupBy: `$${key}`,
           boundaries: dates,
           default: 'default',
         },
-      })
-      .addFields({
-        date: '$_id',
-        value: '$count',
-      })
-      .sort({ date: 1 })
-      .project({
-        _id: 0,
-        count: 0,
-      });
+      },
+      {
+        $addFields: {
+          at: '$_id',
+          value: '$count',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          count: 0,
+        },
+      },
+    ];
+
+    const [{ begins, blackholeds }] = await aggregate.facet({
+      begins: bucketUserCountRecordsByKey('beginAt'),
+      blackholeds: bucketUserCountRecordsByKey('blackholedAt'),
+    });
+
+    const calculateChangedCount = (
+      begins: AggrNumericPerDateBucket[],
+      blackholeds: AggrNumericPerDateBucket[],
+      date: Date,
+    ) => {
+      return (
+        (findByDateFromAggrDateBucket(begins, date)?.value ?? 0) -
+        (findByDateFromAggrDateBucket(blackholeds, date)?.value ?? 0)
+      );
+    };
+
+    const initialAliveCount = calculateChangedCount(
+      begins,
+      blackholeds,
+      dates[0],
+    );
+
+    return dates.slice(1, -1).reduce(
+      ([accRecords, accAliveCount], date) => {
+        const changedCount = calculateChangedCount(begins, blackholeds, date);
+        const currAliveCount = accAliveCount + changedCount;
+
+        accRecords.push({
+          at: date,
+          value: currAliveCount,
+        });
+
+        return [accRecords, currAliveCount] as const;
+      },
+      [[], initialAliveCount] as readonly [IntRecord[], number],
+    )[0];
   }
 
   async userCountPerLevels(): Promise<UserCountPerLevel[]> {
@@ -358,3 +395,51 @@ export class CursusUserService {
     }));
   }
 }
+
+// todo: 그냥 이거 안쓰는게 제일 좋음
+/**
+ *
+ * @description
+ * @see CursusUserService.aliveUserCountRecords
+ * aliveUserCountRecords 에서만 사용해야 합니다.
+ *
+ * 주어진 dateRange 사이 범위를 월 단위로 Date 객체를 채워서 반환하는 함수 입니다.
+ *
+ * start, end 를 제외하고, 무조건 n 월 1 일으로 채우기 때문에, end 가 1 일 00:00:00.000 인
+ * 경우 bucket aggregation 이 오류를 발생시킵니다. 때문에 1ms 를 더하여 실제 의도보다 1ms 이후를
+ * 같이 계산하도록 합니다.
+ *
+ * end 값을 어떻게 활용하고 싶냐에 따라서 로직이 수정되어야 하기 때문에, (ex. 현재 날짜와 상관없이
+ * 계산하고 싶을 경우) 여러 로직에서 범용으로 사용해선 안됩니다.
+ *
+ * @example
+ * start: 02-10, end: 04-20
+ * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
+ *
+ * start: 02-10, end: 04-01
+ * return: [ 1970-01-01, 02-10, 03-01, 04-01, (04-01 + 1ms)]
+ */
+const partitionByMonthForAliveUserCountRecords = ({
+  start,
+  end,
+}: DateRange): Date[] => {
+  const partitioned = [new Date(0), new Date(start)];
+
+  for (
+    let currDate = new DateWrapper(start).startOfMonth().moveMonth(1);
+    currDate.toDate() < end;
+    currDate = currDate.moveMonth(1)
+  ) {
+    partitioned.push(currDate.toDate());
+  }
+
+  if (
+    end.getTime() !== new DateWrapper(end).startOfMonth().toDate().getTime()
+  ) {
+    partitioned.push(new Date(end.getTime() + 1));
+  } else {
+    partitioned.push(new Date(end));
+  }
+
+  return partitioned;
+};

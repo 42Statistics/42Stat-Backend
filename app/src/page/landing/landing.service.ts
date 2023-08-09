@@ -7,7 +7,7 @@ import {
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { Landing } from './models/landing.model';
 
 @Injectable()

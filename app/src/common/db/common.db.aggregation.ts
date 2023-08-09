@@ -4,7 +4,8 @@ import type { IntRecord } from '../models/common.valueRecord.model';
 export type AggrNumeric = { value: number };
 export type AggrRecord = { records: IntRecord[] };
 
-export type AggrNumericPerDateBucket = { date: Date | 'default' } & AggrNumeric;
+export type AggrDateBucket = { at: Date | 'default' };
+export type AggrNumericPerDateBucket = AggrDateBucket & AggrNumeric;
 export type AggrNumericPerCluster = { cluster: string } & AggrNumeric;
 
 export type CollectionLookup = (
@@ -12,6 +13,31 @@ export type CollectionLookup = (
   foreignField: string,
   pipeline?: PipelineStage.Lookup['$lookup']['pipeline'],
 ) => ReturnType<typeof lookupStage>;
+
+export function findByDateFromAggrDateBucket<T extends AggrDateBucket>(
+  buckets: T[],
+  date: Date,
+): T | undefined;
+
+export function findByDateFromAggrDateBucket<T extends AggrDateBucket>(
+  buckets: T[],
+  defaultString: string,
+): T | undefined;
+
+export function findByDateFromAggrDateBucket<T extends AggrDateBucket>(
+  buckets: T[],
+  dateOrString: Date | string,
+) {
+  if (typeof dateOrString === 'string') {
+    return buckets.find((bucket) => bucket.at === dateOrString);
+  }
+
+  return buckets.find(
+    (bucket) =>
+      bucket.at instanceof Date &&
+      bucket.at.getTime() === dateOrString.getTime(),
+  );
+}
 
 export const lookupStage = (
   collection: string,

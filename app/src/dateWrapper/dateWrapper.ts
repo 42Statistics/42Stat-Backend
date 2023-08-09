@@ -1,6 +1,3 @@
-import type { AggrNumericPerDateBucket } from 'src/common/db/common.db.aggregation';
-import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
-
 const SEC = 1000;
 const MIN = SEC * 60;
 const HOUR = MIN * 60;
@@ -61,7 +58,7 @@ export class DateWrapper {
   /**
    *
    * @param date
-   * @returns date가 속한 날의 00시 00분 00초 를 반환합니다.
+   * @returns date가 속한 날의 00 시 00 분 00 초 00 밀리 초 를 반환합니다.
    */
   startOfDate = (): DateWrapper => {
     const copy = new DateWrapper(this.date);
@@ -98,50 +95,10 @@ export class DateWrapper {
     return new Date(this.date);
   };
 
-  // todo: cursus user 로 이동?
-  /**
-   *
-   * @example
-   * start: 02-10, end: 04-20
-   * return: [ 1970-01-01, 02-10, 03-01, 04-01, 04-20]
-   */
-  static partitionByMonth = ({ start, end }: DateRange): Date[] => {
-    const partitioned = [new Date(0), new Date(start)];
-
-    for (
-      let currDate = new DateWrapper(start).startOfMonth().moveMonth(1);
-      currDate.date < end;
-      currDate = currDate.moveMonth(1)
-    ) {
-      partitioned.push(currDate.toDate());
-    }
-
-    partitioned.push(new Date(end));
-
-    return partitioned;
-  };
-
   /**
    *
    * @description
-   * AggrNumericPerDate[] 타입 [{ date: Date, value: number }] 에서
-   * 인자로 들어온 date로 find해 해당하는 object의 value를 반환
-   *
-   * find에 실패시 0을 반환
-   */
-  static getValueByDate = (
-    date: Date,
-    elements: AggrNumericPerDateBucket[],
-  ): number =>
-    elements.find(
-      (element) =>
-        element.date !== 'default' && element.date.getTime() === date.getTime(),
-    )?.value ?? 0;
-
-  /**
-   *
-   * @description
-   * 두 날짜 사이의 시간 차를 millisecond 단위로 반환
+   * 두 날짜 사이의 시간 차를 밀리 초 단위로 반환
    */
   static dateGap = (a: Date, b: Date): number => {
     return a.getTime() - b.getTime();

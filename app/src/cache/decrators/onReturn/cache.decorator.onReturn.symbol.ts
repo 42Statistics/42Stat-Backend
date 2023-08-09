@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 
 const DEFAULT_CACHE_TIME = DateWrapper.MIN * 3;
 

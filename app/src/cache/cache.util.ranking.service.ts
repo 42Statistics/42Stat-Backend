@@ -12,7 +12,7 @@ import {
 } from 'src/common/userFullProfile';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { CacheUtilService, type CacheWithDate } from './cache.util.service';
 
 export type RankingSupportedDateTemplate = Exclude<

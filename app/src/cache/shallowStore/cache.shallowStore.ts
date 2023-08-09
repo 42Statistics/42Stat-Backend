@@ -1,7 +1,7 @@
 import type { CacheStore } from '@nestjs/cache-manager';
 import type { Milliseconds } from 'cache-manager';
 import { LRUCache } from 'lru-cache';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 
 const clone = <T>(value: T): object => {
   if (typeof value === 'object') {

@@ -21,7 +21,7 @@ import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onRe
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { DateWrapper } from 'src/statDate/StatDate';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
 import type { MyInfoRoot } from './models/myInfo.model';
 
