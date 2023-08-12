@@ -454,13 +454,18 @@ type ProjectInfo {
   validatedRate: Rate!
 }
 
+type Setting {
+  account: Account!
+}
+
 type SearchResult {
   userPreviews: [UserPreview!]!
   projectPreviews: [ProjectPreview!]!
 }
 
-type Setting {
-  account: Account!
+type Spotlight {
+  userPreviews: [UserPreview!]!
+  projectPreviews: [ProjectPreview!]!
 }
 
 type TeamUpload {
@@ -513,7 +518,8 @@ type Query {
   getLanding: Landing!
   findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]! @deprecated(reason: "search module 로 분리")
   getMyInfo: MyInfo!
-  getSearchResult(input: String!, limit: Int! = 10): SearchResult!
+  getSearchResult(input: String!, limit: Int! = 10): SearchResult! @deprecated(reason: "v0.7.0: 쿼리 이름 변경: 같은 기능을 하는 getSpotlight 을 사용하세요.")
+  getSpotlight(input: String!, limit: Int! = 10): Spotlight!
   findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview!]! @deprecated(reason: "search module 로 분리")
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!

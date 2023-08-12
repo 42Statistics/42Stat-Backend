@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
-import { ProjectService } from 'src/api/project/project.service';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
   OUTSTANDING_FLAG_ID,
@@ -8,6 +7,7 @@ import {
 } from 'src/api/scaleTeam/scaleTeam.service';
 import type { user } from 'src/api/user/db/user.database.schema';
 import { UserService } from 'src/api/user/user.service';
+import { RegexFindService } from 'src/lib/regexFind/regexFind.service';
 import {
   CursorExtractor,
   FieldExtractor,
@@ -26,8 +26,8 @@ export class EvalLogService {
   constructor(
     private readonly userService: UserService,
     private readonly scaleTeamService: ScaleTeamService,
-    private readonly projectService: ProjectService,
     private readonly paginationCursorService: PaginationCursorService,
+    private readonly regexFindService: RegexFindService,
   ) {}
 
   async evalLogs({
@@ -64,11 +64,10 @@ export class EvalLogService {
     }
 
     if (projectName) {
-      const projectList =
-        await this.projectService.findAllProjectPreviewAndLean({
-          filter: { name: projectName },
-          limit: 100,
-        });
+      const projectList = await this.regexFindService.regexFindProjectPreview(
+        projectName,
+        100,
+      );
 
       if (!projectList.length) {
         return this.generateEmptyLog();
