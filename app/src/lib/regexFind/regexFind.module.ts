@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { ProjectModule } from 'src/api/project/project.module';
-import { SerachResultResolver } from './search.resovler';
-import { SearchService } from './search.service';
+import { RegexFindService } from './regexFind.service';
 
 @Module({
   imports: [CursusUserModule, ProjectModule],
-  providers: [SerachResultResolver, SearchService],
+  providers: [RegexFindService],
+  exports: [CursusUserModule, ProjectModule, RegexFindService],
 })
 // eslint-disable-next-line
-export class SearchModule {}
+export class RegexFindModule {}

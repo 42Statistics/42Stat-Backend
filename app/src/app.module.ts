@@ -27,8 +27,8 @@ import { LeaderboardModule } from './page/leaderboard/leaderboard.module';
 import { MyInfoModule } from './page/myInfo/myInfo.module';
 import { PersonalModule } from './page/personal/personal.module';
 import { ProjectInfoModule } from './page/projectInfo/projectInfo.module';
-import { SearchModule } from './page/search/search.module';
 import { SettingModule } from './page/setting/setting.module';
+import { SpotlightModule } from './page/spotlight/spotlight.module';
 import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
 
 @Module({
@@ -60,7 +60,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
     ScheduleModule.forRoot(),
     LandingModule,
     MyInfoModule,
-    SearchModule,
+    SpotlightModule,
     HomeModule,
     PersonalModule,
     ProjectInfoModule,
