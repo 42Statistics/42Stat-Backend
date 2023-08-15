@@ -227,7 +227,7 @@ type ExamResultDateRanged {
 type HomeTeam {
   teamCloseRecord(last: Int!): [IntRecord!]!
   currRegisteredCountRanking(limit: Int! = 3): [ProjectRank!]!
-  recentExamResult(after: Int! = 0): ExamResultDateRanged!
+  recentExamResult(skip: Int! = 0): ExamResultDateRanged!
 }
 
 type IntPerCircle {

@@ -5,5 +5,5 @@ import { Min } from 'class-validator';
 export class RecentExamResultArgs {
   @Min(0)
   @Field({ defaultValue: 0 })
-  after: number;
+  skip: number;
 }

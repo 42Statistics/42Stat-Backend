@@ -39,8 +39,8 @@ export class HomeTeamResolver {
 
   @ResolveField((_returns) => ExamResult)
   async recentExamResult(
-    @Args() { after }: RecentExamResultArgs,
+    @Args() { skip }: RecentExamResultArgs,
   ): Promise<ExamResultDateRanged> {
-    return await this.homeTeamService.recentExamResult(after);
+    return await this.homeTeamService.recentExamResult(skip);
   }
 }
