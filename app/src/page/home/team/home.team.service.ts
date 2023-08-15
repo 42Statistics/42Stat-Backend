@@ -65,14 +65,14 @@ export class HomeTeamService {
   }
 
   @CacheOnReturn()
-  async recentExamResult(after: number): Promise<ExamResultDateRanged> {
+  async recentExamResult(skip: number): Promise<ExamResultDateRanged> {
     const targetExam: Pick<
       exam,
       'beginAt' | 'endAt' | 'location' | 'maxPeople' | 'name' | 'projects'
     > | null = await this.examService.findOneAndLean({
       filter: { endAt: { $lt: new Date() } },
       sort: { beginAt: -1 },
-      skip: after,
+      skip: skip,
       select: {
         beginAt: 1,
         endAt: 1,
