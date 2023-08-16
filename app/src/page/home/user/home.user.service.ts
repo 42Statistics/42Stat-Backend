@@ -13,12 +13,11 @@ import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.sche
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { assertExist } from 'src/common/assertExist';
-import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
 
@@ -89,35 +88,6 @@ export class HomeUserService {
         },
       ],
     };
-  }
-
-  @CacheOnReturn()
-  async blackholedCountByDateRange({
-    start,
-    end,
-  }: DateRange): Promise<IntDateRanged> {
-    const now = new Date();
-
-    const dateRange: DateRange = {
-      start,
-      end: now < end ? now : end,
-    };
-
-    const blackholedCount = await this.cursusUserService.userCount(
-      blackholedUserFilterByDateRange(dateRange),
-    );
-
-    // todo: 현재 시간 / 갱신 시간
-    return this.dateRangeService.toDateRanged(blackholedCount, { start, end });
-  }
-
-  @CacheOnReturn()
-  async blackholedCountByDateTemplate(
-    dateTemplate: DateTemplate,
-  ): Promise<IntDateRanged> {
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    return await this.blackholedCountByDateRange(dateRange);
   }
 
   @CacheOnReturn()

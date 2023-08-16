@@ -3,7 +3,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CacheUtilModule } from 'src/cache/cache.util.module';
 import { CoalitionModule } from '../coalition/coalition.module';
 import { CursusUserCacheService } from './cursusUser.cache.service';
-import { CursusUserResolver } from './cursusUser.resolver';
 import { CursusUserService } from './cursusUser.service';
 import { CursusUserSchema, cursus_user } from './db/cursusUser.database.schema';
 
@@ -15,7 +14,7 @@ import { CursusUserSchema, cursus_user } from './db/cursusUser.database.schema';
     CoalitionModule,
     CacheUtilModule,
   ],
-  providers: [CursusUserResolver, CursusUserService, CursusUserCacheService],
+  providers: [CursusUserService, CursusUserCacheService],
   exports: [
     MongooseModule,
     CursusUserService,

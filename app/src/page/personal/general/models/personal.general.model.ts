@@ -119,9 +119,6 @@ export class PersonalGeneral {
   @Field()
   scoreInfo: UserScoreInfo;
 
-  @Field({ deprecationReason: '0.6.0' })
-  logtimeByDateTemplate: IntDateRanged;
-
   @Field((_type) => [IntRecord])
   logtimeRecords: IntRecord[];
 
