@@ -20,9 +20,6 @@ export class PersonalEval {
   @Field()
   totalCount: number;
 
-  @Field()
-  countByDateTemplate: IntDateRanged;
-
   @Field((_type) => [IntRecord])
   countRecord: IntRecord[];
 

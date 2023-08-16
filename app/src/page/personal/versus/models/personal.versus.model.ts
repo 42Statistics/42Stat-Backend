@@ -28,4 +28,7 @@ export class PersonalVersus {
 
   @Field()
   currMonthEvalCountRankWithTotal: UserRankWithTotal;
+
+  @Field()
+  totalLogtime: number;
 }

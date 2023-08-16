@@ -4,6 +4,7 @@ import {
   USER_LEVEL_RANKING,
 } from 'src/api/cursusUser/cursusUser.cache.service';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
+import { LocationCacheService } from 'src/api/location/location.cache.service';
 import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { assertExist } from 'src/common/assertExist';
@@ -17,6 +18,7 @@ export class PersonalVersusService {
     private readonly experienceUserCacheService: ExperienceUserCacheService,
     private readonly scaleTeamCacheService: ScaleTeamCacheService,
     private readonly scoreCacheService: ScoreCacheService,
+    private readonly locationCacheService: LocationCacheService,
   ) {}
 
   async personalVersus(userId: number): Promise<PersonalVersus | null> {
@@ -80,6 +82,11 @@ export class PersonalVersusService {
           userId,
         );
 
+      const totalLogtimeRank = await this.locationCacheService.getLogtimeRank(
+        DateTemplate.TOTAL,
+        userId,
+      );
+
       assertExist(levelRanking);
       assertExist(levelRank);
       assertExist(totalScoreRanking);
@@ -92,6 +99,7 @@ export class PersonalVersusService {
       assertExist(currMonthScoreRank);
       assertExist(currMonthEvalCountRanking);
       assertExist(currMonthEvalCountRank);
+      assertExist(totalLogtimeRank);
 
       return {
         levelRankWithTotal: {
@@ -118,6 +126,7 @@ export class PersonalVersusService {
           ...currMonthEvalCountRank,
           totalUserCount: currMonthEvalCountRanking.length,
         },
+        totalLogtime: totalLogtimeRank.value,
       };
     } catch {
       return null;
