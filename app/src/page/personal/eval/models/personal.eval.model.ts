@@ -21,7 +21,7 @@ export class PersonalEval {
   totalCount: number;
 
   @Field((_type) => [IntRecord])
-  countRecord: IntRecord[];
+  countRecords: IntRecord[];
 
   @Field()
   totalDuration: number;

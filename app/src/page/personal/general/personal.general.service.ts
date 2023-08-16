@@ -154,7 +154,7 @@ export class PersonalGeneralService {
     return await this.logtimeByDateRange(userId, dateRange);
   }
 
-  async logtimeRecord(userId: number, last: number): Promise<IntRecord[]> {
+  async logtimeRecords(userId: number, last: number): Promise<IntRecord[]> {
     const ret: IntRecord[] = [];
     const startDate = new DateWrapper().startOfMonth().moveMonth(1 - last);
 

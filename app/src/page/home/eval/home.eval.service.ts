@@ -49,7 +49,7 @@ export class HomeEvalService {
     return this.dateRangeService.toDateRanged(evalCount, dateRange);
   }
 
-  async evalCountRecord(last: number): Promise<IntRecord[]> {
+  async evalCountRecords(last: number): Promise<IntRecord[]> {
     const startDate = new DateWrapper()
       .startOfDate()
       .moveDate(1 - last)

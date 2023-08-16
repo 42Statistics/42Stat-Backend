@@ -47,8 +47,8 @@ export class HomeEvalResolver {
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 60 일' })
-  async evalCountRecord(@Args('last') last: number): Promise<IntRecord[]> {
-    return await this.homeEvalService.evalCountRecord(
+  async evalCountRecords(@Args('last') last: number): Promise<IntRecord[]> {
+    return await this.homeEvalService.evalCountRecords(
       Math.max(Math.min(last, 60), 1),
     );
   }

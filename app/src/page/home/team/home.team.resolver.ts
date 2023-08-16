@@ -24,8 +24,8 @@ export class HomeTeamResolver {
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 60 일' })
-  async teamCloseRecord(@Args('last') last: number): Promise<IntRecord[]> {
-    return await this.homeTeamService.teamCloseRecord(
+  async teamCloseRecords(@Args('last') last: number): Promise<IntRecord[]> {
+    return await this.homeTeamService.teamCloseRecords(
       Math.max(1, Math.min(last, 60)),
     );
   }

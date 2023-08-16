@@ -123,7 +123,7 @@ export class PersonalGeneral {
   logtimeByDateTemplate: IntDateRanged;
 
   @Field((_type) => [IntRecord])
-  logtimeRecord: IntRecord[];
+  logtimeRecords: IntRecord[];
 
   @Field()
   preferredTimeByDateTemplate: PreferredTimeDateRanged;

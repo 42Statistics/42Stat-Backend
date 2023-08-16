@@ -69,11 +69,11 @@ export class PersonalGeneralResolver {
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
-  async logtimeRecord(
+  async logtimeRecords(
     @Root() root: PersonalGeneralRoot,
     @Args('last') last: number,
   ): Promise<IntRecord[]> {
-    return await this.personalGeneralService.logtimeRecord(
+    return await this.personalGeneralService.logtimeRecords(
       root.userProfile.id,
       Math.max(1, Math.min(last, 24)),
     );
