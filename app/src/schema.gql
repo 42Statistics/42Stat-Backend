@@ -360,8 +360,8 @@ type PreferredClusterDateRanged {
 }
 
 type UserTeamInfo {
-  lastRegistered: String
-  lastPassed: String
+  lastRegistered: UserTeam
+  lastPassed: UserTeam
   teams: [UserTeam!]!
 }
 

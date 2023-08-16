@@ -240,11 +240,11 @@ export class PersonalGeneralService {
 
     const lastRegistered = [...userTeams]
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-      .at(-1)?.projectPreview.name;
+      .at(-1);
 
     const lastPassed = userTeams
       .filter((team) => team.isValidated === true)
-      .at(0)?.projectPreview.name;
+      .at(0);
 
     return {
       lastRegistered,
