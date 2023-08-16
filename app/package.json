@@ -1,6 +1,6 @@
 {
   "name": "42stat",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "",
   "author": "jpham005, niamu01",
   "private": true,
@@ -11,7 +11,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "PROD=true node dist/main",
+    "start:prod": "nest build && PROD=true node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint:peek": "eslint \"{src,apps,libs,test}/**/*.ts\" --cache",
     "test": "jest",
