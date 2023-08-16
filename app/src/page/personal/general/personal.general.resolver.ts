@@ -54,7 +54,10 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.scoreInfo(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => IntDateRanged, { deprecationReason: '0.6.0' })
+  @ResolveField((_returns) => IntDateRanged, {
+    deprecationReason:
+      '0.6.0: 기획 변경: personal versus 의 totalLogtime 을 사용하세요.',
+  })
   async logtimeByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
     @Root() root: PersonalGeneralRoot,

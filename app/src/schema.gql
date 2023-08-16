@@ -168,10 +168,11 @@ enum DateTemplate {
 }
 
 type HomeEval {
+  totalEvalCount: Int!
   evalCountRecord(last: Int!): [IntRecord!]!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
-  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
+  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "v0.6.0: 기획 변경: 전체 기간 평가 기록은 totalEvalCount 를 사용하세요.")
   averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged! @deprecated(reason: "0.6.0")
 }
 
@@ -407,7 +408,6 @@ type PersonalEval {
   userProfile: UserProfile!
   correctionPoint: Int!
   totalCount: Int!
-  countByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged!
   countRecord(last: Int!): [IntRecord!]!
   totalDuration: Int!
   averageDuration: Int!
@@ -432,6 +432,7 @@ type PersonalVersus {
   currMonthExpIncreamentRankWithTotal: UserRankWithTotal!
   currMonthScoreRankWithTotal: UserRankWithTotal!
   currMonthEvalCountRankWithTotal: UserRankWithTotal!
+  totalLogtime: Int!
 }
 
 type ProjectInfo {

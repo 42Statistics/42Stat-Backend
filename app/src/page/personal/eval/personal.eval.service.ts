@@ -1,16 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { PersonalEvalRoot } from './models/personal.eval.model';
 
@@ -99,41 +96,9 @@ export class PersonalEvalService {
     return records;
   }
 
-  private async count(
-    userId: number,
-    filter?: FilterQuery<scale_team>,
-  ): Promise<number> {
-    return await this.scaleTeamService.evalCount({
-      ...filter,
-      'corrector.id': userId,
-    });
-  }
-
-  private async countByDateRange(
-    userId: number,
-    dateRange: DateRange,
-  ): Promise<IntDateRanged> {
-    const count = await this.count(userId, {
-      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    });
-
-    return this.dateRangeService.toDateRanged(count, dateRange);
-  }
-
   @CacheOnReturn()
-  async countByDateTemplate(
-    userId: number,
-    dateTemplate: DateTemplate,
-  ): Promise<IntDateRanged> {
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    if (dateTemplate === DateTemplate.TOTAL) {
-      const count = await this.count(userId);
-
-      return this.dateRangeService.toDateRanged(count, dateRange);
-    }
-
-    return await this.countByDateRange(userId, dateRange);
+  async totalCount(userId: number): Promise<number> {
+    return await this.scaleTeamService.evalCount({ 'corrector.id': userId });
   }
 
   @CacheOnReturn()

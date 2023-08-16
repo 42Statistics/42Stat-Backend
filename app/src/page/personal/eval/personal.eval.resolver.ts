@@ -10,13 +10,8 @@ import {
 } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
-import {
-  DateTemplate,
-  DateTemplateArgs,
-} from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
@@ -46,33 +41,9 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.pesronalEvalProfile(targetUserId);
   }
 
-  /**
-   *
-   * @deprecated
-   * @use countByDateTemplate
-   */
-  @ResolveField((_returns) => Int, {
-    deprecationReason: 'byDateTemplate 사용하도록 통일',
-  })
+  @ResolveField((_returns) => Int)
   async totalCount(@Root() root: PersonalEvalRoot): Promise<number> {
-    const countByDateTempate =
-      await this.personalEvalService.countByDateTemplate(
-        root.userProfile.id,
-        DateTemplate.TOTAL,
-      );
-
-    return countByDateTempate.data.valueOf();
-  }
-
-  @ResolveField((_returns) => IntDateRanged)
-  async countByDateTemplate(
-    @Root() root: PersonalEvalRoot,
-    @Args() { dateTemplate }: DateTemplateArgs,
-  ): Promise<IntDateRanged> {
-    return await this.personalEvalService.countByDateTemplate(
-      root.userProfile.id,
-      dateTemplate,
-    );
+    return await this.personalEvalService.totalCount(root.userProfile.id);
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })

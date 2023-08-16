@@ -28,6 +28,11 @@ export class HomeEvalService {
     private readonly dateRangeService: DateRangeService,
   ) {}
 
+  @CacheOnReturn()
+  async totalEvalCount(): Promise<number> {
+    return await this.scaleTeamService.evalCount();
+  }
+
   private async evalCount(filter?: FilterQuery<scale_team>): Promise<number> {
     return await this.scaleTeamService.evalCount(filter);
   }

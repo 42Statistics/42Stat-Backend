@@ -22,7 +22,15 @@ export class HomeEvalResolver {
     return {};
   }
 
-  @ResolveField((_returns) => IntDateRanged, { deprecationReason: '0.6.0' })
+  @ResolveField((_returns) => Int)
+  async totalEvalCount(): Promise<number> {
+    return await this.homeEvalService.totalEvalCount();
+  }
+
+  @ResolveField((_returns) => IntDateRanged, {
+    deprecationReason:
+      'v0.6.0: 기획 변경: 전체 기간 평가 기록은 totalEvalCount 를 사용하세요.',
+  })
   async evalCountByDateTemplate(
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<IntDateRanged> {
