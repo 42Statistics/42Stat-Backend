@@ -23,7 +23,7 @@ export class HomeTeamService {
   ) {}
 
   @CacheOnReturn()
-  async teamCloseRecord(last: number): Promise<IntRecord[]> {
+  async teamCloseRecords(last: number): Promise<IntRecord[]> {
     const startDate = new DateWrapper()
       .startOfDate()
       .moveDate(1 - last)

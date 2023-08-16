@@ -55,7 +55,7 @@ export class ExamResultDateRanged extends DateRanged(ExamResult) {}
 @ObjectType()
 export class HomeTeam {
   @Field((_type) => [IntRecord])
-  teamCloseRecord: IntRecord[];
+  teamCloseRecords: IntRecord[];
 
   @Field((_type) => [ProjectRank])
   currRegisteredCountRanking: ProjectRank[];

@@ -7,7 +7,7 @@ export class HomeEval {
   totalEvalCount: number;
 
   @Field((_type) => [IntRecord])
-  evalCountRecord: IntRecord[];
+  evalCountRecords: IntRecord[];
 
   @Field()
   averageFeedbackLength: number;

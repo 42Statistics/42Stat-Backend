@@ -121,7 +121,7 @@ export class HomeUserService {
   }
 
   @CacheOnReturn()
-  async blackholedCountRecord(last: number): Promise<IntRecord[]> {
+  async blackholedCountRecords(last: number): Promise<IntRecord[]> {
     const startDate = new DateWrapper()
       .startOfMonth()
       .moveMonth(1 - last)

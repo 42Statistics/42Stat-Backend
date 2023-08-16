@@ -55,10 +55,10 @@ export class HomeUserResolver {
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
-  async blackholedCountRecord(
+  async blackholedCountRecords(
     @Args('last') last: number,
   ): Promise<IntRecord[]> {
-    return await this.homeUserService.blackholedCountRecord(
+    return await this.homeUserService.blackholedCountRecords(
       Math.max(1, Math.min(last, 24)),
     );
   }

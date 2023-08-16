@@ -36,7 +36,7 @@ export class HomeUser {
   blackholedRate: Rate;
 
   @Field((_type) => [IntRecord])
-  blackholedCountRecord: IntRecord[];
+  blackholedCountRecords: IntRecord[];
 
   @Field((_type) => [IntPerCircle])
   blackholedCountPerCircle: IntPerCircle[];

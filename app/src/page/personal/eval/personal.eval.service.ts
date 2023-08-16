@@ -58,7 +58,7 @@ export class PersonalEvalService {
   }
 
   @CacheOnReturn()
-  async countRecord(userId: number, last: number): Promise<IntRecord[]> {
+  async countRecords(userId: number, last: number): Promise<IntRecord[]> {
     const startDate = new DateWrapper()
       .startOfMonth()
       .moveMonth(1 - last)

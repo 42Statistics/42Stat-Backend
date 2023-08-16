@@ -47,11 +47,11 @@ export class PersonalEvalResolver {
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
-  async countRecord(
+  async countRecords(
     @Root() root: PersonalEvalRoot,
     @Args('last') last: number,
   ): Promise<IntRecord[]> {
-    return await this.personalEvalService.countRecord(
+    return await this.personalEvalService.countRecords(
       root.userProfile.id,
       Math.max(1, Math.min(last, 24)),
     );
