@@ -2,6 +2,37 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type LinkableAccount {
+  platform: String!
+  id: String!
+  email: String
+  linkedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Account {
+  userId: Int!
+  linkedAccounts: [LinkableAccount!]!
+}
+
+type LoginSuccess {
+  accessToken: String!
+  refreshToken: String!
+  userId: Int!
+  message: String!
+}
+
+type ProjectPreview {
+  id: Int!
+  name: String!
+  url: String!
+  circle: Int
+}
+
 type Coalition {
   id: Int!
   name: String!
@@ -22,11 +53,6 @@ type UserTitle {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type UserProfile {
   id: Int!
@@ -56,32 +82,6 @@ type UserRankingIndexPaginated {
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
-}
-
-type LinkableAccount {
-  platform: String!
-  id: String!
-  email: String
-  linkedAt: DateTime!
-}
-
-type Account {
-  userId: Int!
-  linkedAccounts: [LinkableAccount!]!
-}
-
-type LoginSuccess {
-  accessToken: String!
-  refreshToken: String!
-  userId: Int!
-  message: String!
-}
-
-type ProjectPreview {
-  id: Int!
-  name: String!
-  url: String!
-  circle: Int
 }
 
 type CursorPageInfo {
@@ -172,20 +172,6 @@ type HomeEval {
   evalCountRecords(last: Int!): [IntRecord!]!
   averageFeedbackLength: Int!
   averageCommentLength: Int!
-  evalCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "v0.6.0: 기획 변경: 전체 기간 평가 기록은 totalEvalCount 를 사용하세요.")
-  averageEvalCountByDateTemplate(dateTemplate: DateTemplate!): FloatDateRanged! @deprecated(reason: "0.6.0")
-}
-
-type IntDateRanged {
-  data: Int!
-  start: DateTime!
-  end: DateTime!
-}
-
-type FloatDateRanged {
-  data: Float!
-  start: DateTime!
-  end: DateTime!
 }
 
 type Pair {
@@ -251,7 +237,6 @@ type HomeUser {
   walletRanking(limit: Int! = 5): [UserRank!]!
   correctionPointRanking(limit: Int! = 5): [UserRank!]!
   averageDurationPerCircle: [IntPerCircle!]!
-  blackholedCountByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
 }
 
 """누적 데이터 기준입니다."""
@@ -383,7 +368,6 @@ type PersonalGeneral {
   blackholedAt: DateTime
   wallet: Int!
   scoreInfo: UserScoreInfo!
-  logtimeByDateTemplate(dateTemplate: DateTemplate!): IntDateRanged! @deprecated(reason: "0.6.0")
   logtimeRecords(last: Int!): [IntRecord!]!
   preferredTimeByDateTemplate(dateTemplate: DateTemplate!): PreferredTimeDateRanged!
   preferredClusterByDateTemplate(dateTemplate: DateTemplate!): PreferredClusterDateRanged!
@@ -459,11 +443,6 @@ type Setting {
   account: Account!
 }
 
-type SearchResult {
-  userPreviews: [UserPreview!]!
-  projectPreviews: [ProjectPreview!]!
-}
-
 type Spotlight {
   userPreviews: [UserPreview!]!
   projectPreviews: [ProjectPreview!]!
@@ -517,11 +496,8 @@ type TeamInfo {
 
 type Query {
   getLanding: Landing!
-  findUserPreview(login: String!, limit: Int! = 10): [UserPreview!]! @deprecated(reason: "search module 로 분리")
   getMyInfo: MyInfo!
-  getSearchResult(input: String!, limit: Int! = 10): SearchResult! @deprecated(reason: "v0.7.0: 쿼리 이름 변경: 같은 기능을 하는 getSpotlight 을 사용하세요.")
   getSpotlight(input: String!, limit: Int! = 10): Spotlight!
-  findProjectPreview(name: String!, limit: Int! = 10): [ProjectPreview!]! @deprecated(reason: "search module 로 분리")
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!
   getHomeCoalition: HomeCoalition!

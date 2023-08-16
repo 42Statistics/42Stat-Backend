@@ -115,58 +115,6 @@ export class CursusUserService {
     }));
   }
 
-  // todo: deprecated at v0.6.0
-  async findUserPreviewByLogin(
-    login: string,
-    limit: number,
-  ): Promise<UserPreview[]> {
-    const result: Map<number, UserPreview> = new Map();
-
-    const previewProjection = {
-      'user.id': 1,
-      'user.login': 1,
-      'user.image': 1,
-    };
-
-    const escapedLogin = login.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&');
-
-    const prefixMatches: {
-      user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
-    }[] = await this.findAllAndLean({
-      filter: { 'user.login': new RegExp(`^${escapedLogin}`, 'i') },
-      select: previewProjection,
-      limit,
-    });
-
-    prefixMatches.forEach(({ user }) =>
-      result.set(user.id, {
-        id: user.id,
-        login: user.login,
-        imgUrl: user.image.link,
-      }),
-    );
-
-    if (prefixMatches.length < limit) {
-      const matches: {
-        user: Omit<UserPreview, 'imgUrl'> & { image: { link?: string } };
-      }[] = await this.findAllAndLean({
-        filter: { 'user.login': new RegExp(`.${escapedLogin}`, 'i') },
-        select: previewProjection,
-        limit: limit - result.size,
-      });
-
-      matches.forEach(({ user }) =>
-        result.set(user.id, {
-          id: user.id,
-          login: user.login,
-          imgUrl: user.image.link,
-        }),
-      );
-    }
-
-    return [...result.values()];
-  }
-
   async userFullProfile(
     filter?: FilterQuery<cursus_user>,
   ): Promise<UserFullProfile[]> {

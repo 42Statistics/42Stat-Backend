@@ -2,7 +2,6 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
@@ -52,20 +51,6 @@ export class PersonalGeneralResolver {
     @Root() root: PersonalGeneralRoot,
   ): Promise<UserScoreInfo | null> {
     return await this.personalGeneralService.scoreInfo(root.userProfile.id);
-  }
-
-  @ResolveField((_returns) => IntDateRanged, {
-    deprecationReason:
-      '0.6.0: 기획 변경: personal versus 의 totalLogtime 을 사용하세요.',
-  })
-  async logtimeByDateTemplate(
-    @Args() { dateTemplate }: DateTemplateArgs,
-    @Root() root: PersonalGeneralRoot,
-  ): Promise<IntDateRanged> {
-    return await this.personalGeneralService.logtimeByDateTemplate(
-      root.userProfile.id,
-      dateTemplate,
-    );
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })

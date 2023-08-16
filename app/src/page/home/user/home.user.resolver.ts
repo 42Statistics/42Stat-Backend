@@ -1,11 +1,9 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
-import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeUserService } from './home.user.service';
 import {
@@ -43,15 +41,6 @@ export class HomeUserResolver {
   @ResolveField((_returns) => Rate)
   async blackholedRate(): Promise<Rate> {
     return await this.homeUserService.blackholedRate();
-  }
-
-  @ResolveField((_returns) => IntDateRanged, { deprecationReason: '0.6.0' })
-  async blackholedCountByDateTemplate(
-    @Args() { dateTemplate }: DateTemplateArgs,
-  ) {
-    return await this.homeUserService.blackholedCountByDateTemplate(
-      dateTemplate,
-    );
   }
 
   @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
