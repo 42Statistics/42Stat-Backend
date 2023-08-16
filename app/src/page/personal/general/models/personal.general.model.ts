@@ -67,10 +67,10 @@ export class PreferredClusterDateRanged extends DateRanged(PreferredCluster) {}
 @ObjectType()
 export class UserTeamInfo {
   @Field({ nullable: true })
-  lastRegistered?: string;
+  lastRegistered?: UserTeam;
 
   @Field({ nullable: true })
-  lastPassed?: string;
+  lastPassed?: UserTeam;
 
   @Field((_type) => [UserTeam])
   teams: UserTeam[];
