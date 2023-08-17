@@ -4,12 +4,16 @@ import { UserTeam } from 'src/page/personal/general/models/personal.general.mode
 
 export type MyInfoRoot = {
   userPreview: UserPreview;
+  displayname: string;
 };
 
 @ObjectType()
 export class MyInfo {
   @Field()
   userPreview: UserPreview;
+
+  @Field()
+  displayname: string;
 
   @Field()
   isNewMember: boolean;
