@@ -1,5 +1,4 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
