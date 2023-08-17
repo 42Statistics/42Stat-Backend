@@ -496,7 +496,7 @@ type TeamInfo {
 
 type Query {
   getLanding: Landing!
-  getMyInfo: MyInfo!
+  getMyInfo: MyInfo
   getSpotlight(input: String!, limit: Int! = 10): Spotlight!
   getHomeUser: HomeUser!
   getHomeEval: HomeEval!

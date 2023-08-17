@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
+import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
 import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
@@ -17,6 +18,7 @@ import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate'
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
+import { UserService } from 'src/api/user/user.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { findUserRank } from 'src/common/findUserRank';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
@@ -38,41 +40,58 @@ export class MyInfoService {
     private readonly scoreCacheService: ScoreCacheService,
     private readonly scaleTeamService: ScaleTeamService,
     private readonly scaleTeamCacheService: ScaleTeamCacheService,
+    private readonly userService: UserService,
     private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()
-  async myInfoRoot(userId: number): Promise<MyInfoRoot> {
+  async myInfoRoot(userId: number): Promise<MyInfoRoot | null> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
 
-    const cursusUser: {
-      user: { id: number; login: string; image: { link?: string } };
-      blackholedAt?: Date;
-    } | null =
+    if (cachedUserFullProfile) {
+      return {
+        userPreview: {
+          id: cachedUserFullProfile.cursusUser.user.id,
+          login: cachedUserFullProfile.cursusUser.user.login,
+          imgUrl: cachedUserFullProfile.cursusUser.user.image.link,
+        },
+      };
+    }
+
+    const userPreview: {
+      id: number;
+      login: string;
+      image: { link?: string };
+    } | null = await this.userService.findOneAndLean({
+      filter: { id: userId },
+      select: {
+        id: 1,
+        login: 1,
+        'image.link': 1,
+      },
+    });
+
+    if (userPreview) {
+      return { userPreview };
+    }
+
+    return null;
+  }
+
+  @CacheOnReturn()
+  async blackholedAt(userId: number): Promise<Date | null> {
+    const cachedUserFullProfile =
+      await this.cursusUserCacheService.getUserFullProfile(userId);
+
+    const cursusUser: Pick<cursus_user, 'blackholedAt'> | null =
       cachedUserFullProfile?.cursusUser ??
       (await this.cursusUserService.findOneAndLean({
         filter: { 'user.id': userId },
-        select: {
-          'user.id': 1,
-          'user.login': 1,
-          'user.image.link': 1,
-          blackholedAt: 1,
-        },
+        select: { blackholedAt: 1 },
       }));
 
-    if (!cursusUser) {
-      throw new NotFoundException();
-    }
-
-    return {
-      userPreview: {
-        id: cursusUser.user.id,
-        login: cursusUser.user.login,
-        imgUrl: cursusUser.user.image.link,
-      },
-      blackholedAt: cursusUser.blackholedAt,
-    };
+    return cursusUser?.blackholedAt ?? null;
   }
 
   @CacheOnReturn()
