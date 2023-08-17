@@ -4,7 +4,6 @@ import { UserTeam } from 'src/page/personal/general/models/personal.general.mode
 
 export type MyInfoRoot = {
   userPreview: UserPreview;
-  blackholedAt?: Date;
 };
 
 @ObjectType()

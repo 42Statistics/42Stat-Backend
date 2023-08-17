@@ -13,9 +13,14 @@ import { MyInfoService } from './myInfo.service';
 export class MyInfoResolver {
   constructor(private readonly myInfoService: MyInfoService) {}
 
-  @Query((_returns) => MyInfo)
-  async getMyInfo(@MyUserId() myUserId: number): Promise<MyInfoRoot> {
+  @Query((_returns) => MyInfo, { nullable: true })
+  async getMyInfo(@MyUserId() myUserId: number): Promise<MyInfoRoot | null> {
     return await this.myInfoService.myInfoRoot(myUserId);
+  }
+
+  @ResolveField((_returns) => Date, { nullable: true })
+  async blackholedAt(@MyUserId() myUserId: number): Promise<Date | null> {
+    return await this.myInfoService.blackholedAt(myUserId);
   }
 
   @ResolveField((_returns) => Boolean)
