@@ -56,24 +56,34 @@ export class MyInfoService {
           login: cachedUserFullProfile.cursusUser.user.login,
           imgUrl: cachedUserFullProfile.cursusUser.user.image.link,
         },
+        displayname: cachedUserFullProfile.cursusUser.user.displayname,
       };
     }
 
-    const userPreview: {
+    const user: {
       id: number;
       login: string;
       image: { link?: string };
+      displayname: string;
     } | null = await this.userService.findOneAndLean({
       filter: { id: userId },
       select: {
         id: 1,
         login: 1,
         'image.link': 1,
+        displayname: 1,
       },
     });
 
-    if (userPreview) {
-      return { userPreview };
+    if (user) {
+      return {
+        userPreview: {
+          id: user.id,
+          login: user.login,
+          imgUrl: user.image.link,
+        },
+        displayname: user.displayname,
+      };
     }
 
     return null;

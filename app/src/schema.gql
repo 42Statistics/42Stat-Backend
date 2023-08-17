@@ -380,6 +380,7 @@ type PersonalGeneral {
 
 type MyInfo {
   userPreview: UserPreview!
+  displayname: String!
   isNewMember: Boolean!
   recentValidatedTeam: UserTeam
   blackholedAt: DateTime
