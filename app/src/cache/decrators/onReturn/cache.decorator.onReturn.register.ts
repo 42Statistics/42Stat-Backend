@@ -36,15 +36,17 @@ export class CacheDecoratorOnReturnRegister implements OnModuleInit {
 
             instance[methodName] = async (...args: any[]) => {
               const cacheKey = ['onReturn', methodName, ...args].join(':');
-              const cached = await this.cacheManager.get(cacheKey);
+              const cached = await this.cacheManager.get<{ value: unknown }>(
+                cacheKey,
+              );
 
               if (cached) {
-                return cached;
+                return cached.value;
               }
 
               const result = await methodRef.call(instance, ...args);
 
-              await this.cacheManager.set(cacheKey, result, ttl);
+              await this.cacheManager.set(cacheKey, { value: result }, ttl);
 
               return result;
             };

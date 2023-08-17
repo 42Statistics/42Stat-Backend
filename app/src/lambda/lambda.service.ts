@@ -27,21 +27,11 @@ import {
   TOTAL_SCORES_BY_COALITION,
 } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
-import {
-  CacheUtilRankingService,
-  type RankingSupportedDateTemplate,
-} from 'src/cache/cache.util.ranking.service';
+import { CacheUtilRankingService } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
-import type { UserFullProfile } from 'src/common/userFullProfile';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
-
-type UpdateRankingByDateTemplateFn = (
-  userFullProfiles: UserFullProfile[],
-  updatedAt: Date,
-  dateTemplate: RankingSupportedDateTemplate,
-) => Promise<void>;
 
 export const LAMBDA_UPDATED_AT = 'lambdaUpdatedAt';
 

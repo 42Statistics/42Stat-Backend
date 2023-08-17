@@ -5,7 +5,6 @@ import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
 import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
-import { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
 
 @ObjectType()
 export class UserTeam {
