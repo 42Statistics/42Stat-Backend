@@ -29,10 +29,10 @@ export class MyInfoResolver {
   }
 
   @ResolveField((_returns) => UserTeam, { nullable: true })
-  async recentValidatedTeam(
+  async lastValidatedTeam(
     @MyUserId() myUserId: number,
   ): Promise<UserTeam | null> {
-    return this.myInfoService.recentValidatedTeam(myUserId);
+    return this.myInfoService.lastValidatedTeam(myUserId);
   }
 
   @ResolveField((_returns) => Int, {

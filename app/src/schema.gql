@@ -382,7 +382,7 @@ type MyInfo {
   userPreview: UserPreview!
   displayname: String!
   isNewMember: Boolean!
-  recentValidatedTeam: UserTeam
+  lastValidatedTeam: UserTeam
   blackholedAt: DateTime
   experienceRank: Int
   scoreRank: Int

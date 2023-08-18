@@ -131,7 +131,7 @@ export class MyInfoService {
   }
 
   @CacheOnReturn()
-  async recentValidatedTeam(userId: number): Promise<UserTeam | null> {
+  async lastValidatedTeam(userId: number): Promise<UserTeam | null> {
     const userTeams = await this.teamService.userTeams(userId);
 
     const lastValidatedTeam = userTeams
