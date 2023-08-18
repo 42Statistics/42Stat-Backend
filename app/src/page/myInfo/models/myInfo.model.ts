@@ -19,7 +19,7 @@ export class MyInfo {
   isNewMember: boolean;
 
   @Field({ nullable: true })
-  recentValidatedTeam?: UserTeam;
+  lastValidatedTeam?: UserTeam;
 
   @Field({ nullable: true })
   blackholedAt?: Date;
