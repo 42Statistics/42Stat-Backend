@@ -69,7 +69,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
     EvalLogModule,
     SettingModule,
     GraphQLModule.forRoot<ApolloDriverConfig>({
-      includeStacktraceInErrorResponses: process.env.PROD ? true : false,
+      includeStacktraceInErrorResponses: process.env.PROD ? false : true,
       driver: ApolloDriver,
       buildSchemaOptions: {
         numberScalarMode: 'integer',
