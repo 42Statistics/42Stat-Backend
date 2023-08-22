@@ -24,8 +24,8 @@ jobs:
           script: |
             cd 42Stat-Backend
             git pull origin dev
-            git submodule update --init --recursive
-            docker-compose down -v
+            git submodule update --remote
+            docker-compose -f docker-compose.dev.yml down -v
             docker-compose -f docker-compose.dev.yml up -d
 
   CD-prod:
@@ -43,6 +43,6 @@ jobs:
           script: |
             cd 42Stat-Backend
             git pull origin main
-            git submodule update --init --recursive
-            docker-compose down -v
+            git submodule update --remote
+            docker-compose -f docker-compose.prod.yml down -v
             docker-compose -f docker-compose.prod.yml up -d
