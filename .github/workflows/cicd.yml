@@ -22,13 +22,17 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd 42Stat-Backend
+            echo "move to repository"
+            cd $HOME/42Stat-Backend
+            echo "pull"
             git pull origin dev
-            git submodule update --init --recursive
-            docker-compose down -v
+            echo "env update"
+            git submodule update --remote
+            echo "run docker"
+            docker-compose -f docker-compose.dev.yml down -v
             docker-compose -f docker-compose.dev.yml up -d
 
- CD-prod:
+  CD-prod:
     name: production
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
@@ -41,8 +45,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd 42Stat-Backend
+            cd $HOME/42Stat-Backend
             git pull origin main
-            git submodule update --init --recursive
-            docker-compose down -v
+            git submodule update --remote
+            docker-compose -f docker-compose.prod.yml down -v
             docker-compose -f docker-compose.prod.yml up -d
