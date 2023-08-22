@@ -22,9 +22,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd 42Stat-Backend
+            echo "move to repository"
+            cd $HOME/42Stat-Backend
+            echo "pull"
             git pull origin dev
+            echo "env update"
             git submodule update --remote
+            echo "run docker"
             docker-compose -f docker-compose.dev.yml down -v
             docker-compose -f docker-compose.dev.yml up -d
 
@@ -41,7 +45,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd 42Stat-Backend
+            cd $HOME/42Stat-Backend
             git pull origin main
             git submodule update --remote
             docker-compose -f docker-compose.prod.yml down -v
