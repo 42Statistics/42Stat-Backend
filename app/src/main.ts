@@ -10,9 +10,9 @@ async function bootstrap() {
     origin: process.env.PROD
       ? 'https://stat.42seoul.kr'
       : [
-          'https://stat.42seoul.kr',
-          'https://dacx6qkh9yupq.cloudfront.net',
-          'https://localhost:8080',
+          'https://statdev.cloud',
+          'https://d1571ej1ecqlkv.cloudfront.net',
+          'http://localhost:8080',
         ],
     methods: ['POST'],
   });
