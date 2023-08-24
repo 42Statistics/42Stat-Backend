@@ -1,8 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import { addRank } from 'src/common/db/common.db.aggregation';
-import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
+import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
+import {
+  findAllAndLean,
+  type QueryArgs,
+} from 'src/database/mongoose/database.mongoose.query';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { ProjectRank } from 'src/page/home/team/models/home.team.model';
 import {

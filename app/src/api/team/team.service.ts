@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import type { AggrNumeric } from 'src/common/db/common.db.aggregation';
-import { addRank } from 'src/common/db/common.db.aggregation';
+import {
+  addRank,
+  type AggrNumeric,
+} from 'src/database/mongoose/database.mongoose.aggregation';
+import {
+  findAllAndLean,
+  type QueryArgs,
+} from 'src/database/mongoose/database.mongoose.query';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type {
   UserPreview,
@@ -18,10 +24,9 @@ import {
   lookupProjects,
 } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
+import { lookupScaleTeams } from '../scaleTeam/db/scaleTeam.database.aggregate';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
-import { lookupScaleTeams } from '../scaleTeam/db/scaleTeam.database.aggregate';
-import { QueryArgs, findAllAndLean } from 'src/common/db/common.db.query';
 
 @Injectable()
 export class TeamService {

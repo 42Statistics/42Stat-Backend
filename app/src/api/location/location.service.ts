@@ -1,8 +1,11 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import type { AggrNumericPerCluster } from 'src/common/db/common.db.aggregation';
-import { QueryArgs, findAllAndLean } from 'src/common/db/common.db.query';
+import type { AggrNumericPerCluster } from 'src/database/mongoose/database.mongoose.aggregation';
+import {
+  QueryArgs,
+  findAllAndLean,
+} from 'src/database/mongoose/database.mongoose.query';
 import type {
   UserPreview,
   UserRank,

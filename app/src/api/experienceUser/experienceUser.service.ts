@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
 import { assertExist } from 'src/common/assertExist';
-import { addRank } from 'src/common/db/common.db.aggregation';
+import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { LevelRecord } from 'src/page/personal/general/models/personal.general.model';
