@@ -40,6 +40,9 @@ export class ProjectInfo
   @Field({ nullable: true })
   circle?: number;
 
+  @Field({ nullable: true })
+  pdfUrl?: string;
+
   @Field((_type) => [String])
   objectives: string[];
 

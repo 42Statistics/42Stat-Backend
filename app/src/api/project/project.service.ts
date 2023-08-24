@@ -31,13 +31,14 @@ export class ProjectService {
   async findOneProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview | null> {
-    const project: Pick<project, 'id' | 'name' | 'circle'> | null =
+    const project: Pick<project, 'id' | 'name' | 'circle' | 'pdfUrl'> | null =
       await this.findOneAndLean({
         ...queryArgs,
         select: {
           id: 1,
           name: 1,
           circle: 1,
+          pdfUrl: 1,
         },
       });
 
@@ -52,13 +53,14 @@ export class ProjectService {
   async findAllProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview[]> {
-    const projects: Pick<project, 'id' | 'name' | 'circle'>[] =
+    const projects: Pick<project, 'id' | 'name' | 'circle' | 'pdfUrl'>[] =
       await this.findAllAndLean({
         ...queryArgs,
         select: {
           id: 1,
           name: 1,
           circle: 1,
+          pdfUrl: 1,
         },
       });
 
