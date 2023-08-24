@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
-import { AggrNumeric, addRank } from 'src/common/db/common.db.aggregation';
-import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
+import {
+  AggrNumeric,
+  addRank,
+} from 'src/database/mongoose/database.mongoose.aggregation';
+import {
+  findAllAndLean,
+  type QueryArgs,
+} from 'src/database/mongoose/database.mongoose.query';
 import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';

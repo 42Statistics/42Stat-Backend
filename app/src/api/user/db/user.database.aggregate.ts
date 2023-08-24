@@ -2,7 +2,7 @@ import type { PipelineStage } from 'mongoose';
 import {
   lookupStage,
   type CollectionLookup,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 // eslint-disable-next-line
 
 /**
