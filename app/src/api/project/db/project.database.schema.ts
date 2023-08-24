@@ -44,6 +44,9 @@ export class project extends ProjectBase {
   @Prop()
   circle?: number;
 
+  @Prop()
+  pdfUrl?: string;
+
   // git_id: z.number().nullable(),
   // repository: z.string().nullable(),
 }

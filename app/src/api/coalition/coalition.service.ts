@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
-import { coalition } from './db/coalition.database.schema';
+import { API_CONFIG, type ApiConfig } from 'src/config/api';
 import { CDN_CONFIG, type CdnConfig } from 'src/config/cdn';
-import { API_CONFIG, ApiConfig } from 'src/config/api';
+import { coalition } from './db/coalition.database.schema';
 import type { Coalition } from './models/coalition.model';
 
 @Injectable()
