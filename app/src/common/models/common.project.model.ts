@@ -14,4 +14,7 @@ export class ProjectPreview implements Pick<project, 'id' | 'name'> {
 
   @Field({ nullable: true })
   circle?: number;
+
+  @Field({ nullable: true })
+  pdfUrl?: string;
 }
