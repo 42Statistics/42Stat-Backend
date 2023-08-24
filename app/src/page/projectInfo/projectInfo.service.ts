@@ -38,6 +38,7 @@ export class ProjectInfoService {
       name: projectPreview.name,
       url: projectUrlById(projectId),
       circle: projectPreview.circle,
+      pdfUrl: this.projectService.pdfUrlByIdAndName(projectId, projectName),
       ...projectTeamInfo,
       ...projectSessionsInfo,
     };

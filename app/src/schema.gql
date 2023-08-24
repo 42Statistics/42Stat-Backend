@@ -425,6 +425,7 @@ type ProjectInfo {
   name: String!
   url: String!
   circle: Int
+  pdfUrl: String!
   objectives: [String!]!
   skills: [String!]!
   description: String!
