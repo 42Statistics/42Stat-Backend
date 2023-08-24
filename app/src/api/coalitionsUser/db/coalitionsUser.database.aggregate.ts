@@ -1,7 +1,7 @@
 import {
   CollectionLookup,
   lookupStage,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 // eslint-disable-next-line
 import type { coalitions_user } from './coalitionsUser.database.schema';
 

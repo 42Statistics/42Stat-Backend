@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import { addRank } from 'src/common/db/common.db.aggregation';
+import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
 import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,

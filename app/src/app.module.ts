@@ -3,7 +3,6 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
-import { MongooseModule } from '@nestjs/mongoose';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
@@ -17,6 +16,7 @@ import { ftClientConfig } from './config/ftClient';
 import { googleClientConfig } from './config/googleClient';
 import { jwtConfig } from './config/jwt';
 import { timezoneConfig } from './config/timezone';
+import { MongooseRootModule } from './database/mongoose/database.mongoose.module';
 import { DateWrapper } from './dateWrapper/dateWrapper';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
@@ -46,6 +46,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
         apiConfig,
       ],
     }),
+    MongooseRootModule,
     CacheModule.register({
       isGlobal: true,
       store: new ShallowStore({
@@ -53,11 +54,24 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
         ttl: DateWrapper.MIN * 3,
       }),
     }),
-    LoginModule,
-    MongooseModule.forRoot(
-      `mongodb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_ENDPOINT}/${process.env.DB_NAME}`,
-    ),
     ScheduleModule.forRoot(),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      includeStacktraceInErrorResponses: process.env.PROD ? false : true,
+      driver: ApolloDriver,
+      buildSchemaOptions: {
+        numberScalarMode: 'integer',
+      },
+      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+    }),
+  ],
+})
+// eslint-disable-next-line
+export class AppRootModule {}
+
+@Module({
+  imports: [
+    AppRootModule,
+    LoginModule,
     LandingModule,
     MyInfoModule,
     SpotlightModule,
@@ -68,14 +82,6 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
     LeaderboardModule,
     EvalLogModule,
     SettingModule,
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      includeStacktraceInErrorResponses: process.env.PROD ? false : true,
-      driver: ApolloDriver,
-      buildSchemaOptions: {
-        numberScalarMode: 'integer',
-      },
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-    }),
     LambdaModule,
     CacheDecoratorOnReturnModule,
   ],

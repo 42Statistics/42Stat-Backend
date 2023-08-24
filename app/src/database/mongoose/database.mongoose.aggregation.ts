@@ -1,5 +1,5 @@
 import { PipelineStage } from 'mongoose';
-import type { IntRecord } from '../models/common.valueRecord.model';
+import type { IntRecord } from '../../common/models/common.valueRecord.model';
 
 export type AggrNumeric = { value: number };
 export type AggrRecord = { records: IntRecord[] };

@@ -4,7 +4,7 @@ import type { FilterQuery, Model } from 'mongoose';
 import {
   UpdateQueryArgs,
   findOneAndUpdateAndLean,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { token } from './db/token.database.schema';
 
