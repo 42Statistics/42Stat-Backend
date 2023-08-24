@@ -1,7 +1,7 @@
 import {
   CollectionLookup,
   lookupStage,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 import type { experience_user } from './experienceUser.database.schema';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import type { FilterQuery } from 'mongoose';

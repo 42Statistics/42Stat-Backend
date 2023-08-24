@@ -2,7 +2,7 @@ import type { FilterQuery } from 'mongoose';
 import {
   CollectionLookup,
   lookupStage,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 import type { scale_team } from './scaleTeam.database.schema';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 

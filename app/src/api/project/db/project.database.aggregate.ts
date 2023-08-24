@@ -1,7 +1,7 @@
 import {
   CollectionLookup,
   lookupStage,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 // eslint-disable-next-line
 import type { project } from './project.database.schema';
 import { NETWHAT_PREVIEW, PROJECT_BASE_URL } from 'src/config/api';

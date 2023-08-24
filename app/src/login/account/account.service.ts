@@ -7,7 +7,7 @@ import {
   findOneAndLean,
   findOneAndUpdateAndLean,
   type QueryOneArgs,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import {
   account,
