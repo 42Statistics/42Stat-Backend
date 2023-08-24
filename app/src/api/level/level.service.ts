@@ -1,7 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { findAllAndLean, type QueryArgs } from 'src/common/db/common.db.query';
+import {
+  findAllAndLean,
+  type QueryArgs,
+} from 'src/database/mongoose/database.mongoose.query';
 import { level } from './db/level.database.schema';
 
 @Injectable()

@@ -1,5 +1,5 @@
 import type { PipelineStage } from 'mongoose';
-import { lookupStage } from 'src/common/db/common.db.aggregation';
+import { lookupStage } from 'src/database/mongoose/database.mongoose.aggregation';
 // eslint-disable-next-line
 import type { titles_user } from './titlesUser.database.schema';
 

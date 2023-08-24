@@ -4,13 +4,13 @@ import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
 import {
   findByDateFromAggrDateBucket,
   type AggrNumericPerDateBucket,
-} from 'src/common/db/common.db.aggregation';
+} from 'src/database/mongoose/database.mongoose.aggregation';
 import {
   findAllAndLean,
   findOneAndLean,
   type QueryArgs,
   type QueryOneArgs,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 import type {
   UserPreview,
   UserRank,

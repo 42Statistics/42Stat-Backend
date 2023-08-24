@@ -5,7 +5,7 @@ import type { Model } from 'mongoose';
 import {
   findOneAndLean,
   type QueryOneArgs,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 
 @Injectable()
 export class UserService {

@@ -6,7 +6,7 @@ import {
   findOneAndLean,
   type QueryArgs,
   type QueryOneArgs,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 import type { ProjectPreview } from 'src/common/models/common.project.model';
 import { projectUrlById } from 'src/config/api';
 import { project } from './db/project.database.schema';

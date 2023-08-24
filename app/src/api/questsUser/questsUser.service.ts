@@ -4,7 +4,7 @@ import type { Model } from 'mongoose';
 import {
   findOneAndLean,
   type QueryOneArgs,
-} from 'src/common/db/common.db.query';
+} from 'src/database/mongoose/database.mongoose.query';
 import type { IntPerCircle } from 'src/page/home/user/models/home.user.model';
 import { quests_user } from './db/questsUser.database.schema';
 
