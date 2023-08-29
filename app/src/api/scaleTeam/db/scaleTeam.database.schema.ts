@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { TeamBase } from 'src/api/team/db/team.database.base.schema';
 import { UserBase } from 'src/api/user/db/user.database.schema';
-import { TeamBase } from 'src/api/team/db/team.database.schema';
 
 export type ScaleTeamDocument = HydratedDocument<scale_team>;
 
