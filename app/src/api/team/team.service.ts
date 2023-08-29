@@ -275,21 +275,6 @@ export class TeamService {
     return registeredCountAggr.length ? registeredCountAggr[0].value : 0;
   }
 
-  async teamMatesUid(
-    targetUid: number,
-  ): Promise<{ userId: number; value: number }[]> {
-    const aggregate = this.teamModel.aggregate<
-      { userId: number } & AggrNumeric
-    >();
-
-    return await aggregate
-      .match({ 'users.id': targetUid })
-      .unwind({ path: 'users' })
-      .group({ _id: '$users.id', value: { $count: {} } })
-      .match({ _id: { $ne: targetUid } })
-      .project({ _id: 0, userId: '$_id', value: 1 });
-  }
-
   async averagePassFinalMark(projectId: number): Promise<number> {
     const aggregate = this.teamModel.aggregate<AggrNumeric>();
 
@@ -372,19 +357,17 @@ export class TeamService {
         users: {
           $cond: {
             if: { $in: [userId, '$scaleTeams.corrector.id'] },
-            then: { $first: '$users.id' },
-            else: {
-              $concatArrays: [
-                {
-                  $filter: {
-                    input: {
-                      $concatArrays: ['$scaleTeams.corrector.id', '$users.id'],
-                    },
-                    cond: { $ne: ['$$this', userId] },
+            then: '$users.id',
+            else: [
+              {
+                $filter: {
+                  input: {
+                    $concatArrays: ['$scaleTeams.corrector.id', '$users.id'],
                   },
+                  cond: { $ne: ['$$this', userId] },
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       })
