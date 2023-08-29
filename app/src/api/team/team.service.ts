@@ -1,6 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
+import type { Rate } from 'src/common/models/common.rate.model';
+import type {
+  UserPreview,
+  UserRank,
+} from 'src/common/models/common.user.model';
 import {
   addRank,
   type AggrNumeric,
@@ -9,11 +14,6 @@ import {
   findAllAndLean,
   type QueryArgs,
 } from 'src/database/mongoose/database.mongoose.query';
-import type { Rate } from 'src/common/models/common.rate.model';
-import type {
-  UserPreview,
-  UserRank,
-} from 'src/common/models/common.user.model';
 import type { ResultPerRank } from 'src/page/home/team/models/home.team.model';
 import type { UserTeam } from 'src/page/personal/general/models/personal.general.model';
 import type { TeamInfo } from 'src/page/teamInfo/models/teamInfo.model';
@@ -25,6 +25,7 @@ import {
 } from '../project/db/project.database.aggregate';
 import type { project } from '../project/db/project.database.schema';
 import { lookupScaleTeams } from '../scaleTeam/db/scaleTeam.database.aggregate';
+import type { scale_team } from '../scaleTeam/db/scaleTeam.database.schema';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
 import { team } from './db/team.database.schema';
 
@@ -110,7 +111,7 @@ export class TeamService {
         'status' | 'evalLogs' | 'users' | 'moulinette' | 'lastEventTime'
       > &
         Pick<team, 'status' | 'users' | 'teamsUploads'> & {
-          evalLogs: team['scaleTeams'];
+          evalLogs: scale_team[];
           userPreviews: UserPreview[];
         }
     >();
