@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { exam } from 'src/api/exam/db/exam.database.schema';
-import { ExamService } from 'src/api/exam/exam.service';
+import { EXAM_PROJECT_IDS, ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
@@ -30,7 +30,10 @@ export class HomeTeamService {
       .toDate();
 
     const teams: { closedAt?: Date }[] = await this.teamService.findAllAndLean({
-      filter: { closedAt: { $gte: startDate } },
+      filter: {
+        closedAt: { $gte: startDate },
+        projectId: { $nin: EXAM_PROJECT_IDS },
+      },
       select: { closedAt: 1 },
     });
 
