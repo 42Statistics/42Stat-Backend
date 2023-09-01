@@ -10,19 +10,19 @@ import {
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
-import { LeaderboardScoreService } from './leaderboard.score.service';
-import { LeaderboardScore } from './models/leaderboard.score.model';
+import { LeaderboardCommentService } from './leaderboard.comment.service';
+import { LeaderboardComment } from './models/leaderboard.comment.model';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
-@Resolver((_of: unknown) => LeaderboardScore)
-export class LeaderboardScoreResolver {
+@Resolver((_of: unknown) => LeaderboardComment)
+export class LeaderboardCommentResolver {
   constructor(
-    private readonly leaderboardScoreService: LeaderboardScoreService,
+    private readonly leaderboardCommentService: LeaderboardCommentService,
   ) {}
 
-  @Query((_returns) => LeaderboardScore)
-  async getLeaderboardScore() {
+  @Query((_returns) => LeaderboardComment)
+  async getLeaderboardComment() {
     return {};
   }
 
@@ -30,20 +30,13 @@ export class LeaderboardScoreResolver {
   async byDateTemplate(
     @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
-    @Args({ description: 'TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다' })
-    { dateTemplate }: DateTemplateArgs,
+    @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
-    if (
-      !(
-        dateTemplate === DateTemplate.TOTAL ||
-        dateTemplate === DateTemplate.CURR_MONTH ||
-        dateTemplate === DateTemplate.CURR_WEEK
-      )
-    ) {
+    if (dateTemplate !== DateTemplate.TOTAL) {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardScoreService.rankingByDateTemplate({
+    return await this.leaderboardCommentService.rankingByDateTemplate({
       dateTemplate,
       userId: myUserId,
       paginationIndexArgs,

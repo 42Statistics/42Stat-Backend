@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import {
   CacheUtilRankingService,
-  type RankingSupportedDateTemplate,
   type GetRankArgs,
   type GetRankingArgs,
   type RankCache,
+  type RankingSupportedDateTemplate,
 } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { ScaleTeamService } from './scaleTeam.service';
-
 export const EVAL_COUNT_RANKING = 'evalCountRanking';
+export const COMMENT_RANKING = 'commentRanking';
 export const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
 export const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
 
@@ -72,5 +72,20 @@ export class ScaleTeamCacheService {
     return await this.cacheUtilService.getWithoutDate<AverageReviewLengthCache>(
       key,
     );
+  }
+
+  async getCommentRank(userId: number): Promise<RankCache | undefined> {
+    return await this.cacheUtilRankingService.getRawRank({
+      keyBase: COMMENT_RANKING,
+      userId,
+      dateTemplate: DateTemplate.TOTAL,
+    });
+  }
+
+  async getCommentRanking(): Promise<RankCache[] | undefined> {
+    return await this.cacheUtilRankingService.getRawRanking({
+      keyBase: COMMENT_RANKING,
+      dateTemplate: DateTemplate.TOTAL,
+    });
   }
 }
