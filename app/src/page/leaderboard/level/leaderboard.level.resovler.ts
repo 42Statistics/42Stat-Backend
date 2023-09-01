@@ -30,9 +30,8 @@ export class LeaderboardLevelResolver {
   async byDateTemplate(
     @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
-    @Args()
-    { dateTemplate }: DateTemplateArgs,
-  ) {
+    @Args() { dateTemplate }: DateTemplateArgs,
+  ): Promise<LeaderboardElementDateRanged> {
     if (dateTemplate !== DateTemplate.TOTAL) {
       throw new UnsupportedDateTemplate();
     }
