@@ -17,6 +17,7 @@ import { evalCountDateRangeFilter } from 'src/api/scaleTeam/db/scaleTeam.databas
 import {
   AVERAGE_COMMENT_LENGTH,
   AVERAGE_FEEDBACK_LENGTH,
+  COMMENT_RANKING,
   EVAL_COUNT_RANKING,
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
@@ -195,6 +196,18 @@ export class LambdaService {
       totalLog,
       updatedAt,
       LOGTIME_RANKING,
+      DateTemplate.TOTAL,
+    );
+
+    const commentRank = await this.scaleTeamService.averageReviewLengthRanking(
+      'comment',
+      'corrector',
+    );
+
+    await this.cacheUtilRankingService.setRanking(
+      commentRank,
+      updatedAt,
+      COMMENT_RANKING,
       DateTemplate.TOTAL,
     );
   }
