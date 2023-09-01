@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model, SortOrder } from 'mongoose';
+import type { UserRank } from 'src/common/models/common.user.model';
 import {
   AggrNumeric,
   addRank,
@@ -9,7 +10,6 @@ import {
   findAllAndLean,
   type QueryArgs,
 } from 'src/database/mongoose/database.mongoose.query';
-import type { UserRank } from 'src/common/models/common.user.model';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -110,6 +110,53 @@ export class ScaleTeamService {
       });
 
     return reviewAggr?.value ?? 0;
+  }
+
+  async averageReviewLengthRanking(
+    field: 'comment' | 'feedback',
+    filter?: FilterQuery<scale_team>,
+  ): Promise<UserRank[]> {
+    const aggregate = this.cursusUserService.aggregate<UserRank>();
+
+    const fieldMap = {
+      comment: 'corrector',
+      feedback: 'correcteds',
+    };
+
+    const target = fieldMap[field];
+
+    return await aggregate
+      .append(
+        lookupScaleTeams('user.id', `${target}.id`, [
+          {
+            $match: {
+              ...filter,
+              [`${field}`]: { $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: 'result',
+              value: { $avg: { $strLenCP: `$${field}` } },
+            },
+          },
+        ]),
+      )
+      .addFields({
+        value: {
+          $round: {
+            $first: '$scale_teams.value',
+          },
+        },
+      })
+      .append(addRank())
+      .append(addUserPreview('user'))
+      .project({
+        _id: 0,
+        userPreview: 1,
+        value: 1,
+        rank: 1,
+      });
   }
 
   /**

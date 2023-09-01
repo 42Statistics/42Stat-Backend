@@ -264,18 +264,23 @@ type LeaderboardElementDateRanged {
   end: DateTime!
 }
 
+type LeaderboardComment {
+  """TOTAL 만 가능합니다"""
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+}
+
 type LeaderboardEval {
-  """Available DateTemplate=[TOTAL, CURR_MONTH, CURR_WEEK]"""
+  """TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
-  """Available DateTemplate=[CURR_MONTH, CURR_WEEK]"""
+  """CURR_MONTH, CURR_WEEK 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
-  """Available DateTemplate=[TOTAL]"""
+  """TOTAL 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
@@ -514,6 +519,7 @@ type Query {
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
+  getLeaderboardComment: LeaderboardComment!
   getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
 }

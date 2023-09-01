@@ -3,7 +3,6 @@ import {
   ExperienceUserCacheService,
   type ExpIncreamentRankingCacheSupportedDateTemplate,
 } from 'src/api/experienceUser/experienceUser.cache.service';
-import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import { assertExist } from 'src/common/assertExist';
 import type { LeaderboardElementDateRanged } from '../models/leaderboard.model';
 import {
@@ -15,7 +14,6 @@ import {
 export class LeaderboardExpService {
   constructor(
     private readonly leaderboardUtilService: LeaderboardUtilService,
-    private readonly experienceUserService: ExperienceUserService,
     private readonly experienceUserCacheService: ExperienceUserCacheService,
   ) {}
 
