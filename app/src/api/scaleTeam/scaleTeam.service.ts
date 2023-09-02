@@ -128,19 +128,24 @@ export class ScaleTeamService {
     return await aggregate
       .append(
         lookupScaleTeams('user.id', `${target}.id`, [
-          { $match: { ...filter, $expr: { $ne: [`$${field}`, null] } } },
+          {
+            $match: {
+              ...filter,
+              [`${field}`]: { $ne: null },
+            },
+          },
+          {
+            $group: {
+              _id: 'result',
+              value: { $avg: { $strLenCP: `$${field}` } },
+            },
+          },
         ]),
       )
       .addFields({
         value: {
           $round: {
-            $avg: {
-              $map: {
-                input: `$scale_teams.${field}`,
-                as: 'str',
-                in: { $strLenCP: '$$str' },
-              },
-            },
+            $first: '$scale_teams.value',
           },
         },
       })
