@@ -3,6 +3,6 @@ import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
 
 @ObjectType()
 export class LeaderboardComment {
-  @Field({ description: 'Available DateTemplate=[TOTAL]' })
+  @Field({ description: 'TOTAL 만 가능합니다' })
   byDateTemplate: LeaderboardElementDateRanged;
 }
