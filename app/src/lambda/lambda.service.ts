@@ -192,7 +192,6 @@ export class LambdaService {
 
     const commentRank = await this.scaleTeamService.averageReviewLengthRanking(
       'comment',
-      'corrector',
     );
 
     await this.cacheUtilRankingService.setRanking(

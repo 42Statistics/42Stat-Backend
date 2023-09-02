@@ -114,10 +114,16 @@ export class ScaleTeamService {
 
   async averageReviewLengthRanking(
     field: 'comment' | 'feedback',
-    target: 'corrector' | 'correcteds',
     filter?: FilterQuery<scale_team>,
   ): Promise<UserRank[]> {
     const aggregate = this.cursusUserService.aggregate<UserRank>();
+
+    const fieldMap = {
+      comment: 'corrector',
+      feedback: 'correcteds',
+    };
+
+    const target = fieldMap[field];
 
     return await aggregate
       .append(
