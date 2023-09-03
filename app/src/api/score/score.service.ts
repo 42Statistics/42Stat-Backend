@@ -40,11 +40,7 @@ export class ScoreService {
     return await aggregate
       .append(
         lookupCoalitionsUser('user.id', 'userId', [
-          {
-            $match: {
-              coalitionId: { $in: targetCoalitionIds },
-            },
-          },
+          { $match: { coalitionId: { $in: targetCoalitionIds } } },
         ]),
       )
       .addFields({ coalitions_users: { $first: '$coalitions_users' } })
@@ -56,19 +52,13 @@ export class ScoreService {
           args?.filter ? [{ $match: args.filter }] : undefined,
         ),
       )
-      .addFields({
-        value: {
-          $sum: '$scores.value',
-        },
-      })
+      .addFields({ value: { $sum: '$scores.value' } })
       .append(addRank())
       .append(addUserPreview('user'))
       .project({
         _id: 0,
         userPreview: 1,
-        coalition: {
-          id: '$coalitions_users.coalitionId',
-        },
+        coalition: { id: '$coalitions_users.coalitionId' },
         value: 1,
         rank: 1,
       });
@@ -87,15 +77,17 @@ export class ScoreService {
         coalitionsUserId: { $ne: null },
         coalitionId: { $in: targetCoalitionIds },
       })
-      .group({ _id: '$coalitionId', value: { $sum: '$value' } })
-      .lookup({
-        from: 'coalitions',
-        localField: '_id',
-        foreignField: 'id',
-        as: 'coalition',
+      .group({
+        _id: '$coalitionId',
+        value: { $sum: '$value' },
       })
+      .append(lookupCoalition('_id', 'id'))
       .sort({ _id: 1 })
-      .project({ _id: 0, coalition: { $first: '$coalition' }, value: 1 });
+      .project({
+        _id: 0,
+        coalition: { $first: '$coalitions' },
+        value: 1,
+      });
   }
 
   async scoreRecordsPerCoalition(args?: {
@@ -144,7 +136,11 @@ export class ScoreService {
       })
       .sort({ _id: 1 })
       .append(lookupCoalition('_id', 'id'))
-      .project({ _id: 0, coalition: { $first: '$coalitions' }, records: 1 });
+      .project({
+        _id: 0,
+        coalition: { $first: '$coalitions' },
+        records: 1,
+      });
   }
 
   async tigCountPerCoalition(args?: {
@@ -160,9 +156,7 @@ export class ScoreService {
 
     return await aggregate
       .match({ id: { $in: targetCoalitionIds } })
-      .addFields({
-        coalition: '$$ROOT',
-      })
+      .addFields({ coalition: '$$ROOT' })
       .append(
         lookupScores('id', 'coalitionId', [
           {
@@ -187,5 +181,53 @@ export class ScoreService {
           ),
         })),
       );
+  }
+
+  async winCountPerCoalition(args?: {
+    targetCoalitionIds?: readonly number[];
+    filter?: FilterQuery<score>;
+  }): Promise<IntPerCoalition[]> {
+    const targetCoalitionIds =
+      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+
+    const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
+
+    return await aggregate
+      .match({
+        ...args?.filter,
+        coalitionsUserId: { $ne: null },
+        coalitionId: { $in: targetCoalitionIds },
+      })
+      .group({
+        _id: {
+          coalitionId: '$coalitionId',
+          at: {
+            $dateToString: {
+              format: '%Y-%m',
+              date: '$createdAt',
+              timezone: process.env.TZ,
+            },
+          },
+        },
+        value: { $sum: '$value' },
+      })
+      .sort({
+        at: 1,
+        value: -1,
+      })
+      .group({
+        _id: '$_id.at',
+        winCoalition: { $first: '$$ROOT' },
+      })
+      .group({
+        _id: '$winCoalition._id.coalitionId',
+        value: { $count: {} },
+      })
+      .append(lookupCoalition('_id', 'id'))
+      .project({
+        _id: 0,
+        coalition: { $first: '$coalitions' },
+        value: 1,
+      });
   }
 }
