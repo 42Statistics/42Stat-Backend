@@ -1,10 +1,12 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import type { Cache } from 'cache-manager';
+import { promo } from 'src/api/cursusUser/db/cursusUser.database.query';
 import { assertExist } from 'src/common/assertExist';
 import type {
   UserPreview,
   UserRank,
+  UserRankWithPromo,
 } from 'src/common/models/common.user.model';
 import {
   toUserPreviewFromFullProfile,
@@ -20,7 +22,7 @@ export type RankingSupportedDateTemplate = Exclude<
   DateTemplate.LAST_WEEK
 >;
 
-export type RankCache = UserFullProfile & UserRank;
+export type RankCache = UserFullProfile & UserRankWithPromo;
 
 export type UserFullProfileMap = Map<UserPreview['id'], UserFullProfile>;
 export type RankingCacheMap = Map<UserPreview['id'], RankCache>;
@@ -133,6 +135,7 @@ export class CacheUtilRankingService {
         userPreview: toUserPreviewFromFullProfile(userFullProfile),
         value: valueExtractor(userFullProfile),
         rank: -1,
+        promo: promo(userFullProfile.cursusUser.beginAt),
       });
     });
 
@@ -158,9 +161,11 @@ export class CacheUtilRankingService {
     assertExist(userFullProfileMap);
 
     const res = ranking.reduce((acc, curr) => {
+      const userFullProfile = userFullProfileMap.get(curr.userPreview.id)!;
       acc.set(curr.userPreview.id, {
-        ...userFullProfileMap.get(curr.userPreview.id)!,
+        ...userFullProfile,
         ...curr,
+        promo: promo(userFullProfile.cursusUser.beginAt),
       });
 
       return acc;
@@ -308,6 +313,7 @@ const generateRank = (
   userPreview: toUserPreviewFromFullProfile(userFullProfile),
   rank: rank ?? 0,
   value: value ?? 0,
+  promo: promo(userFullProfile.cursusUser.beginAt),
 });
 
 const fixRanking = (

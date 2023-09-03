@@ -78,8 +78,15 @@ type UserRank {
   rank: Int!
 }
 
+type UserRankWithPromo {
+  userPreview: UserPreview!
+  value: Float!
+  rank: Int!
+  promo: Int!
+}
+
 type UserRankingIndexPaginated {
-  nodes: [UserRank!]!
+  nodes: [UserRankWithPromo!]!
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
@@ -253,7 +260,7 @@ type Landing {
 
 type LeaderboardElement {
   """내 랭킹 정보"""
-  me: UserRank
+  me: UserRankWithPromo
 
   """전체 랭킹 정보"""
   totalRanking: UserRankingIndexPaginated!

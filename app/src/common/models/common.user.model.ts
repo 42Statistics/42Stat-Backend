@@ -34,4 +34,12 @@ export class UserRank implements z.infer<typeof userRankSchema> {
 }
 
 @ObjectType()
-export class UserRankingIndexPaginated extends IndexPaginated(UserRank) {}
+export class UserRankWithPromo extends UserRank {
+  @Field() //todo: nullable
+  promo: number;
+}
+
+@ObjectType()
+export class UserRankingIndexPaginated extends IndexPaginated(
+  UserRankWithPromo,
+) {}
