@@ -40,4 +40,9 @@ export class HomeCoalitionResolver {
       dateTemplate,
     );
   }
+
+  @ResolveField((_returns) => [IntPerCoalition])
+  async winCountPerCoalition(): Promise<IntPerCoalition[]> {
+    return await this.homeCoalitionService.winCountPerCoalition();
+  }
 }
