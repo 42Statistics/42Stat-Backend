@@ -158,6 +158,7 @@ type HomeCoalition {
   totalScoresPerCoalition: [IntPerCoalition!]!
   scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
   tigCountPerCoalitionByDateTemplate(dateTemplate: DateTemplate!): IntPerCoalitionDateRanged!
+  winCountPerCoalition: [IntPerCoalition!]!
 }
 
 enum DateTemplate {

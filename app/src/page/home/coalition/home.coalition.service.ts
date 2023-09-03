@@ -4,7 +4,7 @@ import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import type { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   IntPerCoalition,
@@ -57,5 +57,19 @@ export class HomeCoalitionService {
     });
 
     return this.dateRangeService.toDateRanged(tigCountPerCoalition, dateRange);
+  }
+
+  @CacheOnReturn()
+  async winCountPerCoalition(): Promise<IntPerCoalition[]> {
+    const currmonth = new DateWrapper().startOfMonth();
+
+    const dateRange: DateRange = {
+      ...this.dateRangeService.dateRangeFromTemplate(DateTemplate.TOTAL),
+      end: currmonth.toDate(),
+    };
+
+    return await this.scoreService.winCountPerCoalition({
+      filter: scoreDateRangeFilter(dateRange),
+    });
   }
 }
