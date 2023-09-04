@@ -144,9 +144,7 @@ export class ScaleTeamService {
       )
       .addFields({
         value: {
-          $round: {
-            $first: '$scale_teams.value',
-          },
+          $ifNull: [{ $round: { $first: '$scale_teams.value' } }, 0],
         },
       })
       .append(addRank())
