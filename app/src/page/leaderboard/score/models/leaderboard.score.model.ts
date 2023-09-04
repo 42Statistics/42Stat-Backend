@@ -4,7 +4,7 @@ import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
 @ObjectType()
 export class LeaderboardScore {
   @Field({
-    description: 'Available DateTemplate=[TOTAL, CURR_WEEK, CURR_MONTH]',
+    description: 'TOTAL, CURR_WEEK, CURR_MONTH 만 가능합니다',
   })
   byDateTemplate: LeaderboardElementDateRanged;
 }

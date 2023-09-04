@@ -30,8 +30,7 @@ export class LeaderboardScoreResolver {
   async byDateTemplate(
     @MyUserId() myUserId: number,
     @Args() paginationIndexArgs: PaginationIndexArgs,
-    @Args({ description: 'TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다' })
-    { dateTemplate }: DateTemplateArgs,
+    @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (
       !(
