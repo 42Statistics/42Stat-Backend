@@ -228,6 +228,11 @@ export class ScoreService {
         _id: 0,
         coalition: { $first: '$coalitions' },
         value: 1,
+      })
+      .then((winCountPerCoalition) => {
+        return winCountPerCoalition.sort(
+          (a, b) => a.coalition.id - b.coalition.id,
+        );
       });
   }
 }
