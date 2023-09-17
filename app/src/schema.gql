@@ -37,6 +37,7 @@ type ProjectPreview {
   url: String!
   circle: Int
   pdfUrl: String
+  difficulty: Int
 }
 
 type Coalition {
