@@ -20,6 +20,7 @@ import { MongooseRootModule } from './database/mongoose/database.mongoose.module
 import { DateWrapper } from './dateWrapper/dateWrapper';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
+import { CalculatorModule } from './page/calculator/calculator.module';
 import { EvalLogModule } from './page/evalLog/evalLog.module';
 import { HomeModule } from './page/home/home.module';
 import { LandingModule } from './page/landing/landing.module';
@@ -92,6 +93,7 @@ export class AppRootModule {}
     LeaderboardModule,
     EvalLogModule,
     SettingModule,
+    CalculatorModule,
     LambdaModule,
     CacheDecoratorOnReturnModule,
   ],

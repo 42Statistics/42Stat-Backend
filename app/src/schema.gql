@@ -26,6 +26,11 @@ type LoginSuccess {
   message: String!
 }
 
+type ExpTable {
+  level: Int!
+  exp: Int!
+}
+
 type ProjectPreview {
   id: Int!
   name: String!
@@ -523,6 +528,7 @@ type Query {
   getLeaderboardComment: LeaderboardComment!
   getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
+  getExpTable: [ExpTable!]!
 }
 
 enum EvalLogSortOrder {
