@@ -31,16 +31,19 @@ export class ProjectService {
   async findOneProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview | null> {
-    const project: Pick<project, 'id' | 'name' | 'circle' | 'pdfUrl'> | null =
-      await this.findOneAndLean({
-        ...queryArgs,
-        select: {
-          id: 1,
-          name: 1,
-          circle: 1,
-          pdfUrl: 1,
-        },
-      });
+    const project: Pick<
+      project,
+      'id' | 'name' | 'circle' | 'pdfUrl' | 'difficulty'
+    > | null = await this.findOneAndLean({
+      ...queryArgs,
+      select: {
+        id: 1,
+        name: 1,
+        circle: 1,
+        pdfUrl: 1,
+        difficulty: 1,
+      },
+    });
 
     return project
       ? {
@@ -53,16 +56,19 @@ export class ProjectService {
   async findAllProjectPreviewAndLean(
     queryArgs?: Omit<QueryArgs<project>, 'select'>,
   ): Promise<ProjectPreview[]> {
-    const projects: Pick<project, 'id' | 'name' | 'circle' | 'pdfUrl'>[] =
-      await this.findAllAndLean({
-        ...queryArgs,
-        select: {
-          id: 1,
-          name: 1,
-          circle: 1,
-          pdfUrl: 1,
-        },
-      });
+    const projects: Pick<
+      project,
+      'id' | 'name' | 'circle' | 'pdfUrl' | 'difficulty'
+    >[] = await this.findAllAndLean({
+      ...queryArgs,
+      select: {
+        id: 1,
+        name: 1,
+        circle: 1,
+        pdfUrl: 1,
+        difficulty: 1,
+      },
+    });
 
     return projects.map((project) => ({
       ...project,
