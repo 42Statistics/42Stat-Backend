@@ -131,7 +131,37 @@ export class LoginService {
 
       return userInfo.data.id;
     } catch (e) {
-      throw new BadRequestException('42 code error');
+      try {
+        if (!this.ftClientConfig.ID_OLD || !this.ftClientConfig.SECRET_OLD) {
+          throw new BadRequestException();
+        }
+        const params = new URLSearchParams();
+        params.set('grant_type', 'authorization_code');
+        params.set('client_id', this.ftClientConfig.ID_OLD);
+        params.set('client_secret', this.ftClientConfig.SECRET_OLD);
+        params.set('code', ftCode);
+        params.set('redirect_uri', this.ftClientConfig.REDIRECT_URI);
+
+        const tokens = await lastValueFrom(
+          this.httpService.post<{ access_token: string }>(
+            this.ftClientConfig.INTRA_TOKEN_URL,
+            params,
+          ),
+        );
+
+        const userInfo = await lastValueFrom(
+          this.httpService.get<{ id: number }>(
+            this.ftClientConfig.INTRA_ME_URL,
+            {
+              headers: { Authorization: `Bearer ${tokens.data.access_token}` },
+            },
+          ),
+        );
+
+        return userInfo.data.id;
+      } catch (e) {
+        throw new BadRequestException('42 code error');
+      }
     }
   }
 
