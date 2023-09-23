@@ -3,6 +3,7 @@ import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate'
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
+import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
@@ -38,12 +39,38 @@ export class HomeCoalitionService {
       end: nextMonth.toDate(),
     };
 
-    return (
+    const scoreRecords =
       cachedScoreRecords ??
       (await this.scoreService.scoreRecordsPerCoalition({
         filter: scoreDateRangeFilter(dateRange),
-      }))
-    );
+      }));
+
+    const dates: Date[] = [];
+
+    for (
+      let currMonth = lastYear;
+      currMonth.toDate() < nextMonth.toDate();
+      currMonth = currMonth.moveMonth(1)
+    ) {
+      dates.push(currMonth.toDate());
+    }
+
+    return scoreRecords.map(({ coalition, records }) => {
+      const zeroFilledRecords = dates.reduce((newRecords, currDate) => {
+        const currValue = records.find(
+          ({ at }) => currDate.getTime() === at.getTime(),
+        )?.value;
+
+        newRecords.push({ at: currDate, value: currValue ?? 0 });
+
+        return newRecords;
+      }, new Array<IntRecord>());
+
+      return {
+        coalition,
+        records: zeroFilledRecords,
+      };
+    });
   }
 
   @CacheOnReturn()

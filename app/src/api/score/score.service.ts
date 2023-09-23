@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
+import { TIMEZONE_CONFIG, type TimezoneConfig } from 'src/config/timezone';
 import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
 import type {
   IntPerCoalition,
@@ -20,12 +22,18 @@ import { score } from './db/score.database.schema';
 
 @Injectable()
 export class ScoreService {
+  private readonly timezone: string;
+
   constructor(
     @InjectModel(score.name)
     private readonly scoreModel: Model<score>,
     private readonly coalitionService: CoalitionService,
     private readonly cursusUserService: CursusUserService,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.timezone =
+      this.configService.getOrThrow<TimezoneConfig>(TIMEZONE_CONFIG).TIMEZONE;
+  }
 
   async scoreRanking(args?: {
     targetCoalitionIds?: readonly number[];
@@ -97,49 +105,63 @@ export class ScoreService {
     const targetCoalitionIds =
       args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
 
-    const aggregate = this.scoreModel.aggregate<ScoreRecordPerCoalition>();
+    const aggregate =
+      this.coalitionService.aggregate<ScoreRecordPerCoalition>();
 
-    // todo: 여기도 다른 record 처럼 통일하면 좋을 듯
     return await aggregate
       .match({
-        ...args?.filter,
-        coalitionsUserId: { $ne: null },
-        coalitionId: { $in: targetCoalitionIds },
+        id: { $in: targetCoalitionIds },
       })
-      .group({
-        _id: {
-          coalitionId: '$coalitionId',
-          at: {
-            $dateToString: {
-              format: '%Y-%m',
-              date: '$createdAt',
-              timezone: process.env.TZ,
+      .sort({ id: 1 })
+      .addFields({ coalition: '$$ROOT' })
+      .append(
+        lookupScores('id', 'coalitionId', [
+          {
+            $match: {
+              ...args?.filter,
+              coalitionsUserId: { $ne: null },
             },
           },
-        },
-        value: { $sum: '$value' },
-      })
-      .sort({ '_id.at': 1 })
-      .group({
-        _id: '$_id.coalitionId',
-        records: {
-          $push: {
-            at: {
-              $dateFromString: {
-                dateString: '$_id.at',
-                timezone: process.env.TZ,
+          {
+            $group: {
+              _id: {
+                $dateFromParts: {
+                  year: {
+                    $year: {
+                      date: '$createdAt',
+                      timezone: this.timezone,
+                    },
+                  },
+                  month: {
+                    $month: {
+                      date: '$createdAt',
+                      timezone: this.timezone,
+                    },
+                  },
+                  timezone: this.timezone,
+                },
               },
+              value: { $sum: '$value' },
             },
-            value: '$value',
           },
-        },
-      })
-      .sort({ _id: 1 })
-      .append(lookupCoalition('_id', 'id'))
+          {
+            $sort: { _id: 1 },
+          },
+        ]),
+      )
       .project({
         _id: 0,
-        coalition: { $first: '$coalitions' },
-        records: 1,
+        coalition: 1,
+        records: {
+          $map: {
+            input: '$scores',
+            as: 'arr',
+            in: {
+              at: '$$arr._id',
+              value: '$$arr.value',
+            },
+          },
+        },
       });
   }
 
