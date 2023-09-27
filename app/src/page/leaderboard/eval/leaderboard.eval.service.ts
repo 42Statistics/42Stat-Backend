@@ -5,7 +5,7 @@ import {
 } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { assertExist } from 'src/common/assertExist';
-import type { LeaderboardElementDateRanged } from '../models/leaderboard.model';
+import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import {
   LeaderboardUtilService,
   type RankingByDateTemplateArgs,

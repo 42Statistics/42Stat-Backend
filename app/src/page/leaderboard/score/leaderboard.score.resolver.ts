@@ -9,7 +9,7 @@ import {
 } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
-import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
 

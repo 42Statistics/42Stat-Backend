@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
 import { assertExist } from 'src/common/assertExist';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { LeaderboardElementDateRanged } from '../models/leaderboard.model';
+import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import {
   LeaderboardUtilService,
   RankingByDateTemplateArgs,
