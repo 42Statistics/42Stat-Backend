@@ -10,7 +10,7 @@ import { PaginationIndexService } from 'src/pagination/index/pagination.index.se
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
-} from '../models/leaderboard.model';
+} from '../common/models/leaderboard.model';
 
 /**
  *

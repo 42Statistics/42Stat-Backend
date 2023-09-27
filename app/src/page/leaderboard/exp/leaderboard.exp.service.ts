@@ -4,7 +4,7 @@ import {
   type ExpIncreamentRankingCacheSupportedDateTemplate,
 } from 'src/api/experienceUser/experienceUser.cache.service';
 import { assertExist } from 'src/common/assertExist';
-import type { LeaderboardElementDateRanged } from '../models/leaderboard.model';
+import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import {
   LeaderboardUtilService,
   type RankingByDateTemplateArgs,

@@ -5,7 +5,7 @@ import {
 } from 'src/api/cursusUser/cursusUser.cache.service';
 import { assertExist } from 'src/common/assertExist';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import type { LeaderboardElementDateRanged } from '../models/leaderboard.model';
+import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import {
   LeaderboardUtilService,
   type RankingByDateTemplateArgs,

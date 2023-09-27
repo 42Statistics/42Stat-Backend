@@ -1,7 +1,10 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { LeaderboardElementDateRanged } from '../../models/leaderboard.model';
+import {
+  LeaderboardBase,
+  LeaderboardElementDateRanged,
+} from '../../common/models/leaderboard.model';
 
-@ObjectType()
+@ObjectType({ implements: () => LeaderboardBase })
 export class LeaderboardScore {
   @Field({
     description: 'TOTAL, CURR_WEEK, CURR_MONTH 만 가능합니다',

@@ -1,12 +1,10 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InterfaceType, ObjectType } from '@nestjs/graphql';
 import {
   UserRank,
   UserRankingIndexPaginated,
 } from 'src/common/models/common.user.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
-
-// 나중에 기수, 코알리숑 별 랭킹 하게 된다면... RankType extends UserRank = UserRank
-// 이런 방법도 가능할듯.
+import { Promo } from 'src/page/common/models/promo.model';
 
 @ObjectType()
 export class LeaderboardElement {
@@ -21,3 +19,11 @@ export class LeaderboardElement {
 export class LeaderboardElementDateRanged extends DateRanged(
   LeaderboardElement,
 ) {}
+
+@InterfaceType()
+export abstract class LeaderboardBase {
+  @Field((_type) => [Promo], { description: '기수 정보' })
+  promoList: Promo[];
+
+  // coalition 분류 같은거 넣으면 좋을 듯
+}
