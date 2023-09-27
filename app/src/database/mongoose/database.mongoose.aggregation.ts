@@ -39,6 +39,7 @@ export function findByDateFromAggrDateBucket<T extends AggrDateBucket>(
   );
 }
 
+// todo: collection 에서 마지막 s 빼고 입력받아 여기서 넣어주기
 export const lookupStage = (
   collection: string,
   localField: string,
