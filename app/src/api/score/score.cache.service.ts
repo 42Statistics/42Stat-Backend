@@ -29,20 +29,24 @@ export class ScoreCacheService {
   async getScoreRank(
     dateTemplate: ScoreRankingSupportedDateTemplate,
     userId: number,
+    promo?: number,
   ): Promise<RankCache | undefined> {
     return await this.cacheUtilRankingService.getRank({
       keyBase: SCORE_RANKING,
       userId,
       dateTemplate,
+      promo,
     });
   }
 
   async getScoreRanking(
     dateTemplate: ScoreRankingSupportedDateTemplate,
+    promo?: number,
   ): Promise<RankCache[] | undefined> {
     return await this.cacheUtilRankingService.getRanking({
       keyBase: SCORE_RANKING,
       dateTemplate,
+      promo,
     });
   }
 

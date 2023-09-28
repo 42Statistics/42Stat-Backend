@@ -6,10 +6,8 @@ import {
 import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { assertExist } from 'src/common/assertExist';
 import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
-import {
-  LeaderboardUtilService,
-  type RankingByDateTemplateArgs,
-} from '../util/leaderboard.util.service';
+import type { RankingByDateTemplateArgs } from '../common/types/leaderboard.rankingByDateTemplateArgs';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
 export class LeaderboardEvalService {
@@ -23,15 +21,19 @@ export class LeaderboardEvalService {
     dateTemplate,
     userId,
     paginationIndexArgs,
+    promo,
   }: RankingByDateTemplateArgs<EvalCountRankingSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
     const rank = await this.scaleTeamCacheService.getEvalCountRank(
       dateTemplate,
       userId,
+      promo,
     );
 
     const ranking = await this.scaleTeamCacheService.getEvalCountRanking(
       dateTemplate,
+      promo,
     );
+
     assertExist(ranking);
 
     return this.leaderboardUtilService.toLeaderboardElementDateRanged({

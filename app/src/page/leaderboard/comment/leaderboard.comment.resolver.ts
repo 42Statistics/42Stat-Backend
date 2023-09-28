@@ -8,7 +8,7 @@ import {
   UnsupportedDateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
+import { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import { LeaderboardCommentService } from './leaderboard.comment.service';
 import { LeaderboardComment } from './models/leaderboard.comment.model';
@@ -29,7 +29,7 @@ export class LeaderboardCommentResolver {
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
     @MyUserId() myUserId: number,
-    @Args() paginationIndexArgs: PaginationIndexArgs,
+    @Args() { pageNumber, pageSize, promo }: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (dateTemplate !== DateTemplate.TOTAL) {
@@ -39,7 +39,11 @@ export class LeaderboardCommentResolver {
     return await this.leaderboardCommentService.rankingByDateTemplate({
       dateTemplate,
       userId: myUserId,
-      paginationIndexArgs,
+      paginationIndexArgs: {
+        pageNumber,
+        pageSize,
+      },
+      promo,
     });
   }
 }
