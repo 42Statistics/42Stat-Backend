@@ -37,11 +37,13 @@ export class ScaleTeamCacheService {
   async getEvalCountRank(
     dateTemplate: EvalCountRankingSupportedDateTemplate,
     userId: number,
+    promo?: number,
   ): Promise<RankCache | undefined> {
     const args: GetRankArgs = {
       keyBase: EVAL_COUNT_RANKING,
       userId,
       dateTemplate,
+      promo,
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
@@ -53,10 +55,12 @@ export class ScaleTeamCacheService {
 
   async getEvalCountRanking(
     dateTemplate: EvalCountRankingSupportedDateTemplate,
+    promo?: number,
   ): Promise<RankCache[] | undefined> {
     const args: GetRankingArgs = {
       keyBase: EVAL_COUNT_RANKING,
       dateTemplate,
+      promo,
     };
 
     if (dateTemplate === DateTemplate.TOTAL) {
@@ -74,18 +78,23 @@ export class ScaleTeamCacheService {
     );
   }
 
-  async getCommentRank(userId: number): Promise<RankCache | undefined> {
+  async getCommentRank(
+    userId: number,
+    promo?: number,
+  ): Promise<RankCache | undefined> {
     return await this.cacheUtilRankingService.getRawRank({
       keyBase: COMMENT_RANKING,
       userId,
       dateTemplate: DateTemplate.TOTAL,
+      promo,
     });
   }
 
-  async getCommentRanking(): Promise<RankCache[] | undefined> {
+  async getCommentRanking(promo?: number): Promise<RankCache[] | undefined> {
     return await this.cacheUtilRankingService.getRawRanking({
       keyBase: COMMENT_RANKING,
       dateTemplate: DateTemplate.TOTAL,
+      promo,
     });
   }
 }

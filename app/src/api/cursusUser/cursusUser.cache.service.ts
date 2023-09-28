@@ -43,20 +43,24 @@ export class CursusUserCacheService {
   async getUserRank(
     keyBase: UserRankingKey,
     userId: number,
+    promo?: number,
   ): Promise<RankCache | undefined> {
     return await this.cacheUtilRankingService.getRawRank({
       keyBase,
       userId,
       dateTemplate: DateTemplate.TOTAL,
+      promo,
     });
   }
 
   async getUserRanking(
     keyBase: UserRankingKey,
+    promo?: number,
   ): Promise<RankCache[] | undefined> {
     return await this.cacheUtilRankingService.getRawRanking({
       keyBase,
       dateTemplate: DateTemplate.TOTAL,
+      promo,
     });
   }
 }
