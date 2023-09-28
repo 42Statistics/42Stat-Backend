@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, FilterQuery, Model, SortValues } from 'mongoose';
+import type {
+  UserPreview,
+  UserRank,
+} from 'src/common/models/common.user.model';
+import type { IntRecord } from 'src/common/models/common.valueRecord.model';
+import type { UserFullProfile } from 'src/common/userFullProfile';
 import {
   findByDateFromAggrDateBucket,
   type AggrNumericPerDateBucket,
@@ -11,12 +17,6 @@ import {
   type QueryArgs,
   type QueryOneArgs,
 } from 'src/database/mongoose/database.mongoose.query';
-import type {
-  UserPreview,
-  UserRank,
-} from 'src/common/models/common.user.model';
-import type { IntRecord } from 'src/common/models/common.valueRecord.model';
-import type { UserFullProfile } from 'src/common/userFullProfile';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
@@ -26,6 +26,7 @@ import type {
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
+import { lookupPromosUsers } from '../promosUser/db/promosUser.database.aggregate';
 import { lookupQuestsUser } from '../questsUser/db/questsUser.database.aggregate';
 import {
   COMMON_CORE_QUEST_ID,
@@ -140,10 +141,12 @@ export class CursusUserService {
           { $addFields: { titles: { $first: '$titles' } } },
         ]),
       )
+      .append(lookupPromosUsers('user.id', 'userId'))
       .project({
         cursusUser: 1,
         coalition: { $first: '$coalitions_users.coalitions' },
         titlesUsers: '$titles_users',
+        promo: { $first: '$promos_users.promo' },
       });
 
     return userFullProfileAggr.map((userFullProfile) => {

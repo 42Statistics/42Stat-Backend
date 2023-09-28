@@ -5,10 +5,8 @@ import {
 } from 'src/api/experienceUser/experienceUser.cache.service';
 import { assertExist } from 'src/common/assertExist';
 import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
-import {
-  LeaderboardUtilService,
-  type RankingByDateTemplateArgs,
-} from '../util/leaderboard.util.service';
+import type { RankingByDateTemplateArgs } from '../common/types/leaderboard.rankingByDateTemplateArgs';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
 export class LeaderboardExpService {
@@ -21,16 +19,20 @@ export class LeaderboardExpService {
     dateTemplate,
     userId,
     paginationIndexArgs,
+    promo,
   }: RankingByDateTemplateArgs<ExpIncreamentRankingCacheSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
     const rank = await this.experienceUserCacheService.getExpIncreamentRank(
       dateTemplate,
       userId,
+      promo,
     );
 
     const ranking =
       await this.experienceUserCacheService.getExpIncreamentRanking(
         dateTemplate,
+        promo,
       );
+
     assertExist(ranking);
 
     return this.leaderboardUtilService.toLeaderboardElementDateRanged({

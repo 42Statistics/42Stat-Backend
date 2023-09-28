@@ -28,6 +28,7 @@ export type RankingCacheMap = Map<UserPreview['id'], RankCache>;
 export type GetRankingArgs = {
   keyBase: string;
   dateTemplate: RankingSupportedDateTemplate;
+  promo?: number;
 };
 
 export type GetRankArgs = GetRankingArgs & { userId: number };
@@ -74,18 +75,48 @@ export class CacheUtilRankingService {
     keyBase,
     userId,
     dateTemplate,
+    promo,
   }: GetRankArgs): Promise<RankCache | undefined> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
       DateTemplate[dateTemplate],
     );
 
-    return await this.cacheUtilService.getMapValue(key, userId);
+    const rankCache = await this.cacheUtilService.getMapValue<
+      number,
+      RankCache
+    >(key, userId);
+
+    if (!rankCache) {
+      return undefined;
+    }
+
+    if (!isPromoMatch({ promo, rankCache })) {
+      return {
+        ...rankCache,
+        rank: 0,
+      };
+    }
+
+    if (promo) {
+      const rankingCache = await this.getRawRanking({
+        keyBase,
+        dateTemplate,
+        promo,
+      });
+
+      return rankingCache?.find(
+        (rankCache) => rankCache.userPreview.id === userId,
+      );
+    }
+
+    return rankCache;
   }
 
   async getRawRanking({
     keyBase,
     dateTemplate,
+    promo,
   }: GetRankingArgs): Promise<RankCache[] | undefined> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
@@ -98,6 +129,42 @@ export class CacheUtilRankingService {
 
     if (!rankingCache) {
       return undefined;
+    }
+
+    if (promo) {
+      return rankingCache
+        .filter((rankCache) => isPromoMatch({ promo, rankCache }))
+        .reduce(
+          ({ filtered, prevRank, prevValue }, currRankCache, index) => {
+            if (index === 0) {
+              filtered.push({
+                ...currRankCache,
+                rank: 1,
+              });
+
+              return { filtered, prevRank: 1, prevValue: currRankCache.value };
+            }
+
+            const newRank =
+              prevValue === currRankCache.value ? prevRank : index + 1;
+
+            filtered.push({
+              ...currRankCache,
+              rank: newRank,
+            });
+
+            return {
+              filtered,
+              prevRank: newRank,
+              prevValue: currRankCache.value,
+            };
+          },
+          {
+            filtered: [] as RankCache[],
+            prevRank: 0,
+            prevValue: Number.MIN_SAFE_INTEGER,
+          },
+        ).filtered;
     }
 
     return rankingCache;
@@ -322,4 +389,14 @@ const fixRanking = (
     },
     { prevRank: 0, prevValue: Number.MIN_SAFE_INTEGER },
   );
+};
+
+const isPromoMatch = ({
+  promo,
+  rankCache,
+}: {
+  promo?: number;
+  rankCache: RankCache;
+}): boolean => {
+  return promo === undefined || rankCache.promo === promo;
 };

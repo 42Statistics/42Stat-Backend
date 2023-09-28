@@ -8,7 +8,7 @@ import {
   UnsupportedDateTemplate,
 } from 'src/dateRange/dtos/dateRange.dto';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
+import { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
 import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevel } from './models/leaderboard.level.model';
@@ -29,7 +29,7 @@ export class LeaderboardLevelResolver {
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
     @MyUserId() myUserId: number,
-    @Args() paginationIndexArgs: PaginationIndexArgs,
+    @Args() { pageSize, pageNumber, promo }: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (dateTemplate !== DateTemplate.TOTAL) {
@@ -39,7 +39,11 @@ export class LeaderboardLevelResolver {
     return await this.leaderboardLevelService.rankingByDateTemplate({
       dateTemplate,
       userId: myUserId,
-      paginationIndexArgs,
+      paginationIndexArgs: {
+        pageSize,
+        pageNumber,
+      },
+      promo,
     });
   }
 }

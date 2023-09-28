@@ -34,6 +34,7 @@ export class CacheDecoratorOnReturnRegister implements OnModuleInit {
 
             const methodRef = instance[methodName];
 
+            // todo: args 에 object 들어오는 경우를 위한 처리
             instance[methodName] = async (...args: any[]) => {
               const cacheKey = ['onReturn', methodName, ...args].join(':');
               const cached = await this.cacheManager.get<{ value: unknown }>(

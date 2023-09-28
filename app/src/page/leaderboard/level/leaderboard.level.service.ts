@@ -6,10 +6,8 @@ import {
 import { assertExist } from 'src/common/assertExist';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import type { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
-import {
-  LeaderboardUtilService,
-  type RankingByDateTemplateArgs,
-} from '../util/leaderboard.util.service';
+import type { RankingByDateTemplateArgs } from '../common/types/leaderboard.rankingByDateTemplateArgs';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 
 @Injectable()
 export class LeaderboardLevelService {
@@ -22,14 +20,17 @@ export class LeaderboardLevelService {
     dateTemplate,
     userId,
     paginationIndexArgs,
+    promo,
   }: RankingByDateTemplateArgs<DateTemplate.TOTAL>): Promise<LeaderboardElementDateRanged> {
     const rank = await this.cursusUserCacheService.getUserRank(
       USER_LEVEL_RANKING,
       userId,
+      promo,
     );
 
     const ranking = await this.cursusUserCacheService.getUserRanking(
       USER_LEVEL_RANKING,
+      promo,
     );
 
     assertExist(ranking);

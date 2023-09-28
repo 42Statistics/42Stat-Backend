@@ -10,6 +10,7 @@ export type UserFullProfile = {
   titlesUsers: (titles_user & {
     titles: title;
   })[];
+  promo?: number;
 };
 
 export const toUserPreviewFromFullProfile = (
