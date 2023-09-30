@@ -257,12 +257,6 @@ type Landing {
   trendingProject: ProjectRank!
 }
 
-type Promo {
-  promo: Int!
-  beginAt: DateTime!
-  userCount: Int!
-}
-
 type LeaderboardElement {
   """내 랭킹 정보"""
   me: UserRank
@@ -277,47 +271,37 @@ type LeaderboardElementDateRanged {
   end: DateTime!
 }
 
-type LeaderboardComment implements LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
-
+type LeaderboardComment {
   """TOTAL 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
-interface LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
-}
-
-type LeaderboardEval implements LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
-
+type LeaderboardEval {
   """TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
-type LeaderboardExp implements LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
-
+type LeaderboardExp {
   """CURR_MONTH, CURR_WEEK 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
-type LeaderboardLevel implements LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
-
+type LeaderboardLevel {
   """TOTAL 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
-type LeaderboardScore implements LeaderboardBase {
-  """기수 정보"""
-  promoList: [Promo!]!
+type Promo {
+  promo: Int!
+  beginAt: DateTime!
+  userCount: Int!
+}
 
+type LeaderboardMetadata {
+  promoList: [Promo!]!
+}
+
+type LeaderboardScore {
   """TOTAL, CURR_WEEK, CURR_MONTH 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
@@ -548,6 +532,7 @@ type Query {
   getPersonalVersus(login: String, userId: Int): PersonalVersus
   getProjectInfo(projectName: String! = "Libft"): ProjectInfo!
   getTeamInfo(id: Int!): TeamInfo!
+  getLeaderboardMetadata: LeaderboardMetadata!
   getLeaderboardLevel: LeaderboardLevel!
   getLeaderboardExpIncrement: LeaderboardExp!
   getLeaderboardEvalCount: LeaderboardEval!

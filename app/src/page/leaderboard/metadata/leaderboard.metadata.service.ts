@@ -3,7 +3,7 @@ import { PromoService } from 'src/api/promo/promo.service';
 import type { Promo } from 'src/page/common/models/promo.model';
 
 @Injectable()
-export class LeaderboardBaseService {
+export class LeaderboardMetadataService {
   constructor(private readonly promoService: PromoService) {}
 
   async promoList(): Promise<Promo[]> {
