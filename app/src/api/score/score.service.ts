@@ -51,14 +51,15 @@ export class ScoreService {
           { $match: { coalitionId: { $in: targetCoalitionIds } } },
         ]),
       )
-      .addFields({ coalitions_users: { $first: '$coalitions_users' } })
-      .match({ coalitions_users: { $ne: null } })
       .append(
-        lookupScores(
-          'coalitions_users.id',
-          'coalitionsUserId',
-          args?.filter ? [{ $match: args.filter }] : undefined,
-        ),
+        lookupScores('coalitions_users.id', 'coalitionsUserId', [
+          {
+            $match: {
+              ...args?.filter,
+              coalitionsUserId: { $ne: null },
+            },
+          },
+        ]),
       )
       .addFields({ value: { $sum: '$scores.value' } })
       .append(addRank())
