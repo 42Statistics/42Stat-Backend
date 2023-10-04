@@ -15,8 +15,6 @@ services:
     ports:
       - "80:80"
     entrypoint: sh /tmp/entry.sh
-    env_file:
-      - env/.env.local
 
 networks:
   internal:

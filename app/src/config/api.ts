@@ -25,7 +25,7 @@ export const NETWHAT_PREVIEW = {
   url: projectUrlById(1318),
 };
 
-export const apiConfig = registerAs(
+export const _apiConfig = registerAs(
   API_CONFIG,
   () =>
     ({

@@ -9,7 +9,7 @@ import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
-import { apiConfig } from './config/api';
+import { _apiConfig } from './config/api';
 import { cdnConfig } from './config/cdn';
 import { databaseConfig } from './config/database';
 import { ftClientConfig } from './config/ftClient';
@@ -36,7 +36,17 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '../env/.env',
+      envFilePath: ((): string => {
+        if (process.env.PROD) {
+          return '../env/.env.prod';
+        }
+
+        if (process.env.DEV) {
+          return '../env/.env.dev';
+        }
+
+        return '../env/.env.local';
+      })(),
       load: [
         databaseConfig,
         ftClientConfig,
@@ -44,7 +54,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
         jwtConfig,
         timezoneConfig,
         cdnConfig,
-        apiConfig,
+        _apiConfig,
       ],
     }),
     MongooseRootModule,
