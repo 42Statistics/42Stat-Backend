@@ -17,6 +17,6 @@ async function bootstrap() {
     methods: ['POST'],
   });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  await app.listen(80);
+  await app.listen(8080);
 }
 bootstrap();
