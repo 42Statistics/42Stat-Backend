@@ -228,7 +228,7 @@ export class ScoreService {
             $dateToString: {
               format: '%Y-%m',
               date: '$createdAt',
-              timezone: process.env.TZ,
+              timezone: this.timezone,
             },
           },
         },
