@@ -19,6 +19,7 @@ export const ftClientConfig = registerAs(
     ({
       ID: findEnvByKey('CLIENT_ID'),
       SECRET: findEnvByKey('CLIENT_SECRET'),
+      // todo
       ID_OLD: process.env.CLIENT_ID_OLD,
       SECRET_OLD: process.env.CLIENT_SECRET_OLD,
       REDIRECT_URI: findEnvByKey('REDIRECT_URI'),
