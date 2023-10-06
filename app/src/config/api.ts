@@ -1,15 +1,13 @@
 import { registerAs } from '@nestjs/config';
 import type { ProjectPreview } from 'src/common/models/common.project.model';
 
-export type ApiConfig = {
+type ApiConfig = {
   readonly SEOUL_COALITION_ID: number[];
   readonly FT_LOGIN_MAX_LENGTH: number;
   readonly SEOUL_CAMPUS_ID: number;
   readonly PROJECT_BASE_URL: string;
   readonly NETWHAT_PREVIEW: ProjectPreview;
 };
-
-export const API_CONFIG = 'api';
 
 export const SEOUL_COALITION_ID = [85, 86, 87, 88];
 export const SEOUL_CAMPUS_ID = 29;
@@ -25,8 +23,8 @@ export const NETWHAT_PREVIEW = {
   url: projectUrlById(1318),
 };
 
-export const _apiConfig = registerAs(
-  API_CONFIG,
+export const API_CONFIG = registerAs(
+  'api',
   () =>
     ({
       SEOUL_COALITION_ID,

@@ -1,13 +1,22 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService, ConfigType } from '@nestjs/config';
+import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
+import { AppModule } from './app.module';
+import { RUNTIME_CONFIG } from './config/runtime';
 
 async function bootstrap() {
   dotenv.config();
+
   const app = await NestFactory.create(AppModule);
+
+  const configService = app.get(ConfigService);
+  const runtimeConfig = configService.getOrThrow<
+    ConfigType<typeof RUNTIME_CONFIG>
+  >(RUNTIME_CONFIG.KEY);
+
   app.enableCors({
-    origin: process.env.PROD
+    origin: runtimeConfig.PROD
       ? 'https://stat.42seoul.kr'
       : [
           'https://statdev.cloud',
@@ -16,7 +25,10 @@ async function bootstrap() {
         ],
     methods: ['POST'],
   });
+
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  await app.listen(4000);
+
+  await app.listen(runtimeConfig.PORT);
 }
+
 bootstrap();

@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 import { findEnvByKey } from './util/findEnvByKey';
 
-export type DatabaseConfig = {
+type DatabaseConfig = {
   USERNAME: string;
   PASSWORD: string;
   ENDPOINT: string;
@@ -9,9 +9,7 @@ export type DatabaseConfig = {
   CONNECTION_STRING: string;
 };
 
-export const DATABASE_CONFIG = 'database';
-
-export const databaseConfig = registerAs(DATABASE_CONFIG, () => {
+export const DATABASE_CONFIG = registerAs('database', () => {
   const USERNAME = findEnvByKey('DB_USERNAME');
   const PASSWORD = findEnvByKey('DB_PASSWORD');
   const ENDPOINT = findEnvByKey('DB_ENDPOINT');

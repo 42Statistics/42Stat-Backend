@@ -1,16 +1,14 @@
 import { registerAs } from '@nestjs/config';
 import { findEnvByKey } from './util/findEnvByKey';
 
-export type JwtConfig = {
+type JwtConfig = {
   SECRET: string;
   ACCESS_EXPIRES: string;
   REFRESH_EXPIRES: string;
 };
 
-export const JWT_CONFIG = 'jwt';
-
-export const jwtConfig = registerAs(
-  JWT_CONFIG,
+export const JWT_CONFIG = registerAs(
+  'jwt',
   () =>
     ({
       SECRET: findEnvByKey('JWT_SECRET'),

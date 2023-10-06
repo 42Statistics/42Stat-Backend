@@ -1,19 +1,17 @@
 import { registerAs } from '@nestjs/config';
 import { findEnvByKey } from './util/findEnvByKey';
 
-export type CdnConfig = {
+type CdnConfig = {
   BASE: string;
   COALITION: string;
 };
 
-export const CDN_CONFIG = 'cdn';
-
-export const cdnConfig = registerAs(CDN_CONFIG, (): CdnConfig => {
+export const CDN_CONFIG = registerAs('cdn', (): CdnConfig => {
   const BASE = findEnvByKey('CDN_BASE');
   const COALITION = BASE + '/coalitions';
 
   return {
     BASE,
     COALITION,
-  };
+  } satisfies CdnConfig;
 });

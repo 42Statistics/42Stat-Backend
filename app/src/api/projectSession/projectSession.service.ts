@@ -1,8 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
-import { API_CONFIG, type ApiConfig } from 'src/config/api';
+import { API_CONFIG } from 'src/config/api';
 import type { ProjectSessionInfo } from 'src/page/projectInfo/models/projectInfo.model';
 import { lookupProjectSessionsSkill } from '../projectSessionsSkill/db/projectSessionsSkill.database.aggregate';
 import { lookupSkill } from '../skill/db/skill.database.aggregate';
@@ -13,16 +13,12 @@ import {
 
 @Injectable()
 export class ProjectSessionService {
-  private readonly SEOUL_CAMPUS_ID: number;
-
   constructor(
     @InjectModel(project_session.name)
     private readonly projectSessionModel: Model<project_session>,
-    private readonly configService: ConfigService,
-  ) {
-    this.SEOUL_CAMPUS_ID =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).SEOUL_CAMPUS_ID;
-  }
+    @Inject(API_CONFIG.KEY)
+    private readonly apiConfig: ConfigType<typeof API_CONFIG>,
+  ) {}
 
   async projectSessionInfo(projectId: number): Promise<ProjectSessionInfo> {
     const aggregate = this.projectSessionModel.aggregate<
@@ -33,7 +29,10 @@ export class ProjectSessionService {
 
     const [projectSessionInfo] = await aggregate
       .match({
-        $or: [{ 'campus.id': this.SEOUL_CAMPUS_ID }, { campus: null }],
+        $or: [
+          { 'campus.id': this.apiConfig.SEOUL_CAMPUS_ID },
+          { campus: null },
+        ],
         'project.id': projectId,
       })
       .sort({ 'campus.id': -1 })
