@@ -14,7 +14,7 @@ services:
         target: /app
       - "./env:/env"
     ports:
-      - "80:80"
+      - "4000:4000"
     entrypoint: sh -c 'pnpm i && pnpm start:local'
 
 networks:
