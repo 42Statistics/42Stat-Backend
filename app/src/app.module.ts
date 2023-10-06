@@ -1,7 +1,7 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, type ConfigType } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
@@ -9,13 +9,13 @@ import { ComplexityPlugin } from './apolloPlugin/ComplexityPlugin';
 import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
-import { _apiConfig } from './config/api';
-import { cdnConfig } from './config/cdn';
-import { databaseConfig } from './config/database';
-import { ftClientConfig } from './config/ftClient';
-import { googleClientConfig } from './config/googleClient';
-import { jwtConfig } from './config/jwt';
-import { timezoneConfig } from './config/timezone';
+import { API_CONFIG } from './config/api';
+import { CDN_CONFIG } from './config/cdn';
+import { DATABASE_CONFIG } from './config/database';
+import { FT_CLIENT_CONFIG } from './config/ftClient';
+import { GOOGLE_CLIENT_CONFIG } from './config/googleClient';
+import { JWT_CONFIG } from './config/jwt';
+import { RUNTIME_CONFIG } from './config/runtime';
 import { MongooseRootModule } from './database/mongoose/database.mongoose.module';
 import { DateWrapper } from './dateWrapper/dateWrapper';
 import { LambdaModule } from './lambda/lambda.module';
@@ -48,13 +48,13 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
         return '../env/.env.local';
       })(),
       load: [
-        databaseConfig,
-        ftClientConfig,
-        googleClientConfig,
-        jwtConfig,
-        timezoneConfig,
-        cdnConfig,
-        _apiConfig,
+        DATABASE_CONFIG,
+        FT_CLIENT_CONFIG,
+        GOOGLE_CLIENT_CONFIG,
+        JWT_CONFIG,
+        RUNTIME_CONFIG,
+        CDN_CONFIG,
+        API_CONFIG,
       ],
     }),
     MongooseRootModule,
@@ -66,13 +66,18 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
       }),
     }),
     ScheduleModule.forRoot(),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      includeStacktraceInErrorResponses: process.env.PROD ? false : true,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      inject: [RUNTIME_CONFIG.KEY],
       driver: ApolloDriver,
-      buildSchemaOptions: {
-        numberScalarMode: 'integer',
+      useFactory: (runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>) => {
+        return {
+          includeStacktraceInErrorResponses: runtimeConfig.PROD ? false : true,
+          buildSchemaOptions: {
+            numberScalarMode: 'integer',
+          },
+          autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+        };
       },
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
     }),
   ],
 })

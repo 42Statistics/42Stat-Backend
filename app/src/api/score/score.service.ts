@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
-import { TIMEZONE_CONFIG, type TimezoneConfig } from 'src/config/timezone';
+import { RUNTIME_CONFIG } from 'src/config/runtime';
 import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
 import type {
   IntPerCoalition,
@@ -22,18 +22,14 @@ import { score } from './db/score.database.schema';
 
 @Injectable()
 export class ScoreService {
-  private readonly timezone: string;
-
   constructor(
     @InjectModel(score.name)
     private readonly scoreModel: Model<score>,
     private readonly coalitionService: CoalitionService,
     private readonly cursusUserService: CursusUserService,
-    private readonly configService: ConfigService,
-  ) {
-    this.timezone =
-      this.configService.getOrThrow<TimezoneConfig>(TIMEZONE_CONFIG).TIMEZONE;
-  }
+    @Inject(RUNTIME_CONFIG.KEY)
+    private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
+  ) {}
 
   async scoreRanking(args?: {
     targetCoalitionIds?: readonly number[];
@@ -130,16 +126,16 @@ export class ScoreService {
                   year: {
                     $year: {
                       date: '$createdAt',
-                      timezone: this.timezone,
+                      timezone: this.runtimeConfig.TIMEZONE,
                     },
                   },
                   month: {
                     $month: {
                       date: '$createdAt',
-                      timezone: this.timezone,
+                      timezone: this.runtimeConfig.TIMEZONE,
                     },
                   },
-                  timezone: this.timezone,
+                  timezone: this.runtimeConfig.TIMEZONE,
                 },
               },
               value: { $sum: '$value' },
@@ -228,7 +224,7 @@ export class ScoreService {
             $dateToString: {
               format: '%Y-%m',
               date: '$createdAt',
-              timezone: this.timezone,
+              timezone: this.runtimeConfig.TIMEZONE,
             },
           },
         },

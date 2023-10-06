@@ -1,29 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { ProjectService } from 'src/api/project/project.service';
 import type { ProjectPreview } from 'src/common/models/common.project.model';
 import type { UserPreview } from 'src/common/models/common.user.model';
-import { API_CONFIG, type ApiConfig } from 'src/config/api';
+import { API_CONFIG } from 'src/config/api';
 
 @Injectable()
 export class RegexFindService {
-  private readonly FT_LOGIN_MAX_LENGTH: number;
-
   constructor(
     private readonly cursusUserService: CursusUserService,
     private readonly projectService: ProjectService,
-    private readonly configService: ConfigService,
-  ) {
-    this.FT_LOGIN_MAX_LENGTH =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).FT_LOGIN_MAX_LENGTH;
-  }
+    @Inject(API_CONFIG.KEY)
+    private readonly apiConfig: ConfigType<typeof API_CONFIG>,
+  ) {}
 
   async regexFindUserPreview(
     login: string,
     limit: number,
   ): Promise<UserPreview[]> {
-    if (login.length > this.FT_LOGIN_MAX_LENGTH) {
+    if (login.length > this.apiConfig.FT_LOGIN_MAX_LENGTH) {
       return [];
     }
 

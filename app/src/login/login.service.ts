@@ -2,12 +2,13 @@ import { HttpService } from '@nestjs/axios';
 import {
   BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
   UseFilters,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron } from '@nestjs/schedule';
 import { OAuth2Client } from 'google-auth-library';
@@ -15,12 +16,9 @@ import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import type { token } from 'src/auth/token/db/token.database.schema';
 import { TokenService } from 'src/auth/token/token.service';
-import { FT_CLIENT_CONFIG, type FtClientConfig } from 'src/config/ftClient';
-import {
-  GOOGLE_CLIENT_CONFIG,
-  type GoogleClientConfig,
-} from 'src/config/googleClient';
-import { JWT_CONFIG, type JwtConfig } from 'src/config/jwt';
+import { FT_CLIENT_CONFIG } from 'src/config/ftClient';
+import { GOOGLE_CLIENT_CONFIG } from 'src/config/googleClient';
+import { JWT_CONFIG } from 'src/config/jwt';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
@@ -36,23 +34,19 @@ import type {
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
-  private readonly jwtConfig;
-  private readonly ftClientConfig;
-  private readonly googleClientConfig;
+  @Inject(JWT_CONFIG.KEY)
+  private readonly jwtConfig: ConfigType<typeof JWT_CONFIG>;
+  @Inject(FT_CLIENT_CONFIG.KEY)
+  private readonly ftClientConfig: ConfigType<typeof FT_CLIENT_CONFIG>;
+  @Inject(GOOGLE_CLIENT_CONFIG.KEY)
+  private readonly googleClientConfig: ConfigType<typeof GOOGLE_CLIENT_CONFIG>;
 
   constructor(
     private readonly accountService: AccountService,
-    private readonly configService: ConfigService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
     private readonly tokenService: TokenService,
-  ) {
-    this.jwtConfig = this.configService.getOrThrow<JwtConfig>(JWT_CONFIG);
-    this.ftClientConfig =
-      this.configService.getOrThrow<FtClientConfig>(FT_CLIENT_CONFIG);
-    this.googleClientConfig =
-      this.configService.getOrThrow<GoogleClientConfig>(GOOGLE_CLIENT_CONFIG);
-  }
+  ) {}
 
   async ftLogin(ftCode: string): Promise<LoginSuccess> {
     const userId = await this.getFtUser(ftCode);
@@ -107,8 +101,9 @@ export class LoginService {
    *
    * @throws {BadRequestException} ftCode가 유효하지 않은 경우
    */
-  async getFtUser(ftCode: string): Promise<number> {
+  private async getFtUser(ftCode: string): Promise<number> {
     const params = new URLSearchParams();
+
     params.set('grant_type', 'authorization_code');
     params.set('client_id', this.ftClientConfig.ID);
     params.set('client_secret', this.ftClientConfig.SECRET);
@@ -131,37 +126,7 @@ export class LoginService {
 
       return userInfo.data.id;
     } catch (e) {
-      try {
-        if (!this.ftClientConfig.ID_OLD || !this.ftClientConfig.SECRET_OLD) {
-          throw new BadRequestException();
-        }
-        const params = new URLSearchParams();
-        params.set('grant_type', 'authorization_code');
-        params.set('client_id', this.ftClientConfig.ID_OLD);
-        params.set('client_secret', this.ftClientConfig.SECRET_OLD);
-        params.set('code', ftCode);
-        params.set('redirect_uri', this.ftClientConfig.REDIRECT_URI);
-
-        const tokens = await lastValueFrom(
-          this.httpService.post<{ access_token: string }>(
-            this.ftClientConfig.INTRA_TOKEN_URL,
-            params,
-          ),
-        );
-
-        const userInfo = await lastValueFrom(
-          this.httpService.get<{ id: number }>(
-            this.ftClientConfig.INTRA_ME_URL,
-            {
-              headers: { Authorization: `Bearer ${tokens.data.access_token}` },
-            },
-          ),
-        );
-
-        return userInfo.data.id;
-      } catch (e) {
-        throw new BadRequestException('42 code error');
-      }
+      throw new BadRequestException('42 code error');
     }
   }
 

@@ -1,28 +1,22 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
-import { API_CONFIG, type ApiConfig } from 'src/config/api';
-import { CDN_CONFIG, type CdnConfig } from 'src/config/cdn';
+import { API_CONFIG } from 'src/config/api';
+import { CDN_CONFIG } from 'src/config/cdn';
 import { coalition } from './db/coalition.database.schema';
 import type { Coalition } from './models/coalition.model';
 
 @Injectable()
 export class CoalitionService {
-  private readonly coalitionCdn: string;
-  private readonly seoulCoalitionIds: number[];
-
   constructor(
     @InjectModel(coalition.name)
     private readonly coalitionModel: Model<coalition>,
-    private readonly configService: ConfigService,
-  ) {
-    this.coalitionCdn =
-      this.configService.getOrThrow<CdnConfig>(CDN_CONFIG).COALITION;
-
-    this.seoulCoalitionIds =
-      this.configService.getOrThrow<ApiConfig>(API_CONFIG).SEOUL_COALITION_ID;
-  }
+    @Inject(API_CONFIG.KEY)
+    private readonly apiConfig: ConfigType<typeof API_CONFIG>,
+    @Inject(CDN_CONFIG.KEY)
+    private readonly cdnConfig: ConfigType<typeof CDN_CONFIG>,
+  ) {}
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
     return this.coalitionModel.aggregate<ReturnType>();
@@ -39,27 +33,28 @@ export class CoalitionService {
 
   private coverUrlById(id: number): string {
     if (this.isSeoulCoalitionId(id)) {
-      return `${this.coalitionCdn}/${id}/cover.webp`;
+      return `${this.cdnConfig.COALITION}/${id}/cover.webp`;
     }
 
-    return `${this.coalitionCdn}/fallback/cover.webp`;
+    return `${this.cdnConfig.COALITION}/fallback/cover.webp`;
   }
 
   private imageUrlById(id: number): string {
     if (this.isSeoulCoalitionId(id)) {
-      return `${this.coalitionCdn}/${id}/logo.svg`;
+      return `${this.cdnConfig.COALITION}/${id}/logo.svg`;
     }
 
-    return `${this.coalitionCdn}/fallback/logo.svg`;
+    return `${this.cdnConfig.COALITION}/fallback/logo.svg`;
   }
 
   private isSeoulCoalitionId(id: number): boolean {
     return (
-      this.seoulCoalitionIds.find((seoulId) => seoulId === id) !== undefined
+      this.apiConfig.SEOUL_COALITION_ID.find((seoulId) => seoulId === id) !==
+      undefined
     );
   }
 
   getSeoulCoalitionIds(): readonly number[] {
-    return this.seoulCoalitionIds;
+    return this.apiConfig.SEOUL_COALITION_ID;
   }
 }
