@@ -36,17 +36,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ((): string => {
-        if (process.env.PROD) {
-          return '../env/.env.prod';
-        }
-
-        if (process.env.DEV) {
-          return '../env/.env.dev';
-        }
-
-        return '../env/.env.local';
-      })(),
+      envFilePath: ['../env/.env.prod', '../env/.env.dev', '../env/.env.local'],
       load: [
         DATABASE_CONFIG,
         FT_CLIENT_CONFIG,

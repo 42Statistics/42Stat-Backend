@@ -3,7 +3,7 @@ import { ConfigService, ConfigType } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
-import { RUNTIME_CONFIG } from './config/runtime';
+import { type RUNTIME_CONFIG, RUNTIME_CONFIG_KEY } from './config/runtime';
 
 async function bootstrap() {
   dotenv.config();
@@ -11,9 +11,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const runtimeConfig = configService.getOrThrow<
-    ConfigType<typeof RUNTIME_CONFIG>
-  >(RUNTIME_CONFIG.KEY);
+  const runtimeConfig =
+    configService.getOrThrow<ConfigType<typeof RUNTIME_CONFIG>>(
+      RUNTIME_CONFIG_KEY,
+    );
 
   app.enableCors({
     origin: runtimeConfig.PROD
