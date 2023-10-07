@@ -4,6 +4,7 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
   UseFilters,
@@ -19,6 +20,7 @@ import { TokenService } from 'src/auth/token/token.service';
 import { FT_CLIENT_CONFIG } from 'src/config/ftClient';
 import { GOOGLE_CLIENT_CONFIG } from 'src/config/googleClient';
 import { JWT_CONFIG } from 'src/config/jwt';
+import { RUNTIME_CONFIG } from 'src/config/runtime';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
@@ -34,14 +36,17 @@ import type {
 @UseFilters(HttpExceptionFilter)
 @Injectable()
 export class LoginService {
-  @Inject(JWT_CONFIG.KEY)
-  private readonly jwtConfig: ConfigType<typeof JWT_CONFIG>;
-  @Inject(FT_CLIENT_CONFIG.KEY)
-  private readonly ftClientConfig: ConfigType<typeof FT_CLIENT_CONFIG>;
-  @Inject(GOOGLE_CLIENT_CONFIG.KEY)
-  private readonly googleClientConfig: ConfigType<typeof GOOGLE_CLIENT_CONFIG>;
-
   constructor(
+    @Inject(JWT_CONFIG.KEY)
+    private readonly jwtConfig: ConfigType<typeof JWT_CONFIG>,
+    @Inject(FT_CLIENT_CONFIG.KEY)
+    private readonly ftClientConfig: ConfigType<typeof FT_CLIENT_CONFIG>,
+    @Inject(GOOGLE_CLIENT_CONFIG.KEY)
+    private readonly googleClientConfig: ConfigType<
+      typeof GOOGLE_CLIENT_CONFIG
+    >,
+    @Inject(RUNTIME_CONFIG.KEY)
+    private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
     private readonly accountService: AccountService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
@@ -102,31 +107,85 @@ export class LoginService {
    * @throws {BadRequestException} ftCode가 유효하지 않은 경우
    */
   private async getFtUser(ftCode: string): Promise<number> {
-    const params = new URLSearchParams();
+    if (this.runtimeConfig.PROD) {
+      return await this.requestFtOAuth({
+        clientId: this.ftClientConfig.ID,
+        clientSecret: this.ftClientConfig.SECRET,
+        redirectURI: this.ftClientConfig.REDIRECT_URI,
+        ftCode,
+      });
+    } else {
+      try {
+        return await this.requestFtOAuth({
+          clientId: this.ftClientConfig.LOCAL_ID,
+          clientSecret: this.ftClientConfig.LOCAL_SECRET,
+          redirectURI: this.ftClientConfig.LOCAL_REDIRECT_URI,
+          ftCode,
+        });
+      } catch (e) {
+        if (e instanceof BadRequestException) {
+          return await this.requestFtOAuth({
+            clientId: this.ftClientConfig.DEV_ID,
+            clientSecret: this.ftClientConfig.DEV_SECRET,
+            redirectURI: this.ftClientConfig.DEV_REDIRECT_URI,
+            ftCode,
+          });
+        }
 
-    params.set('grant_type', 'authorization_code');
-    params.set('client_id', this.ftClientConfig.ID);
-    params.set('client_secret', this.ftClientConfig.SECRET);
-    params.set('code', ftCode);
-    params.set('redirect_uri', this.ftClientConfig.REDIRECT_URI);
+        throw e;
+      }
+    }
+  }
+
+  /**
+   *
+   *  @throws {BadRequestException} ftCode가 유효하지 않은 경우
+   *  @throws {InternalServerErrorException} 42 server 가 불안정한 경우
+   */
+  private async requestFtOAuth({
+    clientId,
+    clientSecret,
+    redirectURI,
+    ftCode,
+  }: {
+    clientId: string;
+    clientSecret: string;
+    redirectURI: string;
+    ftCode: string;
+  }): Promise<number> {
+    const searchParams = new URLSearchParams();
+
+    searchParams.set('grant_type', 'authorization_code');
+    searchParams.set('client_id', clientId);
+    searchParams.set('client_secret', clientSecret);
+    searchParams.set('code', ftCode);
+    searchParams.set('redirect_uri', redirectURI);
+
+    let accessToken: string;
 
     try {
-      const tokens = await lastValueFrom(
+      const authResult = await lastValueFrom(
         this.httpService.post<{ access_token: string }>(
           this.ftClientConfig.INTRA_TOKEN_URL,
-          params,
+          searchParams,
         ),
       );
 
+      accessToken = authResult.data.access_token;
+    } catch {
+      throw new BadRequestException('42 code error');
+    }
+
+    try {
       const userInfo = await lastValueFrom(
         this.httpService.get<{ id: number }>(this.ftClientConfig.INTRA_ME_URL, {
-          headers: { Authorization: `Bearer ${tokens.data.access_token}` },
+          headers: { Authorization: `Bearer ${accessToken}` },
         }),
       );
 
       return userInfo.data.id;
-    } catch (e) {
-      throw new BadRequestException('42 code error');
+    } catch {
+      throw new InternalServerErrorException('42 server error');
     }
   }
 
@@ -160,7 +219,10 @@ export class LoginService {
     // eslint-disable-next-line
     const { sub, email, aud } = ticket.getPayload()!;
 
-    if (aud !== this.googleClientConfig.CLIENT_ID) {
+    if (
+      !(this.runtimeConfig.PROD && this.isProdGoogleClientId(aud)) &&
+      !this.isDevOrLocalGoogleClientId(aud)
+    ) {
       throw new BadRequestException();
     }
 
@@ -170,6 +232,17 @@ export class LoginService {
       email: email,
       linkedAt: new Date(),
     };
+  }
+
+  private isProdGoogleClientId(clientId: string): boolean {
+    return this.googleClientConfig.CLIENT_ID === clientId;
+  }
+
+  private isDevOrLocalGoogleClientId(clientId: string): boolean {
+    return (
+      this.googleClientConfig.DEV_CLIENT_ID === clientId ||
+      this.googleClientConfig.LOCAL_CLEINT_ID === clientId
+    );
   }
 
   async createToken(userId: number): Promise<LoginSuccess> {
