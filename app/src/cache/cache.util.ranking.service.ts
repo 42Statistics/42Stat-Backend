@@ -398,5 +398,6 @@ const isPromoMatch = ({
   promo?: number;
   rankCache: RankCache;
 }): boolean => {
-  return promo === undefined || rankCache.promo === promo;
+  // todo: nullable schema type 에 대한 처리를 한 후 수정해야 합니다.
+  return !promo || rankCache.promo === promo;
 };
