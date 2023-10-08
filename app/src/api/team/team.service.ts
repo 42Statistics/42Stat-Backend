@@ -352,22 +352,21 @@ export class TeamService {
     return await aggregate
       .match({
         $or: [{ 'users.id': userId }, { 'scaleTeams.corrector.id': userId }],
+        'scaleTeams.filledAt': { $ne: null },
       })
       .addFields({
         users: {
           $cond: {
             if: { $in: [userId, '$scaleTeams.corrector.id'] },
             then: '$users.id',
-            else: [
-              {
-                $filter: {
-                  input: {
-                    $concatArrays: ['$scaleTeams.corrector.id', '$users.id'],
-                  },
-                  cond: { $ne: ['$$this', userId] },
+            else: {
+              $filter: {
+                input: {
+                  $concatArrays: ['$scaleTeams.corrector.id', '$users.id'],
                 },
+                cond: { $ne: ['$$this', userId] },
               },
-            ],
+            },
           },
         },
       })

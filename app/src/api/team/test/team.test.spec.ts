@@ -147,23 +147,40 @@ describe('team service', () => {
       const user2 = TeamMockBuilder.generateUser({ id: userId2 });
       const user3 = TeamMockBuilder.generateUser({ id: userId3 });
 
-      const team = new TeamMockBuilder()
+      const team1 = new TeamMockBuilder()
         .setUsers([user1, user2, user3])
         .setScaleTeams([])
         .toTeam();
 
-      await teamModel.insertMany([team] satisfies team[]);
+      const team2 = new TeamMockBuilder()
+        .setUsers([user1, user2])
+        .setScaleTeams([])
+        .toTeam();
 
-      const destinyRanking = await destinyRankingByTeamInfo(user1.id, team);
+      await teamModel.insertMany([team1, team2] satisfies team[]);
 
-      team.users.forEach((user) => {
-        if (user.id === user1.id) {
-          return;
-        }
+      const user1DestinyRanking = await destinyRankingByTeamInfo(
+        user1.id,
+        team1,
+      );
 
-        expect(findUserRankByUserId(destinyRanking, user2.id)?.value).toBe(1);
-        expect(findUserRankByUserId(destinyRanking, user3.id)?.value).toBe(1);
-      });
+      const user2DestinyRanking = await destinyRankingByTeamInfo(
+        user2.id,
+        team1,
+      );
+
+      expect(findUserRankByUserId(user1DestinyRanking, user2.id)?.value).toBe(
+        2,
+      );
+      expect(findUserRankByUserId(user1DestinyRanking, user3.id)?.value).toBe(
+        1,
+      );
+      expect(findUserRankByUserId(user2DestinyRanking, user1.id)?.value).toBe(
+        2,
+      );
+      expect(findUserRankByUserId(user2DestinyRanking, user3.id)?.value).toBe(
+        1,
+      );
     });
 
     it('평가자일때, 평가받는 모든 팀원들에게 1점 추가', async () => {
@@ -189,8 +206,9 @@ describe('team service', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         beginAt: new Date(),
+        filledAt: new Date(),
         correcteds: [],
-        corrector,
+        corrector: corrector,
         flag: {
           id: 0,
           name: '',
@@ -217,6 +235,60 @@ describe('team service', () => {
       expect(
         findUserRankByUserId(destinyRanking, normalTeamUser.id)?.value,
       ).toBe(1);
+    });
+
+    it('미완료된 평가의 평가자에게 점수를 추가하지 않음', async () => {
+      const corrector = {
+        id: userId1,
+        login: 'jaham',
+        url: '',
+      };
+
+      const leaderTeamUser = TeamMockBuilder.generateUser({
+        id: userId2,
+        leader: true,
+      });
+
+      const normalTeamUser = TeamMockBuilder.generateUser({
+        leader: false,
+        id: userId3,
+      });
+
+      const teamScaleTeam: TeamScaleTeam = {
+        id: 0,
+        scaleId: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        beginAt: new Date(),
+        filledAt: undefined,
+        correcteds: [],
+        corrector: corrector,
+        flag: {
+          id: 0,
+          name: '',
+          positive: false,
+          icon: '',
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      };
+
+      const team = new TeamMockBuilder()
+        .setUsers([leaderTeamUser, normalTeamUser])
+        .setScaleTeams([teamScaleTeam])
+        .toTeam();
+
+      await teamModel.insertMany([team] satisfies team[]);
+
+      const destinyRanking = await destinyRankingByTeamInfo(userId1, team);
+
+      expect(
+        findUserRankByUserId(destinyRanking, leaderTeamUser.id)?.value,
+      ).toBe(undefined);
+
+      expect(
+        findUserRankByUserId(destinyRanking, normalTeamUser.id)?.value,
+      ).toBe(undefined);
     });
   });
 });
