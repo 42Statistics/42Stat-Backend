@@ -18,6 +18,7 @@ import { JWT_CONFIG } from './config/jwt';
 import { RUNTIME_CONFIG } from './config/runtime';
 import { MongooseRootModule } from './database/mongoose/database.mongoose.module';
 import { DateWrapper } from './dateWrapper/dateWrapper';
+import { HealthCheckModule } from './healthcheck/healthcheck.module';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
 import { CalculatorModule } from './page/calculator/calculator.module';
@@ -90,6 +91,7 @@ export class AppRootModule {}
     SettingModule,
     CalculatorModule,
     LambdaModule,
+    HealthCheckModule,
     CacheDecoratorOnReturnModule,
   ],
   providers: [StatAuthGuard, ComplexityPlugin],
