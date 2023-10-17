@@ -190,15 +190,42 @@ export class LambdaService {
       DateTemplate.CURR_WEEK,
     );
 
-    const commentRank = await this.scaleTeamService.averageReviewLengthRanking(
-      'comment',
-    );
+    const totalCommentRanking =
+      await this.scaleTeamService.averageReviewLengthRankingByDateRange(
+        'comment',
+      );
 
     await this.cacheUtilRankingService.setRanking(
-      commentRank,
+      totalCommentRanking,
       updatedAt,
       COMMENT_RANKING,
       DateTemplate.TOTAL,
+    );
+
+    const currMonthCommentRanking =
+      await this.scaleTeamService.averageReviewLengthRankingByDateRange(
+        'comment',
+        currMonth,
+      );
+
+    await this.cacheUtilRankingService.setRanking(
+      currMonthCommentRanking,
+      updatedAt,
+      COMMENT_RANKING,
+      DateTemplate.CURR_MONTH,
+    );
+
+    const currWeekCommentRanking =
+      await this.scaleTeamService.averageReviewLengthRankingByDateRange(
+        'comment',
+        currWeek,
+      );
+
+    await this.cacheUtilRankingService.setRanking(
+      currWeekCommentRanking,
+      updatedAt,
+      COMMENT_RANKING,
+      DateTemplate.CURR_WEEK,
     );
 
     const totalLog = await this.locationService.logtimeRanking(total);

@@ -10,6 +10,7 @@ import {
   findAllAndLean,
   type QueryArgs,
 } from 'src/database/mongoose/database.mongoose.query';
+import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { EvalLogSortOrder } from 'src/page/evalLog/dtos/evalLog.dto.getEvalLog';
 import type { EvalLog } from 'src/page/evalLog/models/evalLog.model';
 import { CursusUserService } from '../cursusUser/cursusUser.service';
@@ -18,7 +19,10 @@ import {
   conditionalProjectPreview,
 } from '../project/db/project.database.aggregate';
 import { addUserPreview, lookupUser } from '../user/db/user.database.aggregate';
-import { lookupScaleTeams } from './db/scaleTeam.database.aggregate';
+import {
+  evalCountDateRangeFilter,
+  lookupScaleTeams,
+} from './db/scaleTeam.database.aggregate';
 import { scale_team } from './db/scaleTeam.database.schema';
 
 export const OUTSTANDING_FLAG_ID = 9;
@@ -112,11 +116,13 @@ export class ScaleTeamService {
     return reviewAggr?.value ?? 0;
   }
 
-  async averageReviewLengthRanking(
+  async averageReviewLengthRankingByDateRange(
     field: 'comment' | 'feedback',
-    filter?: FilterQuery<scale_team>,
+    dateRange?: DateRange,
   ): Promise<UserRank[]> {
-    const aggregate = this.cursusUserService.aggregate<UserRank>();
+    const aggregate = this.cursusUserService.aggregate<
+      Omit<UserRank, 'rank'> & { count: number }
+    >();
 
     const fieldMap = {
       comment: 'corrector',
@@ -125,18 +131,19 @@ export class ScaleTeamService {
 
     const target = fieldMap[field];
 
-    return await aggregate
+    const scaleTeamFilter = {
+      [field]: { $ne: null },
+      ...(dateRange ? evalCountDateRangeFilter(dateRange) : undefined),
+    };
+
+    const rawRanking = await aggregate
       .append(
         lookupScaleTeams('user.id', `${target}.id`, [
-          {
-            $match: {
-              ...filter,
-              [`${field}`]: { $ne: null },
-            },
-          },
+          { $match: scaleTeamFilter },
           {
             $group: {
               _id: 'result',
+              count: { $count: {} },
               value: { $avg: { $strLenCP: `$${field}` } },
             },
           },
@@ -147,14 +154,54 @@ export class ScaleTeamService {
           $ifNull: [{ $round: { $first: '$scale_teams.value' } }, 0],
         },
       })
-      .append(addRank())
+      .sort({ value: -1 })
       .append(addUserPreview('user'))
       .project({
         _id: 0,
         userPreview: 1,
         value: 1,
-        rank: 1,
+        count: { $first: '$scale_teams.count' },
       });
+
+    const { ranking, zeroValueRanking } = rawRanking.reduce(
+      (
+        { ranking, prevRank, prevValue, zeroValueRanking },
+        { userPreview, value, count },
+      ) => {
+        if (dateRange || count >= 20) {
+          const rank = prevValue === value ? prevRank : ranking.length + 1;
+
+          ranking.push({
+            userPreview,
+            value,
+            rank,
+          });
+
+          return {
+            ranking,
+            prevRank: rank,
+            prevValue: value,
+            zeroValueRanking,
+          };
+        }
+
+        zeroValueRanking.push({
+          userPreview,
+          value: 0,
+          rank: Number.MAX_SAFE_INTEGER,
+        });
+
+        return { ranking, prevRank, prevValue, zeroValueRanking };
+      },
+      {
+        ranking: new Array<UserRank>(),
+        prevRank: 0,
+        prevValue: Number.MIN_SAFE_INTEGER,
+        zeroValueRanking: new Array<UserRank>(),
+      },
+    );
+
+    return [...ranking, ...zeroValueRanking];
   }
 
   /**

@@ -32,7 +32,13 @@ export class LeaderboardCommentResolver {
     @Args() { pageNumber, pageSize, promo }: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
-    if (dateTemplate !== DateTemplate.TOTAL) {
+    if (
+      !(
+        dateTemplate === DateTemplate.TOTAL ||
+        dateTemplate === DateTemplate.CURR_MONTH ||
+        dateTemplate === DateTemplate.CURR_WEEK
+      )
+    ) {
       throw new UnsupportedDateTemplate();
     }
 
