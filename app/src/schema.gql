@@ -272,7 +272,7 @@ type LeaderboardElementDateRanged {
 }
 
 type LeaderboardComment {
-  """TOTAL 만 가능합니다"""
+  """TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다"""
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 

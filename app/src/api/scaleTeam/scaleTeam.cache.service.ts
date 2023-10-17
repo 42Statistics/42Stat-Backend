@@ -9,10 +9,13 @@ import {
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { ScaleTeamService } from './scaleTeam.service';
+
 export const EVAL_COUNT_RANKING = 'evalCountRanking';
-export const COMMENT_RANKING = 'commentRanking';
+
 export const AVERAGE_FEEDBACK_LENGTH = 'averageFeedbackLength';
 export const AVERAGE_COMMENT_LENGTH = 'averageCommentLength';
+
+export const COMMENT_RANKING = 'commentRanking';
 
 export type EvalCountRankingSupportedDateTemplate = Extract<
   RankingSupportedDateTemplate,
@@ -25,6 +28,11 @@ export type AverageReviewLengthKey =
 
 type AverageReviewLengthCache = Awaited<
   ReturnType<ScaleTeamService['averageReviewLength']> | undefined
+>;
+
+export type AverageReviewLengthRankingSupportedDateTemplate = Extract<
+  RankingSupportedDateTemplate,
+  DateTemplate.TOTAL | DateTemplate.CURR_MONTH | DateTemplate.CURR_WEEK
 >;
 
 @Injectable()
@@ -79,21 +87,25 @@ export class ScaleTeamCacheService {
   }
 
   async getCommentRank(
+    dateTemplate: AverageReviewLengthRankingSupportedDateTemplate,
     userId: number,
     promo?: number,
   ): Promise<RankCache | undefined> {
-    return await this.cacheUtilRankingService.getRawRank({
+    return await this.cacheUtilRankingService.getRank({
       keyBase: COMMENT_RANKING,
       userId,
-      dateTemplate: DateTemplate.TOTAL,
+      dateTemplate,
       promo,
     });
   }
 
-  async getCommentRanking(promo?: number): Promise<RankCache[] | undefined> {
-    return await this.cacheUtilRankingService.getRawRanking({
+  async getCommentRanking(
+    dateTemplate: AverageReviewLengthRankingSupportedDateTemplate,
+    promo?: number,
+  ): Promise<RankCache[] | undefined> {
+    return await this.cacheUtilRankingService.getRanking({
       keyBase: COMMENT_RANKING,
-      dateTemplate: DateTemplate.TOTAL,
+      dateTemplate,
       promo,
     });
   }
