@@ -108,12 +108,27 @@ export class LoginService {
    */
   private async getFtUser(ftCode: string): Promise<number> {
     if (this.runtimeConfig.PROD) {
-      return await this.requestFtOAuth({
-        clientId: this.ftClientConfig.ID,
-        clientSecret: this.ftClientConfig.SECRET,
-        redirectURI: this.ftClientConfig.REDIRECT_URI,
-        ftCode,
-      });
+      try {
+        return await this.requestFtOAuth({
+          clientId: this.ftClientConfig.ID,
+          clientSecret: this.ftClientConfig.SECRET,
+          redirectURI: this.ftClientConfig.REDIRECT_URI,
+          ftCode,
+        });
+      } catch (e) {
+        console.error(e);
+        try {
+          return await this.requestFtOAuth({
+            clientId: this.ftClientConfig.ID,
+            clientSecret: this.ftClientConfig.SECRET,
+            redirectURI: this.ftClientConfig.REDIRECT_URI,
+            ftCode,
+          });
+        } catch (e) {
+          console.error(e);
+          throw e;
+        }
+      }
     } else {
       try {
         return await this.requestFtOAuth({
