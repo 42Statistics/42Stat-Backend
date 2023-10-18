@@ -63,7 +63,7 @@ export class ScoreService {
       .project({
         _id: 0,
         userPreview: 1,
-        coalition: { id: '$coalitions_users.coalitionId' },
+        coalition: { id: { $first: '$coalitions_users.coalitionId' } },
         value: 1,
         rank: 1,
       });
