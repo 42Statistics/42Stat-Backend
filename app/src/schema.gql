@@ -401,15 +401,27 @@ type PersonalGeneral {
   character: Character
 }
 
-type MyInfo {
-  userPreview: UserPreview!
-  displayname: String!
+type MyRecentActivity {
   isNewMember: Boolean!
   lastValidatedTeam: UserTeam
   blackholedAt: DateTime
   experienceRank: Int
   scoreRank: Int
   evalCountRank: Int
+}
+
+type MyInfo {
+  userPreview: UserPreview!
+  displayname: String!
+  level: Float
+  beginAt: DateTime
+  myRecentActivity: MyRecentActivity
+  isNewMember: Boolean! @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
+  lastValidatedTeam: UserTeam @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
+  blackholedAt: DateTime @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
+  experienceRank: Int @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
+  scoreRank: Int @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
+  evalCountRank: Int @deprecated(reason: "deprecated at v0.9.0, recentActivity 를 사용하세요")
 }
 
 type PersonalEval {

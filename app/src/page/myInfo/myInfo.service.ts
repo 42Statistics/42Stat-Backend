@@ -1,31 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import type { FilterQuery } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
-import type { experience_user } from 'src/api/experienceUser/db/experienceUser.database.schema';
 import { ExperienceUserCacheService } from 'src/api/experienceUser/experienceUser.cache.service';
-import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.service';
 import type { quests_user } from 'src/api/questsUser/db/questsUser.database.schema';
 import {
   COMMON_CORE_QUEST_ID,
   QuestsUserService,
 } from 'src/api/questsUser/questsUser.service';
-import type { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { ScaleTeamCacheService } from 'src/api/scaleTeam/scaleTeam.cache.service';
-import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
-import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
-import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import { UserService } from 'src/api/user/user.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { findUserRank } from 'src/common/findUserRank';
-import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { UserTeam } from '../personal/general/models/personal.general.model';
-import type { MyInfoRoot } from './models/myInfo.model';
+import type { MyInfoRoot, MyRecentActivity } from './models/myInfo.model';
 
 @Injectable()
 export class MyInfoService {
@@ -34,14 +25,10 @@ export class MyInfoService {
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly questsUserService: QuestsUserService,
     private readonly teamService: TeamService,
-    private readonly experienceUserService: ExperienceUserService,
     private readonly experienceUserCacheService: ExperienceUserCacheService,
-    private readonly scoreService: ScoreService,
     private readonly scoreCacheService: ScoreCacheService,
-    private readonly scaleTeamService: ScaleTeamService,
     private readonly scaleTeamCacheService: ScaleTeamCacheService,
     private readonly userService: UserService,
-    private readonly dateRangeService: DateRangeService,
   ) {}
 
   @CacheOnReturn()
@@ -57,6 +44,8 @@ export class MyInfoService {
           imgUrl: cachedUserFullProfile.cursusUser.user.image.link,
         },
         displayname: cachedUserFullProfile.cursusUser.user.displayname,
+        beginAt: cachedUserFullProfile.cursusUser.beginAt,
+        level: cachedUserFullProfile.cursusUser.level,
       };
     }
 
@@ -90,6 +79,40 @@ export class MyInfoService {
   }
 
   @CacheOnReturn()
+  async myRecentActivity(
+    myInfoRoot?: MyInfoRoot,
+  ): Promise<MyRecentActivity | null> {
+    // todo: isStudent 같은 field 를 제공하는 것도 방법일듯
+    if (!myInfoRoot || !myInfoRoot.beginAt) {
+      return null;
+    }
+
+    const userId = myInfoRoot.userPreview.id;
+
+    const cachedUserFullProfile =
+      await this.cursusUserCacheService.getUserFullProfile(userId);
+
+    if (!cachedUserFullProfile) {
+      return null;
+    }
+
+    const isNewMember = await this.isNewMember(userId);
+    if (isNewMember === null) {
+      return null;
+    }
+
+    return {
+      isNewMember,
+      lastValidatedTeam: (await this.lastValidatedTeam(userId)) ?? undefined,
+      blackholedAt: cachedUserFullProfile.cursusUser.blackholedAt,
+      experienceRank: await this.experienceRank(userId),
+      scoreRank: await this.scoreRank(userId),
+      evalCountRank: await this.evalCountRank(userId),
+    };
+  }
+
+  // todo: deprecate 이후 안쓰는 함수 삭제 및 private method 로 변경
+  @CacheOnReturn()
   async blackholedAt(userId: number): Promise<Date | null> {
     const cachedUserFullProfile =
       await this.cursusUserCacheService.getUserFullProfile(userId);
@@ -105,7 +128,7 @@ export class MyInfoService {
   }
 
   @CacheOnReturn()
-  async isNewMember(userId: number): Promise<boolean> {
+  async isNewMember(userId: number): Promise<boolean | null> {
     const questsUser: Pick<quests_user, 'validatedAt'> | null =
       await this.questsUserService.findOneAndLean({
         filter: {
@@ -116,7 +139,7 @@ export class MyInfoService {
       });
 
     if (!questsUser) {
-      throw new NotFoundException();
+      return null;
     }
 
     if (!questsUser.validatedAt) {
@@ -152,22 +175,7 @@ export class MyInfoService {
         userId,
       );
 
-    if (cachedRank) {
-      return cachedRank.rank;
-    }
-
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(
-      DateTemplate.CURR_WEEK,
-    );
-
-    const dateFilter: FilterQuery<experience_user> = {
-      createdAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
-
-    const expIncreamentRanking =
-      await this.experienceUserService.increamentRanking(dateFilter);
-
-    return findUserRank(expIncreamentRanking, userId)?.rank;
+    return cachedRank?.rank;
   }
 
   async scoreRank(userId: number): Promise<number | undefined> {
@@ -176,19 +184,7 @@ export class MyInfoService {
       userId,
     );
 
-    if (cachedRank) {
-      return cachedRank.rank;
-    }
-
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(
-      DateTemplate.CURR_WEEK,
-    );
-
-    const ranking = await this.scoreService.scoreRanking({
-      filter: scoreDateRangeFilter(dateRange),
-    });
-
-    return findUserRank(ranking, userId)?.rank;
+    return cachedRank?.rank;
   }
 
   async evalCountRank(userId: number): Promise<number | undefined> {
@@ -197,22 +193,6 @@ export class MyInfoService {
       userId,
     );
 
-    if (cachedRanking) {
-      return cachedRanking.rank;
-    }
-
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(
-      DateTemplate.CURR_WEEK,
-    );
-
-    const dateFilter: FilterQuery<scale_team> = {
-      beginAt: this.dateRangeService.aggrFilterFromDateRange(dateRange),
-    };
-
-    const evalCountRanking = await this.scaleTeamService.evalCountRanking(
-      dateFilter,
-    );
-
-    return findUserRank(evalCountRanking, userId)?.rank;
+    return cachedRanking?.rank;
   }
 }

@@ -6,7 +6,6 @@ import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
 import { ScoreModule } from 'src/api/score/score.module';
 import { TeamModule } from 'src/api/team/team.module';
 import { UserModule } from 'src/api/user/user.module';
-import { DateRangeModule } from 'src/dateRange/dateRange.module';
 import { MyInfoResolver } from './myInfo.resolver';
 import { MyInfoService } from './myInfo.service';
 
@@ -19,7 +18,6 @@ import { MyInfoService } from './myInfo.service';
     ScaleTeamModule,
     QuestsUserModule,
     UserModule,
-    DateRangeModule,
   ],
   providers: [MyInfoResolver, MyInfoService],
 })
