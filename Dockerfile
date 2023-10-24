@@ -1,6 +1,4 @@
-FROM node:19-alpine3.16
+FROM node:18
 RUN npm install -g pnpm@latest-8
-EXPOSE 3000
+EXPOSE 4000
 WORKDIR /app
-COPY entry.sh /tmp/
-RUN chmod +x /tmp/entry.sh
