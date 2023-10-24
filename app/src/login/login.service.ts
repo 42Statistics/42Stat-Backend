@@ -17,6 +17,7 @@ import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import type { token } from 'src/auth/token/db/token.database.schema';
 import { TokenService } from 'src/auth/token/token.service';
+import { AWS_CONFIG, AwsFtClientSecret } from 'src/config/aws';
 import { FT_CLIENT_CONFIG } from 'src/config/ftClient';
 import { GOOGLE_CLIENT_CONFIG } from 'src/config/googleClient';
 import { JWT_CONFIG } from 'src/config/jwt';
@@ -24,6 +25,7 @@ import { RUNTIME_CONFIG } from 'src/config/runtime';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { AccountService } from 'src/login/account/account.service';
+import { RemoteConfigService } from 'src/remoteConfig/remoteConfig.service';
 import type { account } from './account/db/account.database.schema';
 import type { GoogleLoginInput } from './dtos/login.dto';
 import type {
@@ -47,6 +49,9 @@ export class LoginService {
     >,
     @Inject(RUNTIME_CONFIG.KEY)
     private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
+    @Inject(AWS_CONFIG.KEY)
+    private readonly awsConfig: ConfigType<typeof AWS_CONFIG>,
+    private readonly remoteConfigService: RemoteConfigService,
     private readonly accountService: AccountService,
     private readonly httpService: HttpService,
     private readonly jwtService: JwtService,
@@ -108,40 +113,37 @@ export class LoginService {
    */
   private async getFtUser(ftCode: string): Promise<number> {
     if (this.runtimeConfig.PROD) {
-      try {
-        return await this.requestFtOAuth({
-          clientId: this.ftClientConfig.ID,
-          clientSecret: this.ftClientConfig.SECRET,
-          redirectURI: this.ftClientConfig.REDIRECT_URI,
-          ftCode,
-        });
-      } catch (e) {
-        console.error(e);
-        try {
-          return await this.requestFtOAuth({
-            clientId: this.ftClientConfig.ID,
-            clientSecret: this.ftClientConfig.SECRET,
-            redirectURI: this.ftClientConfig.REDIRECT_URI,
-            ftCode,
-          });
-        } catch (e) {
-          console.error(e);
-          throw e;
-        }
-      }
+      const clientSecret = await this.fetchFtClientSecret(
+        this.awsConfig.AWS_PROD_FT_CLIENT_SECRET_ID,
+      );
+
+      return await this.requestFtOAuth({
+        clientId: this.ftClientConfig.ID,
+        clientSecret,
+        redirectURI: this.ftClientConfig.REDIRECT_URI,
+        ftCode,
+      });
     } else {
       try {
+        const clientSecret = await this.fetchFtClientSecret(
+          this.awsConfig.AWS_LOCAL_FT_CLIENT_SECRET_ID,
+        );
+
         return await this.requestFtOAuth({
           clientId: this.ftClientConfig.LOCAL_ID,
-          clientSecret: this.ftClientConfig.LOCAL_SECRET,
+          clientSecret,
           redirectURI: this.ftClientConfig.LOCAL_REDIRECT_URI,
           ftCode,
         });
       } catch (e) {
         if (e instanceof BadRequestException) {
+          const clientSecret = await this.fetchFtClientSecret(
+            this.awsConfig.AWS_DEV_FT_CLIENT_SECRET_ID,
+          );
+
           return await this.requestFtOAuth({
             clientId: this.ftClientConfig.DEV_ID,
-            clientSecret: this.ftClientConfig.DEV_SECRET,
+            clientSecret,
             redirectURI: this.ftClientConfig.DEV_REDIRECT_URI,
             ftCode,
           });
@@ -149,6 +151,17 @@ export class LoginService {
 
         throw e;
       }
+    }
+  }
+
+  private async fetchFtClientSecret(secretId: string): Promise<string> {
+    try {
+      const clientSecret = await this.remoteConfigService.fetchConfig(secretId);
+
+      return (clientSecret as AwsFtClientSecret).CLIENT_SECRET;
+    } catch (e) {
+      console.error('wrong aws secrets manager config', e);
+      throw new InternalServerErrorException();
     }
   }
 
@@ -176,32 +189,45 @@ export class LoginService {
     searchParams.set('code', ftCode);
     searchParams.set('redirect_uri', redirectURI);
 
-    let accessToken: string;
+    let accessToken: string | undefined = undefined;
 
-    try {
-      const authResult = await lastValueFrom(
-        this.httpService.post<{ access_token: string }>(
-          this.ftClientConfig.INTRA_TOKEN_URL,
-          searchParams,
-        ),
-      );
+    for (let i = 0; i < 2; i++) {
+      try {
+        const authResult = await lastValueFrom(
+          this.httpService.post<{ access_token: string }>(
+            this.ftClientConfig.INTRA_TOKEN_URL,
+            searchParams,
+          ),
+        );
 
-      accessToken = authResult.data.access_token;
-    } catch {
+        accessToken = authResult.data.access_token;
+
+        break;
+      } catch {}
+    }
+
+    if (!accessToken) {
+      console.error('42 code error');
       throw new BadRequestException('42 code error');
     }
 
-    try {
-      const userInfo = await lastValueFrom(
-        this.httpService.get<{ id: number }>(this.ftClientConfig.INTRA_ME_URL, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }),
-      );
+    for (let i = 0; i < 2; i++) {
+      try {
+        const userInfo = await lastValueFrom(
+          this.httpService.get<{ id: number }>(
+            this.ftClientConfig.INTRA_ME_URL,
+            {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            },
+          ),
+        );
 
-      return userInfo.data.id;
-    } catch {
-      throw new InternalServerErrorException('42 server error');
+        return userInfo.data.id;
+      } catch {}
     }
+
+    console.error('42 server error');
+    throw new InternalServerErrorException('42 server error');
   }
 
   async generateTokenPair(userId: number): Promise<Omit<token, 'userId'>> {

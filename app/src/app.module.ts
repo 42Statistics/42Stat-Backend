@@ -10,6 +10,7 @@ import { StatAuthGuard } from './auth/statAuthGuard';
 import { CacheDecoratorOnReturnModule } from './cache/decrators/onReturn/cache.decorator.onReturn.module';
 import { ShallowStore } from './cache/shallowStore/cache.shallowStore';
 import { API_CONFIG } from './config/api';
+import { AWS_CONFIG } from './config/aws';
 import { CDN_CONFIG } from './config/cdn';
 import { DATABASE_CONFIG } from './config/database';
 import { FT_CLIENT_CONFIG } from './config/ftClient';
@@ -37,7 +38,12 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['../env/.env.prod', '../env/.env.dev', '../env/.env.local'],
+      envFilePath: [
+        '../env/.env.common',
+        '../env/.env.prod',
+        '../env/.env.dev',
+        '../env/.env.local',
+      ],
       load: [
         DATABASE_CONFIG,
         FT_CLIENT_CONFIG,
@@ -46,6 +52,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
         RUNTIME_CONFIG,
         CDN_CONFIG,
         API_CONFIG,
+        AWS_CONFIG,
       ],
     }),
     MongooseRootModule,

@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { TokenModule } from 'src/auth/token/token.module';
 import { JWT_CONFIG } from 'src/config/jwt';
 import { AccountModule } from 'src/login/account/account.module';
+import { RemoteConfigModule } from 'src/remoteConfig/remoteConfig.module';
 import { LoginResolver } from './login.resolver';
 import { LoginService } from './login.service';
 
@@ -21,6 +22,7 @@ import { LoginService } from './login.service';
     }),
     AccountModule,
     TokenModule,
+    RemoteConfigModule,
     HttpModule,
   ],
   providers: [LoginResolver, LoginService],
