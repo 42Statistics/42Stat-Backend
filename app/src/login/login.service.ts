@@ -12,7 +12,7 @@ import {
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Cron } from '@nestjs/schedule';
-import { OAuth2Client } from 'google-auth-library';
+import { LoginTicket, OAuth2Client } from 'google-auth-library';
 import mongoose from 'mongoose';
 import { lastValueFrom } from 'rxjs';
 import type { token } from 'src/auth/token/db/token.database.schema';
@@ -81,12 +81,9 @@ export class LoginService {
       const userId = await this.getFtUser(ftCode);
 
       await this.accountService.createIfNotExist(userId);
-
       await this.linkAccount(userId, googleUser);
 
-      const loginUser = await this.createToken(userId);
-
-      return loginUser;
+      return await this.createToken(userId);
     }
 
     const linkedUser: Pick<account, 'userId'> | null =
@@ -250,10 +247,21 @@ export class LoginService {
   async getGoogleUser(input: GoogleLoginInput): Promise<LinkableAccount> {
     const oAuth2Client = new OAuth2Client();
 
-    const ticket = await oAuth2Client.verifyIdToken({
-      idToken: input.credential,
-      audience: input.clientId,
-    });
+    let ticket: LoginTicket;
+
+    try {
+      ticket = await oAuth2Client.verifyIdToken({
+        idToken: input.credential,
+        audience: input.clientId,
+      });
+    } catch (e) {
+      console.error(
+        'google verify id token fail',
+        JSON.stringify(e, null, '  '),
+      );
+
+      throw new BadRequestException();
+    }
 
     // https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/oauth2client.ts#L1277
     // https://github.com/googleapis/google-auth-library-nodejs/blob/main/src/auth/loginticket.ts#L26
