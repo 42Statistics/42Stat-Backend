@@ -94,5 +94,5 @@ const regexFind = async <TResult extends { id: number }>({
     matches.forEach((matched) => result.set(matched.id, matched));
   }
 
-  return [...result.values()];
+  return [...result.values()].slice(0, limit);
 };
