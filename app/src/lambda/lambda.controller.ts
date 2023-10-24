@@ -19,6 +19,8 @@ export class LambdaController {
       throw new BadRequestException();
     }
 
-    await this.lambdaService.updatePreloadCache(timestamp);
+    this.lambdaService.updatePreloadCache(timestamp);
+
+    return;
   }
 }
