@@ -552,7 +552,7 @@ type Query {
   getLeaderboardEvalCount: LeaderboardEval!
   getLeaderboardScore: LeaderboardScore!
   getLeaderboardComment: LeaderboardComment!
-  getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
+  getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, imperfectOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
   getExpTable: [ExpTable!]!
 }

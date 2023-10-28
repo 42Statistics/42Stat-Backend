@@ -22,6 +22,9 @@ export class GetEvalLogsArgs extends PaginationCursorArgs {
   @Field({ defaultValue: false })
   outstandingOnly: boolean;
 
+  @Field({ defaultValue: false })
+  imperfectOnly: boolean;
+
   @Field((_type) => EvalLogSortOrder, {
     defaultValue: EvalLogSortOrder.BEGIN_AT_DESC,
   })

@@ -35,6 +35,7 @@ export class EvalLogService {
     corrected: correctedLogin,
     projectName,
     outstandingOnly,
+    imperfectOnly,
     sortOrder,
     after,
     first,
@@ -61,6 +62,10 @@ export class EvalLogService {
       }
 
       filter['correcteds.id'] = corrected.id;
+    }
+
+    if (imperfectOnly) {
+      filter['finalMark'] = { $lt: 100 };
     }
 
     if (projectName) {
