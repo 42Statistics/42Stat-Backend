@@ -1,10 +1,9 @@
-import { Field, InterfaceType, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import {
   UserRank,
   UserRankingIndexPaginated,
 } from 'src/common/models/common.user.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
-import { Promo } from 'src/page/common/models/promo.model';
 
 @ObjectType()
 export class LeaderboardElement {

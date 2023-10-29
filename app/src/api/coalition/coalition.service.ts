@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
 import { API_CONFIG } from 'src/config/api';
 import { CDN_CONFIG } from 'src/config/cdn';
+import { findAllAndLean } from 'src/database/mongoose/database.mongoose.query';
 import type { Coalition } from '../../page/common/models/coalition.model';
 import { coalition } from './db/coalition.database.schema';
 
@@ -58,5 +59,15 @@ export class CoalitionService {
 
   getSeoulCoalitionIds(): readonly number[] {
     return this.apiConfig.SEOUL_COALITION_ID;
+  }
+
+  async getSeoulCoalitions(): Promise<Coalition[]> {
+    const coalitions = await findAllAndLean<coalition>(this.coalitionModel, {
+      filter: {
+        id: { $in: this.getSeoulCoalitionIds() },
+      },
+    });
+
+    return coalitions.map((coalition) => this.daoToDto(coalition));
   }
 }

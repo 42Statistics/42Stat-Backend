@@ -300,6 +300,7 @@ type Promo {
 
 type LeaderboardMetadata {
   promoList: [Promo!]!
+  coalitionList: [Coalition!]!
 }
 
 type LeaderboardScore {
