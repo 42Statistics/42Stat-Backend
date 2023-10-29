@@ -155,10 +155,10 @@ export class PersonalGeneralCharacterService {
       (projectUser) => isExam(projectUser.project.id),
     );
 
-    const evalCountRank = await this.scaleTeamCacheService.getEvalCountRank(
-      DateTemplate.TOTAL,
+    const evalCountRank = await this.scaleTeamCacheService.getEvalCountRank({
+      dateTemplate: DateTemplate.TOTAL,
       userId,
-    );
+    });
 
     if (!evalCountRank) {
       return null;

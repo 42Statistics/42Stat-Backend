@@ -23,64 +23,66 @@ export class PersonalVersusService {
 
   async personalVersus(userId: number): Promise<PersonalVersus | null> {
     try {
-      const levelRanking = await this.cursusUserCacheService.getUserRanking(
-        USER_LEVEL_RANKING,
-      );
+      const levelRanking = await this.cursusUserCacheService.getUserRanking({
+        keyBase: USER_LEVEL_RANKING,
+      });
 
-      const levelRank = await this.cursusUserCacheService.getUserRank(
-        USER_LEVEL_RANKING,
+      const levelRank = await this.cursusUserCacheService.getUserRank({
+        keyBase: USER_LEVEL_RANKING,
         userId,
-      );
+      });
 
-      const totalScoreRanking = await this.scoreCacheService.getScoreRanking(
-        DateTemplate.TOTAL,
-      );
+      const totalScoreRanking = await this.scoreCacheService.getScoreRanking({
+        dateTemplate: DateTemplate.TOTAL,
+      });
 
-      const totalScoreRank = await this.scoreCacheService.getScoreRank(
-        DateTemplate.TOTAL,
+      const totalScoreRank = await this.scoreCacheService.getScoreRank({
+        dateTemplate: DateTemplate.TOTAL,
         userId,
-      );
+      });
 
       const totalEvalCountRanking =
-        await this.scaleTeamCacheService.getEvalCountRanking(
-          DateTemplate.TOTAL,
-        );
+        await this.scaleTeamCacheService.getEvalCountRanking({
+          dateTemplate: DateTemplate.TOTAL,
+        });
 
       const totalEvalCountRank =
-        await this.scaleTeamCacheService.getEvalCountRank(
-          DateTemplate.TOTAL,
+        await this.scaleTeamCacheService.getEvalCountRank({
+          dateTemplate: DateTemplate.TOTAL,
           userId,
-        );
+        });
 
       const currMonthExpIncreamentRanking =
-        await this.experienceUserCacheService.getExpIncreamentRanking(
-          DateTemplate.CURR_MONTH,
-        );
+        await this.experienceUserCacheService.getExpIncreamentRanking({
+          dateTemplate: DateTemplate.CURR_MONTH,
+        });
 
       const currMonthExpIncreamentRank =
-        await this.experienceUserCacheService.getExpIncreamentRank(
-          DateTemplate.CURR_MONTH,
+        await this.experienceUserCacheService.getExpIncreamentRank({
+          dateTemplate: DateTemplate.CURR_MONTH,
           userId,
-        );
+        });
 
       const currMonthScoreRanking =
-        await this.scoreCacheService.getScoreRanking(DateTemplate.CURR_MONTH);
+        await this.scoreCacheService.getScoreRanking({
+          dateTemplate: DateTemplate.CURR_MONTH,
+        });
 
-      const currMonthScoreRank = await this.scoreCacheService.getScoreRank(
-        DateTemplate.CURR_MONTH,
+      const currMonthScoreRank = await this.scoreCacheService.getScoreRank({
+        dateTemplate: DateTemplate.CURR_MONTH,
         userId,
-      );
+      });
 
       const currMonthEvalCountRanking =
-        await this.scaleTeamCacheService.getEvalCountRanking(
-          DateTemplate.CURR_MONTH,
-        );
+        await this.scaleTeamCacheService.getEvalCountRanking({
+          dateTemplate: DateTemplate.CURR_MONTH,
+        });
 
       const currMonthEvalCountRank =
-        await this.scaleTeamCacheService.getEvalCountRank(
-          DateTemplate.CURR_MONTH,
+        await this.scaleTeamCacheService.getEvalCountRank({
+          dateTemplate: DateTemplate.CURR_MONTH,
           userId,
-        );
+        });
 
       const totalLogtimeRank = await this.locationCacheService.getLogtimeRank(
         DateTemplate.TOTAL,

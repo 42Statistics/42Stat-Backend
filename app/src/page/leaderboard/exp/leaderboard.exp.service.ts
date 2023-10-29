@@ -15,22 +15,16 @@ export class LeaderboardExpService {
     private readonly experienceUserCacheService: ExperienceUserCacheService,
   ) {}
 
-  async rankingByDateTemplate({
-    dateTemplate,
-    userId,
-    paginationIndexArgs,
-    promo,
-  }: RankingByDateTemplateArgs<ExpIncreamentRankingCacheSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
+  async rankingByDateTemplate(
+    rankingArgs: RankingByDateTemplateArgs<ExpIncreamentRankingCacheSupportedDateTemplate>,
+  ): Promise<LeaderboardElementDateRanged> {
     const rank = await this.experienceUserCacheService.getExpIncreamentRank(
-      dateTemplate,
-      userId,
-      promo,
+      rankingArgs,
     );
 
     const ranking =
       await this.experienceUserCacheService.getExpIncreamentRanking(
-        dateTemplate,
-        promo,
+        rankingArgs,
       );
 
     assertExist(ranking);
@@ -38,8 +32,8 @@ export class LeaderboardExpService {
     return this.leaderboardUtilService.toLeaderboardElementDateRanged({
       rank,
       ranking,
-      paginationIndexArgs,
-      dateTemplate,
+      paginationIndexArgs: rankingArgs.paginationIndexArgs,
+      dateTemplate: rankingArgs.dateTemplate,
     });
   }
 }

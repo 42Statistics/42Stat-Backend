@@ -10,6 +10,7 @@ import {
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardLevelService } from './leaderboard.level.service';
 import { LeaderboardLevel } from './models/leaderboard.level.model';
 
@@ -19,6 +20,7 @@ import { LeaderboardLevel } from './models/leaderboard.level.model';
 export class LeaderboardLevelResolver {
   constructor(
     private readonly leaderboardLevelService: LeaderboardLevelService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
   ) {}
 
   @Query((_returns) => LeaderboardLevel)
@@ -28,22 +30,20 @@ export class LeaderboardLevelResolver {
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @MyUserId() myUserId: number,
-    @Args() { pageSize, pageNumber, promo }: GetLeaderboardElementArgs,
+    @MyUserId() userId: number,
+    @Args() getLeaderboardElementArgs: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (dateTemplate !== DateTemplate.TOTAL) {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardLevelService.rankingByDateTemplate({
-      dateTemplate,
-      userId: myUserId,
-      paginationIndexArgs: {
-        pageSize,
-        pageNumber,
-      },
-      promo,
-    });
+    return await this.leaderboardLevelService.rankingByDateTemplate(
+      this.leaderboardUtilService.toLeaderboardServiceArgs({
+        userId,
+        getLeaderboardElementArgs,
+        dateTemplate,
+      }),
+    );
   }
 }

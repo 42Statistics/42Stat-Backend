@@ -82,9 +82,9 @@ export class PersonalGeneralService {
   async scoreInfo(userId: number): Promise<UserScoreInfo> {
     const dateTemplate = DateTemplate.CURR_MONTH;
 
-    const scoreRankingCache = await this.scoreCacheService.getScoreRanking(
+    const scoreRankingCache = await this.scoreCacheService.getScoreRanking({
       dateTemplate,
-    );
+    });
 
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
@@ -99,10 +99,10 @@ export class PersonalGeneralService {
     );
 
     if (!me) {
-      const filtered = await this.scoreCacheService.getScoreRank(
+      const filtered = await this.scoreCacheService.getScoreRank({
         dateTemplate,
         userId,
-      );
+      });
 
       if (!filtered) {
         throw new NotFoundException();

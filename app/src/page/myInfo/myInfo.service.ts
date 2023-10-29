@@ -170,28 +170,28 @@ export class MyInfoService {
 
   async experienceRank(userId: number): Promise<number | undefined> {
     const cachedRank =
-      await this.experienceUserCacheService.getExpIncreamentRank(
-        DateTemplate.CURR_WEEK,
+      await this.experienceUserCacheService.getExpIncreamentRank({
+        dateTemplate: DateTemplate.CURR_WEEK,
         userId,
-      );
+      });
 
     return cachedRank?.rank;
   }
 
   async scoreRank(userId: number): Promise<number | undefined> {
-    const cachedRank = await this.scoreCacheService.getScoreRank(
-      DateTemplate.CURR_WEEK,
+    const cachedRank = await this.scoreCacheService.getScoreRank({
+      dateTemplate: DateTemplate.CURR_WEEK,
       userId,
-    );
+    });
 
     return cachedRank?.rank;
   }
 
   async evalCountRank(userId: number): Promise<number | undefined> {
-    const cachedRanking = await this.scaleTeamCacheService.getEvalCountRank(
-      DateTemplate.CURR_WEEK,
+    const cachedRanking = await this.scaleTeamCacheService.getEvalCountRank({
+      dateTemplate: DateTemplate.CURR_WEEK,
       userId,
-    );
+    });
 
     return cachedRanking?.rank;
   }

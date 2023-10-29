@@ -29,6 +29,7 @@ export type GetRankingArgs = {
   keyBase: string;
   dateTemplate: RankingSupportedDateTemplate;
   promo?: number;
+  coalitionId?: number;
 };
 
 export type GetRankArgs = GetRankingArgs & { userId: number };
@@ -76,6 +77,7 @@ export class CacheUtilRankingService {
     userId,
     dateTemplate,
     promo,
+    coalitionId,
   }: GetRankArgs): Promise<RankCache | undefined> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
@@ -91,18 +93,22 @@ export class CacheUtilRankingService {
       return undefined;
     }
 
-    if (!isPromoMatch({ promo, rankCache })) {
+    if (
+      !isPromoMatch({ promo, rankCache }) ||
+      !isCoalitionMatch({ coalitionId, rankCache })
+    ) {
       return {
         ...rankCache,
         rank: 0,
       };
     }
 
-    if (promo) {
+    if (promo || coalitionId) {
       const rankingCache = await this.getRawRanking({
         keyBase,
         dateTemplate,
         promo,
+        coalitionId,
       });
 
       return rankingCache?.find(
@@ -117,6 +123,7 @@ export class CacheUtilRankingService {
     keyBase,
     dateTemplate,
     promo,
+    coalitionId,
   }: GetRankingArgs): Promise<RankCache[] | undefined> {
     const key = this.cacheUtilService.buildKey(
       keyBase,
@@ -131,9 +138,13 @@ export class CacheUtilRankingService {
       return undefined;
     }
 
-    if (promo) {
+    if (promo || coalitionId) {
       return rankingCache
-        .filter((rankCache) => isPromoMatch({ promo, rankCache }))
+        .filter(
+          (rankCache) =>
+            isPromoMatch({ promo, rankCache }) &&
+            isCoalitionMatch({ coalitionId, rankCache }),
+        )
         .reduce(
           ({ filtered, prevRank, prevValue }, currRankCache, index) => {
             if (index === 0) {
@@ -400,4 +411,14 @@ const isPromoMatch = ({
 }): boolean => {
   // todo: nullable schema type 에 대한 처리를 한 후 수정해야 합니다.
   return !promo || rankCache.promo === promo;
+};
+
+const isCoalitionMatch = ({
+  coalitionId,
+  rankCache,
+}: {
+  coalitionId?: number;
+  rankCache: RankCache;
+}): boolean => {
+  return !coalitionId || rankCache.coalition?.id === coalitionId;
 };

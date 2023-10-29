@@ -9,4 +9,10 @@ export class GetLeaderboardElementArgs extends PaginationIndexArgs {
   @IsOptional()
   @Field({ nullable: true })
   promo?: number;
+
+  @Min(1)
+  @Max(1000)
+  @IsOptional()
+  @Field({ nullable: true })
+  coalitionId?: number;
 }

@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
   CacheUtilRankingService,
+  type GetRankArgs,
+  type GetRankingArgs,
   type RankCache,
   type RankingSupportedDateTemplate,
 } from 'src/cache/cache.util.ranking.service';
@@ -28,26 +30,20 @@ export class ScoreCacheService {
   ) {}
 
   async getScoreRank(
-    dateTemplate: ScoreRankingSupportedDateTemplate,
-    userId: number,
-    promo?: number,
+    cacheArgs: Omit<GetRankArgs, 'keyBase'>,
   ): Promise<RankCache | undefined> {
     return await this.cacheUtilRankingService.getRank({
       keyBase: SCORE_RANKING,
-      userId,
-      dateTemplate,
-      promo,
+      ...cacheArgs,
     });
   }
 
   async getScoreRanking(
-    dateTemplate: ScoreRankingSupportedDateTemplate,
-    promo?: number,
+    cacheArgs: Omit<GetRankingArgs, 'keyBase'>,
   ): Promise<RankCache[] | undefined> {
     return await this.cacheUtilRankingService.getRanking({
       keyBase: SCORE_RANKING,
-      dateTemplate,
-      promo,
+      ...cacheArgs,
     });
   }
 

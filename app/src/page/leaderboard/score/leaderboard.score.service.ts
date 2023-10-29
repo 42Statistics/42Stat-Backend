@@ -15,30 +15,20 @@ export class LeaderboardScoreService {
     private readonly scoreCacheService: ScoreCacheService,
   ) {}
 
-  async rankingByDateTemplate({
-    dateTemplate,
-    userId,
-    paginationIndexArgs,
-    promo,
-  }: RankingByDateTemplateArgs<ScoreRankingSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
-    const rank = await this.scoreCacheService.getScoreRank(
-      dateTemplate,
-      userId,
-      promo,
-    );
+  async rankingByDateTemplate(
+    rankingArgs: RankingByDateTemplateArgs<ScoreRankingSupportedDateTemplate>,
+  ): Promise<LeaderboardElementDateRanged> {
+    const rank = await this.scoreCacheService.getScoreRank(rankingArgs);
 
-    const ranking = await this.scoreCacheService.getScoreRanking(
-      dateTemplate,
-      promo,
-    );
+    const ranking = await this.scoreCacheService.getScoreRanking(rankingArgs);
 
     assertExist(ranking);
 
     return this.leaderboardUtilService.toLeaderboardElementDateRanged({
       rank,
       ranking,
-      paginationIndexArgs,
-      dateTemplate,
+      paginationIndexArgs: rankingArgs.paginationIndexArgs,
+      dateTemplate: rankingArgs.dateTemplate,
     });
   }
 }

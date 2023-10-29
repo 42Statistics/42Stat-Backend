@@ -10,6 +10,7 @@ import {
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardScoreService } from './leaderboard.score.service';
 import { LeaderboardScore } from './models/leaderboard.score.model';
 
@@ -19,6 +20,7 @@ import { LeaderboardScore } from './models/leaderboard.score.model';
 export class LeaderboardScoreResolver {
   constructor(
     private readonly leaderboardScoreService: LeaderboardScoreService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
   ) {}
 
   @Query((_returns) => LeaderboardScore)
@@ -28,8 +30,8 @@ export class LeaderboardScoreResolver {
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @MyUserId() myUserId: number,
-    @Args() { pageSize, pageNumber, promo }: GetLeaderboardElementArgs,
+    @MyUserId() userId: number,
+    @Args() getLeaderboardElementArgs: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (
@@ -42,14 +44,12 @@ export class LeaderboardScoreResolver {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardScoreService.rankingByDateTemplate({
-      dateTemplate,
-      userId: myUserId,
-      paginationIndexArgs: {
-        pageSize,
-        pageNumber,
-      },
-      promo,
-    });
+    return await this.leaderboardScoreService.rankingByDateTemplate(
+      this.leaderboardUtilService.toLeaderboardServiceArgs({
+        userId,
+        getLeaderboardElementArgs,
+        dateTemplate,
+      }),
+    );
   }
 }

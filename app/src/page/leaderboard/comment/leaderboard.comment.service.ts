@@ -20,17 +20,20 @@ export class LeaderboardCommentService {
     userId,
     paginationIndexArgs,
     promo,
+    coalitionId,
   }: RankingByDateTemplateArgs<AverageReviewLengthRankingSupportedDateTemplate>): Promise<LeaderboardElementDateRanged> {
-    const rank = await this.scaleTeamCacheService.getCommentRank(
+    const rank = await this.scaleTeamCacheService.getCommentRank({
       dateTemplate,
       userId,
       promo,
-    );
+      coalitionId,
+    });
 
-    const ranking = await this.scaleTeamCacheService.getCommentRanking(
+    const ranking = await this.scaleTeamCacheService.getCommentRanking({
       dateTemplate,
       promo,
-    );
+      coalitionId,
+    });
 
     assertExist(ranking);
 

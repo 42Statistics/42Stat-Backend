@@ -140,9 +140,9 @@ export class HomeUserService {
   }
 
   async walletRanking(limit: number): Promise<UserRank[]> {
-    const cachedRanking = await this.cursusUserCacheService.getUserRanking(
-      USER_WALLET_RANKING,
-    );
+    const cachedRanking = await this.cursusUserCacheService.getUserRanking({
+      keyBase: USER_WALLET_RANKING,
+    });
 
     const walletRanking = cachedRanking
       ? cachedRanking.slice(0, limit)
@@ -155,9 +155,9 @@ export class HomeUserService {
   }
 
   async correctionPointRanking(limit: number): Promise<UserRank[]> {
-    const cachedRanking = await this.cursusUserCacheService.getUserRanking(
-      USER_CORRECTION_POINT_RANKING,
-    );
+    const cachedRanking = await this.cursusUserCacheService.getUserRanking({
+      keyBase: USER_CORRECTION_POINT_RANKING,
+    });
 
     return cachedRanking
       ? cachedRanking.slice(0, limit)

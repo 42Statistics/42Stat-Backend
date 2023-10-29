@@ -4,8 +4,9 @@ import type {
   RankingSupportedDateTemplate,
 } from 'src/cache/cache.util.ranking.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import type { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
+import type { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import type {
   LeaderboardElement,
   LeaderboardElementDateRanged,
@@ -56,5 +57,26 @@ export class LeaderboardUtilService {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return this.dateRangeService.toDateRanged(leaderboardElement, dateRange);
+  }
+
+  toLeaderboardServiceArgs<T extends RankingSupportedDateTemplate>({
+    userId,
+    getLeaderboardElementArgs,
+    dateTemplate,
+  }: {
+    userId: number;
+    getLeaderboardElementArgs: GetLeaderboardElementArgs;
+    dateTemplate: T;
+  }): RankingByDateTemplateArgs<T> {
+    return {
+      dateTemplate,
+      userId,
+      paginationIndexArgs: {
+        pageSize: getLeaderboardElementArgs.pageSize,
+        pageNumber: getLeaderboardElementArgs.pageNumber,
+      },
+      promo: getLeaderboardElementArgs.promo,
+      coalitionId: getLeaderboardElementArgs.coalitionId,
+    };
   }
 }

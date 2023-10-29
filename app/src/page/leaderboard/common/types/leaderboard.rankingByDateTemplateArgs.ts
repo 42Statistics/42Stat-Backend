@@ -7,6 +7,7 @@ export type RankingByDateTemplateArgs<
 > = {
   userId: number;
   promo?: number;
+  coalitionId?: number;
   paginationIndexArgs: PaginationIndexArgs;
   dateTemplate: SupportDateTemplate;
 };

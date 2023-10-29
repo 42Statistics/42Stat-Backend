@@ -274,22 +274,22 @@ type LeaderboardElementDateRanged {
 
 type LeaderboardComment {
   """TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardEval {
   """TOTAL, CURR_MONTH, CURR_WEEK 만 가능합니다"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardExp {
   """CURR_MONTH, CURR_WEEK 만 가능합니다"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type LeaderboardLevel {
   """TOTAL 만 가능합니다"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type Promo {
@@ -305,7 +305,7 @@ type LeaderboardMetadata {
 
 type LeaderboardScore {
   """TOTAL, CURR_WEEK, CURR_MONTH 만 가능합니다"""
-  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
+  byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
 type CharacterType {

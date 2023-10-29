@@ -10,6 +10,7 @@ import {
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { GetLeaderboardElementArgs } from '../common/dtos/leaderboard.dto.getLeaderboardElemenetArgs';
 import { LeaderboardElementDateRanged } from '../common/models/leaderboard.model';
+import { LeaderboardUtilService } from '../util/leaderboard.util.service';
 import { LeaderboardCommentService } from './leaderboard.comment.service';
 import { LeaderboardComment } from './models/leaderboard.comment.model';
 
@@ -19,6 +20,7 @@ import { LeaderboardComment } from './models/leaderboard.comment.model';
 export class LeaderboardCommentResolver {
   constructor(
     private readonly leaderboardCommentService: LeaderboardCommentService,
+    private readonly leaderboardUtilService: LeaderboardUtilService,
   ) {}
 
   @Query((_returns) => LeaderboardComment)
@@ -28,8 +30,8 @@ export class LeaderboardCommentResolver {
 
   @ResolveField((_returns) => LeaderboardElementDateRanged)
   async byDateTemplate(
-    @MyUserId() myUserId: number,
-    @Args() { pageNumber, pageSize, promo }: GetLeaderboardElementArgs,
+    @MyUserId() userId: number,
+    @Args() getLeaderboardElementArgs: GetLeaderboardElementArgs,
     @Args() { dateTemplate }: DateTemplateArgs,
   ): Promise<LeaderboardElementDateRanged> {
     if (
@@ -42,14 +44,12 @@ export class LeaderboardCommentResolver {
       throw new UnsupportedDateTemplate();
     }
 
-    return await this.leaderboardCommentService.rankingByDateTemplate({
-      dateTemplate,
-      userId: myUserId,
-      paginationIndexArgs: {
-        pageNumber,
-        pageSize,
-      },
-      promo,
-    });
+    return await this.leaderboardCommentService.rankingByDateTemplate(
+      this.leaderboardUtilService.toLeaderboardServiceArgs({
+        userId,
+        getLeaderboardElementArgs,
+        dateTemplate,
+      }),
+    );
   }
 }

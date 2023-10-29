@@ -16,30 +16,26 @@ export class LeaderboardLevelService {
     private readonly cursusUserCacheService: CursusUserCacheService,
   ) {}
 
-  async rankingByDateTemplate({
-    dateTemplate,
-    userId,
-    paginationIndexArgs,
-    promo,
-  }: RankingByDateTemplateArgs<DateTemplate.TOTAL>): Promise<LeaderboardElementDateRanged> {
-    const rank = await this.cursusUserCacheService.getUserRank(
-      USER_LEVEL_RANKING,
-      userId,
-      promo,
-    );
+  async rankingByDateTemplate(
+    rankingArgs: RankingByDateTemplateArgs<DateTemplate.TOTAL>,
+  ): Promise<LeaderboardElementDateRanged> {
+    const rank = await this.cursusUserCacheService.getUserRank({
+      keyBase: USER_LEVEL_RANKING,
+      ...rankingArgs,
+    });
 
-    const ranking = await this.cursusUserCacheService.getUserRanking(
-      USER_LEVEL_RANKING,
-      promo,
-    );
+    const ranking = await this.cursusUserCacheService.getUserRanking({
+      keyBase: USER_LEVEL_RANKING,
+      ...rankingArgs,
+    });
 
     assertExist(ranking);
 
     return this.leaderboardUtilService.toLeaderboardElementDateRanged({
       rank,
       ranking,
-      paginationIndexArgs,
-      dateTemplate,
+      paginationIndexArgs: rankingArgs.paginationIndexArgs,
+      dateTemplate: rankingArgs.dateTemplate,
     });
   }
 }
