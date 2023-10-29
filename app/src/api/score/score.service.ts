@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { FilterQuery, Model } from 'mongoose';
 import { RUNTIME_CONFIG } from 'src/config/runtime';
 import { addRank } from 'src/database/mongoose/database.mongoose.aggregation';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   IntPerCoalition,
   ScoreRecordPerCoalition,
@@ -75,9 +76,11 @@ export class ScoreService {
     const targetCoalitionIds =
       args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
 
-    const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
+    const aggregate = this.scoreModel.aggregate<
+      Omit<IntPerCoalition, 'coalition'> & { coalition: coalition }
+    >();
 
-    return await aggregate
+    const scoresPerCoalitionDao = await aggregate
       .match({
         coalitionsUserId: { $ne: null },
         coalitionId: { $in: targetCoalitionIds },
@@ -93,6 +96,11 @@ export class ScoreService {
         coalition: { $first: '$coalitions' },
         value: 1,
       });
+
+    return scoresPerCoalitionDao.map(({ value, coalition }) => ({
+      coalition: this.coalitionService.daoToDto(coalition),
+      value,
+    }));
   }
 
   async scoreRecordsPerCoalition(args?: {
@@ -102,10 +110,11 @@ export class ScoreService {
     const targetCoalitionIds =
       args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
 
-    const aggregate =
-      this.coalitionService.aggregate<ScoreRecordPerCoalition>();
+    const aggregate = this.coalitionService.aggregate<
+      Omit<ScoreRecordPerCoalition, 'coalition'> & { coalition: coalition }
+    >();
 
-    return await aggregate
+    const scoreRecordsPerCoalitionDao = await aggregate
       .match({
         id: { $in: targetCoalitionIds },
       })
@@ -160,6 +169,11 @@ export class ScoreService {
           },
         },
       });
+
+    return scoreRecordsPerCoalitionDao.map(({ coalition, records }) => ({
+      coalition: this.coalitionService.daoToDto(coalition),
+      records,
+    }));
   }
 
   async tigCountPerCoalition(args?: {
@@ -202,20 +216,17 @@ export class ScoreService {
       );
   }
 
-  async winCountPerCoalition(args?: {
-    targetCoalitionIds?: readonly number[];
-    filter?: FilterQuery<score>;
-  }): Promise<IntPerCoalition[]> {
-    const targetCoalitionIds =
-      args?.targetCoalitionIds ?? this.coalitionService.getSeoulCoalitionIds();
+  async winCountPerCoalition(): Promise<IntPerCoalition[]> {
+    const endDate = new DateWrapper().startOfMonth().toDate();
 
-    const aggregate = this.scoreModel.aggregate<IntPerCoalition>();
+    const aggregate = this.scoreModel.aggregate<
+      Omit<IntPerCoalition, 'coalition'> & { coalition: coalition }
+    >();
 
-    return await aggregate
+    const winCountPerCoalitionDao = await aggregate
       .match({
-        ...args?.filter,
+        createdAt: { $lt: endDate },
         coalitionsUserId: { $ne: null },
-        coalitionId: { $in: targetCoalitionIds },
       })
       .group({
         _id: {
@@ -242,16 +253,17 @@ export class ScoreService {
         _id: '$winCoalition._id.coalitionId',
         value: { $count: {} },
       })
+      .sort({ _id: 1 })
       .append(lookupCoalition('_id', 'id'))
       .project({
         _id: 0,
         coalition: { $first: '$coalitions' },
         value: 1,
-      })
-      .then((winCountPerCoalition) => {
-        return winCountPerCoalition.sort(
-          (a, b) => a.coalition.id - b.coalition.id,
-        );
       });
+
+    return winCountPerCoalitionDao.map(({ coalition, value }) => ({
+      coalition: this.coalitionService.daoToDto(coalition),
+      value,
+    }));
   }
 }

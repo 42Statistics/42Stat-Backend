@@ -1,4 +1,4 @@
-import type { Coalition } from 'src/api/coalition/models/coalition.model';
+import type { Coalition } from 'src/page/common/models/coalition.model';
 import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
 import type { title } from 'src/api/title/db/title.database.schema';
 import type { titles_user } from 'src/api/titlesUser/db/titlesUser.database.schema';

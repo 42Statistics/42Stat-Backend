@@ -26,6 +26,7 @@ import {
   SCORE_RANKING,
   SCORE_RECORDS,
   TOTAL_SCORES_BY_COALITION,
+  WIN_COUNT_PER_COALITION,
 } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { CacheUtilRankingService } from 'src/cache/cache.util.ranking.service';
@@ -177,6 +178,7 @@ export class LambdaService {
 
       await this.updateTotalScoresPerCoalition(updatedAt);
       await this.updateScoreRecords(updatedAt);
+      await this.updateWinCountPerCoalition(updatedAt);
 
       const currMonthExp = await this.experienceUserService.increamentRanking(
         expIncreamentDateFilter(currMonth),
@@ -298,6 +300,16 @@ export class LambdaService {
     await this.cacheUtilService.setWithDate(
       SCORE_RECORDS,
       scoreRecords,
+      updatedAt,
+    );
+  }
+
+  private async updateWinCountPerCoalition(updatedAt: Date): Promise<void> {
+    const winCountPerCoalition = await this.scoreService.winCountPerCoalition();
+
+    await this.cacheUtilService.setWithDate(
+      WIN_COUNT_PER_COALITION,
+      winCountPerCoalition,
       updatedAt,
     );
   }

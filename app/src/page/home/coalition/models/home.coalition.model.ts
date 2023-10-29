@@ -1,5 +1,5 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Coalition } from 'src/api/coalition/models/coalition.model';
+import { Coalition } from 'src/page/common/models/coalition.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
 

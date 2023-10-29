@@ -3,6 +3,7 @@ import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate'
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { ScoreService } from 'src/api/score/score.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
+import { assertExist } from 'src/common/assertExist';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateRange, DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
@@ -86,17 +87,10 @@ export class HomeCoalitionService {
     return this.dateRangeService.toDateRanged(tigCountPerCoalition, dateRange);
   }
 
-  @CacheOnReturn()
   async winCountPerCoalition(): Promise<IntPerCoalition[]> {
-    const currmonth = new DateWrapper().startOfMonth();
+    const cached = await this.scoreCacheService.getWinCountPerCoalition();
+    assertExist(cached);
 
-    const dateRange: DateRange = {
-      ...this.dateRangeService.dateRangeFromTemplate(DateTemplate.TOTAL),
-      end: currmonth.toDate(),
-    };
-
-    return await this.scoreService.winCountPerCoalition({
-      filter: scoreDateRangeFilter(dateRange),
-    });
+    return cached;
   }
 }

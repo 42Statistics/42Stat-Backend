@@ -1,5 +1,5 @@
 import { Field, Float, ObjectType } from '@nestjs/graphql';
-import { Coalition } from 'src/api/coalition/models/coalition.model';
+import { Coalition } from 'src/page/common/models/coalition.model';
 
 @ObjectType()
 export class UserTitle {

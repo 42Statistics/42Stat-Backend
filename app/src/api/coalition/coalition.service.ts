@@ -4,8 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import type { Aggregate, Model } from 'mongoose';
 import { API_CONFIG } from 'src/config/api';
 import { CDN_CONFIG } from 'src/config/cdn';
+import type { Coalition } from '../../page/common/models/coalition.model';
 import { coalition } from './db/coalition.database.schema';
-import type { Coalition } from './models/coalition.model';
 
 @Injectable()
 export class CoalitionService {
@@ -26,7 +26,9 @@ export class CoalitionService {
     return {
       ...dao,
       coverUrl: this.coverUrlById(dao.id),
+      // todo: deprecated at v0.9.0
       imageUrl: this.imageUrlById(dao.id),
+      imgUrl: this.imageUrlById(dao.id),
       color: dao.color ?? '#161616',
     };
   }

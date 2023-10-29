@@ -11,6 +11,7 @@ import { ScoreService } from './score.service';
 export const SCORE_RANKING = 'scoreRanking';
 export const TOTAL_SCORES_BY_COALITION = 'totalScoresByCoalition';
 export const SCORE_RECORDS = 'scoreRecords';
+export const WIN_COUNT_PER_COALITION = 'winCountPerCoalition';
 
 export type ScoreRankingSupportedDateTemplate = Extract<
   RankingSupportedDateTemplate,
@@ -62,5 +63,11 @@ export class ScoreCacheService {
     ReturnType<ScoreService['scoreRecordsPerCoalition']> | undefined
   > {
     return await this.cacheUtilService.getWithoutDate(SCORE_RECORDS);
+  }
+
+  async getWinCountPerCoalition(): Promise<
+    ReturnType<ScoreService['winCountPerCoalition']> | undefined
+  > {
+    return await this.cacheUtilService.getWithoutDate(WIN_COUNT_PER_COALITION);
   }
 }

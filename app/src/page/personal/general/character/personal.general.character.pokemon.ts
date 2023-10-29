@@ -1,5 +1,5 @@
 import { InternalServerErrorException } from '@nestjs/common';
-import type { Coalition } from 'src/api/coalition/models/coalition.model';
+import type { Coalition } from 'src/page/common/models/coalition.model';
 
 export type PokemonType = {
   readonly name: string;

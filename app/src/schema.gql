@@ -43,14 +43,15 @@ type ProjectPreview {
 type Coalition {
   id: Int!
   name: String!
-  slug: String!
-  imageUrl: String!
+  slug: String! @deprecated(reason: "deprecated at v0.9.0")
+  imageUrl: String! @deprecated(reason: "deprecated at v0.9.0, imgUrl 을 사용하세요.")
+  imgUrl: String!
   coverUrl: String!
   color: String!
-  score: Int!
+  score: Int! @deprecated(reason: "deprecated at v0.9.0")
 
   """코알리숑 마스터의 user id 입니다."""
-  userId: Int!
+  userId: Int! @deprecated(reason: "deprecated at v0.9.0")
 }
 
 type UserTitle {
