@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { FilterQuery } from 'mongoose';
+import { CoalitionsUserService } from 'src/api/coalitionsUser/coalitionsUserService';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { CursusUserService } from 'src/api/cursusUser/cursusUser.service';
 import { promoFilter } from 'src/api/cursusUser/db/cursusUser.database.query';
@@ -7,9 +8,7 @@ import { ExperienceUserService } from 'src/api/experienceUser/experienceUser.ser
 import { locationDateRangeFilter } from 'src/api/location/db/location.database.aggregate';
 import type { location } from 'src/api/location/db/location.database.schema';
 import { LocationService } from 'src/api/location/location.service';
-import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import { ScoreCacheService } from 'src/api/score/score.cache.service';
-import { ScoreService } from 'src/api/score/score.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
@@ -34,10 +33,10 @@ export class PersonalGeneralService {
     private readonly cursusUserService: CursusUserService,
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly locationService: LocationService,
-    private readonly scoreService: ScoreService,
     private readonly scoreCacheService: ScoreCacheService,
     private readonly teamService: TeamService,
     private readonly experineceUserService: ExperienceUserService,
+    private readonly coalitionsUserService: CoalitionsUserService,
     private readonly dateRangeService: DateRangeService,
   ) {}
 
@@ -82,51 +81,37 @@ export class PersonalGeneralService {
   async scoreInfo(userId: number): Promise<UserScoreInfo> {
     const dateTemplate = DateTemplate.CURR_MONTH;
 
-    const scoreRankingCache = await this.scoreCacheService.getScoreRanking({
-      dateTemplate,
-    });
-
-    const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
-
-    const scoreRanking =
-      scoreRankingCache ??
-      (await this.scoreService.scoreRanking({
-        filter: scoreDateRangeFilter(dateRange),
-      }));
-
-    const me = scoreRanking.find(
-      ({ userPreview }) => userPreview.id === userId,
-    );
-
-    if (!me) {
-      const filtered = await this.scoreCacheService.getScoreRank({
-        dateTemplate,
+    const coalitionsUser =
+      await this.coalitionsUserService.findCoalitionsUserByUserIdAndLean(
         userId,
-      });
+      );
 
-      if (!filtered) {
-        throw new NotFoundException();
-      }
-
+    if (!coalitionsUser) {
       return {
-        value: filtered.value,
-        rankInTotal: filtered.rank,
-        rankInCoalition: filtered.rank,
+        value: 0,
+        rankInTotal: 0,
+        rankInCoalition: 0,
       };
     }
 
-    const rankInCoalition = me.coalition
-      ? scoreRanking
-          .filter(
-            ({ coalition }) => coalition && coalition.id === me.coalition?.id,
-          )
-          .findIndex(({ userPreview }) => userPreview.id === userId) + 1
-      : undefined;
+    const scoreRank = await this.scoreCacheService.getScoreRank({
+      dateTemplate,
+      userId,
+      coalitionId: coalitionsUser.coalitionId,
+    });
+
+    if (!scoreRank) {
+      return {
+        value: 0,
+        rankInTotal: 0,
+        rankInCoalition: 0,
+      };
+    }
 
     return {
-      value: me.value,
-      rankInTotal: me.rank,
-      rankInCoalition,
+      value: scoreRank.value,
+      rankInTotal: scoreRank.rank,
+      rankInCoalition: scoreRank.rank,
     };
   }
 

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CoalitionsUserModule } from 'src/api/coalitionsUser/coalitionsUserModule';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { ExperienceUserModule } from 'src/api/experienceUser/experienceUser.module';
 import { LocationModule } from 'src/api/location/location.module';
@@ -25,6 +26,7 @@ import { PersonalGeneralService } from './personal.general.service';
     ProjectsUserModule,
     ProjectModule,
     ExperienceUserModule,
+    CoalitionsUserModule,
     DateRangeModule,
   ],
   providers: [PersonalGeneralResolver, PersonalGeneralService],

@@ -384,7 +384,7 @@ type LevelRecord {
 type UserScoreInfo {
   value: Int!
   rankInCoalition: Int
-  rankInTotal: Int!
+  rankInTotal: Int! @deprecated(reason: "deprecated at v0.9.0")
 }
 
 type PersonalGeneral {

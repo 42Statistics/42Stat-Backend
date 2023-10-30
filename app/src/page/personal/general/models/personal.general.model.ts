@@ -92,7 +92,7 @@ export class UserScoreInfo {
   @Field({ nullable: true })
   rankInCoalition?: number;
 
-  @Field()
+  @Field({ deprecationReason: 'deprecated at v0.9.0' })
   rankInTotal: number;
 }
 
