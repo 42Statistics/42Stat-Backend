@@ -57,37 +57,37 @@ export class MyInfo {
   myRecentActivity?: MyRecentActivity;
 
   @Field({
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   isNewMember: boolean;
 
   @Field({
     nullable: true,
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   lastValidatedTeam?: UserTeam;
 
   @Field({
     nullable: true,
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   blackholedAt?: Date;
 
   @Field({
     nullable: true,
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   experienceRank?: number;
 
   @Field({
     nullable: true,
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   scoreRank?: number;
 
   @Field({
     nullable: true,
-    deprecationReason: 'deprecated at v0.9.0, recentActivity 를 사용하세요',
+    deprecationReason: 'deprecated at v0.9.0, myRecentActivity 를 사용하세요',
   })
   evalCountRank?: number;
 }
