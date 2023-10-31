@@ -35,7 +35,7 @@ export class ProjectSessionService {
         ],
         'project.id': projectId,
       })
-      .sort({ 'campus.id': -1 })
+      .sort({ 'campus.id': -1, id: -1 })
       .append(lookupProjectSessionsSkill('id', 'projectSessionId'))
       .append(lookupSkill('project_sessions_skills.skillId', 'id'))
       .project({
