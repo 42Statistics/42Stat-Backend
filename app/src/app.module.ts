@@ -59,7 +59,7 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
     CacheModule.register({
       isGlobal: true,
       store: new ShallowStore({
-        max: 100000,
+        max: 10000000,
         ttl: DateWrapper.MIN * 3,
       }),
     }),

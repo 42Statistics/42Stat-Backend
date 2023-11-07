@@ -111,4 +111,10 @@ export class DateWrapper {
   static currWeek = (): DateWrapper => new DateWrapper().startOfWeek();
   static lastWeek = (): DateWrapper => DateWrapper.currWeek().moveWeek(-1);
   static nextWeek = (): DateWrapper => DateWrapper.currWeek().moveWeek(1);
+
+  static currYear = (): DateWrapper => new DateWrapper().startOfYear();
+
+  static createByYear = (year: number): DateWrapper => {
+    return new DateWrapper(`${year - 1}-12-31T15:00:00.000Z`);
+  };
 }

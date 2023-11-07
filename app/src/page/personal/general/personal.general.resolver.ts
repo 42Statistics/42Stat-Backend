@@ -3,11 +3,18 @@ import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { DailyActivityService } from 'src/dailyActivity/dailyActivity.service';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
 import { Character } from './character/models/personal.general.character.model';
 import { PersonalGeneralCharacterService } from './character/personal.general.character.service';
+import {
+  DailyActivity,
+  GetDailyActivitiesArgs,
+} from './models/personal.general.dailyActivity.model';
 import {
   LevelRecord,
   PersonalGeneral,
@@ -18,6 +25,7 @@ import {
   UserTeamInfo,
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
@@ -27,6 +35,9 @@ export class PersonalGeneralResolver {
     private readonly personalGeneralService: PersonalGeneralService,
     private readonly personalUtilService: PersonalUtilService,
     private readonly personalGeneralCharacterService: PersonalGeneralCharacterService,
+    private readonly dateRangeService: DateRangeService,
+    private readonly dailyActiviyService: DailyActivityService,
+    private readonly cacheUtilService: CacheUtilService,
   ) {}
 
   @Query((_returns) => PersonalGeneral)
@@ -131,5 +142,38 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralCharacterService.character(
       root.userProfile.id,
     );
+  }
+
+  @ResolveField((_returns) => [DailyActivity])
+  async dailyActivities(
+    @Root() root: PersonalGeneralRoot,
+    @Args() { year }: GetDailyActivitiesArgs,
+  ): Promise<DailyActivity[]> {
+    const { start, end } = year
+      ? this.dateRangeService.getAbsoluteDateRangeByYear(year)
+      : this.dateRangeService.getRelativeDateRange();
+
+    if (start.getFullYear() > DateWrapper.currYear().toDate().getFullYear()) {
+      return [];
+    }
+
+    const cacheKey = `dailyActivities:${
+      root.userProfile.id
+    }:${start.toISOString()}:${end.toISOString()}`;
+
+    const cached = await this.cacheUtilService.get<DailyActivity[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const dailyActivities =
+      await this.dailyActiviyService.findAllUserDailyActivityByDate(
+        root.userProfile.id,
+        { start, end },
+      );
+
+    await this.cacheUtilService.set(cacheKey, dailyActivities);
+
+    return dailyActivities;
   }
 }

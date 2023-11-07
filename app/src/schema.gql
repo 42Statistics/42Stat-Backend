@@ -308,6 +308,31 @@ type LeaderboardScore {
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
+type DailyActivity {
+  date: DateTime!
+  records: [DailyActivityRecord!]!
+}
+
+union DailyActivityRecord = DailyLogtimeRecord | DailyDefaultRecord
+
+type DailyLogtimeRecord {
+  type: DailyAcitivtyType!
+  value: Int!
+}
+
+enum DailyAcitivtyType {
+  CORRECTOR
+  CORRECTED
+  EVENT
+  LOGTIME
+}
+
+type DailyDefaultRecord {
+  type: DailyAcitivtyType!
+  id: Int!
+  at: DateTime!
+}
+
 type CharacterType {
   name: String!
   description: String!
@@ -401,6 +426,7 @@ type PersonalGeneral {
   promoLevelRecords: [LevelRecord!]!
   promoMemberLevelRecords: [LevelRecord!]!
   character: Character
+  dailyActivities(year: Int): [DailyActivity!]!
 }
 
 type MyRecentActivity {

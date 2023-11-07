@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
-import { DateRangeArgs, DateTemplate } from './dtos/dateRange.dto';
+import { DateRange, DateRangeArgs, DateTemplate } from './dtos/dateRange.dto';
 import type { IDateRangedType } from './models/dateRange.model';
 
 @Injectable()
@@ -54,5 +54,22 @@ export class DateRangeService {
       $gte: start,
       $lt: end,
     };
+  }
+
+  getAbsoluteDateRangeByYear(year: number): DateRange {
+    const start = DateWrapper.createByYear(year).startOfYear().toDate();
+    const end = DateWrapper.createByYear(year)
+      .startOfYear()
+      .moveYear(1)
+      .toDate();
+
+    return { start, end };
+  }
+
+  getRelativeDateRange(): DateRange {
+    const start = new DateWrapper().startOfDate().moveDate(-364).toDate();
+    const end = new DateWrapper().startOfDate().moveDate(1).toDate();
+
+    return { start, end };
   }
 }
