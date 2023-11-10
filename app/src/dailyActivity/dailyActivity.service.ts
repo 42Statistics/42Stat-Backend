@@ -1,19 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
-import type { DailyActivity } from 'src/page/personal/general/models/personal.general.dailyActivity.model';
-import { DailyActivityDaoImpl } from './db/dailyActivity.database.dao';
+import type {
+  DailyActivity,
+  DailyActivityDetailRecordUnion,
+} from 'src/page/personal/general/models/personal.general.dailyActivity.model';
+import type { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
 import {
   DailyActivityType,
   type DailyDefaultRecord,
+  type DailyLogtimeDetailRecord,
   type DailyLogtimeRecord,
+  type FindDailyActivityDetailRecordOutput,
 } from './dailyActivity.dto';
+import { DailyActivityDaoImpl } from './db/dailyActivity.database.dao';
 
 @Injectable()
 export class DailyActivityService {
   constructor(private readonly dailyActivityDao: DailyActivityDaoImpl) {}
 
-  async findAllUserDailyActivityByDate(
+  async userDailyActivityByDate(
     userId: number,
     { start, end }: DateRange,
   ): Promise<DailyActivity[]> {
@@ -55,8 +61,56 @@ export class DailyActivityService {
         records,
       }));
   }
+
+  async userDailyActivityDetailRecordsById(
+    { id, login }: Pick<UserProfile, 'id' | 'login'>,
+    args: {
+      type: Exclude<DailyActivityType, DailyActivityType.LOGTIME>;
+      id: number;
+    }[],
+  ): Promise<(typeof DailyActivityDetailRecordUnion)[]> {
+    const records = await this.dailyActivityDao.findAllDetailRecordByDate({
+      userId: id,
+      idsWithType: args,
+    });
+
+    return records
+      .map((record) => {
+        if (record.type === DailyActivityType.CORRECTED) {
+          return {
+            ...record,
+            leaderLogin: login,
+          };
+        }
+
+        return record;
+      })
+      .sort((a, b) => {
+        const aEndAt = getDetailRecordEndAt(a);
+        const bEndAt = getDetailRecordEndAt(b);
+
+        return aEndAt.getTime() - bEndAt.getTime();
+      });
+  }
 }
 
 const isDailyLogtimeRecord = (
   record: DailyLogtimeRecord | DailyDefaultRecord,
 ): record is DailyLogtimeRecord => record.type === DailyActivityType.LOGTIME;
+
+const getDetailRecordEndAt = (
+  dailyActivityDetailRecord: Exclude<
+    FindDailyActivityDetailRecordOutput,
+    DailyLogtimeDetailRecord
+  >,
+): Date => {
+  switch (dailyActivityDetailRecord.type) {
+    case DailyActivityType.EVENT:
+      return dailyActivityDetailRecord.endAt;
+    case DailyActivityType.CORRECTED:
+    case DailyActivityType.CORRECTOR:
+      return dailyActivityDetailRecord.filledAt;
+    default:
+      throw new InternalServerErrorException('wrong getDetailRecordEndAt');
+  }
+};

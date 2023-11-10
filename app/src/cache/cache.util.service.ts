@@ -31,8 +31,8 @@ export class CacheUtilService {
       .then((res) => res?.data);
   }
 
-  async set(key: string, data: unknown): Promise<void> {
-    await this.cacheManager.set(key, data);
+  async set(key: string, data: unknown, ttl?: number): Promise<void> {
+    await this.cacheManager.set(key, data, ttl);
   }
 
   async setWithDate<T>(

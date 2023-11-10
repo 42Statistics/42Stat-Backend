@@ -1,8 +1,10 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
+import { BadRequestException, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver, Root } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { DailyActivityType } from 'src/dailyActivity/dailyActivity.dto';
 import { DailyActivityService } from 'src/dailyActivity/dailyActivity.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
@@ -13,7 +15,9 @@ import { Character } from './character/models/personal.general.character.model';
 import { PersonalGeneralCharacterService } from './character/personal.general.character.service';
 import {
   DailyActivity,
+  DailyActivityDetailRecordUnion,
   GetDailyActivitiesArgs,
+  GetDailyActivityDetailRecordsArgs,
 } from './models/personal.general.dailyActivity.model';
 import {
   LevelRecord,
@@ -25,7 +29,6 @@ import {
   UserTeamInfo,
 } from './models/personal.general.model';
 import { PersonalGeneralService } from './personal.general.service';
-import { CacheUtilService } from 'src/cache/cache.util.service';
 
 @UseFilters(HttpExceptionFilter)
 @UseGuards(StatAuthGuard)
@@ -159,7 +162,7 @@ export class PersonalGeneralResolver {
 
     const cacheKey = `dailyActivities:${
       root.userProfile.id
-    }:${start.toISOString()}:${end.toISOString()}`;
+    }:${start.getTime()}:${end.getTime()}`;
 
     const cached = await this.cacheUtilService.get<DailyActivity[]>(cacheKey);
     if (cached) {
@@ -167,7 +170,7 @@ export class PersonalGeneralResolver {
     }
 
     const dailyActivities =
-      await this.dailyActiviyService.findAllUserDailyActivityByDate(
+      await this.dailyActiviyService.userDailyActivityByDate(
         root.userProfile.id,
         { start, end },
       );
@@ -175,5 +178,50 @@ export class PersonalGeneralResolver {
     await this.cacheUtilService.set(cacheKey, dailyActivities);
 
     return dailyActivities;
+  }
+
+  @ResolveField((_returns) => [DailyActivityDetailRecordUnion])
+  async dailyActivityDetailRecords(
+    @Root() root: PersonalGeneralRoot,
+    @Args()
+    { args }: GetDailyActivityDetailRecordsArgs,
+  ): Promise<(typeof DailyActivityDetailRecordUnion)[]> {
+    const assertedArgs = args.map(({ id, type }) => {
+      assertArgsIsDailyActivityDetailType(type);
+
+      return { id, type };
+    });
+
+    // todo: id, type 별로 cache 를 관리하도록 수정해야 함
+    const cacheKey = `dailyActivityDetailRecords:${args
+      .sort((a, b) => (a.type === b.type ? a.id - b.id : a.type - b.type))
+      .map(({ id, type }) => id.toString() + '-' + type.toString())
+      .join(':')}`;
+
+    const cached = await this.cacheUtilService.get<
+      (typeof DailyActivityDetailRecordUnion)[]
+    >(cacheKey);
+
+    if (cached) {
+      return cached;
+    }
+
+    const result =
+      await this.dailyActiviyService.userDailyActivityDetailRecordsById(
+        root.userProfile,
+        assertedArgs,
+      );
+
+    await this.cacheUtilService.set(cacheKey, result);
+
+    return result;
+  }
+}
+
+function assertArgsIsDailyActivityDetailType(
+  type: DailyActivityType,
+): asserts type is Exclude<DailyActivityType, DailyActivityType.LOGTIME> {
+  if (type === DailyActivityType.LOGTIME) {
+    throw new BadRequestException('type must not be DailyActivityType.LOGTIME');
   }
 }
