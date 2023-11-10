@@ -316,11 +316,11 @@ type DailyActivity {
 union DailyActivityRecord = DailyLogtimeRecord | DailyDefaultRecord
 
 type DailyLogtimeRecord {
-  type: DailyAcitivtyType!
+  type: DailyActivityType!
   value: Int!
 }
 
-enum DailyAcitivtyType {
+enum DailyActivityType {
   CORRECTOR
   CORRECTED
   EVENT
@@ -328,7 +328,7 @@ enum DailyAcitivtyType {
 }
 
 type DailyDefaultRecord {
-  type: DailyAcitivtyType!
+  type: DailyActivityType!
   id: Int!
   at: DateTime!
 }
@@ -427,6 +427,35 @@ type PersonalGeneral {
   promoMemberLevelRecords: [LevelRecord!]!
   character: Character
   dailyActivities(year: Int): [DailyActivity!]!
+  dailyActivityDetailRecords(args: [DailyActivityDetailRecordIdWithType!]!): [DailyActivityDetailRecord!]!
+}
+
+union DailyActivityDetailRecord = DailyEventDetailRecord | DailyEvaluationDetailRecord
+
+type DailyEventDetailRecord {
+  type: DailyActivityType!
+  id: Int!
+  name: String!
+  location: String!
+  beginAt: DateTime!
+  endAt: DateTime!
+}
+
+type DailyEvaluationDetailRecord {
+  type: DailyActivityType!
+  id: Int!
+  correctorLogin: String!
+  teamId: Int!
+  leaderLogin: String!
+  projectName: String!
+  beginAt: DateTime!
+  filledAt: DateTime!
+}
+
+input DailyActivityDetailRecordIdWithType {
+  """CORRECTOR, CORRECTED, EVENT 만 가능합니다"""
+  type: DailyActivityType!
+  id: Int!
 }
 
 type MyRecentActivity {

@@ -3,7 +3,10 @@ import { ProjectPreview } from 'src/common/models/common.project.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
-import { DailyActivity } from './personal.general.dailyActivity.model';
+import {
+  DailyActivity,
+  DailyActivityDetailRecordUnion,
+} from './personal.general.dailyActivity.model';
 import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
@@ -145,4 +148,7 @@ export class PersonalGeneral {
 
   @Field((_type) => [DailyActivity])
   dailyActivities: DailyActivity[];
+
+  @Field((_type) => [DailyActivityDetailRecordUnion])
+  dailyActivityDetailRecords: (typeof DailyActivityDetailRecordUnion)[];
 }

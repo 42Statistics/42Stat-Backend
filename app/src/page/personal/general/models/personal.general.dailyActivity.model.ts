@@ -1,15 +1,23 @@
+import { InternalServerErrorException } from '@nestjs/common';
 import {
   ArgsType,
   Field,
+  InputType,
   ObjectType,
   createUnionType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsOptional, Max, Min } from 'class-validator';
+import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsOptional,
+  Max,
+  Min,
+} from 'class-validator';
 import { DailyActivityType } from 'src/dailyActivity/dailyActivity.dto';
 
 registerEnumType(DailyActivityType, {
-  name: 'DailyAcitivtyType',
+  name: 'DailyActivityType',
 });
 
 @ObjectType()
@@ -62,4 +70,98 @@ export class GetDailyActivitiesArgs {
   @Max(2100)
   @Field({ nullable: true })
   year?: number;
+}
+
+@ObjectType()
+export class DailyLogtimeDetailRecord {
+  @Field((_type) => DailyActivityType)
+  type: DailyActivityType.LOGTIME;
+
+  @Field()
+  value: number;
+}
+
+@ObjectType()
+class DailyEventDetailRecord {
+  @Field((_type) => DailyActivityType)
+  type: DailyActivityType.EVENT;
+
+  @Field()
+  id: number;
+
+  @Field()
+  name: string;
+
+  @Field()
+  location: string;
+
+  @Field()
+  beginAt: Date;
+
+  @Field()
+  endAt: Date;
+}
+
+@ObjectType()
+class DailyEvaluationDetailRecord {
+  @Field((_type) => DailyActivityType)
+  type: DailyActivityType.CORRECTED | DailyActivityType.CORRECTOR;
+
+  @Field()
+  id: number;
+
+  @Field()
+  correctorLogin: string;
+
+  @Field()
+  teamId: number;
+
+  @Field()
+  leaderLogin: string;
+
+  @Field()
+  projectName: string;
+
+  @Field()
+  beginAt: Date;
+
+  @Field()
+  filledAt: Date;
+}
+
+export const DailyActivityDetailRecordUnion = createUnionType({
+  name: 'DailyActivityDetailRecord',
+  types: () => [DailyEventDetailRecord, DailyEvaluationDetailRecord] as const,
+  resolveType: (
+    value: DailyEventDetailRecord | DailyEvaluationDetailRecord,
+  ) => {
+    switch (value.type) {
+      case DailyActivityType.EVENT:
+        return DailyEventDetailRecord;
+      case DailyActivityType.CORRECTED:
+      case DailyActivityType.CORRECTOR:
+        return DailyEvaluationDetailRecord;
+      default:
+        throw new InternalServerErrorException('wrong activity detail type');
+    }
+  },
+});
+
+@InputType()
+export class DailyActivityDetailRecordIdWithType {
+  @Field((_type) => DailyActivityType, {
+    description: 'CORRECTOR, CORRECTED, EVENT 만 가능합니다',
+  })
+  type: DailyActivityType;
+
+  @Field()
+  id: number;
+}
+
+@ArgsType()
+export class GetDailyActivityDetailRecordsArgs {
+  @ArrayMaxSize(50)
+  @ArrayMinSize(1)
+  @Field((_type) => [DailyActivityDetailRecordIdWithType])
+  args: DailyActivityDetailRecordIdWithType[];
 }
