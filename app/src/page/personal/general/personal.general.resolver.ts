@@ -6,6 +6,7 @@ import { CacheUtilService } from 'src/cache/cache.util.service';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DailyActivityType } from 'src/dailyActivity/dailyActivity.dto';
 import { DailyActivityService } from 'src/dailyActivity/dailyActivity.service';
+import { DailyLogtimeService } from 'src/dailyLogtime/dailyLogtime.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplateArgs } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
@@ -20,6 +21,7 @@ import {
   GetDailyActivityDetailRecordsArgs,
 } from './models/personal.general.dailyActivity.model';
 import {
+  GetLogtimeRecordsArgs,
   LevelRecord,
   PersonalGeneral,
   PersonalGeneralRoot,
@@ -40,6 +42,7 @@ export class PersonalGeneralResolver {
     private readonly personalGeneralCharacterService: PersonalGeneralCharacterService,
     private readonly dateRangeService: DateRangeService,
     private readonly dailyActiviyService: DailyActivityService,
+    private readonly dailyLogtimeService: DailyLogtimeService,
     private readonly cacheUtilService: CacheUtilService,
   ) {}
 
@@ -67,15 +70,33 @@ export class PersonalGeneralResolver {
     return await this.personalGeneralService.scoreInfo(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
+  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 120 개월' })
   async logtimeRecords(
     @Root() root: PersonalGeneralRoot,
-    @Args('last') last: number,
+    @Args() { last }: GetLogtimeRecordsArgs,
   ): Promise<IntRecord[]> {
-    return await this.personalGeneralService.logtimeRecords(
+    const nextMonth = DateWrapper.currMonth().moveMonth(1).toDate();
+    const startMonth = DateWrapper.currMonth()
+      .moveMonth(-last + 1)
+      .toDate();
+
+    const cacheKey = `logtimeRecords:${
+      root.userProfile.id
+    }:${startMonth.toISOString()}:${nextMonth.toISOString()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.dailyLogtimeService.userLogtimeRecordsByDateRange(
       root.userProfile.id,
-      Math.max(1, Math.min(last, 24)),
+      { start: startMonth, end: nextMonth },
     );
+
+    await this.cacheUtilService.set(cacheKey, result);
+
+    return result;
   }
 
   @ResolveField((_returns) => PreferredTimeDateRanged)

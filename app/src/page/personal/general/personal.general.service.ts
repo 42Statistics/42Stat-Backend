@@ -12,7 +12,6 @@ import { ScoreCacheService } from 'src/api/score/score.cache.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
 import type { IntDateRanged } from 'src/common/models/common.dateRanaged.model';
-import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
@@ -137,28 +136,6 @@ export class PersonalGeneralService {
     const dateRange = this.dateRangeService.dateRangeFromTemplate(dateTemplate);
 
     return await this.logtimeByDateRange(userId, dateRange);
-  }
-
-  async logtimeRecords(userId: number, last: number): Promise<IntRecord[]> {
-    const ret: IntRecord[] = [];
-    const startDate = new DateWrapper().startOfMonth().moveMonth(1 - last);
-
-    for (let i = 0; i < last; i++) {
-      const currStartDate = startDate.moveMonth(i).toDate();
-      const currEndDate = startDate.moveMonth(i + 1).toDate();
-
-      const [curr] = await this.locationService.logtimeRanking(
-        {
-          start: currStartDate,
-          end: currEndDate,
-        },
-        { 'user.id': userId },
-      );
-
-      ret.push({ at: currStartDate, value: curr?.value ?? 0 });
-    }
-
-    return ret;
   }
 
   private async preferredTime(

@@ -308,6 +308,18 @@ type LeaderboardScore {
   byDateTemplate(pageSize: Int! = 10, pageNumber: Int! = 1, promo: Int, coalitionId: Int, dateTemplate: DateTemplate!): LeaderboardElementDateRanged!
 }
 
+type CharacterType {
+  name: String!
+  description: String!
+  color: String!
+}
+
+type Character {
+  name: String!
+  types: [CharacterType!]!
+  imgUrl: String!
+}
+
 type DailyActivity {
   date: DateTime!
   records: [DailyActivityRecord!]!
@@ -331,18 +343,6 @@ type DailyDefaultRecord {
   type: DailyActivityType!
   id: Int!
   at: DateTime!
-}
-
-type CharacterType {
-  name: String!
-  description: String!
-  color: String!
-}
-
-type Character {
-  name: String!
-  types: [CharacterType!]!
-  imgUrl: String!
 }
 
 type UserTeam {

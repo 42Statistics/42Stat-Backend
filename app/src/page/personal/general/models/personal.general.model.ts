@@ -1,13 +1,14 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, Float, ObjectType } from '@nestjs/graphql';
+import { Max, Min } from 'class-validator';
 import { ProjectPreview } from 'src/common/models/common.project.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRanged } from 'src/dateRange/models/dateRange.model';
 import { TeamStatus } from 'src/page/teamInfo/models/teamInfo.status.model';
+import { Character } from '../character/models/personal.general.character.model';
 import {
   DailyActivity,
   DailyActivityDetailRecordUnion,
 } from './personal.general.dailyActivity.model';
-import { Character } from '../character/models/personal.general.character.model';
 import { UserProfile } from './personal.general.userProfile.model';
 
 @ObjectType()
@@ -98,6 +99,14 @@ export class UserScoreInfo {
 
   @Field({ deprecationReason: 'deprecated at v0.9.0' })
   rankInTotal: number;
+}
+
+@ArgsType()
+export class GetLogtimeRecordsArgs {
+  @Min(1)
+  @Max(120)
+  @Field()
+  last: number;
 }
 
 export type PersonalGeneralRoot = Pick<
