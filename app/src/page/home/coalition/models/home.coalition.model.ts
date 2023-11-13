@@ -1,7 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
 import { Coalition } from 'src/page/common/models/coalition.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { ArrayDateRanged } from 'src/dateRange/models/dateRange.model';
+import { IsOptional, Max, Min } from 'class-validator';
 
 @ObjectType()
 export class IntPerCoalition {
@@ -36,4 +37,13 @@ export class HomeCoalition {
 
   @Field()
   tigCountPerCoalitionByDateTemplate: IntPerCoalitionDateRanged;
+}
+
+@ArgsType()
+export class GetScoreRecordsPerCoalitionArgs {
+  @Min(1)
+  @Max(120)
+  @IsOptional()
+  @Field({ defaultValue: 12 })
+  last: number;
 }

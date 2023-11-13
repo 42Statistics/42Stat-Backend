@@ -24,7 +24,6 @@ import { ScaleTeamService } from 'src/api/scaleTeam/scaleTeam.service';
 import { scoreDateRangeFilter } from 'src/api/score/db/score.database.aggregate';
 import {
   SCORE_RANKING,
-  SCORE_RECORDS,
   TOTAL_SCORES_BY_COALITION,
   WIN_COUNT_PER_COALITION,
 } from 'src/api/score/score.cache.service';
@@ -32,8 +31,7 @@ import { ScoreService } from 'src/api/score/score.service';
 import { CacheUtilRankingService } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
-import { DateTemplate, type DateRange } from 'src/dateRange/dtos/dateRange.dto';
-import { DateWrapper } from 'src/dateWrapper/dateWrapper';
+import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 
 export const LAMBDA_UPDATED_AT = 'lambdaUpdatedAt';
 
@@ -177,7 +175,6 @@ export class LambdaService {
       );
 
       await this.updateTotalScoresPerCoalition(updatedAt);
-      await this.updateScoreRecords(updatedAt);
       await this.updateWinCountPerCoalition(updatedAt);
 
       const currMonthExp = await this.experienceUserService.increamentRanking(
@@ -280,26 +277,6 @@ export class LambdaService {
     await this.cacheUtilService.setWithDate(
       TOTAL_SCORES_BY_COALITION,
       totalScores,
-      updatedAt,
-    );
-  }
-
-  private async updateScoreRecords(updatedAt: Date): Promise<void> {
-    const nextMonth = DateWrapper.currMonth().moveMonth(1);
-    const lastYear = nextMonth.moveYear(-1);
-
-    const dateRange: DateRange = {
-      start: lastYear.toDate(),
-      end: nextMonth.toDate(),
-    };
-
-    const scoreRecords = await this.scoreService.scoreRecordsPerCoalition({
-      filter: scoreDateRangeFilter(dateRange),
-    });
-
-    await this.cacheUtilService.setWithDate(
-      SCORE_RECORDS,
-      scoreRecords,
       updatedAt,
     );
   }

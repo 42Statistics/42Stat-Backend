@@ -163,7 +163,7 @@ type ScoreRecordPerCoalition {
 
 type HomeCoalition {
   totalScoresPerCoalition: [IntPerCoalition!]!
-  scoreRecordsPerCoalition: [ScoreRecordPerCoalition!]!
+  scoreRecordsPerCoalition(last: Int! = 12): [ScoreRecordPerCoalition!]!
   tigCountPerCoalitionByDateTemplate(dateTemplate: DateTemplate!): IntPerCoalitionDateRanged!
   winCountPerCoalition: [IntPerCoalition!]!
 }
