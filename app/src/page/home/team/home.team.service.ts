@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { exam } from 'src/api/exam/db/exam.database.schema';
-import { EXAM_PROJECT_IDS, ExamService } from 'src/api/exam/exam.service';
+import { ExamService } from 'src/api/exam/exam.service';
 import { ProjectsUserService } from 'src/api/projectsUser/projectsUser.service';
 import { TeamService } from 'src/api/team/team.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
@@ -21,46 +20,6 @@ export class HomeTeamService {
     private readonly examService: ExamService,
     private readonly dateRangeService: DateRangeService,
   ) {}
-
-  @CacheOnReturn()
-  async teamCloseRecords(last: number): Promise<IntRecord[]> {
-    const startDate = new DateWrapper()
-      .startOfDate()
-      .moveDate(1 - last)
-      .toDate();
-
-    const teams: { closedAt?: Date }[] = await this.teamService.findAllAndLean({
-      filter: {
-        closedAt: { $gte: startDate },
-        projectId: { $nin: EXAM_PROJECT_IDS },
-      },
-      select: { closedAt: 1 },
-    });
-
-    const res = teams.reduce((acc, { closedAt }) => {
-      if (!closedAt) {
-        return acc;
-      }
-
-      const date = new DateWrapper(closedAt).startOfDate().toDate().getTime();
-
-      const prev = acc.get(date);
-
-      acc.set(date, (prev ?? 0) + 1);
-
-      return acc;
-    }, new Map() as Map<number, number>);
-
-    const records: IntRecord[] = [];
-
-    for (let i = 0; i < last; i++) {
-      const currDate = new DateWrapper(startDate).moveDate(i).toDate();
-
-      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
-    }
-
-    return records;
-  }
 
   @CacheOnReturn()
   async currRegisteredCountRanking(limit: number): Promise<ProjectRank[]> {

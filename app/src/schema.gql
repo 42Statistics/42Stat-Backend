@@ -221,7 +221,10 @@ type ExamResultDateRanged {
 }
 
 type HomeTeam {
-  teamCloseRecords(last: Int!): [IntRecord!]!
+  teamCloseRecords(
+    """1 ~ 730 일"""
+    last: Int!
+  ): [IntRecord!]!
   currRegisteredCountRanking(limit: Int! = 3): [ProjectRank!]!
   recentExamResult(skip: Int! = 0): ExamResultDateRanged!
 }
