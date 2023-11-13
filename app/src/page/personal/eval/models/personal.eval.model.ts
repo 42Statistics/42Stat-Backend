@@ -1,4 +1,5 @@
-import { Field, Float, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, Float, ObjectType } from '@nestjs/graphql';
+import { Max, Min } from 'class-validator';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
 import { UserProfile } from 'src/page/personal/general/models/personal.general.userProfile.model';
@@ -42,4 +43,12 @@ export class PersonalEval {
 
   @Field({ nullable: true })
   recentComment?: string;
+}
+
+@ArgsType()
+export class GetPersonalEvalCountRecordsArgs {
+  @Min(1)
+  @Max(120)
+  @Field({ description: '1 ~ 120 개월' })
+  last: number;
 }

@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { ScaleTeamModule } from 'src/api/scaleTeam/scaleTeam.module';
-import { DateRangeModule } from 'src/dateRange/dateRange.module';
+import { CacheUtilModule } from 'src/cache/cache.util.module';
+import { DailyEvalCountModule } from 'src/dailyEvalCount/dailyEvalCount.module';
 import { HomeEvalResolver } from './home.eval.resolver';
 import { HomeEvalService } from './home.eval.service';
 
 @Module({
-  imports: [ScaleTeamModule, CursusUserModule, DateRangeModule],
+  imports: [ScaleTeamModule, DailyEvalCountModule, CacheUtilModule],
   providers: [HomeEvalResolver, HomeEvalService],
 })
 // eslint-disable-next-line

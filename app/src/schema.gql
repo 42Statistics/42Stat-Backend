@@ -485,7 +485,10 @@ type PersonalEval {
   userProfile: UserProfile!
   correctionPoint: Int!
   totalCount: Int!
-  countRecords(last: Int!): [IntRecord!]!
+  countRecords(
+    """1 ~ 120 개월"""
+    last: Int!
+  ): [IntRecord!]!
   totalDuration: Int!
   averageDuration: Int!
   averageFinalMark: Float!

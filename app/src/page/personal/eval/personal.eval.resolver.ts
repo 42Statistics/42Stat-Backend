@@ -10,11 +10,18 @@ import {
 } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { DailyEvalCountService } from 'src/dailyEvalCount/dailyEvalCount.service';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { PersonalUtilService } from '../util/personal.util.service';
-import { PersonalEval, PersonalEvalRoot } from './models/personal.eval.model';
+import {
+  GetPersonalEvalCountRecordsArgs,
+  PersonalEval,
+  PersonalEvalRoot,
+} from './models/personal.eval.model';
 import { PersonalEvalService } from './personal.eval.service';
 
 @UseFilters(HttpExceptionFilter)
@@ -24,6 +31,8 @@ export class PersonalEvalResolver {
   constructor(
     private readonly personalEvalService: PersonalEvalService,
     private readonly personalUtilService: PersonalUtilService,
+    private readonly dailyEvalCountService: DailyEvalCountService,
+    private readonly cacheUtilService: CacheUtilService,
   ) {}
 
   @Query((_returns) => PersonalEval)
@@ -46,15 +55,34 @@ export class PersonalEvalResolver {
     return await this.personalEvalService.totalCount(root.userProfile.id);
   }
 
-  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
+  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 120 개월' })
   async countRecords(
     @Root() root: PersonalEvalRoot,
-    @Args('last') last: number,
+    @Args() { last }: GetPersonalEvalCountRecordsArgs,
   ): Promise<IntRecord[]> {
-    return await this.personalEvalService.countRecords(
-      root.userProfile.id,
-      Math.max(1, Math.min(last, 24)),
-    );
+    const nextMonth = DateWrapper.nextMonth().toDate();
+    const start = DateWrapper.currMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const cacheKey = `personalEvalCountRecords:${
+      root.userProfile.id
+    }:${start.getTime()}:${nextMonth.getTime()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result =
+      await this.dailyEvalCountService.userEvalCountRecordsByDatePerMonth(
+        root.userProfile.id,
+        { start, end: nextMonth },
+      );
+
+    await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+    return result;
   }
 
   @ResolveField((_returns) => Int)
