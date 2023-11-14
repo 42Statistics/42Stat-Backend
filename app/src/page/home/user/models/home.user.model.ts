@@ -1,4 +1,5 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
+import { Max, Min } from 'class-validator';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
@@ -35,7 +36,7 @@ export class HomeUser {
   @Field()
   blackholedRate: Rate;
 
-  @Field((_type) => [IntRecord])
+  @Field((_type) => [IntRecord], { description: '1 ~ 120 개월' })
   blackholedCountRecords: IntRecord[];
 
   @Field((_type) => [IntPerCircle])
@@ -49,4 +50,12 @@ export class HomeUser {
 
   @Field((_type) => [IntPerCircle])
   averageDurationPerCircle: IntPerCircle[];
+}
+
+@ArgsType()
+export class GetHomeUserBlackholedCountRecordsArgs {
+  @Min(1)
+  @Max(120)
+  @Field()
+  last: number;
 }

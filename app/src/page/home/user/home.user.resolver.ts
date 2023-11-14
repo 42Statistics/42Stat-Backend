@@ -1,12 +1,15 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeUserService } from './home.user.service';
 import {
+  GetHomeUserBlackholedCountRecordsArgs,
   HomeUser,
   IntPerCircle,
   UserCountPerLevel,
@@ -16,7 +19,10 @@ import {
 @UseGuards(StatAuthGuard)
 @Resolver((_of: unknown) => HomeUser)
 export class HomeUserResolver {
-  constructor(private readonly homeUserService: HomeUserService) {}
+  constructor(
+    private readonly homeUserService: HomeUserService,
+    private readonly cacheUtilService: CacheUtilService,
+  ) {}
 
   @Query((_of) => HomeUser)
   async getHomeUser() {
@@ -43,13 +49,32 @@ export class HomeUserResolver {
     return await this.homeUserService.blackholedRate();
   }
 
-  @ResolveField((_returns) => [IntRecord], { description: '1 ~ 24 개월' })
+  @ResolveField((_returns) => [IntRecord], {
+    description: '1 ~ 120 개월',
+  })
   async blackholedCountRecords(
-    @Args('last') last: number,
+    @Args() { last }: GetHomeUserBlackholedCountRecordsArgs,
   ): Promise<IntRecord[]> {
-    return await this.homeUserService.blackholedCountRecords(
-      Math.max(1, Math.min(last, 24)),
-    );
+    const nextMonth = DateWrapper.nextMonth().toDate();
+    const start = DateWrapper.currMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const cacheKey = `homeUserBlackholedCountRecords:${start.getTime()}:${nextMonth.getTime()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.homeUserService.blackholedCountRecords({
+      start,
+      end: nextMonth,
+    });
+
+    await this.cacheUtilService.set(cacheKey, result);
+
+    return result;
   }
 
   @ResolveField((_returns) => [IntPerCircle])

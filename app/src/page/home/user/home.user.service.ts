@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import type { ConfigType } from '@nestjs/config';
 import {
   CursusUserCacheService,
   USER_CORRECTION_POINT_RANKING,
@@ -16,7 +17,7 @@ import { assertExist } from 'src/common/assertExist';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
-import { DateRangeService } from 'src/dateRange/dateRange.service';
+import { RUNTIME_CONFIG } from 'src/config/runtime';
 import type { DateRange } from 'src/dateRange/dtos/dateRange.dto';
 import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type { IntPerCircle, UserCountPerLevel } from './models/home.user.model';
@@ -27,7 +28,8 @@ export class HomeUserService {
     private readonly cursusUserService: CursusUserService,
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly questsUserService: QuestsUserService,
-    private readonly dateRangeService: DateRangeService,
+    @Inject(RUNTIME_CONFIG.KEY)
+    private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
   ) {}
 
   @CacheOnReturn()
@@ -90,46 +92,39 @@ export class HomeUserService {
     };
   }
 
-  @CacheOnReturn()
-  async blackholedCountRecords(last: number): Promise<IntRecord[]> {
-    const startDate = new DateWrapper()
-      .startOfMonth()
-      .moveMonth(1 - last)
-      .toDate();
-
-    const blackholeds: { blackholedAt?: Date }[] =
-      await this.cursusUserService.findAllAndLean({
-        filter: blackholedUserFilterByDateRange({
-          start: startDate,
-          end: new Date(),
-        }),
-        select: { blackholedAt: 1 },
+  async blackholedCountRecords({
+    start,
+    end,
+  }: DateRange): Promise<IntRecord[]> {
+    return await this.cursusUserService
+      .aggregate<IntRecord>()
+      .match(blackholedUserFilterByDateRange({ start, end }))
+      .group({
+        _id: {
+          $dateFromParts: {
+            year: {
+              $year: {
+                date: '$blackholedAt',
+                timezone: this.runtimeConfig.TIMEZONE,
+              },
+            },
+            month: {
+              $month: {
+                date: '$blackholedAt',
+                timezone: this.runtimeConfig.TIMEZONE,
+              },
+            },
+            timezone: this.runtimeConfig.TIMEZONE,
+          },
+        },
+        count: { $count: {} },
+      })
+      .sort({ _id: 1 })
+      .project({
+        _id: 0,
+        at: '$_id',
+        value: '$count',
       });
-
-    const res = blackholeds.reduce((acc, { blackholedAt }) => {
-      assertExist(blackholedAt);
-
-      const date = new DateWrapper(blackholedAt)
-        .startOfMonth()
-        .toDate()
-        .getTime();
-
-      const prev = acc.get(date);
-
-      acc.set(date, (prev ?? 0) + 1);
-
-      return acc;
-    }, new Map() as Map<number, number>);
-
-    const records: IntRecord[] = [];
-
-    for (let i = 0; i < last; i++) {
-      const currDate = new DateWrapper(startDate).moveMonth(i).toDate();
-
-      records.push({ at: currDate, value: res.get(currDate.getTime()) ?? 0 });
-    }
-
-    return records;
   }
 
   @CacheOnReturn()

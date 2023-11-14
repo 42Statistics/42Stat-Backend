@@ -244,6 +244,8 @@ type HomeUser {
   userCountPerLevel: [UserCountPerLevel!]!
   memberRate: Rate!
   blackholedRate: Rate!
+
+  """1 ~ 120 개월"""
   blackholedCountRecords(last: Int!): [IntRecord!]!
   blackholedCountPerCircle: [IntPerCircle!]!
   walletRanking(limit: Int! = 5): [UserRank!]!
