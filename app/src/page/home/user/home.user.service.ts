@@ -11,9 +11,9 @@ import {
   blackholedUserFilterByDateRange,
 } from 'src/api/cursusUser/db/cursusUser.database.query';
 import type { cursus_user } from 'src/api/cursusUser/db/cursusUser.database.schema';
+import { promo } from 'src/api/promo/db/promo.database.schema';
 import { QuestsUserService } from 'src/api/questsUser/questsUser.service';
 import { CacheOnReturn } from 'src/cache/decrators/onReturn/cache.decorator.onReturn.symbol';
-import { assertExist } from 'src/common/assertExist';
 import type { Rate } from 'src/common/models/common.rate.model';
 import type { UserRank } from 'src/common/models/common.user.model';
 import type { IntRecord } from 'src/common/models/common.valueRecord.model';
@@ -31,6 +31,150 @@ export class HomeUserService {
     @Inject(RUNTIME_CONFIG.KEY)
     private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
   ) {}
+
+  // todo: 나중에 별도 service 로 분리해야 합니다.
+  async dailyAliveUserCountRecords({
+    start,
+    end,
+  }: DateRange): Promise<IntRecord[]> {
+    const totalUserIOs = await this.cursusUserService
+      .aggregate<{ date: Date; count: number }>()
+      .match(
+        blackholedUserFilterByDateRange({
+          start: new Date(0),
+          end,
+        }),
+      )
+      .group({
+        _id: {
+          $dateFromParts: {
+            year: {
+              $year: {
+                date: '$blackholedAt',
+                timezone: this.runtimeConfig.TIMEZONE,
+              },
+            },
+            month: {
+              $month: {
+                date: '$blackholedAt',
+                timezone: this.runtimeConfig.TIMEZONE,
+              },
+            },
+            day: {
+              $dayOfMonth: {
+                date: '$blackholedAt',
+                timezone: this.runtimeConfig.TIMEZONE,
+              },
+            },
+            timezone: this.runtimeConfig.TIMEZONE,
+          },
+        },
+        count: { $sum: -1 },
+      })
+      .project({
+        _id: 0,
+        date: '$_id',
+        count: 1,
+      })
+      .unionWith({
+        // todo: collection 분리
+        coll: 'transfer_ins',
+        pipeline: [
+          {
+            $match: {
+              date: {
+                $gte: start,
+                $lt: end,
+              },
+            },
+          },
+          {
+            $group: {
+              _id: '$date',
+              count: { $count: {} },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              date: '$_id',
+              count: 1,
+            },
+          },
+        ],
+      })
+      .unionWith({
+        coll: `${promo.name}s`,
+        pipeline: [
+          {
+            $match: {
+              beginAt: {
+                $lt: end,
+              },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              date: {
+                $dateFromParts: {
+                  year: {
+                    $year: {
+                      date: '$beginAt',
+                      timezone: this.runtimeConfig.TIMEZONE,
+                    },
+                  },
+                  month: {
+                    $month: {
+                      date: '$beginAt',
+                      timezone: this.runtimeConfig.TIMEZONE,
+                    },
+                  },
+                  day: {
+                    $dayOfMonth: {
+                      date: '$beginAt',
+                      timezone: this.runtimeConfig.TIMEZONE,
+                    },
+                  },
+                  timezone: this.runtimeConfig.TIMEZONE,
+                },
+              },
+              count: '$userCount',
+            },
+          },
+        ],
+      })
+      .group({
+        _id: '$date',
+        count: { $sum: '$count' },
+      })
+      .sort({ _id: 1 })
+      .project({
+        _id: 0,
+        date: '$_id',
+        count: 1,
+      });
+
+    const startDateIndex = totalUserIOs.findIndex(({ date }) => date >= start);
+    const beforeStart = totalUserIOs
+      .slice(0, startDateIndex)
+      .reduce((acc, { count }) => acc + count, 0);
+
+    return totalUserIOs.slice(startDateIndex).reduce(
+      ({ prev, records }, { date, count }) => {
+        records.push({
+          at: date,
+          value: prev + count,
+        });
+
+        return {
+          prev: prev + count,
+          records,
+        };
+      },
+      { prev: beforeStart, records: new Array<IntRecord>() },
+    ).records;
+  }
 
   @CacheOnReturn()
   async aliveUserCountRecords(): Promise<IntRecord[]> {

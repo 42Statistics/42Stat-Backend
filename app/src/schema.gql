@@ -240,7 +240,8 @@ type UserCountPerLevel {
 }
 
 type HomeUser {
-  aliveUserCountRecords: [IntRecord!]!
+  dailyAliveUserCountRecords(last: Int!): [IntRecord!]!
+  aliveUserCountRecords: [IntRecord!]! @deprecated(reason: "v0.10.0")
   userCountPerLevel: [UserCountPerLevel!]!
   memberRate: Rate!
   blackholedRate: Rate!

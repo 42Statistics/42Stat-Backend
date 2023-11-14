@@ -24,7 +24,12 @@ export class UserCountPerLevel {
 
 @ObjectType()
 export class HomeUser {
+  // todo: api version header 를 받는 등의 방식을 사용하면 기존 field 명으로 처리할 수 있습니다만,
+  // 프론트엔드가 현재 작업을 할 수 없는 상황이기 때문에 이렇게 처리합니다.
   @Field((_type) => [IntRecord])
+  dailyAliveUserCountRecords: IntRecord[];
+
+  @Field((_type) => [IntRecord], { deprecationReason: 'v0.10.0' })
   aliveUserCountRecords: IntRecord[];
 
   @Field((_type) => [UserCountPerLevel])
@@ -50,6 +55,14 @@ export class HomeUser {
 
   @Field((_type) => [IntPerCircle])
   averageDurationPerCircle: IntPerCircle[];
+}
+
+@ArgsType()
+export class GetHomeUserAliveUserCountRecordsArgs {
+  @Min(1)
+  @Max(750)
+  @Field()
+  last: number;
 }
 
 @ArgsType()

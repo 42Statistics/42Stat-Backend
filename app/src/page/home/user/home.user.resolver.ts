@@ -9,6 +9,7 @@ import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeUserService } from './home.user.service';
 import {
+  GetHomeUserAliveUserCountRecordsArgs,
   GetHomeUserBlackholedCountRecordsArgs,
   HomeUser,
   IntPerCircle,
@@ -27,6 +28,33 @@ export class HomeUserResolver {
   @Query((_of) => HomeUser)
   async getHomeUser() {
     return {};
+  }
+
+  @ResolveField((_returns) => [IntRecord])
+  async dailyAliveUserCountRecords(
+    @Args() { last }: GetHomeUserAliveUserCountRecordsArgs,
+  ): Promise<IntRecord[]> {
+    const nextDay = new DateWrapper().startOfDate().moveDate(1).toDate();
+    const start = new DateWrapper()
+      .startOfDate()
+      .moveDate(1 - last)
+      .toDate();
+
+    const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${nextDay.getTime()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.homeUserService.dailyAliveUserCountRecords({
+      start,
+      end: nextDay,
+    });
+
+    await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+    return result;
   }
 
   @ResolveField((_returns) => [IntRecord])
