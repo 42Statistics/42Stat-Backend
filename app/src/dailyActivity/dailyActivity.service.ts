@@ -35,7 +35,10 @@ export class DailyActivityService {
 
         recordMap.set(timestamp, [
           ...prevRecords,
-          { type: record.type, value: record.value },
+          {
+            type: record.type,
+            value: Math.floor(record.value / DateWrapper.MIN),
+          },
         ]);
 
         return recordMap;
