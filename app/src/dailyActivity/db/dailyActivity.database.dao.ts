@@ -174,6 +174,8 @@ export class DailyActivityDaoImpl implements DailyActivityDao {
           beginAt: '$beginAt',
           filledAt: '$filledAt',
         });
+    } else {
+      aggregate.match({ _id: null });
     }
 
     if (eventIds.length) {
