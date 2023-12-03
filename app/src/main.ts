@@ -20,7 +20,7 @@ async function bootstrap() {
     origin: runtimeConfig.PROD
       ? 'https://stat.42seoul.kr'
       : [
-          'https://statdev.cloud',
+          'https://dev.stat.42seoul.kr',
           'https://d1571ej1ecqlkv.cloudfront.net',
           'http://localhost:8080',
         ],
