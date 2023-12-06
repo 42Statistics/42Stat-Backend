@@ -1,5 +1,5 @@
-import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
-import { Max, Min } from 'class-validator';
+import { Args, ArgsType, Field, ObjectType } from '@nestjs/graphql';
+import { IsDateString, IsNumber, Max, Min, NotEquals } from 'class-validator';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
@@ -27,7 +27,13 @@ export class HomeUser {
   // todo: api version header 를 받는 등의 방식을 사용하면 기존 field 명으로 처리할 수 있습니다만,
   // 프론트엔드가 현재 작업을 할 수 없는 상황이기 때문에 이렇게 처리합니다.
   @Field((_type) => [IntRecord])
-  dailyAliveUserCountRecords: IntRecord[];
+  monthlyAliveUserCountRecordsFromStart: IntRecord[];
+
+  @Field((_type) => [IntRecord])
+  monthlyAliveUserCountRecordsFromEnd: IntRecord[];
+
+  @Field((_type) => [IntRecord])
+  monthlyAliveUserCountRecordsByDate: IntRecord[];
 
   @Field((_type) => [IntRecord], { deprecationReason: 'v0.10.0' })
   aliveUserCountRecords: IntRecord[];
@@ -58,11 +64,33 @@ export class HomeUser {
 }
 
 @ArgsType()
-export class GetHomeUserAliveUserCountRecordsArgs {
+export class GetHomeUserAliveUserCountRecordsFromStartArgs {
   @Min(1)
-  @Max(750)
+  // todo: 2031 년부터 가져올 수 없습니다
+  @Max(120)
+  @Field()
+  first: number;
+}
+
+@ArgsType()
+export class GetHomeUserAliveUserCountRecordsFromEndArgs {
+  @Min(1)
+  @Max(120)
   @Field()
   last: number;
+}
+
+@ArgsType()
+export class GetHomeUserAliveUserCountRecordsByDateArgs {
+  @Min(-120)
+  @Max(120)
+  @NotEquals(0)
+  @Field()
+  firstOrLast: number;
+
+  @IsNumber()
+  @Field()
+  timestamp: number;
 }
 
 @ArgsType()

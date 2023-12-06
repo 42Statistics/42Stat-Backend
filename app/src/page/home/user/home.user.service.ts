@@ -33,7 +33,7 @@ export class HomeUserService {
   ) {}
 
   // todo: 나중에 별도 service 로 분리해야 합니다.
-  async dailyAliveUserCountRecords({
+  async monthlyAliveUserCountRecords({
     start,
     end,
   }: DateRange): Promise<IntRecord[]> {
@@ -56,12 +56,6 @@ export class HomeUserService {
             },
             month: {
               $month: {
-                date: '$blackholedAt',
-                timezone: this.runtimeConfig.TIMEZONE,
-              },
-            },
-            day: {
-              $dayOfMonth: {
                 date: '$blackholedAt',
                 timezone: this.runtimeConfig.TIMEZONE,
               },
@@ -90,7 +84,23 @@ export class HomeUserService {
           },
           {
             $group: {
-              _id: '$date',
+              _id: {
+                $dateFromParts: {
+                  year: {
+                    $year: {
+                      date: '$date',
+                      timezone: this.runtimeConfig.TIMEZONE,
+                    },
+                  },
+                  month: {
+                    $month: {
+                      date: '$date',
+                      timezone: this.runtimeConfig.TIMEZONE,
+                    },
+                  },
+                  timezone: this.runtimeConfig.TIMEZONE,
+                },
+              },
               count: { $count: {} },
             },
           },
@@ -126,12 +136,6 @@ export class HomeUserService {
                   },
                   month: {
                     $month: {
-                      date: '$beginAt',
-                      timezone: this.runtimeConfig.TIMEZONE,
-                    },
-                  },
-                  day: {
-                    $dayOfMonth: {
                       date: '$beginAt',
                       timezone: this.runtimeConfig.TIMEZONE,
                     },

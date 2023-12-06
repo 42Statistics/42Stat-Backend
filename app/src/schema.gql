@@ -240,7 +240,9 @@ type UserCountPerLevel {
 }
 
 type HomeUser {
-  dailyAliveUserCountRecords(last: Int!): [IntRecord!]!
+  monthlyAliveUserCountRecordsFromStart(first: Int!): [IntRecord!]!
+  monthlyAliveUserCountRecordsFromEnd(last: Int!): [IntRecord!]!
+  monthlyAliveUserCountRecordsByDate(firstOrLast: Int!, timestamp: Int!): [IntRecord!]!
   aliveUserCountRecords: [IntRecord!]! @deprecated(reason: "v0.10.0")
   userCountPerLevel: [UserCountPerLevel!]!
   memberRate: Rate!

@@ -9,7 +9,9 @@ import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { HomeUserService } from './home.user.service';
 import {
-  GetHomeUserAliveUserCountRecordsArgs,
+  GetHomeUserAliveUserCountRecordsByDateArgs,
+  GetHomeUserAliveUserCountRecordsFromEndArgs,
+  GetHomeUserAliveUserCountRecordsFromStartArgs,
   GetHomeUserBlackholedCountRecordsArgs,
   HomeUser,
   IntPerCircle,
@@ -31,30 +33,110 @@ export class HomeUserResolver {
   }
 
   @ResolveField((_returns) => [IntRecord])
-  async dailyAliveUserCountRecords(
-    @Args() { last }: GetHomeUserAliveUserCountRecordsArgs,
-  ): Promise<IntRecord[]> {
-    const nextDay = new DateWrapper().startOfDate().moveDate(1).toDate();
-    const start = new DateWrapper()
-      .startOfDate()
-      .moveDate(1 - last)
+  async monthlyAliveUserCountRecordsFromStart(
+    @Args() { first }: GetHomeUserAliveUserCountRecordsFromStartArgs,
+  ) {
+    const start = new DateWrapper('2020-02-24T04:42:00.000+00:00')
+      .startOfMonth()
       .toDate();
 
-    const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${nextDay.getTime()}`;
+    const end = new DateWrapper(start).moveMonth(first).toDate();
+
+    const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${end.getTime()}`;
 
     const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
     if (cached) {
       return cached;
     }
 
-    const result = await this.homeUserService.dailyAliveUserCountRecords({
+    const result = await this.homeUserService.monthlyAliveUserCountRecords({
       start,
-      end: nextDay,
+      end,
     });
 
     await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
 
     return result;
+  }
+
+  @ResolveField((_returns) => [IntRecord])
+  async monthlyAliveUserCountRecordsFromEnd(
+    @Args() { last }: GetHomeUserAliveUserCountRecordsFromEndArgs,
+  ) {
+    const nextMonth = new DateWrapper().startOfMonth().moveMonth(1).toDate();
+    const start = new DateWrapper()
+      .startOfMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${nextMonth.getTime()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const result = await this.homeUserService.monthlyAliveUserCountRecords({
+      start,
+      end: nextMonth,
+    });
+
+    await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+    return result;
+  }
+
+  @ResolveField((_returns) => [IntRecord])
+  async monthlyAliveUserCountRecordsByDate(
+    @Args()
+    { firstOrLast, timestamp }: GetHomeUserAliveUserCountRecordsByDateArgs,
+  ) {
+    if (firstOrLast > 0) {
+      const start = new DateWrapper(timestamp * DateWrapper.SEC)
+        .startOfMonth()
+        .toDate();
+
+      const end = new DateWrapper(start).moveMonth(firstOrLast).toDate();
+
+      const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${end.getTime()}`;
+
+      const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const result = await this.homeUserService.monthlyAliveUserCountRecords({
+        start,
+        end,
+      });
+
+      await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+      return result;
+    } else {
+      const end = new DateWrapper(timestamp * DateWrapper.SEC)
+        .startOfMonth()
+        .moveMonth(1)
+        .toDate();
+
+      const start = new DateWrapper(end).moveMonth(firstOrLast).toDate();
+
+      const cacheKey = `homeUserDailyAliveUserCountRecords:${start.getTime()}:${end.getTime()}`;
+
+      const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      const result = await this.homeUserService.monthlyAliveUserCountRecords({
+        start,
+        end,
+      });
+
+      await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+      return result;
+    }
   }
 
   @ResolveField((_returns) => [IntRecord])
