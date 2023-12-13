@@ -2,44 +2,6 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
-type LinkableAccount {
-  platform: String!
-  id: String!
-  email: String
-  linkedAt: DateTime!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
-
-type Account {
-  userId: Int!
-  linkedAccounts: [LinkableAccount!]!
-}
-
-type LoginSuccess {
-  accessToken: String!
-  refreshToken: String!
-  userId: Int!
-  message: String!
-}
-
-type ExpTable {
-  level: Int!
-  exp: Int!
-}
-
-type ProjectPreview {
-  id: Int!
-  name: String!
-  url: String!
-  circle: Int
-  pdfUrl: String
-  difficulty: Int
-}
-
 type Coalition {
   id: Int!
   name: String!
@@ -61,6 +23,11 @@ type UserTitle {
   createdAt: DateTime!
   updatedAt: DateTime!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type UserProfile {
   id: Int!
@@ -90,6 +57,49 @@ type UserRankingIndexPaginated {
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
+}
+
+type FollowListByMe {
+  follow: Boolean!
+  user: UserPreview!
+}
+
+type FollowUserList {
+  followUser: [FollowListByMe!]!
+  count: Int!
+}
+
+type LinkableAccount {
+  platform: String!
+  id: String!
+  email: String
+  linkedAt: DateTime!
+}
+
+type Account {
+  userId: Int!
+  linkedAccounts: [LinkableAccount!]!
+}
+
+type LoginSuccess {
+  accessToken: String!
+  refreshToken: String!
+  userId: Int!
+  message: String!
+}
+
+type ExpTable {
+  level: Int!
+  exp: Int!
+}
+
+type ProjectPreview {
+  id: Int!
+  name: String!
+  url: String!
+  circle: Int
+  pdfUrl: String
+  difficulty: Int
 }
 
 type CursorPageInfo {
@@ -636,6 +646,10 @@ type Mutation {
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
+  followUser(login: String!): FollowResult!
+  unFollowUser(login: String!): FollowResult!
+  getFollowerList(login: String!): FollowUserList!
+  getFollowingList(login: String!): FollowUserList!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
@@ -647,4 +661,16 @@ type LoginNotLinked {
 input GoogleLoginInput {
   clientId: String!
   credential: String!
+}
+
+union FollowResult = FollowSuccess | FollowFail
+
+type FollowSuccess {
+  message: String!
+  userId: Int!
+  followId: Int!
+}
+
+type FollowFail {
+  message: String!
 }
