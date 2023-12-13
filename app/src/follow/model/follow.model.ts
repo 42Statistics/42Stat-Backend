@@ -2,9 +2,18 @@ import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
 
 @ObjectType()
-export class UserList {
+export class FollowListByMe {
   @Field()
-  user: UserPreview[];
+  follow: boolean;
+
+  @Field()
+  user: UserPreview;
+}
+
+@ObjectType()
+export class FollowUserList {
+  @Field((_type) => [FollowListByMe])
+  followUser: FollowListByMe[];
 
   @Field()
   count: number;
@@ -28,8 +37,8 @@ export class FollowSuccess {
   followId: number;
 }
 
-export const LoginResult = createUnionType({
-  name: 'LoginResult',
+export const FollowResult = createUnionType({
+  name: 'FollowResult',
   types: () => [FollowSuccess, FollowFail] as const,
   resolveType(value) {
     switch (value.message) {
