@@ -19,6 +19,7 @@ import { JWT_CONFIG } from './config/jwt';
 import { RUNTIME_CONFIG } from './config/runtime';
 import { MongooseRootModule } from './database/mongoose/database.mongoose.module';
 import { DateWrapper } from './dateWrapper/dateWrapper';
+import { FollowModule } from './follow/follow.module';
 import { HealthCheckModule } from './healthcheck/healthcheck.module';
 import { LambdaModule } from './lambda/lambda.module';
 import { LoginModule } from './login/login.module';
@@ -97,6 +98,7 @@ export class AppRootModule {}
     EvalLogModule,
     SettingModule,
     CalculatorModule,
+    FollowModule,
     LambdaModule,
     HealthCheckModule,
     CacheDecoratorOnReturnModule,
