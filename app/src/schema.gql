@@ -60,7 +60,7 @@ type UserRankingIndexPaginated {
 }
 
 type FollowList {
-  isFollowing: Boolean!
+  isFollowing: Boolean
   user: UserPreview!
 }
 
