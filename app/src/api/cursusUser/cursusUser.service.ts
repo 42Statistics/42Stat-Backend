@@ -77,6 +77,18 @@ export class CursusUserService {
     return this.cursusUserModel.aggregate<ReturnType>();
   }
 
+  async getuserIdByLogin(login: string): Promise<number | null> {
+    const userId = await this.findOneAndLean({
+      filter: { 'user.login': login },
+    }).then((user) => user?.user.id);
+
+    if (!userId) {
+      return null;
+    }
+
+    return userId;
+  }
+
   async findAllAndLean(
     queryArgs?: QueryArgs<cursus_user>,
   ): Promise<cursus_user[]> {
@@ -114,6 +126,37 @@ export class CursusUserService {
       login: user.login,
       imgUrl: user.image.link,
     }));
+  }
+
+  async findOneUserPreviewAndLean(
+    queryArgs?: Omit<QueryArgs<cursus_user>, 'select'>,
+  ): Promise<UserPreview | null> {
+    const cursusUsers: {
+      user: {
+        id: number;
+        login: string;
+        image: {
+          link?: string;
+        };
+      };
+    } | null = await this.findOneAndLean({
+      ...queryArgs,
+      select: {
+        'user.id': 1,
+        'user.login': 1,
+        'user.image.link': 1,
+      },
+    });
+
+    if (!cursusUsers) {
+      return null;
+    }
+
+    return {
+      id: cursusUsers.user.id,
+      login: cursusUsers.user.login,
+      imgUrl: cursusUsers.user.image.link,
+    };
   }
 
   async userFullProfile(

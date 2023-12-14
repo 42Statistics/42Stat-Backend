@@ -11,7 +11,6 @@ import { FollowService } from './follow.service';
     CursusUserModule,
   ],
   providers: [FollowResolver, FollowService],
-  //exports: [FollowService],
 })
 // eslint-disable-next-line
 export class FollowModule {}
