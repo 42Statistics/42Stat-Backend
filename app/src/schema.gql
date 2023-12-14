@@ -59,13 +59,13 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type FollowListByMe {
-  follow: Boolean!
+type FollowList {
+  isFollowing: Boolean!
   user: UserPreview!
 }
 
-type FollowUserList {
-  followUser: [FollowListByMe!]!
+type FollowListWithCount {
+  followList: [FollowList!]!
   count: Int!
 }
 
@@ -646,10 +646,13 @@ type Mutation {
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
-  followUser(login: String!): FollowResult!
-  unFollowUser(login: String!): FollowResult!
-  getFollowerList(login: String!): FollowUserList!
-  getFollowingList(login: String!): FollowUserList!
+
+  """프론트 테스트용 임시 함수"""
+  MakeFollow(to: String!, from: String!, type: String!): FollowResult!
+  followUser(target: String!): FollowResult!
+  unfollowUser(target: String!): FollowResult!
+  getFollowerList(target: String!): FollowListWithCount!
+  getFollowingList(target: String!): FollowListWithCount!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked

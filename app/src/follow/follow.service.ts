@@ -1,10 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserPreview } from 'src/common/models/common.user.model';
+import {
+  QueryArgs,
+  findAllAndLean,
+} from 'src/database/mongoose/database.mongoose.query';
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
-import { FollowListByMe, FollowResult } from './model/follow.model';
+import { FollowList, FollowResult } from './model/follow.model';
 
 @Injectable()
 export class FollowService {
@@ -14,34 +18,73 @@ export class FollowService {
     private readonly cursusUserService: CursusUserService,
   ) {}
 
-  // input으로 들어온 유저를 팔로우 함
-  async followUser(
-    followerId: number,
-    followingLogin: string,
-  ): Promise<typeof FollowResult> {
-    //const follower = await this.cursusUserService
-    //  .findOneAndLean({
-    //    filter: { 'user.id': followerId },
-    //  })
-    //  .then((follower) => follower?.user.id);
+  async findAllAndLean(queryArgs?: QueryArgs<follow>): Promise<follow[]> {
+    return await findAllAndLean(this.followModel, queryArgs);
+  }
 
-    const following = await this.cursusUserService
+  // 프론트 테스트용 임시 함수
+  async MakeFollowUser(
+    to: string,
+    from: string,
+    type: 'follow' | 'unfollow',
+  ): Promise<typeof FollowResult> {
+    const toId = await this.cursusUserService
       .findOneAndLean({
-        filter: { 'user.login': followingLogin },
+        filter: { 'user.login': to },
       })
       .then((following) => following?.user.id);
 
+    const fromId = await this.cursusUserService
+      .findOneAndLean({
+        filter: { 'user.login': from },
+      })
+      .then((following) => following?.user.id);
+
+    if (type === 'follow') {
+      await this.followModel
+        .create({ userId: fromId, followId: toId })
+        .then((result) => result.toObject());
+
+      return {
+        message: 'OK',
+        userId: fromId!,
+        followId: toId!,
+      };
+    } else if (type === 'unfollow') {
+      await this.followModel
+        .deleteOne({
+          userId: fromId,
+          followId: toId,
+        })
+        .then((result) => result.deletedCount);
+
+      return {
+        message: 'OK',
+        userId: fromId!,
+        followId: toId!,
+      };
+    }
+    return { message: 'fail' };
+  }
+
+  async followUser(
+    userId: number,
+    target: string,
+  ): Promise<typeof FollowResult> {
+    const following = await this.cursusUserService.getuserIdByLogin(target);
+
     const alreadyFollow = await this.followModel.find({
-      userId: followerId,
+      userId: userId,
       followId: following,
     });
 
-    if (!following || followerId === following || !alreadyFollow) {
+    // !following은 throw notfound 이긴 함
+    if (!following || userId === following || alreadyFollow.length) {
       return { message: 'fail' };
     }
 
     const result = await this.followModel
-      .create({ userId: followerId, followId: following })
+      .create({ userId: userId, followId: following })
       .then((result) => result.toObject());
 
     return {
@@ -51,31 +94,20 @@ export class FollowService {
     };
   }
 
-  // input으로 들어온 유저를 언팔로우 함
   // todo: unfollow 성공도 같은걸 (상태) 반환해서 이름 다시 지어야함
-  async unFollowUser(
-    followerId: number,
-    followingLogin: string,
+  async unfollowUser(
+    userId: number,
+    target: string,
   ): Promise<typeof FollowResult> {
-    //const follower = await this.cursusUserService
-    //  .findOneAndLean({
-    //    filter: { 'user.id': followerId },
-    //  })
-    //  .then((follower) => follower?.user.id);
+    const following = await this.cursusUserService.getuserIdByLogin(target);
 
-    const following = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.login': followingLogin },
-      })
-      .then((following) => following?.user.id);
-
-    if (!following || followerId === following) {
+    if (!following || userId === following) {
       return { message: 'fail' };
     }
 
     const deletedCount = await this.followModel
       .deleteOne({
-        userId: followerId,
+        userId: userId,
         followId: following,
       })
       .then((result) => result.deletedCount);
@@ -83,115 +115,90 @@ export class FollowService {
     if (deletedCount === 1) {
       return {
         message: 'OK',
-        userId: followerId,
+        userId: userId,
         followId: following,
       };
-    } else {
-      return {
-        message: 'fail',
-      };
     }
+
+    return { message: 'fail' };
   }
 
-  // input 유저 <- 팔로워 목록을 찾아옴
   // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
-  async getFollowerList(me: number, target: string): Promise<FollowListByMe[]> {
+  async getFollowerList(userId: number, target: string): Promise<FollowList[]> {
     //target의 id
-    const targetId = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.login': target },
-      })
-      .then((user) => user?.user.id);
+    const targetId = await this.cursusUserService.getuserIdByLogin(target);
+
+    if (!targetId) {
+      throw new NotFoundException();
+    }
 
     //target을 팔로우 하는 사람들
-    const follower: follow[] = await this.followModel.find({
-      followId: targetId,
+    const follower: follow[] = await this.findAllAndLean({
+      filter: { followId: targetId },
     });
 
-    const targetFollowingUserPreview: Promise<UserPreview>[] = follower.map(
-      async (follower) => {
+    const followerUserPreview: UserPreview[] = await Promise.all(
+      follower.map(async (follower) => {
         //target을 팔로우 하는 사람의 preview
-        const user = await this.cursusUserService
-          .findAllUserPreviewAndLean({
+        const userPreview =
+          await this.cursusUserService.findOneUserPreviewAndLean({
             filter: { 'user.id': follower.userId },
-          })
-          //findOne으로 바꾸기
-          .then((a) => a[0]);
+          });
 
-        return user;
-      },
-    );
-
-    const followListByMeArray: Promise<FollowListByMe>[] =
-      targetFollowingUserPreview.map(async (targetFollowingUser) => {
-        const user = await targetFollowingUser;
-        let follow: boolean = true;
-
-        const isFollowed = await this.followModel.find({
-          userId: me,
-          followId: user.id,
-        });
-
-        if (!isFollowed) {
-          follow = false;
+        if (!userPreview) {
+          throw new NotFoundException();
         }
 
-        return { follow, user };
-      });
+        return userPreview;
+      }),
+    );
 
-    return await Promise.all(followListByMeArray);
+    const followerList = await this.checkFollowingStatus(
+      userId,
+      followerUserPreview,
+    );
+
+    return followerList;
   }
 
-  // input 유저 -> 팔로잉 목록을 찾아옴
   // getFollowingList("yeju") -> yeju(target)가 팔로우 하는 사람들
   async getFollowingList(
-    me: number,
+    userId: number,
     target: string,
-  ): Promise<FollowListByMe[]> {
-    //target의 id
-    const targetId = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.login': target },
-      })
-      .then((user) => user?.user.id);
+  ): Promise<FollowList[]> {
+    const targetId = await this.cursusUserService.getuserIdByLogin(target);
+
+    if (!targetId) {
+      throw new NotFoundException();
+    }
 
     //target이 팔로우 하는 사람들
-    const following: follow[] = await this.followModel.find({
-      userId: targetId,
+    const following: follow[] = await this.findAllAndLean({
+      filter: { userId: targetId },
     });
 
-    const targetFollowingUserPreview: Promise<UserPreview>[] = following.map(
-      async (following) => {
-        //target이 팔로우 하는 사람의 preview
-        const user = await this.cursusUserService
-          .findAllUserPreviewAndLean({
+    const followingUserPreview: UserPreview[] = await Promise.all(
+      following.map(async (following) => {
+        //target을 팔로우 하는 사람의 preview
+        const userPreview =
+          await this.cursusUserService.findOneUserPreviewAndLean({
             filter: { 'user.id': following.followId },
-          })
-          //findOne으로 바꾸기
-          .then((a) => a[0]);
+          });
 
-        return user;
-      },
-    );
-
-    const followListByMeArray: Promise<FollowListByMe>[] =
-      targetFollowingUserPreview.map(async (targetFollowingUser) => {
-        const user = await targetFollowingUser;
-        let follow: boolean = true;
-
-        const isFollowed = await this.followModel.find({
-          userId: me,
-          followId: user.id,
-        });
-
-        if (!isFollowed) {
-          follow = false;
+        if (!userPreview) {
+          throw new NotFoundException();
         }
 
-        return { follow, user };
-      });
+        return userPreview;
+      }),
+    );
 
-    return await Promise.all(followListByMeArray);
+    const followingList = await this.checkFollowingStatus(
+      userId,
+      followingUserPreview,
+    );
+
+    return followingList;
   }
 
   async getFollowerCount(login: string): Promise<number> {
@@ -208,5 +215,25 @@ export class FollowService {
     });
 
     return await this.followModel.countDocuments({ userId: id?.user.id }); //login filter
+  }
+
+  async checkFollowingStatus(
+    userId: number,
+    userPreview: UserPreview[],
+  ): Promise<FollowList[]> {
+    const followList = userPreview.map(async (user) => {
+      if (!user) {
+        throw new NotFoundException();
+      }
+
+      const isFollowed = await this.followModel.findOne({
+        userId: userId,
+        followId: user.id,
+      });
+
+      return { isFollowing: !!isFollowed, user };
+    });
+
+    return Promise.all(followList);
   }
 }
