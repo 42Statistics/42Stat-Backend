@@ -226,12 +226,18 @@ export class FollowService {
         throw new NotFoundException();
       }
 
-      const isFollowed = await this.followModel.findOne({
-        userId: userId,
-        followId: user.id,
-      });
+      let isFollowing: boolean | undefined = undefined;
 
-      return { isFollowing: !!isFollowed, user };
+      if (userId !== user.id) {
+        const isFollowed = await this.followModel.findOne({
+          userId: userId,
+          followId: user.id,
+        });
+
+        isFollowing = !!isFollowed;
+      }
+
+      return { isFollowing, user };
     });
 
     return Promise.all(followList);

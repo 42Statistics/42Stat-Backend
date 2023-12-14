@@ -3,8 +3,8 @@ import { UserPreview } from 'src/common/models/common.user.model';
 
 @ObjectType()
 export class FollowList {
-  @Field()
-  isFollowing: boolean;
+  @Field({ nullable: true })
+  isFollowing?: boolean;
 
   @Field()
   user: UserPreview;
