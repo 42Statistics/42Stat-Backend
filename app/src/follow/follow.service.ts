@@ -19,11 +19,11 @@ export class FollowService {
     followerId: number,
     followingLogin: string,
   ): Promise<typeof FollowResult> {
-    const follower = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.id': followerId },
-      })
-      .then((follower) => follower?.user.id);
+    //const follower = await this.cursusUserService
+    //  .findOneAndLean({
+    //    filter: { 'user.id': followerId },
+    //  })
+    //  .then((follower) => follower?.user.id);
 
     const following = await this.cursusUserService
       .findOneAndLean({
@@ -31,12 +31,17 @@ export class FollowService {
       })
       .then((following) => following?.user.id);
 
-    if (!follower || !following || follower === following) {
+    const alreadyFollow = await this.followModel.find({
+      userId: followerId,
+      followId: following,
+    });
+
+    if (!following || followerId === following || !alreadyFollow) {
       return { message: 'fail' };
     }
 
     const result = await this.followModel
-      .create({ userId: follower, followId: following })
+      .create({ userId: followerId, followId: following })
       .then((result) => result.toObject());
 
     return {
@@ -52,11 +57,11 @@ export class FollowService {
     followerId: number,
     followingLogin: string,
   ): Promise<typeof FollowResult> {
-    const follower = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.id': followerId },
-      })
-      .then((follower) => follower?.user.id);
+    //const follower = await this.cursusUserService
+    //  .findOneAndLean({
+    //    filter: { 'user.id': followerId },
+    //  })
+    //  .then((follower) => follower?.user.id);
 
     const following = await this.cursusUserService
       .findOneAndLean({
@@ -64,13 +69,13 @@ export class FollowService {
       })
       .then((following) => following?.user.id);
 
-    if (!follower || !following || follower === following) {
+    if (!following || followerId === following) {
       return { message: 'fail' };
     }
 
     const deletedCount = await this.followModel
       .deleteOne({
-        userId: follower,
+        userId: followerId,
         followId: following,
       })
       .then((result) => result.deletedCount);
@@ -78,7 +83,7 @@ export class FollowService {
     if (deletedCount === 1) {
       return {
         message: 'OK',
-        userId: follower,
+        userId: followerId,
         followId: following,
       };
     } else {
@@ -90,10 +95,51 @@ export class FollowService {
 
   // input 유저 <- 팔로워 목록을 찾아옴
   // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
-  async getFollowerList(login: string): Promise<FollowListByMe[]> {
-    //login이 A<-B 의 A위치에 있는거 find 후 B들의 UserPreview로 합쳐서 반환
+  async getFollowerList(me: number, target: string): Promise<FollowListByMe[]> {
+    //target의 id
+    const targetId = await this.cursusUserService
+      .findOneAndLean({
+        filter: { 'user.login': target },
+      })
+      .then((user) => user?.user.id);
 
-    return [];
+    //target을 팔로우 하는 사람들
+    const follower: follow[] = await this.followModel.find({
+      followId: targetId,
+    });
+
+    const targetFollowingUserPreview: Promise<UserPreview>[] = follower.map(
+      async (follower) => {
+        //target을 팔로우 하는 사람의 preview
+        const user = await this.cursusUserService
+          .findAllUserPreviewAndLean({
+            filter: { 'user.id': follower.userId },
+          })
+          //findOne으로 바꾸기
+          .then((a) => a[0]);
+
+        return user;
+      },
+    );
+
+    const followListByMeArray: Promise<FollowListByMe>[] =
+      targetFollowingUserPreview.map(async (targetFollowingUser) => {
+        const user = await targetFollowingUser;
+        let follow: boolean = true;
+
+        const isFollowed = await this.followModel.find({
+          userId: me,
+          followId: user.id,
+        });
+
+        if (!isFollowed) {
+          follow = false;
+        }
+
+        return { follow, user };
+      });
+
+    return await Promise.all(followListByMeArray);
   }
 
   // input 유저 -> 팔로잉 목록을 찾아옴

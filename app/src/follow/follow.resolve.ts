@@ -33,7 +33,7 @@ export class FollowResolver {
     @MyUserId() userId: number,
     @Args('login') login: string,
   ): Promise<FollowUserList> {
-    const followUser = await this.followService.getFollowerList(login);
+    const followUser = await this.followService.getFollowerList(userId, login);
     const count = await this.followService.getFollowerCount(login);
 
     return {
