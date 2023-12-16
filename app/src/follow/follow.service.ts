@@ -8,7 +8,7 @@ import {
 } from 'src/database/mongoose/database.mongoose.query';
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
-import { FollowList, FollowResult } from './model/follow.model';
+import type { FollowList, FollowResult } from './model/follow.model';
 
 @Injectable()
 export class FollowService {
@@ -28,41 +28,11 @@ export class FollowService {
     from: string,
     type: 'follow' | 'unfollow',
   ): Promise<typeof FollowResult> {
-    const toId = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.login': to },
-      })
-      .then((following) => following?.user.id);
-
-    const fromId = await this.cursusUserService
-      .findOneAndLean({
-        filter: { 'user.login': from },
-      })
-      .then((following) => following?.user.id);
-
+    const userId = await this.cursusUserService.getuserIdByLogin(from);
     if (type === 'follow') {
-      await this.followModel
-        .create({ userId: fromId, followId: toId })
-        .then((result) => result.toObject());
-
-      return {
-        message: 'OK',
-        userId: fromId!,
-        followId: toId!,
-      };
+      return await this.followUser(userId!, to);
     } else if (type === 'unfollow') {
-      await this.followModel
-        .deleteOne({
-          userId: fromId,
-          followId: toId,
-        })
-        .then((result) => result.deletedCount);
-
-      return {
-        message: 'OK',
-        userId: fromId!,
-        followId: toId!,
-      };
+      return await this.unfollowUser(userId!, to);
     }
     return { message: 'fail' };
   }
