@@ -677,3 +677,7 @@ type FollowSuccess {
 type FollowFail {
   message: String!
 }
+
+type Subscription {
+  followUpdated: FollowResult!
+}

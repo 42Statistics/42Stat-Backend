@@ -75,6 +75,14 @@ import { TeamInfoModule } from './page/teamInfo/teamInfo.module';
             numberScalarMode: 'integer',
           },
           autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+          subscriptions: {
+            'graphql-ws': {
+              path: '/graphql',
+            },
+            'subscriptions-transport-ws': {
+              path: '/graphql',
+            },
+          },
         };
       },
     }),
