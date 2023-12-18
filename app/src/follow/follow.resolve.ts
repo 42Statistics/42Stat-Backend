@@ -1,5 +1,5 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
-import { Args, Mutation, Resolver, Subscription } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
@@ -66,7 +66,7 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => FollowListWithCount)
+  @Query((_returns) => FollowListWithCount)
   async getFollowerList(
     @MyUserId() userId: number,
     @Args('target') target: string,
@@ -84,7 +84,7 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => FollowListWithCount)
+  @Query((_returns) => FollowListWithCount)
   async getFollowingList(
     @MyUserId() userId: number,
     @Args('target') target: string,

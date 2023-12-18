@@ -631,6 +631,8 @@ type Query {
   getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, imperfectOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
   getExpTable: [ExpTable!]!
+  getFollowerList(target: String!): FollowListWithCount!
+  getFollowingList(target: String!): FollowListWithCount!
 }
 
 enum EvalLogSortOrder {
@@ -651,8 +653,6 @@ type Mutation {
   MakeFollow(to: String!, from: String!, type: String!): FollowResult!
   followUser(target: String!): FollowResult!
   unfollowUser(target: String!): FollowResult!
-  getFollowerList(target: String!): FollowListWithCount!
-  getFollowingList(target: String!): FollowListWithCount!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
