@@ -105,6 +105,7 @@ export class FollowService {
     //target을 팔로우 하는 사람들
     const follower: follow[] = await this.findAllAndLean({
       filter: { followId: targetId },
+      sort: { _id: 'desc' },
     });
 
     const followerUserPreview: UserPreview[] = await Promise.all(
@@ -145,6 +146,7 @@ export class FollowService {
     //target이 팔로우 하는 사람들
     const following: follow[] = await this.findAllAndLean({
       filter: { userId: targetId },
+      sort: { _id: 'desc' },
     });
 
     const followingUserPreview: UserPreview[] = await Promise.all(
