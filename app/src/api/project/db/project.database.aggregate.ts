@@ -24,6 +24,17 @@ export const conditionalProjectPreview = (
   },
 });
 
+export const conditionalProjectName = (
+  projectIdField: string,
+  projectField: string,
+) => ({
+  $cond: {
+    if: { $eq: [`$${projectIdField}`, NETWHAT_PREVIEW.id] },
+    then: NETWHAT_PREVIEW.name,
+    else: { $first: `$${projectField}.name` },
+  },
+});
+
 export const concatProjectUrl = (projectIdField: string) => ({
   $concat: [PROJECT_BASE_URL, '/', { $toString: `$${projectIdField}` }],
 });

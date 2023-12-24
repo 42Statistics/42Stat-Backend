@@ -4,8 +4,12 @@ import type { Model } from 'mongoose';
 import { lookupEvents } from 'src/api/event/db/event.database.aggregate';
 import { events } from 'src/api/event/db/event.database.schema';
 import { events_users } from 'src/api/eventsUser/db/eventsUser.database.schema';
-import { lookupProjects } from 'src/api/project/db/project.database.aggregate';
 import { project } from 'src/api/project/db/project.database.schema';
+
+import {
+  conditionalProjectName,
+  lookupProjects,
+} from 'src/api/project/db/project.database.aggregate';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import { daily_logtimes } from 'src/dailyLogtime/db/dailyLogtime.database.schema';
 import {
@@ -170,7 +174,9 @@ export class DailyActivityDaoImpl implements DailyActivityDao {
             },
           },
           // todo: project collection 수정하고 s 삭제
-          projectName: { $first: `$${project.name}s.name` },
+          projectName: {
+            ...conditionalProjectName('team.projectId', `${project.name}s`),
+          },
           beginAt: '$beginAt',
           filledAt: '$filledAt',
         });
