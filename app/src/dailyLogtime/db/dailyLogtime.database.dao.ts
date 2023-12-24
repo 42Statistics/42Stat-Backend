@@ -3,6 +3,7 @@ import type { ConfigType } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import type { Model } from 'mongoose';
 import { RUNTIME_CONFIG } from 'src/config/runtime';
+import { DateWrapper } from 'src/dateWrapper/dateWrapper';
 import type {
   UserLogtimeRecordByDateRangeOutput,
   UserLogtimeRecordsByDateRangeInput,
@@ -48,7 +49,7 @@ export class DailyLogtimeDaoImpl implements DailyLogtimeDao {
             timezone: this.runtimeConfig.TIMEZONE,
           },
         },
-        value: { $sum: '$value' },
+        value: { $sum: { $min: ['$value', DateWrapper.DAY] } },
       })
       .sort({ _id: 1 })
       .project({
