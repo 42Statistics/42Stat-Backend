@@ -94,7 +94,11 @@ export class FollowService {
   }
 
   // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
-  async getFollowerList(userId: number, target: string): Promise<FollowList[]> {
+  async getFollowerList(
+    userId: number,
+    target: string,
+    limit: number,
+  ): Promise<FollowList[]> {
     //target의 id
     const targetId = await this.cursusUserService.getuserIdByLogin(target);
 
@@ -105,6 +109,8 @@ export class FollowService {
     //target을 팔로우 하는 사람들
     const follower: follow[] = await this.findAllAndLean({
       filter: { followId: targetId },
+      sort: { _id: 'desc' },
+      limit,
     });
 
     const followerUserPreview: UserPreview[] = await Promise.all(
@@ -135,6 +141,7 @@ export class FollowService {
   async getFollowingList(
     userId: number,
     target: string,
+    limit: number,
   ): Promise<FollowList[]> {
     const targetId = await this.cursusUserService.getuserIdByLogin(target);
 
@@ -145,6 +152,8 @@ export class FollowService {
     //target이 팔로우 하는 사람들
     const following: follow[] = await this.findAllAndLean({
       filter: { userId: targetId },
+      sort: { _id: 'desc' },
+      limit,
     });
 
     const followingUserPreview: UserPreview[] = await Promise.all(
