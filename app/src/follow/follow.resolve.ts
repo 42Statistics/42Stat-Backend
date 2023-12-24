@@ -70,10 +70,12 @@ export class FollowResolver {
   async getFollowerList(
     @MyUserId() userId: number,
     @Args('target') target: string,
+    @Args('limit', { defaultValue: 3 }) limit: number,
   ): Promise<FollowListWithCount> {
     const followerList = await this.followService.getFollowerList(
       userId,
       target,
+      limit,
     );
     const count = await this.followService.getFollowerCount(target);
 
@@ -88,10 +90,12 @@ export class FollowResolver {
   async getFollowingList(
     @MyUserId() userId: number,
     @Args('target') target: string,
+    @Args('limit', { defaultValue: 3 }) limit: number,
   ): Promise<FollowListWithCount> {
     const followingList = await this.followService.getFollowingList(
       userId,
       target,
+      limit,
     );
     const count = await this.followService.getFollowingCount(target);
 
