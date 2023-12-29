@@ -80,6 +80,11 @@ type FollowListPaginated {
   pageInfo: CursorPageInfo!
 }
 
+type FollowListWithCount {
+  followList: [FollowList!]!
+  count: Int!
+}
+
 type LinkableAccount {
   platform: String!
   id: String!
@@ -636,9 +641,9 @@ type Query {
   getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, imperfectOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
   getExpTable: [ExpTable!]!
-  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): [FollowList!]!
+  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): FollowListWithCount!
   getFollowerPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): [FollowList!]!
+  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): FollowListWithCount!
   getFollowingPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 
@@ -660,9 +665,6 @@ type Mutation {
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
-
-  """프론트 테스트용 임시 함수"""
-  MakeFollow(to: String!, from: String!, type: String!): FollowResult!
   followUser(target: String!): FollowResult!
   unfollowUser(target: String!): FollowResult!
 }

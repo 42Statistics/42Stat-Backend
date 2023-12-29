@@ -14,8 +14,8 @@ import {
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
 import {
-  FollowListPaginatedArgs,
   FollowSortOrder,
+  type FollowListPaginatedArgs,
 } from './dto/follow.dto.getFollowList';
 import type {
   FollowList,
@@ -38,7 +38,7 @@ export class FollowService {
     return await findAllAndLean(this.followModel, queryArgs);
   }
 
-  async getuserIdByLogin(login: string): Promise<number> {
+  async userIdByLogin(login: string): Promise<number> {
     const id = await this.cursusUserService.getuserIdByLogin(login);
 
     if (!id) {
@@ -46,21 +46,6 @@ export class FollowService {
     }
 
     return id;
-  }
-
-  // 프론트 테스트용 임시 함수
-  async MakeFollowUser(
-    to: string,
-    from: string,
-    type: 'follow' | 'unfollow',
-  ): Promise<typeof FollowResult> {
-    const userId = await this.cursusUserService.getuserIdByLogin(from);
-    if (type === 'follow') {
-      return await this.followUser(userId!, to);
-    } else if (type === 'unfollow') {
-      return await this.unfollowUser(userId!, to);
-    }
-    return { message: 'fail' };
   }
 
   async followUser(
@@ -74,7 +59,6 @@ export class FollowService {
       followId: following,
     });
 
-    // !following은 throw notfound 이긴 함
     if (!following || userId === following || alreadyFollow.length) {
       return { message: 'fail' };
     }
@@ -126,7 +110,7 @@ export class FollowService {
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    const targetId = await this.getuserIdByLogin(target);
+    const targetId = await this.userIdByLogin(target);
 
     const aggregate = this.followModel.aggregate<follow>();
 
@@ -161,7 +145,7 @@ export class FollowService {
     userId: number,
     { after, first, target, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const targetId = await this.getuserIdByLogin(target);
+    const targetId = await this.userIdByLogin(target);
 
     const totalCount = await this.followerCount(targetId);
 
@@ -172,7 +156,6 @@ export class FollowService {
       const [id, _login]: FollowListCursorField =
         this.paginationCursorService.toFields(after, fieldExtractor);
 
-      //[{followAt}] -> 바로 구할 수 없음
       const [followAt] = await aggregate.match({
         userId: id,
         followId: targetId,
@@ -215,7 +198,7 @@ export class FollowService {
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    const targetId = await this.getuserIdByLogin(target);
+    const targetId = await this.userIdByLogin(target);
 
     const aggregate = this.followModel.aggregate<follow>();
 
@@ -250,7 +233,7 @@ export class FollowService {
     userId: number,
     { after, first, target, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const targetId = await this.getuserIdByLogin(target);
+    const targetId = await this.userIdByLogin(target);
 
     const totalCount = await this.followerCount(targetId);
 
@@ -261,7 +244,6 @@ export class FollowService {
       const [id, _login]: FollowListCursorField =
         this.paginationCursorService.toFields(after, fieldExtractor);
 
-      //[{followAt}] -> 바로 구할 수 없음
       const [followAt] = await aggregate.match({
         userId: targetId,
         followId: id,
@@ -347,7 +329,6 @@ export class FollowService {
   }
 }
 
-//todo: 여기가 follow여야하지 않는가???????
 const cursorExtractor: CursorExtractor<FollowList> = (doc) =>
   doc.user.id.toString() + '_' + doc.user.login.toString();
 

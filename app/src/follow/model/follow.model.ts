@@ -10,22 +10,19 @@ export class FollowList {
 
   @Field()
   user: UserPreview;
-
-  //@Field((_type) => Date, { nullable: true })
-  //followAt?: Date;
 }
 
 @ObjectType()
 export class FollowListPaginated extends CursorPaginated(FollowList) {}
 
-//@ObjectType()
-//export class FollowListWithCount {
-//  @Field((_type) => [FollowList])
-//  followList: FollowList[];
+@ObjectType()
+export class FollowListWithCount {
+  @Field((_type) => [FollowList])
+  followList: FollowList[];
 
-//  @Field()
-//  count: number;
-//}
+  @Field()
+  count: number;
+}
 
 @ObjectType()
 export class FollowFail {
