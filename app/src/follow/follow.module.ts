@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CursusUserModule } from 'src/api/cursusUser/cursusUser.module';
 import { PaginationCursorModule } from 'src/pagination/cursor/pagination.cursor.module';
 import { FollowSchema, follow } from './db/follow.database.schema';
-import { FollowResolver } from './follow.resolve';
+import { FollowResolver } from './follow.resolver';
 import { FollowService } from './follow.service';
 
 @Module({
