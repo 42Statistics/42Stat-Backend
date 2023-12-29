@@ -642,9 +642,9 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getFollowStatus(target: String!): Boolean
-  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): FollowListWithCount!
+  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
   getFollowerPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder!): FollowListWithCount!
+  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
   getFollowingPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 

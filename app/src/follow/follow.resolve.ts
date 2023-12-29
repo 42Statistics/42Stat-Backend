@@ -77,7 +77,10 @@ export class FollowResolver {
     @MyUserId() userId: number,
     @Args('target') target: string,
     @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', { type: () => FollowSortOrder })
+    @Args('sortOrder', {
+      type: () => FollowSortOrder,
+      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
+    })
     sortOrder: FollowSortOrder,
   ): Promise<FollowListWithCount> {
     const targetId = await this.followService.userIdByLogin(target);
@@ -111,7 +114,10 @@ export class FollowResolver {
     @MyUserId() userId: number,
     @Args('target') target: string,
     @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', { type: () => FollowSortOrder })
+    @Args('sortOrder', {
+      type: () => FollowSortOrder,
+      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
+    })
     sortOrder: FollowSortOrder,
   ): Promise<FollowListWithCount> {
     const targetId = await this.followService.userIdByLogin(target);
