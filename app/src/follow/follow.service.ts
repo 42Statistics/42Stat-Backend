@@ -235,7 +235,7 @@ export class FollowService {
   ): Promise<FollowListPaginated> {
     const targetId = await this.userIdByLogin(target);
 
-    const totalCount = await this.followerCount(targetId);
+    const totalCount = await this.followingCount(targetId);
 
     const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
