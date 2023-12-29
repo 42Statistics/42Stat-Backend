@@ -123,7 +123,7 @@ export class FollowService {
       .sort(followSort(sortOrder))
       .limit(limit);
 
-    const followerUserPreview: UserPreview[] = await Promise.all(
+    const followerUserPreview = await Promise.all(
       follower.map(async (follower) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
@@ -211,7 +211,7 @@ export class FollowService {
       .sort(followSort(sortOrder))
       .limit(limit);
 
-    const followingUserPreview: UserPreview[] = await Promise.all(
+    const followingUserPreview = await Promise.all(
       following.map(async (following) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
@@ -235,7 +235,7 @@ export class FollowService {
   ): Promise<FollowListPaginated> {
     const targetId = await this.userIdByLogin(target);
 
-    const totalCount = await this.followerCount(targetId);
+    const totalCount = await this.followingCount(targetId);
 
     const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
@@ -301,10 +301,12 @@ export class FollowService {
 
     let isFollowing: boolean | undefined = undefined;
 
-    await this.followModel.findOne({
-      userId,
-      followId,
-    });
+    if (userId !== followId) {
+      isFollowing = !!(await this.followModel.findOne({
+        userId,
+        followId,
+      }));
+    }
 
     return isFollowing;
   }
@@ -314,10 +316,6 @@ export class FollowService {
     userPreview: UserPreview[],
   ): Promise<FollowList[]> {
     const followList = userPreview.map(async (user) => {
-      if (!user) {
-        throw new NotFoundException();
-      }
-
       let isFollowing: boolean | undefined = undefined;
 
       if (userId !== user.id) {
@@ -332,7 +330,7 @@ export class FollowService {
       return { isFollowing, user };
     });
 
-    return Promise.all(followList);
+    return await Promise.all(followList);
   }
 
   private generateEmptyPage(): FollowListPaginated {
