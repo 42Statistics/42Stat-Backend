@@ -1,5 +1,7 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
+import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
+import { follow } from '../db/follow.database.schema';
 
 @ObjectType()
 export class FollowList {
@@ -8,16 +10,22 @@ export class FollowList {
 
   @Field()
   user: UserPreview;
+
+  //@Field((_type) => Date, { nullable: true })
+  //followAt?: Date;
 }
 
 @ObjectType()
-export class FollowListWithCount {
-  @Field((_type) => [FollowList])
-  followList: FollowList[];
+export class FollowListPaginated extends CursorPaginated(FollowList) {}
 
-  @Field()
-  count: number;
-}
+//@ObjectType()
+//export class FollowListWithCount {
+//  @Field((_type) => [FollowList])
+//  followList: FollowList[];
+
+//  @Field()
+//  count: number;
+//}
 
 @ObjectType()
 export class FollowFail {

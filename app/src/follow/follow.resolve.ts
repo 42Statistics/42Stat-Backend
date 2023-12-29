@@ -4,8 +4,16 @@ import { PubSub } from 'graphql-subscriptions';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
+import {
+  FollowListPaginatedArgs,
+  FollowSortOrder,
+} from './dto/follow.dto.getFollowList';
 import { FollowService } from './follow.service';
-import { FollowListWithCount, FollowResult } from './model/follow.model';
+import {
+  FollowList,
+  FollowListPaginated,
+  FollowResult,
+} from './model/follow.model';
 
 const pubSub = new PubSub();
 
@@ -66,42 +74,52 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
+  @Query((_returns) => [FollowList])
   async getFollowerList(
     @MyUserId() userId: number,
     @Args('target') target: string,
     @Args('limit', { defaultValue: 3 }) limit: number,
-  ): Promise<FollowListWithCount> {
-    const followerList = await this.followService.getFollowerList(
+    @Args('sortOrder') sortOrder: FollowSortOrder,
+  ): Promise<FollowList[]> {
+    return await this.followService.followerList(
       userId,
       target,
       limit,
+      sortOrder,
     );
-    const count = await this.followService.getFollowerCount(target);
-
-    return {
-      count,
-      followList: followerList,
-    };
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
+  @Query((_returns) => FollowListPaginated)
+  async getFollowerPaginated(
+    @MyUserId() userId: number,
+    @Args() args: FollowListPaginatedArgs,
+  ): Promise<FollowListPaginated> {
+    return await this.followService.followerPaginated(userId, args);
+  }
+
+  @UseGuards(StatAuthGuard)
+  @Query((_returns) => [FollowList])
   async getFollowingList(
     @MyUserId() userId: number,
     @Args('target') target: string,
     @Args('limit', { defaultValue: 3 }) limit: number,
-  ): Promise<FollowListWithCount> {
-    const followingList = await this.followService.getFollowingList(
+    @Args('sortOrder') sortOrder: FollowSortOrder,
+  ): Promise<FollowList[]> {
+    return await this.followService.followingList(
       userId,
       target,
       limit,
+      sortOrder,
     );
-    const count = await this.followService.getFollowingCount(target);
+  }
 
-    return {
-      count,
-      followList: followingList,
-    };
+  @UseGuards(StatAuthGuard)
+  @Query((_returns) => FollowListPaginated)
+  async getFollowingPaginated(
+    @MyUserId() userId: number,
+    @Args() args: FollowListPaginatedArgs,
+  ): Promise<FollowListPaginated> {
+    return await this.followService.followingPaginated(userId, args);
   }
 }

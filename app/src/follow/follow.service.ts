@@ -1,14 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
   findAllAndLean,
 } from 'src/database/mongoose/database.mongoose.query';
+import {
+  CursorExtractor,
+  FieldExtractor,
+  PaginationCursorService,
+} from 'src/pagination/cursor/pagination.cursor.service';
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
-import type { FollowList, FollowResult } from './model/follow.model';
+import {
+  FollowListPaginatedArgs,
+  FollowSortOrder,
+} from './dto/follow.dto.getFollowList';
+import type {
+  FollowList,
+  FollowListPaginated,
+  FollowResult,
+} from './model/follow.model';
+
+type FollowListCursorField = [number, string];
 
 @Injectable()
 export class FollowService {
@@ -16,10 +31,21 @@ export class FollowService {
     @InjectModel(follow.name)
     private readonly followModel: Model<follow>,
     private readonly cursusUserService: CursusUserService,
+    private readonly paginationCursorService: PaginationCursorService,
   ) {}
 
   async findAllAndLean(queryArgs?: QueryArgs<follow>): Promise<follow[]> {
     return await findAllAndLean(this.followModel, queryArgs);
+  }
+
+  async getuserIdByLogin(login: string): Promise<number> {
+    const id = await this.cursusUserService.getuserIdByLogin(login);
+
+    if (!id) {
+      throw new NotFoundException();
+    }
+
+    return id;
   }
 
   // 프론트 테스트용 임시 함수
@@ -54,7 +80,7 @@ export class FollowService {
     }
 
     const result = await this.followModel
-      .create({ userId: userId, followId: following })
+      .create({ userId: userId, followId: following, followAt: new Date() })
       .then((result) => result.toObject());
 
     return {
@@ -64,7 +90,6 @@ export class FollowService {
     };
   }
 
-  // todo: unfollow 성공도 같은걸 (상태) 반환해서 이름 다시 지어야함
   async unfollowUser(
     userId: number,
     target: string,
@@ -94,28 +119,28 @@ export class FollowService {
   }
 
   // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
-  async getFollowerList(
+  async followerList(
     userId: number,
     target: string,
     limit: number,
+    sortOrder: FollowSortOrder,
+    filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    //target의 id
-    const targetId = await this.cursusUserService.getuserIdByLogin(target);
+    const targetId = await this.getuserIdByLogin(target);
 
-    if (!targetId) {
-      throw new NotFoundException();
+    const aggregate = this.followModel.aggregate<follow>();
+
+    if (filter) {
+      aggregate.match(filter);
     }
 
-    //target을 팔로우 하는 사람들
-    const follower: follow[] = await this.findAllAndLean({
-      filter: { followId: targetId },
-      sort: { _id: 'desc' },
-      limit,
-    });
+    const follower = await aggregate
+      .match({ followId: targetId })
+      .sort(followSort(sortOrder))
+      .limit(limit);
 
     const followerUserPreview: UserPreview[] = await Promise.all(
       follower.map(async (follower) => {
-        //target을 팔로우 하는 사람의 preview
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
             filter: { 'user.id': follower.userId },
@@ -129,36 +154,82 @@ export class FollowService {
       }),
     );
 
-    const followerList = await this.checkFollowingStatus(
-      userId,
-      followerUserPreview,
-    );
-
-    return followerList;
+    return await this.checkFollowingStatus(userId, followerUserPreview);
   }
 
-  // getFollowingList("yeju") -> yeju(target)가 팔로우 하는 사람들
-  async getFollowingList(
+  async followerPaginated(
+    userId: number,
+    { after, first, target, sortOrder }: FollowListPaginatedArgs,
+  ): Promise<FollowListPaginated> {
+    const targetId = await this.getuserIdByLogin(target);
+
+    const totalCount = await this.followerCount(targetId);
+
+    const aggregate = this.followModel.aggregate<follow>();
+    const filter: FilterQuery<follow> = {};
+
+    if (after) {
+      const [id, _login]: FollowListCursorField =
+        this.paginationCursorService.toFields(after, fieldExtractor);
+
+      //[{followAt}] -> 바로 구할 수 없음
+      const [followAt] = await aggregate.match({
+        userId: id,
+        followId: targetId,
+      });
+
+      if (!followAt) {
+        return this.generateEmptyPage();
+      }
+
+      switch (sortOrder) {
+        case FollowSortOrder.FOLLOW_AT_ASC:
+          filter.$or = [{ followAt: { $gt: followAt.followAt } }];
+          break;
+        case FollowSortOrder.FOLLOW_AT_DESC:
+          filter.$or = [{ followAt: { $lt: followAt.followAt } }];
+          break;
+      }
+    }
+
+    const followList = await this.followerList(
+      userId,
+      target,
+      first + 1,
+      sortOrder,
+      filter,
+    );
+
+    return this.paginationCursorService.toPaginated<FollowList>(
+      followList.slice(0, first),
+      totalCount,
+      followList.length > first,
+      cursorExtractor,
+    );
+  }
+
+  async followingList(
     userId: number,
     target: string,
     limit: number,
+    sortOrder: FollowSortOrder,
+    filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    const targetId = await this.cursusUserService.getuserIdByLogin(target);
+    const targetId = await this.getuserIdByLogin(target);
 
-    if (!targetId) {
-      throw new NotFoundException();
+    const aggregate = this.followModel.aggregate<follow>();
+
+    if (filter) {
+      aggregate.match(filter);
     }
 
-    //target이 팔로우 하는 사람들
-    const following: follow[] = await this.findAllAndLean({
-      filter: { userId: targetId },
-      sort: { _id: 'desc' },
-      limit,
-    });
+    const following = await aggregate
+      .match({ userId: targetId })
+      .sort(followSort(sortOrder))
+      .limit(limit);
 
     const followingUserPreview: UserPreview[] = await Promise.all(
       following.map(async (following) => {
-        //target을 팔로우 하는 사람의 preview
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
             filter: { 'user.id': following.followId },
@@ -172,28 +243,72 @@ export class FollowService {
       }),
     );
 
-    const followingList = await this.checkFollowingStatus(
+    return await this.checkFollowingStatus(userId, followingUserPreview);
+  }
+
+  async followingPaginated(
+    userId: number,
+    { after, first, target, sortOrder }: FollowListPaginatedArgs,
+  ): Promise<FollowListPaginated> {
+    const targetId = await this.getuserIdByLogin(target);
+
+    const totalCount = await this.followerCount(targetId);
+
+    const aggregate = this.followModel.aggregate<follow>();
+    const filter: FilterQuery<follow> = {};
+
+    if (after) {
+      const [id, _login]: FollowListCursorField =
+        this.paginationCursorService.toFields(after, fieldExtractor);
+
+      //[{followAt}] -> 바로 구할 수 없음
+      const [followAt] = await aggregate.match({
+        userId: targetId,
+        followId: id,
+      });
+
+      if (!followAt) {
+        return this.generateEmptyPage();
+      }
+
+      switch (sortOrder) {
+        case FollowSortOrder.FOLLOW_AT_ASC:
+          filter.$or = [{ followAt: { $gt: followAt.followAt } }];
+          break;
+        case FollowSortOrder.FOLLOW_AT_DESC:
+          filter.$or = [{ followAt: { $lt: followAt.followAt } }];
+          break;
+      }
+    }
+
+    const followList = await this.followingList(
       userId,
-      followingUserPreview,
+      target,
+      first + 1,
+      sortOrder,
+      filter,
     );
 
-    return followingList;
+    return this.paginationCursorService.toPaginated<FollowList>(
+      followList.slice(0, first),
+      totalCount,
+      followList.length > first,
+      cursorExtractor,
+    );
   }
 
-  async getFollowerCount(login: string): Promise<number> {
-    const id = await this.cursusUserService.findOneAndLean({
-      filter: { 'user.login': login },
-    });
-
-    return await this.followModel.countDocuments({ followId: id?.user.id }); //login filter
+  async followerCount(
+    followId: number,
+    filter?: FilterQuery<follow>,
+  ): Promise<number> {
+    return await this.followModel.countDocuments({ followId, filter });
   }
 
-  async getFollowingCount(login: string): Promise<number> {
-    const id = await this.cursusUserService.findOneAndLean({
-      filter: { 'user.login': login },
-    });
-
-    return await this.followModel.countDocuments({ userId: id?.user.id }); //login filter
+  async followingCount(
+    userId: number,
+    filter?: FilterQuery<follow>,
+  ): Promise<number> {
+    return await this.followModel.countDocuments({ userId, filter });
   }
 
   async checkFollowingStatus(
@@ -221,4 +336,34 @@ export class FollowService {
 
     return Promise.all(followList);
   }
+
+  private generateEmptyPage(): FollowListPaginated {
+    return this.paginationCursorService.toPaginated<FollowList>(
+      [],
+      0,
+      false,
+      cursorExtractor,
+    );
+  }
 }
+
+//todo: 여기가 follow여야하지 않는가???????
+const cursorExtractor: CursorExtractor<FollowList> = (doc) =>
+  doc.user.id.toString() + '_' + doc.user.login.toString();
+
+const fieldExtractor: FieldExtractor<FollowListCursorField> = (
+  cursor: string,
+) => {
+  const [idString, loginString] = cursor.split('_');
+
+  return [parseInt(idString), loginString];
+};
+
+const followSort = (sortOrder: FollowSortOrder): Record<string, SortOrder> => {
+  switch (sortOrder) {
+    case FollowSortOrder.FOLLOW_AT_ASC:
+      return { _id: 'asc' };
+    case FollowSortOrder.FOLLOW_AT_DESC:
+      return { _id: 'desc' };
+  }
+};
