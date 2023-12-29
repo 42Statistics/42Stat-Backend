@@ -4,7 +4,9 @@ import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
+  QueryOneArgs,
   findAllAndLean,
+  findOneAndLean,
 } from 'src/database/mongoose/database.mongoose.query';
 import {
   CursorExtractor,
@@ -33,6 +35,12 @@ export class FollowService {
     private readonly cursusUserService: CursusUserService,
     private readonly paginationCursorService: PaginationCursorService,
   ) {}
+
+  async findOneAndLean(
+    queryOneArgs?: QueryOneArgs<follow>,
+  ): Promise<follow | null> {
+    return await findOneAndLean(this.followModel, queryOneArgs);
+  }
 
   async findAllAndLean(queryArgs?: QueryArgs<follow>): Promise<follow[]> {
     return await findAllAndLean(this.followModel, queryArgs);
@@ -118,12 +126,14 @@ export class FollowService {
       aggregate.match(filter);
     }
 
-    const follower = await aggregate
-      .match({ followId: targetId })
-      .sort(followSort(sortOrder))
-      .limit(limit);
+    const follower: Pick<follow, 'userId'>[] = await this.findAllAndLean({
+      filter: { followId: targetId },
+      select: { _id: 0, userId: 1 },
+      sort: followSort(sortOrder),
+      limit,
+    });
 
-    const followerUserPreview: UserPreview[] = await Promise.all(
+    const followerUserPreview = await Promise.all(
       follower.map(async (follower) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
@@ -138,7 +148,7 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowingStatus(userId, followerUserPreview);
+    return await this.checkFollowing(userId, followerUserPreview);
   }
 
   async followerPaginated(
@@ -149,17 +159,20 @@ export class FollowService {
 
     const totalCount = await this.followerCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
       const [id, _login]: FollowListCursorField =
         this.paginationCursorService.toFields(after, fieldExtractor);
 
-      const [followAt] = await aggregate.match({
-        userId: id,
-        followId: targetId,
-      });
+      const followAt: Pick<follow, 'followAt'> | null =
+        await this.findOneAndLean({
+          filter: {
+            userId: id,
+            followId: targetId,
+          },
+          select: { _id: 0, followAt: 1 },
+        });
 
       if (!followAt) {
         return this.generateEmptyPage();
@@ -206,12 +219,14 @@ export class FollowService {
       aggregate.match(filter);
     }
 
-    const following = await aggregate
-      .match({ userId: targetId })
-      .sort(followSort(sortOrder))
-      .limit(limit);
+    const following: Pick<follow, 'followId'>[] = await this.findAllAndLean({
+      filter: { userId: targetId },
+      select: { _id: 0, followId: 1 },
+      sort: followSort(sortOrder),
+      limit,
+    });
 
-    const followingUserPreview: UserPreview[] = await Promise.all(
+    const followingUserPreview = await Promise.all(
       following.map(async (following) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
@@ -226,7 +241,7 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowingStatus(userId, followingUserPreview);
+    return await this.checkFollowing(userId, followingUserPreview);
   }
 
   async followingPaginated(
@@ -235,19 +250,22 @@ export class FollowService {
   ): Promise<FollowListPaginated> {
     const targetId = await this.userIdByLogin(target);
 
-    const totalCount = await this.followerCount(targetId);
+    const totalCount = await this.followingCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
       const [id, _login]: FollowListCursorField =
         this.paginationCursorService.toFields(after, fieldExtractor);
 
-      const [followAt] = await aggregate.match({
-        userId: targetId,
-        followId: id,
-      });
+      const followAt: Pick<follow, 'followAt'> | null =
+        await this.findOneAndLean({
+          filter: {
+            userId: targetId,
+            followId: id,
+          },
+          select: { _id: 0, followAt: 1 },
+        });
 
       if (!followAt) {
         return this.generateEmptyPage();
@@ -293,46 +311,33 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async followStatus(
+  async isFollowing(
     userId: number,
-    target: string,
+    targetId: number,
   ): Promise<boolean | undefined> {
-    const followId = await this.userIdByLogin(target);
-
     let isFollowing: boolean | undefined = undefined;
 
-    await this.followModel.findOne({
-      userId,
-      followId,
-    });
+    if (userId !== targetId) {
+      isFollowing = !!(await this.followModel.findOne({
+        userId,
+        targetId,
+      }));
+    }
 
     return isFollowing;
   }
 
-  async checkFollowingStatus(
+  async checkFollowing(
     userId: number,
     userPreview: UserPreview[],
   ): Promise<FollowList[]> {
     const followList = userPreview.map(async (user) => {
-      if (!user) {
-        throw new NotFoundException();
-      }
-
-      let isFollowing: boolean | undefined = undefined;
-
-      if (userId !== user.id) {
-        const isFollowed = await this.followModel.findOne({
-          userId: userId,
-          followId: user.id,
-        });
-
-        isFollowing = !!isFollowed;
-      }
+      const isFollowing = await this.isFollowing(userId, user.id);
 
       return { isFollowing, user };
     });
 
-    return Promise.all(followList);
+    return await Promise.all(followList);
   }
 
   private generateEmptyPage(): FollowListPaginated {
