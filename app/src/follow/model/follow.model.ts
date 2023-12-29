@@ -1,5 +1,7 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
+import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
+import { follow } from '../db/follow.database.schema';
 
 @ObjectType()
 export class FollowList {
@@ -9,6 +11,9 @@ export class FollowList {
   @Field()
   user: UserPreview;
 }
+
+@ObjectType()
+export class FollowListPaginated extends CursorPaginated(FollowList) {}
 
 @ObjectType()
 export class FollowListWithCount {
