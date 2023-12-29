@@ -293,6 +293,22 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
+  async followStatus(
+    userId: number,
+    target: string,
+  ): Promise<boolean | undefined> {
+    const followId = await this.userIdByLogin(target);
+
+    let isFollowing: boolean | undefined = undefined;
+
+    await this.followModel.findOne({
+      userId,
+      followId,
+    });
+
+    return isFollowing;
+  }
+
   async checkFollowingStatus(
     userId: number,
     userPreview: UserPreview[],

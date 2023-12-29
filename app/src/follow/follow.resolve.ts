@@ -63,6 +63,15 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
+  @Query((_returns) => Boolean, { nullable: true })
+  async getFollowStatus(
+    @MyUserId() userId: number,
+    @Args('target') target: string,
+  ): Promise<boolean | undefined> {
+    return await this.followService.followStatus(userId, target);
+  }
+
+  @UseGuards(StatAuthGuard)
   @Query((_returns) => FollowListWithCount)
   async getFollowerList(
     @MyUserId() userId: number,
