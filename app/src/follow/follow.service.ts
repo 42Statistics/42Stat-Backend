@@ -123,7 +123,7 @@ export class FollowService {
       .sort(followSort(sortOrder))
       .limit(limit);
 
-    const followerUserPreview: UserPreview[] = await Promise.all(
+    const followerUserPreview = await Promise.all(
       follower.map(async (follower) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
@@ -211,7 +211,7 @@ export class FollowService {
       .sort(followSort(sortOrder))
       .limit(limit);
 
-    const followingUserPreview: UserPreview[] = await Promise.all(
+    const followingUserPreview = await Promise.all(
       following.map(async (following) => {
         const userPreview =
           await this.cursusUserService.findOneUserPreviewAndLean({
