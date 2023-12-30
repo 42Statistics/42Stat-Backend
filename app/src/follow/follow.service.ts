@@ -159,7 +159,6 @@ export class FollowService {
 
     const totalCount = await this.followerCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
@@ -253,7 +252,6 @@ export class FollowService {
 
     const totalCount = await this.followingCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
