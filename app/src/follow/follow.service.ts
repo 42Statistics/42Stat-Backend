@@ -314,10 +314,6 @@ export class FollowService {
     userPreview: UserPreview[],
   ): Promise<FollowList[]> {
     const followList = userPreview.map(async (user) => {
-      if (!user) {
-        throw new NotFoundException();
-      }
-
       let isFollowing: boolean | undefined = undefined;
 
       if (userId !== user.id) {
@@ -332,7 +328,7 @@ export class FollowService {
       return { isFollowing, user };
     });
 
-    return Promise.all(followList);
+    return await Promise.all(followList);
   }
 
   private generateEmptyPage(): FollowListPaginated {
