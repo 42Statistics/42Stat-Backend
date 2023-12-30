@@ -301,10 +301,12 @@ export class FollowService {
 
     let isFollowing: boolean | undefined = undefined;
 
-    await this.followModel.findOne({
-      userId,
-      followId,
-    });
+    if (userId !== followId) {
+      isFollowing = !!(await this.followModel.findOne({
+        userId,
+        followId,
+      }));
+    }
 
     return isFollowing;
   }
