@@ -148,7 +148,7 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowingStatus(userId, followerUserPreview);
+    return await this.checkFollowing(userId, followerUserPreview);
   }
 
   async followerPaginated(
@@ -159,7 +159,6 @@ export class FollowService {
 
     const totalCount = await this.followerCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
@@ -242,7 +241,7 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowingStatus(userId, followingUserPreview);
+    return await this.checkFollowing(userId, followingUserPreview);
   }
 
   async followingPaginated(
@@ -253,7 +252,6 @@ export class FollowService {
 
     const totalCount = await this.followingCount(targetId);
 
-    const aggregate = this.followModel.aggregate<follow>();
     const filter: FilterQuery<follow> = {};
 
     if (after) {
@@ -313,39 +311,28 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async followStatus(
+  async isFollowing(
     userId: number,
-    target: string,
+    targetId: number,
   ): Promise<boolean | undefined> {
-    const followId = await this.userIdByLogin(target);
-
     let isFollowing: boolean | undefined = undefined;
 
-    if (userId !== followId) {
+    if (userId !== targetId) {
       isFollowing = !!(await this.followModel.findOne({
         userId,
-        followId,
+        targetId,
       }));
     }
 
     return isFollowing;
   }
 
-  async checkFollowingStatus(
+  async checkFollowing(
     userId: number,
     userPreview: UserPreview[],
   ): Promise<FollowList[]> {
     const followList = userPreview.map(async (user) => {
-      let isFollowing: boolean | undefined = undefined;
-
-      if (userId !== user.id) {
-        const isFollowed = await this.followModel.findOne({
-          userId: userId,
-          followId: user.id,
-        });
-
-        isFollowing = !!isFollowed;
-      }
+      const isFollowing = await this.isFollowing(userId, user.id);
 
       return { isFollowing, user };
     });
