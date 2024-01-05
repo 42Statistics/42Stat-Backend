@@ -80,11 +80,6 @@ type FollowListPaginated {
   pageInfo: CursorPageInfo!
 }
 
-type FollowListWithCount {
-  followList: [FollowList!]!
-  count: Int!
-}
-
 type LinkableAccount {
   platform: String!
   id: String!
@@ -642,9 +637,7 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getIsFollowing(targetId: Int!): Boolean!
-  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
   getFollowerPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
   getFollowingPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 

@@ -72,68 +72,12 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
-  async getFollowerList(
-    @MyUserId() userId: number,
-    @Args('target') target: string,
-    @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', {
-      type: () => FollowSortOrder,
-      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
-    })
-    sortOrder: FollowSortOrder,
-  ): Promise<FollowListWithCount> {
-    const targetId = await this.followService.userIdByLogin(target);
-    const count = await this.followService.followerCount(targetId);
-
-    const followerList = await this.followService.followerList(
-      userId,
-      target,
-      limit,
-      sortOrder,
-    );
-
-    return {
-      count,
-      followList: followerList,
-    };
-  }
-
-  @UseGuards(StatAuthGuard)
   @Query((_returns) => FollowListPaginated)
   async getFollowerPaginated(
     @MyUserId() userId: number,
     @Args() args: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
     return await this.followService.followerPaginated(userId, args);
-  }
-
-  @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
-  async getFollowingList(
-    @MyUserId() userId: number,
-    @Args('target') target: string,
-    @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', {
-      type: () => FollowSortOrder,
-      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
-    })
-    sortOrder: FollowSortOrder,
-  ): Promise<FollowListWithCount> {
-    const targetId = await this.followService.userIdByLogin(target);
-    const count = await this.followService.followingCount(targetId);
-
-    const followingList = await this.followService.followingList(
-      userId,
-      target,
-      limit,
-      sortOrder,
-    );
-
-    return {
-      count,
-      followList: followingList,
-    };
   }
 
   @UseGuards(StatAuthGuard)
