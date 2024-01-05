@@ -80,11 +80,6 @@ type FollowListPaginated {
   pageInfo: CursorPageInfo!
 }
 
-type FollowListWithCount {
-  followList: [FollowList!]!
-  count: Int!
-}
-
 type LinkableAccount {
   platform: String!
   id: String!
@@ -641,10 +636,8 @@ type Query {
   getEvalLogs(after: String, first: Int! = 20, corrector: String, corrected: String, projectName: String, outstandingOnly: Boolean! = false, imperfectOnly: Boolean! = false, sortOrder: EvalLogSortOrder! = BEGIN_AT_DESC): EvalLogsPaginated!
   getSetting: Setting!
   getExpTable: [ExpTable!]!
-  getIsFollowing(target: String!): Boolean
-  getFollowerList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
+  getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingList(target: String!, limit: Int! = 3, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListWithCount!
   getFollowingPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 
