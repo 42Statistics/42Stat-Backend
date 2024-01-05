@@ -62,12 +62,15 @@ export class FollowService {
   ): Promise<typeof FollowResult> {
     const following = await this.cursusUserService.getuserIdByLogin(target);
 
-    const alreadyFollow = await this.followModel.find({
-      userId: userId,
-      followId: following,
-    });
+    const alreadyFollow = await this.followModel.findOne(
+      {
+        userId: userId,
+        followId: following,
+      },
+      { _id: 1 },
+    );
 
-    if (!following || userId === following || alreadyFollow.length) {
+    if (!following || userId === following || alreadyFollow) {
       return { message: 'fail' };
     }
 
