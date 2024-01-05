@@ -115,7 +115,6 @@ export class FollowService {
     return { message: 'fail' };
   }
 
-  // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
   async followerList(
     userId: number,
     target: string,
@@ -316,20 +315,11 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async isFollowing(
-    userId: number,
-    targetId: number,
-  ): Promise<boolean | undefined> {
-    let isFollowing: boolean | undefined = undefined;
-
-    if (userId !== targetId) {
-      isFollowing = !!(await this.followModel.findOne({
-        userId,
-        targetId,
-      }));
-    }
-
-    return isFollowing;
+  async isFollowing(userId: number, targetId: number): Promise<boolean> {
+    return !!(await this.followModel.findOne({
+      userId,
+      targetId,
+    }));
   }
 
   async checkFollowing(

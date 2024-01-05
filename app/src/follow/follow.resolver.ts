@@ -63,13 +63,11 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => Boolean, { nullable: true })
+  @Query((_returns) => Boolean)
   async getIsFollowing(
     @MyUserId() userId: number,
-    @Args('target') target: string,
-  ): Promise<boolean | undefined> {
-    const targetId = await this.followService.userIdByLogin(target);
-
+    @Args('targetId') targetId: number,
+  ): Promise<boolean> {
     return await this.followService.isFollowing(userId, targetId);
   }
 
