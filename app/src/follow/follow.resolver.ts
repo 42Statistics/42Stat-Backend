@@ -41,7 +41,7 @@ export class FollowResolver {
     const followResult = await this.followService.followUser(userId, target);
 
     if (followResult.message === 'OK') {
-      pubSub.publish('followUpdated', { followUpdated: followResult });
+      await pubSub.publish('followUpdated', { followUpdated: followResult });
     }
 
     return followResult;
@@ -56,7 +56,7 @@ export class FollowResolver {
     const followResult = await this.followService.unfollowUser(userId, target);
 
     if (followResult.message === 'OK') {
-      pubSub.publish('followUpdated', { followUpdated: followResult });
+      await pubSub.publish('followUpdated', { followUpdated: followResult });
     }
 
     return followResult;

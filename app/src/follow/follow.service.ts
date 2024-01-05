@@ -71,9 +71,11 @@ export class FollowService {
       return { message: 'fail' };
     }
 
-    const result = await this.followModel
-      .create({ userId: userId, followId: following, followAt: new Date() })
-      .then((result) => result.toObject());
+    const result = await this.followModel.create({
+      userId: userId,
+      followId: following,
+      followAt: new Date(),
+    });
 
     return {
       message: 'OK',
