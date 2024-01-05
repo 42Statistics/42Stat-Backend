@@ -78,15 +78,17 @@ export class CursusUserService {
   }
 
   async getuserIdByLogin(login: string): Promise<number | null> {
-    const userId = await this.findOneAndLean({
-      filter: { 'user.login': login },
-    }).then((user) => user?.user.id);
+    const cursusUser: { user: Pick<cursus_user['user'], 'id'> } | null =
+      await this.findOneAndLean({
+        filter: { 'user.login': login },
+        select: { 'user.id': 1 },
+      });
 
-    if (!userId) {
+    if (!cursusUser) {
       return null;
     }
 
-    return userId;
+    return cursusUser.user.id;
   }
 
   async findAllAndLean(
