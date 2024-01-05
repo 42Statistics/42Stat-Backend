@@ -63,42 +63,12 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => Boolean, { nullable: true })
+  @Query((_returns) => Boolean)
   async getIsFollowing(
     @MyUserId() userId: number,
-    @Args('target') target: string,
-  ): Promise<boolean | undefined> {
-    const targetId = await this.followService.userIdByLogin(target);
-
+    @Args('targetId') targetId: number,
+  ): Promise<boolean> {
     return await this.followService.isFollowing(userId, targetId);
-  }
-
-  @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
-  async getFollowerList(
-    @MyUserId() userId: number,
-    @Args('target') target: string,
-    @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', {
-      type: () => FollowSortOrder,
-      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
-    })
-    sortOrder: FollowSortOrder,
-  ): Promise<FollowListWithCount> {
-    const targetId = await this.followService.userIdByLogin(target);
-    const count = await this.followService.followerCount(targetId);
-
-    const followerList = await this.followService.followerList(
-      userId,
-      target,
-      limit,
-      sortOrder,
-    );
-
-    return {
-      count,
-      followList: followerList,
-    };
   }
 
   @UseGuards(StatAuthGuard)
@@ -108,34 +78,6 @@ export class FollowResolver {
     @Args() args: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
     return await this.followService.followerPaginated(userId, args);
-  }
-
-  @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListWithCount)
-  async getFollowingList(
-    @MyUserId() userId: number,
-    @Args('target') target: string,
-    @Args('limit', { defaultValue: 3 }) limit: number,
-    @Args('sortOrder', {
-      type: () => FollowSortOrder,
-      defaultValue: FollowSortOrder.FOLLOW_AT_DESC,
-    })
-    sortOrder: FollowSortOrder,
-  ): Promise<FollowListWithCount> {
-    const targetId = await this.followService.userIdByLogin(target);
-    const count = await this.followService.followingCount(targetId);
-
-    const followingList = await this.followService.followingList(
-      userId,
-      target,
-      limit,
-      sortOrder,
-    );
-
-    return {
-      count,
-      followList: followingList,
-    };
   }
 
   @UseGuards(StatAuthGuard)

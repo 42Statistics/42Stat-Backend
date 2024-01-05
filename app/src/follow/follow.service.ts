@@ -62,12 +62,15 @@ export class FollowService {
   ): Promise<typeof FollowResult> {
     const following = await this.cursusUserService.getuserIdByLogin(target);
 
-    const alreadyFollow = await this.followModel.find({
-      userId: userId,
-      followId: following,
-    });
+    const alreadyFollow = await this.followModel.findOne(
+      {
+        userId: userId,
+        followId: following,
+      },
+      { _id: 1 },
+    );
 
-    if (!following || userId === following || alreadyFollow.length) {
+    if (!following || userId === following || alreadyFollow) {
       return { message: 'fail' };
     }
 
@@ -112,7 +115,6 @@ export class FollowService {
     return { message: 'fail' };
   }
 
-  // getFollowerList("yeju") -> yeju를 팔로우 하는 사람들
   async followerList(
     userId: number,
     target: string,
@@ -313,20 +315,11 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async isFollowing(
-    userId: number,
-    targetId: number,
-  ): Promise<boolean | undefined> {
-    let isFollowing: boolean | undefined = undefined;
-
-    if (userId !== targetId) {
-      isFollowing = !!(await this.followModel.findOne({
-        userId,
-        targetId,
-      }));
-    }
-
-    return isFollowing;
+  async isFollowing(userId: number, targetId: number): Promise<boolean> {
+    return !!(await this.followModel.findOne({
+      userId,
+      targetId,
+    }));
   }
 
   async checkFollowing(
