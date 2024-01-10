@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { scale_team } from 'src/api/scaleTeam/db/scaleTeam.database.schema';
 import {
@@ -143,7 +143,20 @@ const cursorExtractor: CursorExtractor<EvalLog> = (doc) =>
   doc.id.toString() + '_' + doc.header.beginAt.toISOString();
 
 const fieldExtractor: FieldExtractor<EvalLogCursorField> = (cursor: string) => {
-  const [idString, dateString] = cursor.split('_');
+  const cursorDataList = cursor.split('_');
+  if (cursorDataList.length !== 2) {
+    throw new BadRequestException('Invalid Cursor');
+  }
 
-  return [parseInt(idString), new Date(dateString)];
+  const userId = parseInt(cursorDataList[0]);
+  if (isNaN(userId)) {
+    throw new BadRequestException('Invalid Cursor');
+  }
+
+  const date = new Date(cursorDataList[1]).getTime();
+  if (isNaN(date)) {
+    throw new BadRequestException('Invalid Cursor');
+  }
+
+  return [userId, new Date(date)];
 };
