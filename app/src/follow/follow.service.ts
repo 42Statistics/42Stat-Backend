@@ -11,8 +11,8 @@ import {
 import {
   CursorExtractor,
   FieldExtractor,
-  PaginationCursorService,
 } from 'src/pagination/cursor/pagination.cursor.service';
+import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
 import {
@@ -33,7 +33,7 @@ export class FollowService {
     @InjectModel(follow.name)
     private readonly followModel: Model<follow>,
     private readonly cursusUserService: CursusUserService,
-    private readonly paginationCursorService: PaginationCursorService,
+    private readonly paginationIndexService: PaginationIndexService,
   ) {}
 
   async findOneAndLean(
@@ -118,7 +118,6 @@ export class FollowService {
   async followerList(
     userId: number,
     target: string,
-    limit: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
@@ -134,7 +133,6 @@ export class FollowService {
       filter: { followId: targetId },
       select: { _id: 0, userId: 1 },
       sort: followSort(sortOrder),
-      limit,
     });
 
     const followerUserPreview = await Promise.all(
@@ -157,61 +155,19 @@ export class FollowService {
 
   async followerPaginated(
     userId: number,
-    { after, first, target, sortOrder }: FollowListPaginatedArgs,
+    { pageNumber, pageSize, target, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const targetId = await this.userIdByLogin(target);
+    const followList = await this.followerList(userId, target, sortOrder);
 
-    const totalCount = await this.followerCount(targetId);
-
-    const filter: FilterQuery<follow> = {};
-
-    if (after) {
-      const [id, _login]: FollowListCursorField =
-        this.paginationCursorService.toFields(after, fieldExtractor);
-
-      const followAt: Pick<follow, 'followAt'> | null =
-        await this.findOneAndLean({
-          filter: {
-            userId: id,
-            followId: targetId,
-          },
-          select: { _id: 0, followAt: 1 },
-        });
-
-      if (!followAt) {
-        return this.generateEmptyPage();
-      }
-
-      switch (sortOrder) {
-        case FollowSortOrder.FOLLOW_AT_ASC:
-          filter.$or = [{ followAt: { $gt: followAt.followAt } }];
-          break;
-        case FollowSortOrder.FOLLOW_AT_DESC:
-          filter.$or = [{ followAt: { $lt: followAt.followAt } }];
-          break;
-      }
-    }
-
-    const followList = await this.followerList(
-      userId,
-      target,
-      first + 1,
-      sortOrder,
-      filter,
-    );
-
-    return this.paginationCursorService.toPaginated<FollowList>(
-      followList.slice(0, first),
-      totalCount,
-      followList.length > first,
-      cursorExtractor,
-    );
+    return this.paginationIndexService.toPaginated<FollowList>(followList, {
+      pageNumber,
+      pageSize,
+    });
   }
 
   async followingList(
     userId: number,
     target: string,
-    limit: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
@@ -227,7 +183,6 @@ export class FollowService {
       filter: { userId: targetId },
       select: { _id: 0, followId: 1 },
       sort: followSort(sortOrder),
-      limit,
     });
 
     const followingUserPreview = await Promise.all(
@@ -250,55 +205,14 @@ export class FollowService {
 
   async followingPaginated(
     userId: number,
-    { after, first, target, sortOrder }: FollowListPaginatedArgs,
+    { pageNumber, pageSize, target, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const targetId = await this.userIdByLogin(target);
+    const followList = await this.followingList(userId, target, sortOrder);
 
-    const totalCount = await this.followingCount(targetId);
-
-    const filter: FilterQuery<follow> = {};
-
-    if (after) {
-      const [id, _login]: FollowListCursorField =
-        this.paginationCursorService.toFields(after, fieldExtractor);
-
-      const followAt: Pick<follow, 'followAt'> | null =
-        await this.findOneAndLean({
-          filter: {
-            userId: targetId,
-            followId: id,
-          },
-          select: { _id: 0, followAt: 1 },
-        });
-
-      if (!followAt) {
-        return this.generateEmptyPage();
-      }
-
-      switch (sortOrder) {
-        case FollowSortOrder.FOLLOW_AT_ASC:
-          filter.$or = [{ followAt: { $gt: followAt.followAt } }];
-          break;
-        case FollowSortOrder.FOLLOW_AT_DESC:
-          filter.$or = [{ followAt: { $lt: followAt.followAt } }];
-          break;
-      }
-    }
-
-    const followList = await this.followingList(
-      userId,
-      target,
-      first + 1,
-      sortOrder,
-      filter,
-    );
-
-    return this.paginationCursorService.toPaginated<FollowList>(
-      followList.slice(0, first),
-      totalCount,
-      followList.length > first,
-      cursorExtractor,
-    );
+    return this.paginationIndexService.toPaginated<FollowList>(followList, {
+      pageSize,
+      pageNumber,
+    });
   }
 
   async followerCount(
@@ -334,27 +248,7 @@ export class FollowService {
 
     return await Promise.all(followList);
   }
-
-  private generateEmptyPage(): FollowListPaginated {
-    return this.paginationCursorService.toPaginated<FollowList>(
-      [],
-      0,
-      false,
-      cursorExtractor,
-    );
-  }
 }
-
-const cursorExtractor: CursorExtractor<FollowList> = (doc) =>
-  doc.user.id.toString() + '_' + doc.user.login.toString();
-
-const fieldExtractor: FieldExtractor<FollowListCursorField> = (
-  cursor: string,
-) => {
-  const [idString, loginString] = cursor.split('_');
-
-  return [parseInt(idString), loginString];
-};
 
 const followSort = (sortOrder: FollowSortOrder): Record<string, SortOrder> => {
   switch (sortOrder) {
