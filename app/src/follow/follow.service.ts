@@ -158,10 +158,18 @@ export class FollowService {
 
     const followingUserPreview = await Promise.all(
       following.map(async (following) => {
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(following.followId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
         const userPreview = {
-          id: following.followId,
-          login: '',
-          imgUrl: '',
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
         };
 
         if (!userPreview) {
