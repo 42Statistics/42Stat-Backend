@@ -71,6 +71,11 @@ type FollowListPaginated {
   pageNumber: Int!
 }
 
+type FollowSuccess {
+  userId: Int!
+  followId: Int!
+}
+
 type LinkableAccount {
   platform: String!
   id: String!
@@ -634,8 +639,8 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getIsFollowing(targetId: Int!): Boolean!
-  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 
 enum EvalLogSortOrder {
@@ -656,8 +661,8 @@ type Mutation {
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
-  followUser(target: String!): FollowResult!
-  unfollowUser(target: String!): FollowResult!
+  followUser(targetId: Int!): FollowSuccess!
+  unfollowUser(targetId: Int!): FollowSuccess!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
@@ -671,18 +676,6 @@ input GoogleLoginInput {
   credential: String!
 }
 
-union FollowResult = FollowSuccess | FollowFail
-
-type FollowSuccess {
-  message: String!
-  userId: Int!
-  followId: Int!
-}
-
-type FollowFail {
-  message: String!
-}
-
 type Subscription {
-  followUpdated: FollowResult!
+  followUpdated: FollowSuccess!
 }

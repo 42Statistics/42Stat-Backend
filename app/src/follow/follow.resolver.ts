@@ -1,4 +1,4 @@
-import { UseFilters, UseGuards } from '@nestjs/common';
+import { NotFoundException, UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver, Subscription } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { MyUserId } from 'src/auth/myContext';
@@ -6,7 +6,7 @@ import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
 import { FollowListPaginatedArgs } from './dto/follow.dto.getFollowList';
 import { FollowService } from './follow.service';
-import { FollowListPaginated, FollowResult } from './model/follow.model';
+import { FollowListPaginated, FollowSuccess } from './model/follow.model';
 
 const pubSub = new PubSub();
 
@@ -15,44 +15,49 @@ const pubSub = new PubSub();
 export class FollowResolver {
   constructor(private readonly followService: FollowService) {}
 
-  @Subscription((_returns) => FollowResult, {
-    name: 'followUpdated',
-    filter: (payload, _variables) => {
-      return payload.followUpdated.message === 'OK';
-    },
-  })
+  @Subscription((_returns) => FollowSuccess, { name: 'followUpdated' })
   followUpdated() {
     return pubSub.asyncIterator('followUpdated');
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => FollowResult)
+  @Mutation((_returns) => FollowSuccess)
   async followUser(
     @MyUserId() userId: number,
-    @Args('target') target: string,
-  ): Promise<typeof FollowResult> {
-    const followResult = await this.followService.followUser(userId, target);
+    @Args('targetId') targetId: number,
+  ): Promise<FollowSuccess> {
+    try {
+      const followResult = await this.followService.followUser(
+        userId,
+        targetId,
+      );
 
-    if (followResult.message === 'OK') {
       await pubSub.publish('followUpdated', { followUpdated: followResult });
-    }
 
-    return followResult;
+      return followResult;
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 
   @UseGuards(StatAuthGuard)
-  @Mutation((_returns) => FollowResult)
+  @Mutation((_returns) => FollowSuccess)
   async unfollowUser(
     @MyUserId() userId: number,
-    @Args('target') target: string,
-  ): Promise<typeof FollowResult> {
-    const followResult = await this.followService.unfollowUser(userId, target);
+    @Args('targetId') targetId: number,
+  ): Promise<FollowSuccess> {
+    try {
+      const followResult = await this.followService.unfollowUser(
+        userId,
+        targetId,
+      );
 
-    if (followResult.message === 'OK') {
       await pubSub.publish('followUpdated', { followUpdated: followResult });
-    }
 
-    return followResult;
+      return followResult;
+    } catch (e) {
+      throw new NotFoundException();
+    }
   }
 
   @UseGuards(StatAuthGuard)

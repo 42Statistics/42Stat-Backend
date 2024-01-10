@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, SortOrder } from 'mongoose';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
@@ -8,12 +9,7 @@ import {
   findAllAndLean,
   findOneAndLean,
 } from 'src/database/mongoose/database.mongoose.query';
-import {
-  CursorExtractor,
-  FieldExtractor,
-} from 'src/pagination/cursor/pagination.cursor.service';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
-import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
 import {
   FollowSortOrder,
@@ -22,17 +18,15 @@ import {
 import type {
   FollowList,
   FollowListPaginated,
-  FollowResult,
+  FollowSuccess,
 } from './model/follow.model';
-
-type FollowListCursorField = [number, string];
 
 @Injectable()
 export class FollowService {
   constructor(
     @InjectModel(follow.name)
     private readonly followModel: Model<follow>,
-    private readonly cursusUserService: CursusUserService,
+    private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly paginationIndexService: PaginationIndexService,
   ) {}
 
@@ -46,83 +40,53 @@ export class FollowService {
     return await findAllAndLean(this.followModel, queryArgs);
   }
 
-  async userIdByLogin(login: string): Promise<number> {
-    const id = await this.cursusUserService.getuserIdByLogin(login);
-
-    if (!id) {
-      throw new NotFoundException();
-    }
-
-    return id;
-  }
-
-  async followUser(
-    userId: number,
-    target: string,
-  ): Promise<typeof FollowResult> {
-    const following = await this.cursusUserService.getuserIdByLogin(target);
-
+  async followUser(userId: number, targetId: number): Promise<FollowSuccess> {
     const alreadyFollow = await this.followModel.findOne(
       {
-        userId: userId,
-        followId: following,
+        userId,
+        followId: targetId,
       },
       { _id: 1 },
     );
 
-    if (!following || userId === following || alreadyFollow) {
-      return { message: 'fail' };
+    if (userId === targetId || alreadyFollow) {
+      throw new NotFoundException();
     }
 
-    const result = await this.followModel.create({
-      userId: userId,
-      followId: following,
-      followAt: new Date(),
-    });
-
     return {
-      message: 'OK',
-      userId: result.userId,
-      followId: result.followId,
+      userId,
+      followId: targetId,
     };
   }
 
-  async unfollowUser(
-    userId: number,
-    target: string,
-  ): Promise<typeof FollowResult> {
-    const following = await this.cursusUserService.getuserIdByLogin(target);
-
-    if (!following || userId === following) {
-      return { message: 'fail' };
+  async unfollowUser(userId: number, targetId: number): Promise<FollowSuccess> {
+    if (!targetId || userId === targetId) {
+      throw new NotFoundException();
     }
 
     const deletedCount = await this.followModel
       .deleteOne({
-        userId: userId,
-        followId: following,
+        userId,
+        followId: targetId,
       })
       .then((result) => result.deletedCount);
 
     if (deletedCount === 1) {
       return {
-        message: 'OK',
-        userId: userId,
-        followId: following,
+        userId,
+        followId: targetId,
       };
     }
 
-    return { message: 'fail' };
+    throw new NotFoundException();
   }
 
   async followerList(
     userId: number,
-    target: string,
+    targetId: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    const targetId = await this.userIdByLogin(target);
-
     const aggregate = this.followModel.aggregate<follow>();
 
     if (filter) {
@@ -137,10 +101,19 @@ export class FollowService {
 
     const followerUserPreview = await Promise.all(
       follower.map(async (follower) => {
-        const userPreview =
-          await this.cursusUserService.findOneUserPreviewAndLean({
-            filter: { 'user.id': follower.userId },
-          });
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(follower.userId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
 
         if (!userPreview) {
           throw new NotFoundException();
@@ -155,9 +128,9 @@ export class FollowService {
 
   async followerPaginated(
     userId: number,
-    { pageNumber, pageSize, target, sortOrder }: FollowListPaginatedArgs,
+    { pageNumber, pageSize, targetId, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const followList = await this.followerList(userId, target, sortOrder);
+    const followList = await this.followerList(userId, targetId, sortOrder);
 
     return this.paginationIndexService.toPaginated<FollowList>(followList, {
       pageNumber,
@@ -167,12 +140,10 @@ export class FollowService {
 
   async followingList(
     userId: number,
-    target: string,
+    targetId: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
-    const targetId = await this.userIdByLogin(target);
-
     const aggregate = this.followModel.aggregate<follow>();
 
     if (filter) {
@@ -187,10 +158,19 @@ export class FollowService {
 
     const followingUserPreview = await Promise.all(
       following.map(async (following) => {
-        const userPreview =
-          await this.cursusUserService.findOneUserPreviewAndLean({
-            filter: { 'user.id': following.followId },
-          });
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(following.followId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
 
         if (!userPreview) {
           throw new NotFoundException();
@@ -205,9 +185,9 @@ export class FollowService {
 
   async followingPaginated(
     userId: number,
-    { pageNumber, pageSize, target, sortOrder }: FollowListPaginatedArgs,
+    { pageNumber, pageSize, targetId, sortOrder }: FollowListPaginatedArgs,
   ): Promise<FollowListPaginated> {
-    const followList = await this.followingList(userId, target, sortOrder);
+    const followList = await this.followingList(userId, targetId, sortOrder);
 
     return this.paginationIndexService.toPaginated<FollowList>(followList, {
       pageSize,
@@ -229,10 +209,10 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async isFollowing(userId: number, targetId: number): Promise<boolean> {
+  async isFollowing(userId: number, followId: number): Promise<boolean> {
     return !!(await this.followModel.findOne({
       userId,
-      targetId,
+      followId,
     }));
   }
 

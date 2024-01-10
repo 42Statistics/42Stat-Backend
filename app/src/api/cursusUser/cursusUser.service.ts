@@ -130,37 +130,6 @@ export class CursusUserService {
     }));
   }
 
-  async findOneUserPreviewAndLean(
-    queryArgs?: Omit<QueryArgs<cursus_user>, 'select'>,
-  ): Promise<UserPreview | null> {
-    const cursusUsers: {
-      user: {
-        id: number;
-        login: string;
-        image: {
-          link?: string;
-        };
-      };
-    } | null = await this.findOneAndLean({
-      ...queryArgs,
-      select: {
-        'user.id': 1,
-        'user.login': 1,
-        'user.image.link': 1,
-      },
-    });
-
-    if (!cursusUsers) {
-      return null;
-    }
-
-    return {
-      id: cursusUsers.user.id,
-      login: cursusUsers.user.login,
-      imgUrl: cursusUsers.user.image.link,
-    };
-  }
-
   async userFullProfile(
     filter?: FilterQuery<cursus_user>,
   ): Promise<UserFullProfile[]> {
