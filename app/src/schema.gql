@@ -59,25 +59,16 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type CursorPageInfo {
-  totalCount: Int!
-  hasNextPage: Boolean!
-  endCursor: String
-}
-
 type FollowList {
   isFollowing: Boolean
   user: UserPreview!
 }
 
-type FollowListEdge {
-  cursor: String!
-  node: FollowList!
-}
-
 type FollowListPaginated {
-  edges: [FollowListEdge!]!
-  pageInfo: CursorPageInfo!
+  nodes: [FollowList!]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
 }
 
 type LinkableAccount {
@@ -111,6 +102,12 @@ type ProjectPreview {
   circle: Int
   pdfUrl: String
   difficulty: Int
+}
+
+type CursorPageInfo {
+  totalCount: Int!
+  hasNextPage: Boolean!
+  endCursor: String
 }
 
 type TeamPreview {
@@ -637,8 +634,8 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getIsFollowing(targetId: Int!): Boolean!
-  getFollowerPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingPaginated(after: String, first: Int! = 20, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 
 enum EvalLogSortOrder {
