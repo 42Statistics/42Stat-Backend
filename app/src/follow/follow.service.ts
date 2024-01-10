@@ -8,10 +8,6 @@ import {
   findAllAndLean,
   findOneAndLean,
 } from 'src/database/mongoose/database.mongoose.query';
-import {
-  CursorExtractor,
-  FieldExtractor,
-} from 'src/pagination/cursor/pagination.cursor.service';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { CursusUserService } from '../api/cursusUser/cursusUser.service';
 import { follow } from './db/follow.database.schema';
@@ -22,7 +18,7 @@ import {
 import type {
   FollowList,
   FollowListPaginated,
-  FollowResult,
+  FollowSuccess,
 } from './model/follow.model';
 
 type FollowListCursorField = [number, string];
@@ -56,10 +52,7 @@ export class FollowService {
     return id;
   }
 
-  async followUser(
-    userId: number,
-    target: string,
-  ): Promise<typeof FollowResult> {
+  async followUser(userId: number, target: string): Promise<FollowSuccess> {
     const following = await this.cursusUserService.getuserIdByLogin(target);
 
     const alreadyFollow = await this.followModel.findOne(
@@ -71,7 +64,7 @@ export class FollowService {
     );
 
     if (!following || userId === following || alreadyFollow) {
-      return { message: 'fail' };
+      throw new NotFoundException();
     }
 
     const result = await this.followModel.create({
@@ -81,20 +74,16 @@ export class FollowService {
     });
 
     return {
-      message: 'OK',
       userId: result.userId,
       followId: result.followId,
     };
   }
 
-  async unfollowUser(
-    userId: number,
-    target: string,
-  ): Promise<typeof FollowResult> {
+  async unfollowUser(userId: number, target: string): Promise<FollowSuccess> {
     const following = await this.cursusUserService.getuserIdByLogin(target);
 
     if (!following || userId === following) {
-      return { message: 'fail' };
+      throw new NotFoundException();
     }
 
     const deletedCount = await this.followModel
@@ -106,13 +95,12 @@ export class FollowService {
 
     if (deletedCount === 1) {
       return {
-        message: 'OK',
         userId: userId,
         followId: following,
       };
     }
 
-    return { message: 'fail' };
+    throw new NotFoundException();
   }
 
   async followerList(
