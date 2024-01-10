@@ -1,5 +1,5 @@
 import { ArgsType, Field, registerEnumType } from '@nestjs/graphql';
-import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
+import { PaginationIndexArgs } from 'src/pagination/index/dtos/pagination.index.dto.args';
 
 export enum FollowSortOrder {
   FOLLOW_AT_ASC,
@@ -9,7 +9,7 @@ export enum FollowSortOrder {
 registerEnumType(FollowSortOrder, { name: 'FollowSortOrder' });
 
 @ArgsType()
-export class FollowListPaginatedArgs extends PaginationCursorArgs {
+export class FollowListPaginatedArgs extends PaginationIndexArgs {
   @Field()
   target: string;
 

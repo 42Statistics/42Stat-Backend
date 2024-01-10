@@ -4,16 +4,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import {
-  FollowListPaginatedArgs,
-  FollowSortOrder,
-} from './dto/follow.dto.getFollowList';
+import { FollowListPaginatedArgs } from './dto/follow.dto.getFollowList';
 import { FollowService } from './follow.service';
-import {
-  FollowListPaginated,
-  FollowListWithCount,
-  FollowResult,
-} from './model/follow.model';
+import { FollowListPaginated, FollowResult } from './model/follow.model';
 
 const pubSub = new PubSub();
 
