@@ -639,8 +639,8 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getIsFollowing(targetId: Int!): Boolean!
-  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, target: String!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
 }
 
 enum EvalLogSortOrder {
@@ -661,8 +661,8 @@ type Mutation {
   refreshToken(refreshToken: String!): LoginSuccess!
   logout: Int!
   deleteAccount: Int!
-  followUser(target: String!): FollowSuccess!
-  unfollowUser(target: String!): FollowSuccess!
+  followUser(targetId: Int!): FollowSuccess!
+  unfollowUser(targetId: Int!): FollowSuccess!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
