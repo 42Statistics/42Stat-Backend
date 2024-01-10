@@ -1,4 +1,4 @@
-import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
+import { Field, ObjectType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
 import { IndexPaginated } from 'src/pagination/index/models/pagination.index.model';
 
@@ -24,32 +24,10 @@ export class FollowListWithCount {
 }
 
 @ObjectType()
-export class FollowFail {
-  @Field()
-  message: 'fail';
-}
-
-@ObjectType()
 export class FollowSuccess {
-  @Field()
-  message: 'OK';
-
   @Field()
   userId: number;
 
   @Field()
   followId: number;
 }
-
-export const FollowResult = createUnionType({
-  name: 'FollowResult',
-  types: () => [FollowSuccess, FollowFail] as const,
-  resolveType(value) {
-    switch (value.message) {
-      case 'OK':
-        return FollowSuccess;
-      case 'fail':
-        return FollowFail;
-    }
-  },
-});
