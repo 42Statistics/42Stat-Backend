@@ -11,7 +11,7 @@ registerEnumType(FollowSortOrder, { name: 'FollowSortOrder' });
 @ArgsType()
 export class FollowListPaginatedArgs extends PaginationIndexArgs {
   @Field()
-  target: string;
+  targetId: number;
 
   @Field((_type) => FollowSortOrder, {
     defaultValue: FollowSortOrder.FOLLOW_AT_DESC,

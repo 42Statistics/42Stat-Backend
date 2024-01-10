@@ -24,10 +24,13 @@ export class FollowResolver {
   @Mutation((_returns) => FollowSuccess)
   async followUser(
     @MyUserId() userId: number,
-    @Args('target') target: string,
+    @Args('targetId') targetId: number,
   ): Promise<FollowSuccess> {
     try {
-      const followResult = await this.followService.followUser(userId, target);
+      const followResult = await this.followService.followUser(
+        userId,
+        targetId,
+      );
 
       await pubSub.publish('followUpdated', { followUpdated: followResult });
 
@@ -41,12 +44,12 @@ export class FollowResolver {
   @Mutation((_returns) => FollowSuccess)
   async unfollowUser(
     @MyUserId() userId: number,
-    @Args('target') target: string,
+    @Args('targetId') targetId: number,
   ): Promise<FollowSuccess> {
     try {
       const followResult = await this.followService.unfollowUser(
         userId,
-        target,
+        targetId,
       );
 
       await pubSub.publish('followUpdated', { followUpdated: followResult });
