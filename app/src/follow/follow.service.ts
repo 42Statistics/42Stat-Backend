@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, SortOrder } from 'mongoose';
+import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
@@ -19,7 +20,6 @@ import type {
   FollowListPaginated,
   FollowSuccess,
 } from './model/follow.model';
-import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 
 @Injectable()
 export class FollowService {
@@ -209,10 +209,10 @@ export class FollowService {
     return await this.followModel.countDocuments({ userId, filter });
   }
 
-  async isFollowing(userId: number, targetId: number): Promise<boolean> {
+  async isFollowing(userId: number, followId: number): Promise<boolean> {
     return !!(await this.followModel.findOne({
       userId,
-      targetId,
+      followId,
     }));
   }
 
