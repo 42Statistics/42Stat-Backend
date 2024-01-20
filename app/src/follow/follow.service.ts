@@ -15,6 +15,7 @@ import {
   FollowSortOrder,
   type FollowListPaginatedArgs,
 } from './dto/follow.dto.getFollowList';
+import { FollowCacheService } from './follow.cache.service';
 import type {
   FollowList,
   FollowListPaginated,
@@ -28,6 +29,7 @@ export class FollowService {
     private readonly followModel: Model<follow>,
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly paginationIndexService: PaginationIndexService,
+    private readonly followCacheService: FollowCacheService,
   ) {}
 
   async findOneAndLean(
@@ -53,6 +55,13 @@ export class FollowService {
       throw new NotFoundException();
     }
 
+    const result = await this.followModel.create({
+      userId: userId,
+      followId: targetId,
+      followAt: new Date(),
+    });
+
+    //todo: use result
     return {
       userId,
       followId: targetId,
@@ -89,6 +98,18 @@ export class FollowService {
   ): Promise<FollowList[]> {
     const aggregate = this.followModel.aggregate<follow>();
 
+    const cachedFollowerList = await this.followCacheService.get(
+      targetId,
+      'follower',
+    );
+
+    if (cachedFollowerList) {
+      console.log(`return cachedFollowerList`);
+      return cachedFollowerList;
+    }
+
+    console.log(`dont have followerList cache`);
+
     if (filter) {
       aggregate.match(filter);
     }
@@ -123,7 +144,15 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowing(userId, followerUserPreview);
+    const followerList = await this.checkFollowing(userId, followerUserPreview);
+
+    await this.followCacheService.set({
+      id: targetId,
+      type: 'follower',
+      list: followerList,
+    });
+
+    return followerList;
   }
 
   async followerPaginated(
@@ -145,6 +174,18 @@ export class FollowService {
     filter?: FilterQuery<follow>,
   ): Promise<FollowList[]> {
     const aggregate = this.followModel.aggregate<follow>();
+
+    const cachedFollowingList = await this.followCacheService.get(
+      targetId,
+      'following',
+    );
+
+    if (cachedFollowingList) {
+      console.log(`return cachedfollowingList`);
+      return cachedFollowingList;
+    }
+
+    console.log(`dont have followingList cache`);
 
     if (filter) {
       aggregate.match(filter);
@@ -180,7 +221,18 @@ export class FollowService {
       }),
     );
 
-    return await this.checkFollowing(userId, followingUserPreview);
+    const followingList = await this.checkFollowing(
+      userId,
+      followingUserPreview,
+    );
+
+    await this.followCacheService.set({
+      id: targetId,
+      type: 'following',
+      list: followingList,
+    });
+
+    return followingList;
   }
 
   async followingPaginated(
