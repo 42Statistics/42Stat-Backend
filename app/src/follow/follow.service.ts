@@ -55,6 +55,13 @@ export class FollowService {
       throw new NotFoundException();
     }
 
+    const result = await this.followModel.create({
+      userId: userId,
+      followId: targetId,
+      followAt: new Date(),
+    });
+
+    //todo: use result
     return {
       userId,
       followId: targetId,
