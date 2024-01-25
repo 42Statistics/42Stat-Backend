@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
-import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
   QueryOneArgs,
@@ -18,6 +17,7 @@ import {
 import { FollowCacheService } from './follow.cache.service';
 import type {
   FollowList,
+  FollowListCacheType,
   FollowListPaginated,
   FollowSuccess,
 } from './model/follow.model';
@@ -55,13 +55,54 @@ export class FollowService {
       throw new NotFoundException();
     }
 
-    const result = await this.followModel.create({
-      userId: userId,
+    const followAt = new Date();
+
+    const target = await this.cursusUserCacheService.getUserPreview(targetId);
+
+    if (!target) {
+      throw new NotFoundException();
+    }
+
+    await this.followModel.create({
+      userId,
       followId: targetId,
-      followAt: new Date(),
+      followAt,
     });
 
-    //todo: use result
+    const cachedfollowingList = await this.followCacheService.get(
+      userId,
+      'following',
+    );
+
+    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
+    cachedfollowingList.unshift({ userPreview: target, followAt });
+
+    await this.followCacheService.set({
+      id: userId,
+      type: 'following',
+      list: cachedfollowingList,
+    });
+
+    const cachedfollowerList = await this.followCacheService.get(
+      targetId,
+      'follower',
+    );
+
+    const user = await this.cursusUserCacheService.getUserPreview(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
+    cachedfollowerList.unshift({ userPreview: user, followAt });
+
+    await this.followCacheService.set({
+      id: targetId,
+      type: 'follower',
+      list: cachedfollowerList,
+    });
+
     return {
       userId,
       followId: targetId,
@@ -69,7 +110,15 @@ export class FollowService {
   }
 
   async unfollowUser(userId: number, targetId: number): Promise<FollowSuccess> {
-    if (!targetId || userId === targetId) {
+    const existingFollow = await this.followModel.findOne(
+      {
+        userId,
+        followId: targetId,
+      },
+      { _id: 1 },
+    );
+
+    if (!existingFollow || userId === targetId) {
       throw new NotFoundException();
     }
 
@@ -80,14 +129,44 @@ export class FollowService {
       })
       .then((result) => result.deletedCount);
 
-    if (deletedCount === 1) {
-      return {
-        userId,
-        followId: targetId,
-      };
+    if (deletedCount !== 1) {
+      throw new NotFoundException();
     }
 
-    throw new NotFoundException();
+    const cachedFollowingList = await this.followCacheService.get(
+      userId,
+      'following',
+    );
+
+    const updatedFollowingList = cachedFollowingList.filter(
+      (follow) => follow.userPreview.id !== targetId,
+    );
+
+    await this.followCacheService.set({
+      id: userId,
+      type: 'following',
+      list: updatedFollowingList,
+    });
+
+    const cachedFollowerList = await this.followCacheService.get(
+      targetId,
+      'follower',
+    );
+
+    const updatedFollowerList = cachedFollowerList.filter(
+      (follow) => follow.userPreview.id !== userId,
+    );
+
+    await this.followCacheService.set({
+      id: targetId,
+      type: 'follower',
+      list: updatedFollowerList,
+    });
+
+    return {
+      userId,
+      followId: targetId,
+    };
   }
 
   async followerList(
@@ -103,48 +182,26 @@ export class FollowService {
       'follower',
     );
 
-    if (cachedFollowerList) {
-      console.log(`return cachedFollowerList`);
-      return cachedFollowerList;
+    if (cachedFollowerList.length) {
+      return await this.checkFollowing({
+        userId,
+        cachedFollowList: cachedFollowerList,
+      });
     }
-
-    console.log(`dont have followerList cache`);
 
     if (filter) {
       aggregate.match(filter);
     }
 
-    const follower: Pick<follow, 'userId'>[] = await this.findAllAndLean({
-      filter: { followId: targetId },
-      select: { _id: 0, userId: 1 },
-      sort: followSort(sortOrder),
-    });
-
-    const followerUserPreview = await Promise.all(
-      follower.map(async (follower) => {
-        const userFullProfile = await this.cursusUserCacheService
-          .getUserFullProfile(follower.userId)
-          .then((user) => user?.cursusUser.user);
-
-        if (!userFullProfile) {
-          throw new NotFoundException();
-        }
-
-        const userPreview = {
-          id: userFullProfile.id,
-          login: userFullProfile.login,
-          imgUrl: userFullProfile.image.link,
-        };
-
-        if (!userPreview) {
-          throw new NotFoundException();
-        }
-
-        return userPreview;
-      }),
+    const followerUserPreview = await this.followerListCache(
+      targetId,
+      sortOrder,
     );
 
-    const followerList = await this.checkFollowing(userId, followerUserPreview);
+    const followerList = await this.checkFollowing({
+      userId,
+      cachedFollowList: followerUserPreview,
+    });
 
     await this.followCacheService.set({
       id: targetId,
@@ -180,51 +237,26 @@ export class FollowService {
       'following',
     );
 
-    if (cachedFollowingList) {
-      console.log(`return cachedfollowingList`);
-      return cachedFollowingList;
+    if (cachedFollowingList.length) {
+      return await this.checkFollowing({
+        userId,
+        cachedFollowList: cachedFollowingList,
+      });
     }
-
-    console.log(`dont have followingList cache`);
 
     if (filter) {
       aggregate.match(filter);
     }
 
-    const following: Pick<follow, 'followId'>[] = await this.findAllAndLean({
-      filter: { userId: targetId },
-      select: { _id: 0, followId: 1 },
-      sort: followSort(sortOrder),
-    });
-
-    const followingUserPreview = await Promise.all(
-      following.map(async (following) => {
-        const userFullProfile = await this.cursusUserCacheService
-          .getUserFullProfile(following.followId)
-          .then((user) => user?.cursusUser.user);
-
-        if (!userFullProfile) {
-          throw new NotFoundException();
-        }
-
-        const userPreview = {
-          id: userFullProfile.id,
-          login: userFullProfile.login,
-          imgUrl: userFullProfile.image.link,
-        };
-
-        if (!userPreview) {
-          throw new NotFoundException();
-        }
-
-        return userPreview;
-      }),
+    const followingUserPreview = await this.followingListCache(
+      targetId,
+      sortOrder,
     );
 
-    const followingList = await this.checkFollowing(
+    const followingList = await this.checkFollowing({
       userId,
-      followingUserPreview,
-    );
+      cachedFollowList: followingUserPreview,
+    });
 
     await this.followCacheService.set({
       id: targetId,
@@ -268,17 +300,105 @@ export class FollowService {
     }));
   }
 
-  async checkFollowing(
-    userId: number,
-    userPreview: UserPreview[],
-  ): Promise<FollowList[]> {
-    const followList = userPreview.map(async (user) => {
-      const isFollowing = await this.isFollowing(userId, user.id);
+  async followingListCache(
+    targetId: number,
+    sortOrder: FollowSortOrder,
+  ): Promise<FollowListCacheType[]> {
+    const following: Pick<follow, 'followId' | 'followAt'>[] =
+      await this.findAllAndLean({
+        filter: { userId: targetId },
+        select: { _id: 0, followId: 1, followAt: 1 },
+        sort: followSort(sortOrder),
+      });
 
-      return { isFollowing, user };
-    });
+    const followingUserPreview = await Promise.all(
+      following.map(async (following) => {
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(following.followId)
+          .then((user) => user?.cursusUser.user);
 
-    return await Promise.all(followList);
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
+
+        if (!userPreview) {
+          throw new NotFoundException();
+        }
+
+        return { userPreview, followAt: following.followAt };
+      }),
+    );
+
+    return followingUserPreview;
+  }
+
+  async followerListCache(
+    targetId: number,
+    sortOrder: FollowSortOrder,
+  ): Promise<FollowListCacheType[]> {
+    const follower: Pick<follow, 'userId' | 'followAt'>[] =
+      await this.findAllAndLean({
+        filter: { followId: targetId },
+        select: { _id: 0, userId: 1, followAt: 1 },
+        sort: followSort(sortOrder),
+      });
+
+    const followerUserPreview = await Promise.all(
+      follower.map(async (follower) => {
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(follower.userId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
+
+        if (!userPreview) {
+          throw new NotFoundException();
+        }
+
+        return { userPreview, followAt: follower.followAt };
+      }),
+    );
+
+    return followerUserPreview;
+  }
+
+  async checkFollowing({
+    userId,
+    cachedFollowList,
+  }: {
+    userId: number;
+    cachedFollowList: FollowListCacheType[];
+  }): Promise<FollowList[]> {
+    const followList = Promise.all(
+      cachedFollowList.map(async (follow) => {
+        const isFollowing = await this.isFollowing(
+          userId,
+          follow.userPreview.id,
+        );
+
+        return {
+          isFollowing,
+          followAt: follow.followAt,
+          userPreview: follow.userPreview,
+        };
+      }),
+    );
+
+    return followList;
   }
 }
 

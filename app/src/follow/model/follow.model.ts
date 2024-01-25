@@ -4,24 +4,20 @@ import { IndexPaginated } from 'src/pagination/index/models/pagination.index.mod
 
 @ObjectType()
 export class FollowList {
-  @Field({ nullable: true })
-  isFollowing?: boolean;
+  @Field()
+  isFollowing: boolean;
 
   @Field()
-  user: UserPreview;
+  userPreview: UserPreview;
+
+  @Field()
+  followAt: Date;
 }
+
+export type FollowListCacheType = Omit<FollowList, 'isFollowing'>;
 
 @ObjectType()
 export class FollowListPaginated extends IndexPaginated(FollowList) {}
-
-@ObjectType()
-export class FollowListWithCount {
-  @Field((_type) => [FollowList])
-  followList: FollowList[];
-
-  @Field()
-  count: number;
-}
 
 @ObjectType()
 export class FollowSuccess {
