@@ -9,6 +9,7 @@ import {
   CacheUtilService,
   type UserFullProfileMap,
 } from 'src/cache/cache.util.service';
+import { UserPreview } from 'src/common/models/common.user.model';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
 import { CursusUserService } from './cursusUser.service';
 
@@ -31,6 +32,22 @@ export class CursusUserCacheService {
     private readonly cacheUtilService: CacheUtilService,
     private readonly cacheUtilRankingService: CacheUtilRankingService,
   ) {}
+
+  async getUserPreview(userId: number): Promise<UserPreview | undefined> {
+    const userFullProfile = await this.getUserFullProfile(userId);
+
+    const cursusUserProfile = userFullProfile?.cursusUser.user;
+
+    if (!cursusUserProfile) {
+      return undefined;
+    }
+
+    return {
+      id: cursusUserProfile.id,
+      login: cursusUserProfile.login,
+      imgUrl: cursusUserProfile.image.link,
+    };
+  }
 
   async getUserFullProfile(
     userId: number,
