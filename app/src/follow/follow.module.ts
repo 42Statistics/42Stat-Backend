@@ -16,7 +16,7 @@ import { FollowService } from './follow.service';
     CacheUtilModule,
   ],
   providers: [FollowResolver, FollowService, FollowCacheService],
-  exports: [FollowCacheService],
+  exports: [FollowService, FollowCacheService],
 })
 // eslint-disable-next-line
 export class FollowModule {}

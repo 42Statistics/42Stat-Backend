@@ -59,13 +59,14 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type FollowList {
-  isFollowing: Boolean
-  user: UserPreview!
+type MyFollow {
+  isFollowing: Boolean!
+  userPreview: UserPreview!
+  followAt: DateTime!
 }
 
-type FollowListPaginated {
-  nodes: [FollowList!]!
+type MyFollowPaginated {
+  nodes: [MyFollow!]!
   totalCount: Int!
   pageSize: Int!
   pageNumber: Int!
@@ -639,8 +640,8 @@ type Query {
   getSetting: Setting!
   getExpTable: [ExpTable!]!
   getIsFollowing(targetId: Int!): Boolean!
-  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
-  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): FollowListPaginated!
+  getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
+  getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
 }
 
 enum EvalLogSortOrder {

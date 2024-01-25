@@ -1,7 +1,7 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable } from '@nestjs/common';
 import { CacheUtilService } from 'src/cache/cache.util.service';
-import { FollowList } from './model/follow.model';
+import { Follow } from './model/follow.model';
 
 export const FOLLOW_LISTS = 'followLists';
 
@@ -19,29 +19,22 @@ export class FollowCacheService {
   }: {
     id: number;
     type: 'follower' | 'following';
-    list: FollowList[];
+    list: Follow[];
   }): Promise<void> {
     const key = `${id}:${type}:${FOLLOW_LISTS}`;
 
-    console.log(`setting: ${key}`);
-
-    await this.cacheUtilService.set(key, list);
+    await this.cacheUtilService.set(key, list, 0);
   }
 
-  async get(
-    userId: number,
-    type: 'follower' | 'following',
-  ): Promise<FollowList[] | undefined> {
+  async get(userId: number, type: 'follower' | 'following'): Promise<Follow[]> {
     const key = `${userId}:${type}:${FOLLOW_LISTS}`;
 
-    const cachedData = await this.cacheUtilService.get<FollowList[]>(key);
+    const cachedData = await this.cacheUtilService.get<Follow[]>(key);
 
     if (!cachedData) {
-      return undefined;
+      return []; //todo: 흠,,,
     }
 
     return cachedData;
   }
-
-  //updateCacheValue(key, data); //: 주어진 키에 해당하는 캐시 값을 업데이트합니다.
 }

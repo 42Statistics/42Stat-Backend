@@ -32,6 +32,9 @@ import { CacheUtilRankingService } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
+import { FollowSortOrder } from 'src/follow/dto/follow.dto';
+import { FollowCacheService } from 'src/follow/follow.cache.service';
+import { FollowService } from 'src/follow/follow.service';
 
 export const LAMBDA_UPDATED_AT = 'lambdaUpdatedAt';
 
@@ -48,6 +51,8 @@ export class LambdaService {
     private readonly experienceUserService: ExperienceUserService,
     private readonly locationService: LocationService,
     private readonly dateRangeService: DateRangeService,
+    private readonly followService: FollowService,
+    private readonly followCacheService: FollowCacheService,
   ) {}
 
   async updatePreloadCache(timestamp: number) {
@@ -71,6 +76,32 @@ export class LambdaService {
         userFullProfiles,
         updatedAt,
       );
+
+      userFullProfiles.map(async (userFullProfile) => {
+        const followerList = await this.followService.followerListCache(
+          userFullProfile.cursusUser.user.id,
+          FollowSortOrder.FOLLOW_AT_DESC,
+        );
+
+        await this.followCacheService.set({
+          id: userFullProfile.cursusUser.user.id,
+          type: 'follower',
+          list: followerList,
+        });
+      });
+
+      userFullProfiles.map(async (userFullProfile) => {
+        const followingList = await this.followService.followingListCache(
+          userFullProfile.cursusUser.user.id,
+          FollowSortOrder.FOLLOW_AT_DESC,
+        );
+
+        await this.followCacheService.set({
+          id: userFullProfile.cursusUser.user.id,
+          type: 'following',
+          list: followingList,
+        });
+      });
 
       await this.cacheUtilRankingService.updateCursusUserRanking({
         userFullProfiles,

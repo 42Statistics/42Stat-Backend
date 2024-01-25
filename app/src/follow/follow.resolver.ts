@@ -4,9 +4,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { HttpExceptionFilter } from 'src/http-exception.filter';
-import { FollowListPaginatedArgs } from './dto/follow.dto.getFollowList';
+import { FollowPaginatedArgs } from './dto/follow.dto';
 import { FollowService } from './follow.service';
-import { FollowListPaginated, FollowSuccess } from './model/follow.model';
+import { FollowSuccess, MyFollowPaginated } from './model/follow.model';
 
 const pubSub = new PubSub();
 
@@ -70,20 +70,20 @@ export class FollowResolver {
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListPaginated)
+  @Query((_returns) => MyFollowPaginated)
   async getFollowerPaginated(
     @MyUserId() userId: number,
-    @Args() args: FollowListPaginatedArgs,
-  ): Promise<FollowListPaginated> {
+    @Args() args: FollowPaginatedArgs,
+  ): Promise<MyFollowPaginated> {
     return await this.followService.followerPaginated(userId, args);
   }
 
   @UseGuards(StatAuthGuard)
-  @Query((_returns) => FollowListPaginated)
+  @Query((_returns) => MyFollowPaginated)
   async getFollowingPaginated(
     @MyUserId() userId: number,
-    @Args() args: FollowListPaginatedArgs,
-  ): Promise<FollowListPaginated> {
+    @Args() args: FollowPaginatedArgs,
+  ): Promise<MyFollowPaginated> {
     return await this.followService.followingPaginated(userId, args);
   }
 }

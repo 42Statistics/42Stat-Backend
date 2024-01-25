@@ -3,25 +3,21 @@ import { UserPreview } from 'src/common/models/common.user.model';
 import { IndexPaginated } from 'src/pagination/index/models/pagination.index.model';
 
 @ObjectType()
-export class FollowList {
-  @Field({ nullable: true })
-  isFollowing?: boolean;
+export class MyFollow {
+  @Field()
+  isFollowing: boolean;
 
   @Field()
-  user: UserPreview;
-}
-
-@ObjectType()
-export class FollowListPaginated extends IndexPaginated(FollowList) {}
-
-@ObjectType()
-export class FollowListWithCount {
-  @Field((_type) => [FollowList])
-  followList: FollowList[];
+  userPreview: UserPreview;
 
   @Field()
-  count: number;
+  followAt: Date;
 }
+
+export type Follow = Omit<MyFollow, 'isFollowing'>;
+
+@ObjectType()
+export class MyFollowPaginated extends IndexPaginated(MyFollow) {}
 
 @ObjectType()
 export class FollowSuccess {
