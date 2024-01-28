@@ -60,6 +60,12 @@ export class FollowService {
 
     const followAt = new Date();
 
+    const target = await this.cursusUserCacheService.getUserPreview(targetId);
+
+    if (!target) {
+      throw new NotFoundException();
+    }
+
     //3. db에 write
     console.log(`write in db: ${userId}, ${targetId}`);
     await this.followModel.create({
@@ -74,12 +80,6 @@ export class FollowService {
       userId,
       'following',
     );
-
-    const target = await this.cursusUserCacheService.getUserPreview(targetId);
-
-    if (!target) {
-      throw new NotFoundException();
-    }
 
     cachedfollowingList.push({ userPreview: target, followAt });
 
@@ -200,13 +200,17 @@ export class FollowService {
     if (cachedFollowerList.length) {
       console.log(`return cachedFollowerList`);
 
-      return await this.checkFollowing({
+      console.log(`start cached checkFollowing: ${new Date().getTime()}`);
+      const a = await this.checkFollowing({
         userId,
         cachedFollowList: cachedFollowerList,
       });
+      console.log(`finish cached checkFollowing: ${new Date().getTime()}`);
+      return a;
     }
 
     console.log(`dont have followerList cache`);
+    console.log(`start non-cached checkFollowing: ${new Date().getTime()}`);
 
     if (filter) {
       aggregate.match(filter);
@@ -248,12 +252,14 @@ export class FollowService {
       cachedFollowList: followerUserPreview,
     });
 
+    console.log(`finish non-cached checkFollowing: ${new Date().getTime()}`);
     await this.followCacheService.set({
       id: targetId,
       type: 'follower',
       list: followerList,
     });
 
+    console.log(`finish setting cache: ${new Date().getTime()}`);
     return followerList;
   }
 
@@ -284,11 +290,19 @@ export class FollowService {
 
     if (cachedFollowingList.length) {
       console.log(`return cachedfollowingList`);
-      return await this.checkFollowing({
+
+      console.log(`start cached checkFollowing: ${new Date().getTime()}`);
+      const a = await this.checkFollowing({
         userId,
         cachedFollowList: cachedFollowingList,
       });
+
+      console.log(`finish cached checkFollowing: ${new Date().getTime()}`);
+      return a;
     }
+
+    console.log(`dont have followingList cache`);
+    console.log(`start non-cached checkFollowing: ${new Date().getTime()}`);
 
     if (filter) {
       aggregate.match(filter);
@@ -330,12 +344,14 @@ export class FollowService {
       cachedFollowList: followingUserPreview,
     });
 
+    console.log(`finish non-cached checkFollowing: ${new Date().getTime()}`);
     await this.followCacheService.set({
       id: targetId,
       type: 'following',
       list: followingList,
     });
 
+    console.log(`finish setting cache: ${new Date().getTime()}`);
     return followingList;
   }
 
@@ -379,17 +395,22 @@ export class FollowService {
     userId: number;
     cachedFollowList: FollowListCacheType[];
   }): Promise<FollowList[]> {
-    const followList = cachedFollowList.map(async (follow) => {
-      const isFollowing = await this.isFollowing(userId, follow.userPreview.id);
+    const followList = Promise.all(
+      cachedFollowList.map(async (follow) => {
+        const isFollowing = await this.isFollowing(
+          userId,
+          follow.userPreview.id,
+        );
 
-      return {
-        isFollowing,
-        followAt: follow.followAt,
-        userPreview: follow.userPreview,
-      };
-    });
+        return {
+          isFollowing,
+          followAt: follow.followAt,
+          userPreview: follow.userPreview,
+        };
+      }),
+    );
 
-    return Promise.all(followList);
+    return followList;
   }
 }
 
