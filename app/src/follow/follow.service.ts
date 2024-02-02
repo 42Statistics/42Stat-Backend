@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
-import { UserPreview } from 'src/common/models/common.user.model';
 import {
   QueryArgs,
   QueryOneArgs,
@@ -92,18 +91,16 @@ export class FollowService {
     //4-2. follower list update
     const cachedfollowerList = await this.followCacheService.get(
       targetId,
-      'following',
+      'follower',
     );
 
-    const userPreview = await this.cursusUserCacheService.getUserPreview(
-      userId,
-    );
+    const user = await this.cursusUserCacheService.getUserPreview(userId);
 
-    if (!userPreview) {
+    if (!user) {
       throw new NotFoundException();
     }
 
-    cachedfollowerList.push({ userPreview, followAt });
+    cachedfollowerList.push({ userPreview: user, followAt });
 
     await this.followCacheService.set({
       id: targetId,
