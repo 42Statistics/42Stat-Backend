@@ -385,6 +385,74 @@ export class FollowService {
     }));
   }
 
+  async getFollowingList(targetId: number, sortOrder: FollowSortOrder) {
+    const following: Pick<follow, 'followId' | 'followAt'>[] =
+      await this.findAllAndLean({
+        filter: { userId: targetId },
+        select: { _id: 0, followId: 1, followAt: 1 },
+        sort: followSort(sortOrder),
+      });
+
+    const followingUserPreview = await Promise.all(
+      following.map(async (following) => {
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(following.followId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
+
+        if (!userPreview) {
+          throw new NotFoundException();
+        }
+
+        return { userPreview, followAt: following.followAt };
+      }),
+    );
+    return followingUserPreview;
+  }
+
+  async getFollowerList(targetId: number, sortOrder: FollowSortOrder) {
+    const following: Pick<follow, 'followId' | 'followAt'>[] =
+      await this.findAllAndLean({
+        filter: { userId: targetId },
+        select: { _id: 0, followId: 1, followAt: 1 },
+        sort: followSort(sortOrder),
+      });
+
+    const followingUserPreview = await Promise.all(
+      following.map(async (following) => {
+        const userFullProfile = await this.cursusUserCacheService
+          .getUserFullProfile(following.followId)
+          .then((user) => user?.cursusUser.user);
+
+        if (!userFullProfile) {
+          throw new NotFoundException();
+        }
+
+        const userPreview = {
+          id: userFullProfile.id,
+          login: userFullProfile.login,
+          imgUrl: userFullProfile.image.link,
+        };
+
+        if (!userPreview) {
+          throw new NotFoundException();
+        }
+
+        return { userPreview, followAt: following.followAt };
+      }),
+    );
+    return followingUserPreview;
+  }
+
   async checkFollowing({
     userId,
     cachedFollowList,
