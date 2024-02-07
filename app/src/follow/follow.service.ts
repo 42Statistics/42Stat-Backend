@@ -74,7 +74,8 @@ export class FollowService {
       'following',
     );
 
-    cachedfollowingList.push({ userPreview: target, followAt });
+    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
+    cachedfollowingList.unshift({ userPreview: target, followAt });
 
     await this.followCacheService.set({
       id: userId,
@@ -93,7 +94,8 @@ export class FollowService {
       throw new NotFoundException();
     }
 
-    cachedfollowerList.push({ userPreview: user, followAt });
+    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
+    cachedfollowerList.unshift({ userPreview: user, followAt });
 
     await this.followCacheService.set({
       id: targetId,
