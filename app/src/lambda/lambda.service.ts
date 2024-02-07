@@ -78,7 +78,7 @@ export class LambdaService {
       );
 
       userFullProfiles.map(async (userFullProfile) => {
-        const followerList = await this.followService.getFollowerList(
+        const followerList = await this.followService.followerListCache(
           userFullProfile.cursusUser.user.id,
           FollowSortOrder.FOLLOW_AT_DESC,
         );
@@ -91,7 +91,7 @@ export class LambdaService {
       });
 
       userFullProfiles.map(async (userFullProfile) => {
-        const followingList = await this.followService.getFollowingList(
+        const followingList = await this.followService.followingListCache(
           userFullProfile.cursusUser.user.id,
           FollowSortOrder.FOLLOW_AT_DESC,
         );
