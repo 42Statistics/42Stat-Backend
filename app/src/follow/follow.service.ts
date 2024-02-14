@@ -74,7 +74,6 @@ export class FollowService {
       'following',
     );
 
-    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
     cachedfollowingList.unshift({ userPreview: target, followAt });
 
     await this.followCacheService.set({
@@ -94,7 +93,6 @@ export class FollowService {
       throw new NotFoundException();
     }
 
-    //todo: unshift가 아닌 push 후 filter와 sort를 마지막에 하기
     cachedfollowerList.unshift({ userPreview: user, followAt });
 
     await this.followCacheService.set({
@@ -383,12 +381,16 @@ export class FollowService {
     userId: number;
     cachedFollowList: FollowListCacheType[];
   }): Promise<FollowList[]> {
+    const followingList = await this.followCacheService.get(
+      userId,
+      'following',
+    );
+
+    const followingListIds = followingList.map((e) => e.userPreview.id);
+
     const followList = Promise.all(
       cachedFollowList.map(async (follow) => {
-        const isFollowing = await this.isFollowing(
-          userId,
-          follow.userPreview.id,
-        );
+        const isFollowing = followingListIds.includes(follow.userPreview.id);
 
         return {
           isFollowing,
