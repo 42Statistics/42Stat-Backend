@@ -25,7 +25,7 @@ export class FollowCacheService {
 
     console.log(`setting: ${key}`);
 
-    await this.cacheUtilService.set(key, list);
+    await this.cacheUtilService.set(key, list, 0);
   }
 
   async get(
