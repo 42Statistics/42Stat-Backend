@@ -74,7 +74,7 @@ export class FollowService {
       'following',
     );
 
-    cachedfollowingList.unshift({ userPreview: target, followAt });
+    cachedfollowingList.push({ userPreview: target, followAt });
 
     await this.followCacheService.set({
       id: userId,
@@ -93,7 +93,7 @@ export class FollowService {
       throw new NotFoundException();
     }
 
-    cachedfollowerList.unshift({ userPreview: user, followAt });
+    cachedfollowerList.push({ userPreview: user, followAt });
 
     await this.followCacheService.set({
       id: targetId,
@@ -236,10 +236,22 @@ export class FollowService {
     );
 
     if (cachedFollowingList.length) {
-      return await this.checkFollowing({
+      const followingList = await this.checkFollowing({
         userId,
         cachedFollowList: cachedFollowingList,
       });
+
+      if (sortOrder === FollowSortOrder.FOLLOW_AT_ASC) {
+        followingList.sort(
+          (a, b) => a.followAt.getTime() - b.followAt.getTime(),
+        );
+      } else if (sortOrder === FollowSortOrder.FOLLOW_AT_DESC) {
+        followingList.sort(
+          (a, b) => b.followAt.getTime() - a.followAt.getTime(),
+        );
+      }
+
+      return followingList;
     }
 
     if (filter) {
@@ -407,8 +419,8 @@ export class FollowService {
 const followSort = (sortOrder: FollowSortOrder): Record<string, SortOrder> => {
   switch (sortOrder) {
     case FollowSortOrder.FOLLOW_AT_ASC:
-      return { _id: 'asc' };
+      return { followAt: 'asc' };
     case FollowSortOrder.FOLLOW_AT_DESC:
-      return { _id: 'desc' };
+      return { followAt: 'desc' };
   }
 };
