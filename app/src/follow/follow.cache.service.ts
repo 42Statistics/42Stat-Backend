@@ -23,8 +23,6 @@ export class FollowCacheService {
   }): Promise<void> {
     const key = `${id}:${type}:${FOLLOW_LISTS}`;
 
-    console.log(`setting: ${key}`);
-
     await this.cacheUtilService.set(key, list, 0);
   }
 

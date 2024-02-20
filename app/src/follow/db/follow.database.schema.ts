@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<follow>;
 
-@Schema({ collection: 'temp_follows' })
+@Schema({ collection: 'follows' })
 export class follow {
   @Prop({ required: true })
   userId: number;
