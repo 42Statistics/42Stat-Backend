@@ -76,12 +76,6 @@ export class FollowService {
 
     cachedfollowingList.push({ userPreview: target, followAt });
 
-    await this.followCacheService.set({
-      id: userId,
-      type: 'following',
-      list: cachedfollowingList,
-    });
-
     const cachedfollowerList = await this.followCacheService.get(
       targetId,
       'follower',
@@ -95,12 +89,6 @@ export class FollowService {
 
     cachedfollowerList.push({ userPreview: user, followAt });
 
-    await this.followCacheService.set({
-      id: targetId,
-      type: 'follower',
-      list: cachedfollowerList,
-    });
-
     return {
       userId,
       followId: targetId,
@@ -108,18 +96,6 @@ export class FollowService {
   }
 
   async unfollowUser(userId: number, targetId: number): Promise<FollowSuccess> {
-    const existingFollow = await this.followModel.findOne(
-      {
-        userId,
-        followId: targetId,
-      },
-      { _id: 1 },
-    );
-
-    if (!existingFollow || userId === targetId) {
-      throw new NotFoundException();
-    }
-
     const deletedCount = await this.followModel
       .deleteOne({
         userId,
