@@ -32,7 +32,7 @@ import { CacheUtilRankingService } from 'src/cache/cache.util.ranking.service';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { DateRangeService } from 'src/dateRange/dateRange.service';
 import { DateTemplate } from 'src/dateRange/dtos/dateRange.dto';
-import { FollowSortOrder } from 'src/follow/dto/follow.dto.getFollowList';
+import { FollowSortOrder } from 'src/follow/dto/follow.dto';
 import { FollowCacheService } from 'src/follow/follow.cache.service';
 import { FollowService } from 'src/follow/follow.service';
 

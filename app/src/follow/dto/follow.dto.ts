@@ -9,7 +9,7 @@ export enum FollowSortOrder {
 registerEnumType(FollowSortOrder, { name: 'FollowSortOrder' });
 
 @ArgsType()
-export class FollowListPaginatedArgs extends PaginationIndexArgs {
+export class FollowPaginatedArgs extends PaginationIndexArgs {
   @Field()
   targetId: number;
 

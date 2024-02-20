@@ -10,16 +10,13 @@ import {
 } from 'src/database/mongoose/database.mongoose.query';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { follow } from './db/follow.database.schema';
-import {
-  FollowSortOrder,
-  type FollowListPaginatedArgs,
-} from './dto/follow.dto.getFollowList';
+import { FollowSortOrder, type FollowPaginatedArgs } from './dto/follow.dto';
 import { FollowCacheService } from './follow.cache.service';
 import type {
-  FollowList,
-  FollowListCacheType,
-  FollowListPaginated,
+  Follow,
   FollowSuccess,
+  MyFollow,
+  MyFollowPaginated,
 } from './model/follow.model';
 
 @Injectable()
@@ -148,7 +145,7 @@ export class FollowService {
     targetId: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
-  ): Promise<FollowList[]> {
+  ): Promise<MyFollow[]> {
     const aggregate = this.followModel.aggregate<follow>();
 
     const cachedFollowerList = await this.followCacheService.get(
@@ -159,7 +156,7 @@ export class FollowService {
     if (cachedFollowerList.length) {
       return await this.checkFollowing({
         userId,
-        cachedFollowList: cachedFollowerList,
+        followList: cachedFollowerList,
       });
     }
 
@@ -174,7 +171,7 @@ export class FollowService {
 
     const followerList = await this.checkFollowing({
       userId,
-      cachedFollowList: followerUserPreview,
+      followList: followerUserPreview,
     });
 
     await this.followCacheService.set({
@@ -188,11 +185,11 @@ export class FollowService {
 
   async followerPaginated(
     userId: number,
-    { pageNumber, pageSize, targetId, sortOrder }: FollowListPaginatedArgs,
-  ): Promise<FollowListPaginated> {
+    { pageNumber, pageSize, targetId, sortOrder }: FollowPaginatedArgs,
+  ): Promise<MyFollowPaginated> {
     const followList = await this.followerList(userId, targetId, sortOrder);
 
-    return this.paginationIndexService.toPaginated<FollowList>(followList, {
+    return this.paginationIndexService.toPaginated<MyFollow>(followList, {
       pageNumber,
       pageSize,
     });
@@ -203,7 +200,7 @@ export class FollowService {
     targetId: number,
     sortOrder: FollowSortOrder,
     filter?: FilterQuery<follow>,
-  ): Promise<FollowList[]> {
+  ): Promise<MyFollow[]> {
     const aggregate = this.followModel.aggregate<follow>();
 
     const cachedFollowingList = await this.followCacheService.get(
@@ -214,7 +211,7 @@ export class FollowService {
     if (cachedFollowingList.length) {
       const followingList = await this.checkFollowing({
         userId,
-        cachedFollowList: cachedFollowingList,
+        followList: cachedFollowingList,
       });
 
       if (sortOrder === FollowSortOrder.FOLLOW_AT_ASC) {
@@ -241,7 +238,7 @@ export class FollowService {
 
     const followingList = await this.checkFollowing({
       userId,
-      cachedFollowList: followingUserPreview,
+      followList: followingUserPreview,
     });
 
     await this.followCacheService.set({
@@ -255,11 +252,11 @@ export class FollowService {
 
   async followingPaginated(
     userId: number,
-    { pageNumber, pageSize, targetId, sortOrder }: FollowListPaginatedArgs,
-  ): Promise<FollowListPaginated> {
+    { pageNumber, pageSize, targetId, sortOrder }: FollowPaginatedArgs,
+  ): Promise<MyFollowPaginated> {
     const followList = await this.followingList(userId, targetId, sortOrder);
 
-    return this.paginationIndexService.toPaginated<FollowList>(followList, {
+    return this.paginationIndexService.toPaginated<MyFollow>(followList, {
       pageSize,
       pageNumber,
     });
@@ -289,7 +286,7 @@ export class FollowService {
   async followingListCache(
     targetId: number,
     sortOrder: FollowSortOrder,
-  ): Promise<FollowListCacheType[]> {
+  ): Promise<Follow[]> {
     const following: Pick<follow, 'followId' | 'followAt'>[] =
       await this.findAllAndLean({
         filter: { userId: targetId },
@@ -327,7 +324,7 @@ export class FollowService {
   async followerListCache(
     targetId: number,
     sortOrder: FollowSortOrder,
-  ): Promise<FollowListCacheType[]> {
+  ): Promise<Follow[]> {
     const follower: Pick<follow, 'userId' | 'followAt'>[] =
       await this.findAllAndLean({
         filter: { followId: targetId },
@@ -364,11 +361,11 @@ export class FollowService {
 
   async checkFollowing({
     userId,
-    cachedFollowList,
+    followList,
   }: {
     userId: number;
-    cachedFollowList: FollowListCacheType[];
-  }): Promise<FollowList[]> {
+    followList: Follow[];
+  }): Promise<MyFollow[]> {
     const followingList = await this.followCacheService.get(
       userId,
       'following',
@@ -376,8 +373,8 @@ export class FollowService {
 
     const followingListIds = followingList.map((e) => e.userPreview.id);
 
-    const followList = Promise.all(
-      cachedFollowList.map(async (follow) => {
+    const myFollow = Promise.all(
+      followList.map(async (follow) => {
         const isFollowing = followingListIds.includes(follow.userPreview.id);
 
         return {
@@ -388,7 +385,7 @@ export class FollowService {
       }),
     );
 
-    return followList;
+    return myFollow;
   }
 }
 
