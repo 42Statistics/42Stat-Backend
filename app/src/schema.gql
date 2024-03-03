@@ -77,6 +77,23 @@ type FollowSuccess {
   followId: Int!
 }
 
+type Feed {
+  id: Int!
+  userId: Int!
+  feedAt: DateTime!
+  type: FeedType!
+}
+
+enum FeedType {
+  FOLLOW
+  STATUS_MESSAGE
+  LOCATION
+  NEW_MEMBER
+  BLACKHOLED_AT
+  TEAM_STATUS_FINISHED
+  EVENT
+}
+
 type LinkableAccount {
   platform: String!
   id: String!
@@ -642,6 +659,7 @@ type Query {
   getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
   getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
+  getFeed: [Feed!]!
 }
 
 enum EvalLogSortOrder {
@@ -664,6 +682,7 @@ type Mutation {
   deleteAccount: Int!
   followUser(targetId: Int!): FollowSuccess!
   unfollowUser(targetId: Int!): FollowSuccess!
+  updateFeed: Boolean!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
