@@ -1,18 +1,22 @@
 import { UseGuards } from '@nestjs/common';
-import { Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MyUserId } from 'src/auth/myContext';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
+import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
 import { FeedType } from './dto/feed.dto';
 import { FeedService } from './feed.service';
-import { FeedUnion } from './model/feed.model';
+import { FeedPaginationed, FeedUnion } from './model/feed.model';
 
 @UseGuards(StatAuthGuard)
 @Resolver()
 export class FeedResolver {
   constructor(private readonly feedService: FeedService) {}
-  @Query((_returns) => [FeedUnion])
-  async getFeed(@MyUserId() userId: number): Promise<(typeof FeedUnion)[]> {
-    return await this.feedService.getFeed(userId);
+  @Query((_returns) => FeedPaginationed)
+  async getFeed(
+    @MyUserId() userId: number,
+    @Args() args: PaginationCursorArgs,
+  ): Promise<FeedPaginationed> {
+    return await this.feedService.getFeed({ userId, args });
   }
 
   @Mutation((_returns) => Boolean)
