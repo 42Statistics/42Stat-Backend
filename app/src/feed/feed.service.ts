@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { FollowCacheService } from 'src/follow/follow.cache.service';
-import { Feed } from './model/feed.model';
+import { FeedUnion } from './model/feed.model';
 
 @Injectable()
 export class FeedService {
   constructor(private readonly followCacheService: FollowCacheService) {}
 
-  async getFeed(userId: number): Promise<Feed[]> {
+  async getFeed(userId: number): Promise<(typeof FeedUnion)[]> {
     //cache에서 feed를 가져옴
 
     //없을 시 db에서 가져옴
@@ -14,7 +14,7 @@ export class FeedService {
   }
 
   //fanout-on-write 방식
-  async updateFeed(userId: number, feed: Feed): Promise<void> {
+  async updateFeed(userId: number, feed: typeof FeedUnion): Promise<void> {
     //나의 팔로워 리스트를 가져옴
     const cachedFollowerList = await this.followCacheService.get(
       userId,

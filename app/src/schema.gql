@@ -77,23 +77,6 @@ type FollowSuccess {
   followId: Int!
 }
 
-type Feed {
-  id: Int!
-  userId: Int!
-  feedAt: DateTime!
-  type: FeedType!
-}
-
-enum FeedType {
-  FOLLOW
-  STATUS_MESSAGE
-  LOCATION
-  NEW_MEMBER
-  BLACKHOLED_AT
-  TEAM_STATUS_FINISHED
-  EVENT
-}
-
 type LinkableAccount {
   platform: String!
   id: String!
@@ -659,7 +642,7 @@ type Query {
   getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
   getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
-  getFeed: [Feed!]!
+  getFeed: [FeedUnion!]!
 }
 
 enum EvalLogSortOrder {
@@ -670,6 +653,74 @@ enum EvalLogSortOrder {
 enum FollowSortOrder {
   FOLLOW_AT_ASC
   FOLLOW_AT_DESC
+}
+
+union FeedUnion = FollowFeed | LocationFeed | StatusMessageFeed | TeamStatusFinishedFeed | EventFeed | NewMemberFeed | BlackholedAtFeed
+
+type FollowFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  followed: UserPreview!
+}
+
+enum FeedType {
+  FOLLOW
+  STATUS_MESSAGE
+  LOCATION
+  NEW_MEMBER
+  BLACKHOLED_AT
+  TEAM_STATUS_FINISHED
+  EVENT
+}
+
+type LocationFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  location: String!
+}
+
+type StatusMessageFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  message: String!
+}
+
+type TeamStatusFinishedFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  teamInfo: String!
+}
+
+type EventFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  event: String!
+}
+
+type NewMemberFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  memberAt: DateTime!
+}
+
+type BlackholedAtFeed {
+  id: Int!
+  at: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  blackholedAt: DateTime!
 }
 
 type Mutation {
