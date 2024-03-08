@@ -1,6 +1,7 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
 import { FeedType } from '../dto/feed.dto';
+import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
 
 @ObjectType()
 export class FeedBase {
@@ -17,7 +18,8 @@ export class FeedBase {
 @ObjectType()
 export class FollowFeed extends FeedBase {
   @Field((_type) => FeedType)
-  type: FeedType.FOLLOW;
+  //todo: .FOLLOW를 적어줄 수 없음 (ㅜㅜ)
+  type: FeedType;
 
   @Field((_type) => UserPreview)
   followed: UserPreview;
@@ -111,4 +113,7 @@ export const FeedUnion = createUnionType({
       return BlackholedAtFeed;
     }
   },
-});
+}) as any; //todo: union을 pagination 하는 방법 찾기
+
+@ObjectType()
+export class FeedPaginationed extends CursorPaginated(FeedUnion) {}

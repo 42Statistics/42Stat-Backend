@@ -1,15 +1,93 @@
 import { Injectable } from '@nestjs/common';
 import { FollowCacheService } from 'src/follow/follow.cache.service';
-import { FeedUnion } from './model/feed.model';
+import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
+import {
+  CursorExtractor,
+  PaginationCursorService,
+} from 'src/pagination/cursor/pagination.cursor.service';
+import { FeedType } from './dto/feed.dto';
+import {
+  EventFeed,
+  FeedPaginationed,
+  FeedUnion,
+  FollowFeed,
+} from './model/feed.model';
 
 @Injectable()
 export class FeedService {
-  constructor(private readonly followCacheService: FollowCacheService) {}
+  constructor(
+    private readonly followCacheService: FollowCacheService,
+    private readonly paginationCursorService: PaginationCursorService,
+  ) {}
 
-  async getFeed(userId: number): Promise<(typeof FeedUnion)[]> {
-    //cache에서 feed를 가져옴
+  async getFeed({
+    userId,
+    args,
+  }: {
+    userId: number;
+    args: PaginationCursorArgs;
+  }): Promise<FeedPaginationed> {
+    const followFeeds = await this.getFollowFeeds(userId);
+    const eventFeeds = await this.getEventFeeds(userId);
 
-    //없을 시 db에서 가져옴
+    console.log(followFeeds);
+
+    const feeds: (typeof FeedUnion)[] = [...followFeeds, ...eventFeeds];
+
+    //sort로 정렬
+    feeds.sort((a, b) => a.at.getTime() - b.at.getTime());
+
+    //if (!feeds.length) {
+    //  return this.generateEmptyFeed();
+    //}
+
+    //pagination
+    const totalcount = feeds.length;
+    const hasNextPage = feeds.length > args.first;
+
+    return this.paginationCursorService.toPaginated(
+      feeds.slice(0, args.first),
+      totalcount,
+      hasNextPage,
+      cursorExtractor,
+    );
+  }
+
+  //userId의 피드에 뜰 정보
+  async getFollowFeeds(userId: number): Promise<FollowFeed[]> {
+    //userId가 팔로우 한 사람들
+    const followingList = await this.followCacheService.get(
+      userId,
+      'following',
+    );
+
+    const followFeeds: FollowFeed[] = [];
+
+    //followingList가 팔로우한 사람들
+    followingList.map(async (follow) => {
+      const followersFollowing = await this.followCacheService.filterByDate(
+        follow.userPreview.id,
+        'following',
+        follow.followAt,
+      );
+
+      followFeeds.push(
+        ...followersFollowing.map((follower) => {
+          return {
+            id: 1,
+            at: follow.followAt,
+            userPreview: follow.userPreview,
+            type: FeedType.FOLLOW,
+            followed: follower.userPreview,
+          };
+        }),
+      );
+    });
+
+    return followFeeds;
+  }
+
+  async getEventFeeds(userId: number): Promise<EventFeed[]> {
     return [];
   }
 
@@ -28,3 +106,8 @@ export class FeedService {
     }
   }
 }
+
+const cursorExtractor: CursorExtractor<typeof FeedUnion> = (doc) => {
+  //todo: cursor 생성
+  return doc.id.toString();
+};
