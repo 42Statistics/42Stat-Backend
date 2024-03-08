@@ -3,25 +3,7 @@ import { UserPreview } from 'src/common/models/common.user.model';
 import { FeedType } from '../dto/feed.dto';
 
 @ObjectType()
-export class Feed {
-  @Field()
-  id: number;
-
-  @Field()
-  userId: number;
-
-  @Field()
-  feedAt: Date;
-
-  @Field((_type) => FeedType)
-  type: FeedType;
-}
-
-@ObjectType()
-export class FollowFeed {
-  @Field((_type) => FeedType)
-  type: FeedType;
-
+export class FeedBase {
   @Field()
   id: number;
 
@@ -30,153 +12,103 @@ export class FollowFeed {
 
   @Field((_type) => UserPreview)
   userPreview: UserPreview;
+}
+
+@ObjectType()
+export class FollowFeed extends FeedBase {
+  @Field((_type) => FeedType)
+  type: FeedType.FOLLOW;
 
   @Field((_type) => UserPreview)
   followed: UserPreview;
 }
 
 @ObjectType()
-export class StatusMessageFeed {
+export class LocationFeed extends FeedBase {
   @Field((_type) => FeedType)
-  type: FeedType;
+  type: FeedType.LOCATION;
 
   @Field()
-  id: number;
+  location: string;
+}
 
-  @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
+@ObjectType()
+export class StatusMessageFeed extends FeedBase {
+  @Field((_type) => FeedType)
+  type: FeedType.STATUS_MESSAGE;
 
   @Field()
   message: string;
 }
 
 @ObjectType()
-export class EventFeed {
+export class TeamStatusFinishedFeed extends FeedBase {
   @Field((_type) => FeedType)
-  type: FeedType;
-
-  @Field()
-  id: number;
-
-  @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
-
-  @Field()
-  event: string;
-}
-
-@ObjectType()
-export class BlackholedAtFeed {
-  @Field((_type) => FeedType)
-  type: FeedType;
-
-  @Field()
-  id: number;
-
-  @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
-
-  @Field()
-  blackholedAt: Date;
-}
-
-@ObjectType()
-export class TeamStatusFinishedFeed {
-  @Field((_type) => FeedType)
-  type: FeedType;
-
-  @Field()
-  id: number;
-
-  @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
+  type: FeedType.TEAM_STATUS_FINISHED;
 
   @Field()
   teamInfo: string;
 }
 
 @ObjectType()
-export class NewMemberFeed {
+export class EventFeed extends FeedBase {
   @Field((_type) => FeedType)
-  type: FeedType;
+  type: FeedType.EVENT;
 
   @Field()
-  id: number;
-
-  @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
+  event: string;
 }
 
 @ObjectType()
-export class LocationFeed {
+export class NewMemberFeed extends FeedBase {
   @Field((_type) => FeedType)
-  type: FeedType;
+  type: FeedType.NEW_MEMBER;
 
   @Field()
-  id: number;
+  memberAt: Date;
+}
+
+@ObjectType()
+export class BlackholedAtFeed extends FeedBase {
+  @Field((_type) => FeedType)
+  type: FeedType.BLACKHOLED_AT;
 
   @Field()
-  at: Date;
-
-  @Field((_type) => UserPreview)
-  userPreview: UserPreview;
-
-  @Field()
-  location: string;
+  blackholedAt: Date;
 }
 
 export const FeedUnion = createUnionType({
-  name: 'Feed',
-  types: () =>
-    [
-      FollowFeed,
-      StatusMessageFeed,
-      EventFeed,
-      BlackholedAtFeed,
-      TeamStatusFinishedFeed,
-      NewMemberFeed,
-      LocationFeed,
-    ] as const,
-  resolveType: (
-    value:
-      | FollowFeed
-      | StatusMessageFeed
-      | EventFeed
-      | BlackholedAtFeed
-      | TeamStatusFinishedFeed
-      | NewMemberFeed
-      | LocationFeed,
-  ) => {
-    switch (value.type) {
-      case FeedType.FOLLOW:
-        return FollowFeed;
-      case FeedType.STATUS_MESSAGE:
-        return StatusMessageFeed;
-      case FeedType.EVENT:
-        return EventFeed;
-      case FeedType.BLACKHOLED_AT:
-        return BlackholedAtFeed;
-      case FeedType.TEAM_STATUS_FINISHED:
-        return TeamStatusFinishedFeed;
-      case FeedType.NEW_MEMBER:
-        return NewMemberFeed;
-      case FeedType.LOCATION:
-        return LocationFeed;
+  name: 'FeedUnion',
+  types: () => [
+    FollowFeed,
+    LocationFeed,
+    StatusMessageFeed,
+    TeamStatusFinishedFeed,
+    EventFeed,
+    NewMemberFeed,
+    BlackholedAtFeed,
+  ],
+  resolveType: (value) => {
+    if ('followed' in value) {
+      return FollowFeed;
+    }
+    if ('location' in value) {
+      return LocationFeed;
+    }
+    if ('message' in value) {
+      return StatusMessageFeed;
+    }
+    if ('teamInfo' in value) {
+      return TeamStatusFinishedFeed;
+    }
+    if ('event' in value) {
+      return EventFeed;
+    }
+    if ('memberAt' in value) {
+      return NewMemberFeed;
+    }
+    if ('blackholedAt' in value) {
+      return BlackholedAtFeed;
     }
   },
 });
