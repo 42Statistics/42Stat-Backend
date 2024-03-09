@@ -7,10 +7,15 @@ import {
 } from 'src/pagination/cursor/pagination.cursor.service';
 import { FeedType } from './dto/feed.dto';
 import {
+  BlackholedAtFeed,
   EventFeed,
   FeedPaginationed,
   FeedUnion,
   FollowFeed,
+  LocationFeed,
+  NewMemberFeed,
+  StatusMessageFeed,
+  TeamStatusFinishedFeed,
 } from './model/feed.model';
 
 @Injectable()
@@ -20,35 +25,54 @@ export class FeedService {
     private readonly paginationCursorService: PaginationCursorService,
   ) {}
 
-  async getFeed({
+  async getFeedPaginated({
     userId,
     args,
   }: {
     userId: number;
     args: PaginationCursorArgs;
   }): Promise<FeedPaginationed> {
+    //pagination을 위해 함수 분리
+    //id만 가진 db를 만들어 매번 로컬피드캐시에서 join하기 <- 캐시작업때 고려
     const followFeeds = await this.getFollowFeeds(userId);
+    const locationFeeds = await this.getLocationFeeds(userId);
+    const statusMessageFeeds = await this.getStatusMessageFeeds(userId);
+    const teamStatusFinishedFeeds = await this.getTeamStatusFinishedFeeds(
+      userId,
+    );
     const eventFeeds = await this.getEventFeeds(userId);
+    const newMemberFeeds = await this.getNewMemberFeeds(userId);
+    const blackholedAtFeeds = await this.getBlackholedAtFeeds(userId);
 
-    console.log(followFeeds);
+    const feeds: (typeof FeedUnion)[] = [
+      ...followFeeds,
+      ...locationFeeds,
+      ...statusMessageFeeds,
+      ...teamStatusFinishedFeeds,
+      ...eventFeeds,
+      ...newMemberFeeds,
+      ...blackholedAtFeeds,
+    ];
 
-    const feeds: (typeof FeedUnion)[] = [...followFeeds, ...eventFeeds];
+    if (!feeds.length) {
+      return this.generateEmptyFeed();
+    }
 
-    //sort로 정렬
-    feeds.sort((a, b) => a.at.getTime() - b.at.getTime());
-
-    //if (!feeds.length) {
-    //  return this.generateEmptyFeed();
-    //}
+    //sort로 정렬 (최신순 고정)
+    feeds.sort((a, b) => b.at.getTime() - a.at.getTime());
 
     //pagination
-    const totalcount = feeds.length;
-    const hasNextPage = feeds.length > args.first;
+    if (args.after) {
+      const afterIndex = feeds.findIndex(
+        (feed) => cursorExtractor(feed) === args.after,
+      );
+      feeds.splice(0, afterIndex + 1);
+    }
 
     return this.paginationCursorService.toPaginated(
       feeds.slice(0, args.first),
-      totalcount,
-      hasNextPage,
+      feeds.length,
+      feeds.length > args.first,
       cursorExtractor,
     );
   }
@@ -87,8 +111,114 @@ export class FeedService {
     return followFeeds;
   }
 
+  async getLocationFeeds(userId: number): Promise<LocationFeed[]> {
+    const locationFeeds: LocationFeed[] = [];
+
+    locationFeeds.push({
+      id: 2,
+      at: new Date(),
+      userPreview: {
+        id: 12345,
+        login: 'nickname123',
+        imgUrl: 'profileImg123',
+      },
+      type: FeedType.LOCATION,
+      location: 'c1r1s1',
+    });
+
+    return locationFeeds;
+  }
+
+  async getStatusMessageFeeds(userId: number): Promise<StatusMessageFeed[]> {
+    const statusMessageFeeds: StatusMessageFeed[] = [];
+
+    statusMessageFeeds.push({
+      id: 3,
+      at: new Date(),
+      userPreview: {
+        id: 23456,
+        login: 'nickname234',
+        imgUrl: 'profileImg234',
+      },
+      type: FeedType.STATUS_MESSAGE,
+      message: 'status message',
+    });
+
+    return statusMessageFeeds;
+  }
+
+  async getTeamStatusFinishedFeeds(
+    userId: number,
+  ): Promise<TeamStatusFinishedFeed[]> {
+    const teamStatusFinishedFeeds: TeamStatusFinishedFeed[] = [];
+
+    teamStatusFinishedFeeds.push({
+      id: 4,
+      at: new Date(),
+      userPreview: {
+        id: 34567,
+        login: 'nickname345',
+        imgUrl: 'profileImg345',
+      },
+      type: FeedType.TEAM_STATUS_FINISHED,
+      teamInfo: 'team status finished',
+    });
+
+    return teamStatusFinishedFeeds;
+  }
+
   async getEventFeeds(userId: number): Promise<EventFeed[]> {
-    return [];
+    const eventFeeds: EventFeed[] = [];
+
+    eventFeeds.push({
+      id: 5,
+      at: new Date(),
+      userPreview: {
+        id: 45678,
+        login: 'nickname456',
+        imgUrl: 'profileImg456',
+      },
+      type: FeedType.EVENT,
+      event: 'event',
+    });
+
+    return eventFeeds;
+  }
+
+  async getNewMemberFeeds(userId: number): Promise<NewMemberFeed[]> {
+    const newMemberFeeds: NewMemberFeed[] = [];
+
+    newMemberFeeds.push({
+      id: 6,
+      at: new Date(),
+      userPreview: {
+        id: 56789,
+        login: 'nickname567',
+        imgUrl: 'profileImg567',
+      },
+      type: FeedType.NEW_MEMBER,
+      memberAt: new Date(),
+    });
+
+    return newMemberFeeds;
+  }
+
+  async getBlackholedAtFeeds(userId: number): Promise<BlackholedAtFeed[]> {
+    const blackholedAtFeeds: BlackholedAtFeed[] = [];
+
+    blackholedAtFeeds.push({
+      id: 7,
+      at: new Date(),
+      userPreview: {
+        id: 67890,
+        login: 'nickname678',
+        imgUrl: 'profileImg678',
+      },
+      type: FeedType.BLACKHOLED_AT,
+      blackholedAt: new Date(),
+    });
+
+    return blackholedAtFeeds;
   }
 
   //fanout-on-write 방식
@@ -105,9 +235,17 @@ export class FeedService {
       //await this.feedCacheService.writeFeed(follower.userPreview.id, feed);
     }
   }
+
+  private generateEmptyFeed(): FeedPaginationed {
+    return this.paginationCursorService.toPaginated<typeof FeedUnion>(
+      [],
+      0,
+      false,
+      cursorExtractor,
+    );
+  }
 }
 
 const cursorExtractor: CursorExtractor<typeof FeedUnion> = (doc) => {
-  //todo: cursor 생성
-  return doc.id.toString();
+  return `${doc.id.toString()} + ${doc.at.toISOString()}`;
 };
