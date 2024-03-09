@@ -16,7 +16,7 @@ export class FeedResolver {
     @MyUserId() userId: number,
     @Args() args: PaginationCursorArgs,
   ): Promise<FeedPaginationed> {
-    return await this.feedService.getFeed({ userId, args });
+    return await this.feedService.getFeedPaginated({ userId, args });
   }
 
   @Mutation((_returns) => Boolean)
