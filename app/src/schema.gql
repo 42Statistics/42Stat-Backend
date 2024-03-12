@@ -156,7 +156,7 @@ type BlackholedAtFeed {
   blackholedAt: DateTime!
 }
 
-type FeedPaginationed {
+type FeedPaginated {
   edges: [undefinedEdge!]!
   pageInfo: CursorPageInfo!
 }
@@ -720,7 +720,7 @@ type Query {
   getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
   getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
-  getFeed(after: String, first: Int! = 20): FeedPaginationed!
+  getFeed(after: String, first: Int! = 20): FeedPaginated!
 }
 
 enum EvalLogSortOrder {

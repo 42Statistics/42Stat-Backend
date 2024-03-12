@@ -13,6 +13,7 @@ export class follow {
 
   @Prop({ required: true })
   followAt: Date;
+  //createdAt: Date;
 }
 
 export const FollowSchema = SchemaFactory.createForClass(follow);
