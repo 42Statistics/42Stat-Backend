@@ -8,7 +8,7 @@ export class FeedCacheService {
   private feedCache = new Map<number, (typeof FeedUnion)[]>();
 
   async get(userId: number): Promise<(typeof FeedUnion)[]> {
-    return this.feedCache.get(userId) || [];
+    return this.feedCache.get(userId) ?? [];
   }
 
   async set(userId: number, feed: (typeof FeedUnion)[]): Promise<void> {
@@ -16,8 +16,8 @@ export class FeedCacheService {
   }
 
   async writeFeed(userId: number, feed: typeof FeedUnion): Promise<void> {
-    const cachedFeedList = await this.get(userId);
-    cachedFeedList.push(feed);
-    await this.set(userId, cachedFeedList);
+    const prev = await this.get(userId);
+
+    await this.set(userId, [...prev, feed]);
   }
 }
