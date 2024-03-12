@@ -5,17 +5,17 @@ import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
 import { FeedType } from './dto/feed.dto';
 import { FeedService } from './feed.service';
-import { FeedPaginationed, FeedUnion } from './model/feed.model';
+import { FeedPaginated, FeedUnion } from './model/feed.model';
 
 @UseGuards(StatAuthGuard)
 @Resolver()
 export class FeedResolver {
   constructor(private readonly feedService: FeedService) {}
-  @Query((_returns) => FeedPaginationed)
+  @Query((_returns) => FeedPaginated)
   async getFeed(
     @MyUserId() userId: number,
     @Args() args: PaginationCursorArgs,
-  ): Promise<FeedPaginationed> {
+  ): Promise<FeedPaginated> {
     return await this.feedService.getFeedPaginated({ userId, args });
   }
 

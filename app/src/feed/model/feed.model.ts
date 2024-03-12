@@ -116,4 +116,4 @@ export const FeedUnion = createUnionType({
 }) as any; //todo: union을 pagination 하는 방법 찾기
 
 @ObjectType()
-export class FeedPaginationed extends CursorPaginated(FeedUnion) {}
+export class FeedPaginated extends CursorPaginated(FeedUnion) {}

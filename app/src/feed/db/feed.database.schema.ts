@@ -15,7 +15,7 @@ export class feed {
   type: string;
 
   @Prop({ required: true })
-  feedAt: Date;
+  createdAt: Date;
 }
 
 export const FeedSchema = SchemaFactory.createForClass(feed);

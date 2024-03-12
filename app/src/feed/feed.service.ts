@@ -9,7 +9,7 @@ import { FeedType } from './dto/feed.dto';
 import {
   BlackholedAtFeed,
   EventFeed,
-  FeedPaginationed,
+  FeedPaginated,
   FeedUnion,
   FollowFeed,
   LocationFeed,
@@ -31,7 +31,7 @@ export class FeedService {
   }: {
     userId: number;
     args: PaginationCursorArgs;
-  }): Promise<FeedPaginationed> {
+  }): Promise<FeedPaginated> {
     //pagination을 위해 함수 분리
     //id만 가진 db를 만들어 매번 로컬피드캐시에서 join하기 <- 캐시작업때 고려
     const followFeeds = await this.getFollowFeeds(userId);
@@ -236,7 +236,7 @@ export class FeedService {
     }
   }
 
-  private generateEmptyFeed(): FeedPaginationed {
+  private generateEmptyFeed(): FeedPaginated {
     return this.paginationCursorService.toPaginated<typeof FeedUnion>(
       [],
       0,
