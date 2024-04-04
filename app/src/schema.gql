@@ -59,24 +59,6 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type MyFollow {
-  isFollowing: Boolean!
-  userPreview: UserPreview!
-  followAt: DateTime!
-}
-
-type MyFollowPaginated {
-  nodes: [MyFollow!]!
-  totalCount: Int!
-  pageSize: Int!
-  pageNumber: Int!
-}
-
-type FollowSuccess {
-  userId: Int!
-  followId: Int!
-}
-
 type CursorPageInfo {
   totalCount: Int!
   hasNextPage: Boolean!
@@ -91,8 +73,7 @@ type undefinedEdge {
 union FeedUnion = FollowFeed | LocationFeed | StatusMessageFeed | TeamStatusFinishedFeed | EventFeed | NewMemberFeed | BlackholedAtFeed
 
 type FollowFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   followed: UserPreview!
@@ -109,48 +90,42 @@ enum FeedType {
 }
 
 type LocationFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   location: String!
 }
 
 type StatusMessageFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   message: String!
 }
 
 type TeamStatusFinishedFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   teamInfo: String!
 }
 
 type EventFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   event: String!
 }
 
 type NewMemberFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   memberAt: DateTime!
 }
 
 type BlackholedAtFeed {
-  id: Int!
-  at: DateTime!
+  createdAt: DateTime!
   userPreview: UserPreview!
   type: FeedType!
   blackholedAt: DateTime!
@@ -159,6 +134,24 @@ type BlackholedAtFeed {
 type FeedPaginated {
   edges: [undefinedEdge!]!
   pageInfo: CursorPageInfo!
+}
+
+type MyFollow {
+  isFollowing: Boolean!
+  userPreview: UserPreview!
+  followAt: DateTime!
+}
+
+type MyFollowPaginated {
+  nodes: [MyFollow!]!
+  totalCount: Int!
+  pageSize: Int!
+  pageNumber: Int!
+}
+
+type FollowSuccess {
+  userId: Int!
+  followId: Int!
 }
 
 type LinkableAccount {
@@ -743,7 +736,6 @@ type Mutation {
   deleteAccount: Int!
   followUser(targetId: Int!): FollowSuccess!
   unfollowUser(targetId: Int!): FollowSuccess!
-  updateFeed: Boolean!
 }
 
 union LoginResult = LoginSuccess | LoginNotLinked
