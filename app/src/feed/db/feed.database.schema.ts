@@ -3,24 +3,49 @@ import { HydratedDocument } from 'mongoose';
 import { UserPreview } from 'src/common/models/common.user.model';
 import { FeedType } from '../dto/feed.dto';
 
-export type FeedDocument = HydratedDocument<feed>;
+/** feed */
 
-@Schema({ collection: 'feeds', discriminatorKey: 'type' })
+export type FeedDocument = HydratedDocument<feed>;
+@Schema({ collection: 'feeds', discriminatorKey: 'kind' })
 export class feed {
+  @Prop({ type: String, required: true, enum: Object.values(FeedType) })
+  type: FeedType;
+}
+
+export const FeedSchema = SchemaFactory.createForClass(feed);
+
+/** follow feed */
+
+export type FollowFeedDocument = HydratedDocument<followFeed>;
+
+@Schema({ collection: 'feeds' })
+export class followFeed extends feed {
   @Prop({ required: true })
   createdAt: Date;
 
   @Prop({ required: true, type: UserPreview })
   userPreview: UserPreview;
 
-  @Prop({ required: true, type: String, enum: Object.values(FeedType) })
-  type: FeedType;
-
-  @Prop({ type: UserPreview })
-  followed?: UserPreview;
-
-  @Prop({ type: String })
-  location?: string;
+  @Prop({ required: true, type: UserPreview })
+  followed: UserPreview;
 }
 
-export const FeedSchema = SchemaFactory.createForClass(feed);
+export const FollowFeedSchema = SchemaFactory.createForClass(followFeed);
+
+/** location feed */
+
+export type LocationFeedDocument = HydratedDocument<followFeed>;
+
+@Schema({ collection: 'feeds' })
+export class locationFeed extends feed {
+  @Prop({ required: true })
+  createdAt: Date;
+
+  @Prop({ required: true, type: UserPreview })
+  userPreview: UserPreview;
+
+  @Prop({ required: true })
+  location: string;
+}
+
+export const LocationFeedSchema = SchemaFactory.createForClass(locationFeed);
