@@ -1,15 +1,22 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { FollowCacheService } from 'src/follow/follow.cache.service';
 import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
 import {
   CursorExtractor,
   PaginationCursorService,
 } from 'src/pagination/cursor/pagination.cursor.service';
-import { FeedPaginated, FollowFeed, feedUnion } from './model/feed.model';
+import { feed } from './db/feed.database.schema';
+import { FeedPaginated, feedUnion } from './model/feed.model';
 
 @Injectable()
 export class FeedService {
   constructor(
+    @InjectModel(feed.name)
+    private readonly feedModel: Model<feed>,
     private readonly paginationCursorService: PaginationCursorService,
+    private readonly followCacheService: FollowCacheService,
   ) {}
 
   async getFeedPaginated({
@@ -19,20 +26,8 @@ export class FeedService {
     userId: number;
     args: PaginationCursorArgs;
   }): Promise<FeedPaginated> {
-    //pagination을 위해 함수 분리
-    //id만 가진 db를 만들어 매번 로컬피드캐시에서 join하기 <- 캐시작업때 고려
-    const followFeeds = await this.getFollowFeeds(userId);
+    const feeds = await this.getFeeds(userId);
 
-    const feeds: (typeof feedUnion)[] = [...followFeeds];
-
-    //if (!feeds.length) {
-    //  return this.generateEmptyFeed();
-    //}
-
-    //sort로 정렬 (최신순 고정)
-    feeds.sort((a, b) => b.at.getTime() - a.at.getTime());
-
-    //pagination
     if (args.after) {
       const afterIndex = feeds.findIndex(
         (feed) => cursorExtractor(feed) === args.after,
@@ -48,30 +43,31 @@ export class FeedService {
     );
   }
 
-  //userId의 피드에 뜰 정보
-  async getFollowFeeds(userId: number): Promise<FollowFeed[]> {
-    ////followingList가 팔로우한 사람들
-    //followingList.map(async (follow) => {
-    //  const followersFollowing = await this.followCacheService.filterByDate(
-    //    follow.userPreview.id,
-    //    'following',
-    //    follow.followAt,
-    //  );
+  async getFeeds(userId: number): Promise<(typeof feedUnion)[]> {
+    const followList = await this.followCacheService.get(userId, 'following');
 
-    //  followFeeds.push(
-    //    ...followersFollowing.map((follower) => {
-    //      return {
-    //        id: 1,
-    //        at: follow.followAt,
-    //        userPreview: follow.userPreview,
-    //        type: FeedType.FOLLOW,
-    //        followed: follower.userPreview,
-    //      };
-    //    }),
-    //  );
-    //});
+    const conditions = followList.map((follow) => ({
+      'userPreview.id': follow.userPreview.id,
+      createdAt: { $gt: follow.followAt },
+    }));
 
-    return [];
+    const feeds = await Promise.all(
+      conditions.map(async (condition) => {
+        const aggregate = this.feedModel.aggregate<typeof feedUnion>();
+
+        const feed = await aggregate
+          .match(condition)
+          .sort({ createdAt: -1 })
+          .project({
+            _id: 0,
+            __v: 0,
+          });
+
+        return feed;
+      }),
+    );
+
+    return feeds.reduce((acc, curr) => acc.concat(curr), []);
   }
 
   ////fanout-on-write 방식
@@ -96,9 +92,8 @@ export class FeedService {
   //    false,
   //    cursorExtractor,
   //  );
-  //}
 }
 
 const cursorExtractor: CursorExtractor<typeof feedUnion> = (doc) => {
-  return `${doc.id.toString()} + ${doc.at.toISOString()}`;
+  return `${doc.userPreview.id.toString()} + ${doc.createdAt.toISOString()}`;
 };
