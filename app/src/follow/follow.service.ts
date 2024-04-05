@@ -8,10 +8,7 @@ import {
   QueryArgs,
   QueryOneArgs,
 } from 'src/database/mongoose/database.mongoose.query';
-import {
-  followFeed,
-  FollowFeedDocument,
-} from 'src/feed/db/feed.database.schema';
+import { followFeed } from 'src/feed/db/feed.database.schema';
 import { FeedType } from 'src/feed/dto/feed.dto';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { follow } from './db/follow.database.schema';
@@ -30,7 +27,7 @@ export class FollowService {
     @InjectModel(follow.name)
     private readonly followModel: Model<follow>,
     @InjectModel(followFeed.name)
-    private readonly followFeedModel: Model<FollowFeedDocument>,
+    private readonly followFeedModel: Model<followFeed>,
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly paginationIndexService: PaginationIndexService,
     private readonly followCacheService: FollowCacheService,

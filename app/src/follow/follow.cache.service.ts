@@ -38,8 +38,7 @@ export class FollowCacheService {
     return cachedData;
   }
 
-  //todo: cacheUtilService에 추가?
-  async filterByDate(
+  async getByDate(
     userId: number,
     type: 'follower' | 'following',
     time: Date,
