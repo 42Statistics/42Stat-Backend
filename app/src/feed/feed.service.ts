@@ -67,7 +67,7 @@ export class FeedService {
       }),
     );
 
-    return feeds.reduce((acc, curr) => acc.concat(curr), []);
+    return feeds.flat();
   }
 
   ////fanout-on-write 방식
