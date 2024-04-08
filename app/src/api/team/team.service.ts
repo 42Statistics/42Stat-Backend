@@ -113,6 +113,7 @@ export class TeamService {
         Pick<team, 'status' | 'users' | 'teamsUploads'> & {
           evalLogs: scale_team[];
           userPreviews: UserPreview[];
+          lastEventTime: Date;
         }
     >();
 
@@ -156,6 +157,22 @@ export class TeamService {
           ...conditionalProjectPreview('projectId', 'project'),
         },
         evalLogs: '$scale_teams',
+        // scale_teams 는 종료된 것만 있음
+        lastEventTime: {
+          $max: [
+            '$createdAt',
+            '$lockedAt',
+            '$closedAt',
+            {
+              $cond: [
+                { $eq: ['$status', 'finished'] },
+                { $max: '$scaleTeams.filledAt' },
+                null,
+              ],
+            },
+            { $max: '$teamsUploads.createdAt' },
+          ],
+        },
         userPreviews: 1,
       });
 
@@ -174,25 +191,7 @@ export class TeamService {
         occurrence: user.occurrence,
       })),
       status: convertTeamStauts(teamInfoAggr.status),
-      lastEventTime: new Date(
-        Math.max(
-          teamInfoAggr.createdAt.getTime(),
-          teamInfoAggr.lockedAt?.getTime() ?? 0,
-          teamInfoAggr.closedAt?.getTime() ?? 0,
-          teamInfoAggr.status === 'finished'
-            ? teamInfoAggr.evalLogs.reduce(
-                (lastFilled, evalLog) =>
-                  Math.max(evalLog.filledAt!.getTime(), lastFilled),
-                0,
-              )
-            : 0,
-          teamInfoAggr.teamsUploads.reduce(
-            (lastUpload, upload) =>
-              Math.max(lastUpload, upload.createdAt.getTime()),
-            0,
-          ),
-        ),
-      ),
+      lastEventTime: teamInfoAggr.lastEventTime,
       moulinette: teamInfoAggr.teamsUploads.length
         ? {
             id: teamInfoAggr.teamsUploads[0].id,
