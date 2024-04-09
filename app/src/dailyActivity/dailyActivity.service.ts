@@ -37,7 +37,9 @@ export class DailyActivityService {
           ...prevRecords,
           {
             type: record.type,
-            value: Math.floor(record.value / DateWrapper.MIN),
+            value: Math.floor(
+              Math.min(record.value, DateWrapper.DAY) / DateWrapper.MIN,
+            ),
           },
         ]);
 
