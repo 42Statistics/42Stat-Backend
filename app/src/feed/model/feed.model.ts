@@ -1,6 +1,5 @@
 import { Field, ObjectType, createUnionType } from '@nestjs/graphql';
 import { UserPreview } from 'src/common/models/common.user.model';
-import { CursorPaginated } from 'src/pagination/cursor/models/pagination.cursor.model';
 import { FeedType } from '../dto/feed.dto';
 
 @ObjectType()
@@ -109,7 +108,31 @@ export const feedUnion = createUnionType({
       return BlackholedAtFeed;
     }
   },
-}) as any; //todo: union을 pagination 하는 방법 찾기
+});
 
 @ObjectType()
-export class FeedPaginated extends CursorPaginated(feedUnion) {}
+export class PageInfo {
+  @Field()
+  hasNextPage: boolean;
+
+  @Field({ nullable: true })
+  endCursor?: String;
+}
+
+@ObjectType()
+export class FeedEdge {
+  @Field()
+  cursor: string;
+
+  @Field((_type) => feedUnion)
+  node: typeof feedUnion;
+}
+
+@ObjectType()
+export class FeedPage {
+  @Field((_type) => [FeedEdge])
+  edges: FeedEdge[];
+
+  @Field()
+  pageInfo: PageInfo;
+}

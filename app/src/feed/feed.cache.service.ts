@@ -27,9 +27,10 @@ export class FeedCacheService {
     const lastMonthFeeds = await this.feedModel.aggregate([
       { $match: { createdAt: { $gte: lastMonth } } },
       { $sort: { createdAt: -1 } },
+      { $project: { _id: 0, __v: 0 } },
     ]);
 
-    const key = `lastMonthFeeds:${lastMonth}`;
+    const key = `lastMonthFeeds`;
 
     await this.cacheUtilService.set(key, lastMonthFeeds, DateWrapper.DAY);
   }

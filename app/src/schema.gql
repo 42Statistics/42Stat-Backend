@@ -59,13 +59,12 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
-type CursorPageInfo {
-  totalCount: Int!
+type PageInfo {
   hasNextPage: Boolean!
   endCursor: String
 }
 
-type undefinedEdge {
+type FeedEdge {
   cursor: String!
   node: FeedUnion!
 }
@@ -131,9 +130,9 @@ type BlackholedAtFeed {
   blackholedAt: DateTime!
 }
 
-type FeedPaginated {
-  edges: [undefinedEdge!]!
-  pageInfo: CursorPageInfo!
+type FeedPage {
+  edges: [FeedEdge!]!
+  pageInfo: PageInfo!
 }
 
 type MyFollow {
@@ -185,6 +184,12 @@ type ProjectPreview {
   circle: Int
   pdfUrl: String
   difficulty: Int
+}
+
+type CursorPageInfo {
+  totalCount: Int!
+  hasNextPage: Boolean!
+  endCursor: String
 }
 
 type TeamPreview {
@@ -713,7 +718,7 @@ type Query {
   getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
   getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
-  getFeed(after: String, first: Int! = 20): FeedPaginated!
+  getFeed(after: String, first: Int! = 20): FeedPage!
 }
 
 enum EvalLogSortOrder {

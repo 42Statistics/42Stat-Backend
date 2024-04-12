@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { CacheUtilService } from 'src/cache/cache.util.service';
 import { FollowCacheService } from 'src/follow/follow.cache.service';
 import { PaginationCursorArgs } from 'src/pagination/cursor/dtos/pagination.cursor.dto';
 import {
@@ -8,7 +10,7 @@ import {
   PaginationCursorService,
 } from 'src/pagination/cursor/pagination.cursor.service';
 import { feed } from './db/feed.database.schema';
-import { FeedPaginated, feedUnion } from './model/feed.model';
+import { FeedEdge, FeedPage, feedUnion, PageInfo } from './model/feed.model';
 
 @Injectable()
 export class FeedService {
@@ -17,6 +19,8 @@ export class FeedService {
     private readonly feedModel: Model<feed>,
     private readonly paginationCursorService: PaginationCursorService,
     private readonly followCacheService: FollowCacheService,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheUtilService: CacheUtilService,
   ) {}
 
   async getFeedPaginated({
@@ -25,8 +29,10 @@ export class FeedService {
   }: {
     userId: number;
     args: PaginationCursorArgs;
-  }): Promise<FeedPaginated> {
+  }): Promise<FeedPage> {
     const feeds = await this.getFeeds(userId);
+
+    console.log(feeds);
 
     if (args.after) {
       const afterIndex = feeds.findIndex(
@@ -35,63 +41,46 @@ export class FeedService {
       feeds.splice(0, afterIndex + 1);
     }
 
-    return this.paginationCursorService.toPaginated(
-      feeds.slice(0, args.first),
-      feeds.length,
-      feeds.length > args.first,
-      cursorExtractor,
-    );
+    const edges: FeedEdge[] = feeds.map((feed) => ({
+      node: feed,
+      cursor: cursorExtractor(feed),
+    }));
+
+    const pageInfo: PageInfo = {
+      hasNextPage: feeds.length > args.first,
+      endCursor: edges.at(-1)?.cursor,
+    };
+
+    return {
+      edges,
+      pageInfo,
+    };
   }
 
   async getFeeds(userId: number): Promise<(typeof feedUnion)[]> {
     const followList = await this.followCacheService.get(userId, 'following');
 
-    const conditions = followList.map((follow) => ({
-      'userPreview.id': follow.userPreview.id,
-      createdAt: { $gt: follow.followAt },
-    }));
+    const key = `lastMonthFeeds`;
+    const feeds = await this.cacheUtilService.get<(typeof feedUnion)[]>(key);
 
-    const feeds = await Promise.all(
-      conditions.map(async (condition) => {
-        const aggregate = this.feedModel.aggregate<typeof feedUnion>();
+    //cache가 없는 경우 고려
+    if (!feeds) {
+      console.log('cache miss');
+      return [];
+    }
 
-        const feed = await aggregate
-          .match(condition)
-          .sort({ createdAt: -1 })
-          .project({
-            _id: 0,
-            __v: 0,
-          });
-
-        return feed;
-      }),
-    );
+    feeds.filter((feed) => {
+      const isFollowedUser = followList.some(
+        (follow) => follow.userPreview.id === feed.userPreview.id,
+      );
+      const isAfterFollow = followList.some(
+        (follow) => follow.followAt < feed.createdAt,
+      );
+      return isFollowedUser && isAfterFollow;
+    });
 
     return feeds.flat();
   }
-
-  ////fanout-on-write 방식
-  //async updateFeed(userId: number, feed: typeof FeedUnion): Promise<void> {
-  //  //나의 팔로워 리스트를 가져옴
-  //  const cachedFollowerList = await this.followCacheService.get(
-  //    userId,
-  //    'follower',
-  //  );
-
-  //  //팔로워들의 feed에 새로 작성한 feed를 추가
-  //  for (const follower of cachedFollowerList) {
-  //    console.log('write feed: ', follower.userPreview.id, feed);
-  //    //await this.feedCacheService.writeFeed(follower.userPreview.id, feed);
-  //  }
-  //}
-
-  //private generateEmptyFeed(): FeedPaginated {
-  //  return this.paginationCursorService.toPaginated<typeof FeedUnion>(
-  //    [],
-  //    0,
-  //    false,
-  //    cursorExtractor,
-  //  );
 }
 
 const cursorExtractor: CursorExtractor<typeof feedUnion> = (doc) => {
