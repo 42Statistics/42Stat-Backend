@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { FilterQuery, Model, SortOrder } from 'mongoose';
 import { CursusUserCacheService } from 'src/api/cursusUser/cursusUser.cache.service';
 import {
-  QueryArgs,
-  QueryOneArgs,
   findAllAndLean,
   findOneAndLean,
+  QueryArgs,
+  QueryOneArgs,
 } from 'src/database/mongoose/database.mongoose.query';
+import { followFeed } from 'src/feed/db/feed.database.schema';
+import { FeedType } from 'src/feed/dto/feed.dto';
 import { PaginationIndexService } from 'src/pagination/index/pagination.index.service';
 import { follow } from './db/follow.database.schema';
 import { FollowSortOrder, type FollowPaginatedArgs } from './dto/follow.dto';
@@ -24,6 +26,8 @@ export class FollowService {
   constructor(
     @InjectModel(follow.name)
     private readonly followModel: Model<follow>,
+    @InjectModel(followFeed.name)
+    private readonly followFeedModel: Model<followFeed>,
     private readonly cursusUserCacheService: CursusUserCacheService,
     private readonly paginationIndexService: PaginationIndexService,
     private readonly followCacheService: FollowCacheService,
@@ -85,6 +89,14 @@ export class FollowService {
     }
 
     cachedfollowerList.push({ userPreview: user, followAt });
+
+    //todo: feed 실패와 follow 실패 구분 안되는 중
+    await this.followFeedModel.create({
+      createdAt: followAt,
+      userPreview: user,
+      type: FeedType.FOLLOW,
+      followed: target,
+    });
 
     return {
       userId,

@@ -37,4 +37,22 @@ export class FollowCacheService {
 
     return cachedData;
   }
+
+  async getByDate(
+    userId: number,
+    type: 'follower' | 'following',
+    time: Date,
+  ): Promise<Follow[]> {
+    const key = `${userId}:${type}:${FOLLOW_LISTS}`;
+
+    const cachedData = await this.cacheUtilService.get<Follow[]>(key);
+
+    if (!cachedData) {
+      return [];
+    }
+
+    return cachedData.filter((follow) => {
+      return follow.followAt > time;
+    });
+  }
 }

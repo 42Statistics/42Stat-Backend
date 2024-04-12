@@ -59,6 +59,82 @@ type UserRankingIndexPaginated {
   pageNumber: Int!
 }
 
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+type FeedEdge {
+  cursor: String!
+  node: FeedUnion!
+}
+
+union FeedUnion = FollowFeed | LocationFeed | StatusMessageFeed | TeamStatusFinishedFeed | EventFeed | NewMemberFeed | BlackholedAtFeed
+
+type FollowFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  followed: UserPreview!
+}
+
+enum FeedType {
+  FOLLOW
+  STATUS_MESSAGE
+  LOCATION
+  NEW_MEMBER
+  BLACKHOLED_AT
+  TEAM_STATUS_FINISHED
+  EVENT
+}
+
+type LocationFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  location: String!
+}
+
+type StatusMessageFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  message: String!
+}
+
+type TeamStatusFinishedFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  teamInfo: String!
+}
+
+type EventFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  event: String!
+}
+
+type NewMemberFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  memberAt: DateTime!
+}
+
+type BlackholedAtFeed {
+  createdAt: DateTime!
+  userPreview: UserPreview!
+  type: FeedType!
+  blackholedAt: DateTime!
+}
+
+type FeedPage {
+  edges: [FeedEdge!]!
+  pageInfo: PageInfo!
+}
+
 type MyFollow {
   isFollowing: Boolean!
   userPreview: UserPreview!
@@ -642,6 +718,7 @@ type Query {
   getIsFollowing(targetId: Int!): Boolean!
   getFollowerPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
   getFollowingPaginated(pageSize: Int! = 10, pageNumber: Int! = 1, targetId: Int!, sortOrder: FollowSortOrder! = FOLLOW_AT_DESC): MyFollowPaginated!
+  getFeed(after: String, first: Int! = 20): FeedPage!
 }
 
 enum EvalLogSortOrder {
