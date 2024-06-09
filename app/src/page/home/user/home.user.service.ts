@@ -159,25 +159,29 @@ export class HomeUserService {
         count: 1,
       });
 
-    const startDateIndex = totalUserIOs.findIndex(({ date }) => date >= start);
-    const beforeStart = totalUserIOs
-      .slice(0, startDateIndex)
+    let prevUserCount = totalUserIOs
+      .filter((userIO) => userIO.date.getTime() < start.getTime())
       .reduce((acc, { count }) => acc + count, 0);
 
-    return totalUserIOs.slice(startDateIndex).reduce(
-      ({ prev, records }, { date, count }) => {
-        records.push({
-          at: date,
-          value: prev + count,
-        });
+    const recordList = new Array<IntRecord>();
+    for (
+      let curr = start;
+      curr.getTime() < end.getTime();
+      curr = new DateWrapper(curr).moveMonth(1).toDate()
+    ) {
+      const currRecord = totalUserIOs.find(
+        ({ date }) => date.getTime() === curr.getTime(),
+      );
 
-        return {
-          prev: prev + count,
-          records,
-        };
-      },
-      { prev: beforeStart, records: new Array<IntRecord>() },
-    ).records;
+      recordList.push({
+        at: curr,
+        value: prevUserCount + (currRecord?.count ?? 0),
+      });
+
+      prevUserCount += currRecord?.count ?? 0;
+    }
+
+    return recordList;
   }
 
   @CacheOnReturn()

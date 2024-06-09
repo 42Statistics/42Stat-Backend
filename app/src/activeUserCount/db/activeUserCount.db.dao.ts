@@ -1,21 +1,17 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { RUNTIME_CONFIG } from 'src/config/runtime';
-import { mv_active_user_counts } from './activeUserCount.db.schema';
 import {
   FindAllActiveUserCountByDateInput,
   FindAllActiveUserCountByDateOutput,
 } from './activeUserCount.db.dto';
+import { mv_active_user_counts } from './activeUserCount.db.schema';
 
 @Injectable()
 export class ActiveUserCountDao {
   constructor(
     @InjectModel(mv_active_user_counts.name)
     private readonly activeUserCountModel: Model<mv_active_user_counts>,
-    @Inject(RUNTIME_CONFIG.KEY)
-    private readonly runtimeConfig: ConfigType<typeof RUNTIME_CONFIG>,
   ) {}
 
   async findAllByDate(
