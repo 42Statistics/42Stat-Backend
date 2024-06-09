@@ -1,5 +1,6 @@
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { Args, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { ActiveUserCountService } from 'src/activeUserCount/activeUserCount.service';
 import { StatAuthGuard } from 'src/auth/statAuthGuard';
 import { CacheUtilService } from 'src/cache/cache.util.service';
 import { Rate } from 'src/common/models/common.rate.model';
@@ -13,6 +14,7 @@ import {
   GetHomeUserAliveUserCountRecordsFromEndArgs,
   GetHomeUserAliveUserCountRecordsFromStartArgs,
   GetHomeUserBlackholedCountRecordsArgs,
+  GetHomeUserMonthlyActiveUserCountRecordsFromEndArgs,
   HomeUser,
   IntPerCircle,
   UserCountPerLevel,
@@ -24,6 +26,7 @@ import {
 export class HomeUserResolver {
   constructor(
     private readonly homeUserService: HomeUserService,
+    private readonly activeUserCountService: ActiveUserCountService,
     private readonly cacheUtilService: CacheUtilService,
   ) {}
 
@@ -137,6 +140,38 @@ export class HomeUserResolver {
 
       return result;
     }
+  }
+
+  @ResolveField((_returns) => [IntRecord])
+  async monthlyActiveUserCountRecordsFromEnd(
+    @Args() { last }: GetHomeUserMonthlyActiveUserCountRecordsFromEndArgs,
+  ): Promise<IntRecord[]> {
+    const nextMonth = new DateWrapper().startOfMonth().moveMonth(1).toDate();
+    const start = new DateWrapper()
+      .startOfMonth()
+      .moveMonth(1 - last)
+      .toDate();
+
+    const cacheKey = `homeUserMonthlyActiveUserCountRecordsFromEnd:${start.getTime()}:${nextMonth.getTime()}`;
+
+    const cached = await this.cacheUtilService.get<IntRecord[]>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const activeUserCountList = await this.activeUserCountService.getAllByDate({
+      start,
+      end: nextMonth,
+    });
+
+    const result = activeUserCountList.map((activeUserCount) => ({
+      at: activeUserCount.date,
+      value: activeUserCount.count,
+    }));
+
+    await this.cacheUtilService.set(cacheKey, result, DateWrapper.MIN);
+
+    return result;
   }
 
   @ResolveField((_returns) => [IntRecord])

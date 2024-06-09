@@ -1,5 +1,5 @@
-import { Args, ArgsType, Field, ObjectType } from '@nestjs/graphql';
-import { IsDateString, IsNumber, Max, Min, NotEquals } from 'class-validator';
+import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
+import { IsNumber, Max, Min, NotEquals } from 'class-validator';
 import { Rate } from 'src/common/models/common.rate.model';
 import { UserRank } from 'src/common/models/common.user.model';
 import { IntRecord } from 'src/common/models/common.valueRecord.model';
@@ -34,6 +34,9 @@ export class HomeUser {
 
   @Field((_type) => [IntRecord])
   monthlyAliveUserCountRecordsByDate: IntRecord[];
+
+  @Field((_type) => [IntRecord])
+  monthlyActiveUserCountRecordsFromEnd: IntRecord[];
 
   @Field((_type) => [IntRecord], { deprecationReason: 'v0.10.0' })
   aliveUserCountRecords: IntRecord[];
@@ -91,6 +94,14 @@ export class GetHomeUserAliveUserCountRecordsByDateArgs {
   @IsNumber()
   @Field()
   timestamp: number;
+}
+
+@ArgsType()
+export class GetHomeUserMonthlyActiveUserCountRecordsFromEndArgs {
+  @Min(1)
+  @Max(120)
+  @Field()
+  last: number;
 }
 
 @ArgsType()
