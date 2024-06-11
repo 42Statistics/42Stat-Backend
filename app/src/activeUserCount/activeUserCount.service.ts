@@ -19,10 +19,6 @@ export class ActiveUserCountService {
     });
 
     const activeUserCountList = new Array<ActiveUserCount>();
-    let prevCount =
-      dbDataList
-        .filter((dbData) => dbData.date.getTime() < input.start.getTime())
-        .at(-1)?.count ?? 0;
 
     for (
       let curr = input.start;
@@ -35,10 +31,8 @@ export class ActiveUserCountService {
 
       activeUserCountList.push({
         date: curr,
-        count: dbData?.count ?? prevCount,
+        count: dbData?.count ?? 0,
       });
-
-      prevCount += dbData?.count ?? 0;
     }
 
     return activeUserCountList;
