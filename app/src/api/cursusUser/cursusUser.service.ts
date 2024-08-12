@@ -23,6 +23,7 @@ import type {
   IntPerCircle,
   UserCountPerLevel,
 } from 'src/page/home/user/models/home.user.model';
+import { CampusUserService } from '../capmusUser/campusUser.service';
 import { CoalitionService } from '../coalition/coalition.service';
 import { lookupCoalition } from '../coalition/db/coalition.database.aggregate';
 import { lookupCoalitionsUser } from '../coalitionsUser/db/coalitionsUser.database.aggregate';
@@ -71,6 +72,7 @@ export class CursusUserService {
     @InjectModel(cursus_user.name)
     private readonly cursusUserModel: Model<cursus_user>,
     private readonly coalitionService: CoalitionService,
+    private readonly campusUserService: CampusUserService,
   ) {}
 
   aggregate<ReturnType>(): Aggregate<ReturnType[]> {
@@ -327,23 +329,30 @@ export class CursusUserService {
     {
       filter,
       sort,
-      limit,
-    }: Omit<QueryArgs<cursus_user>, 'sort'> & {
+    }: Omit<QueryArgs<cursus_user>, 'sort' | 'select' | 'limit'> & {
       sort: Record<string, SortValues>;
     },
     valueExtractor: (cursusUser: cursus_user) => UserRank['value'],
   ): Promise<UserRank[]> {
-    const rawRanking = await this.findAllAndLean({ filter, sort, limit });
+    const rawRanking = await this.findAllAndLean({
+      filter,
+      sort,
+    });
 
-    return rawRanking.map((rawRank, index) => ({
-      userPreview: {
-        id: rawRank.user.id,
-        login: rawRank.user.login,
-        imgUrl: rawRank.user.image.link,
-      },
-      value: valueExtractor(rawRank),
-      rank: index + 1,
-    }));
+    const transferOutUserIdList =
+      await this.campusUserService.getAllTransferOutUserId();
+
+    return rawRanking
+      .filter((rawRank) => !transferOutUserIdList.includes(rawRank.user.id))
+      .map((rawRank, index) => ({
+        userPreview: {
+          id: rawRank.user.id,
+          login: rawRank.user.login,
+          imgUrl: rawRank.user.image.link,
+        },
+        value: valueExtractor(rawRank),
+        rank: index + 1,
+      }));
   }
 }
 

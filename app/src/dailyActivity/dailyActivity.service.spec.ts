@@ -1,13 +1,66 @@
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppRootModule } from 'src/app.module';
+import { DateRangeModule } from 'src/dateRange/dateRange.module';
+import { DateRangeService } from 'src/dateRange/dateRange.service';
 import {
   DailyActivityType,
   type FindDailyActivityDetailRecordOutput,
 } from './dailyActivity.dto';
+import { DailyActivityModule } from './dailyActivity.module';
 import { DailyActivityService } from './dailyActivity.service';
 import { DailyActivityDaoImpl } from './db/dailyActivity.database.dao';
 
 describe(DailyActivityService.name, () => {
   let dailyActivityService: DailyActivityService;
+
+  describe('userDailyActivityByDate', () => {
+    let moduleRef: TestingModule;
+
+    beforeAll(async () => {
+      moduleRef = await Test.createTestingModule({
+        imports: [AppRootModule, DailyActivityModule, DateRangeModule],
+      }).compile();
+
+      dailyActivityService = moduleRef.get(DailyActivityService);
+    });
+
+    afterAll(async () => await moduleRef.close());
+
+    it(
+      '데이터 갱신이 없다면 동일하게 반화해야함...',
+      async () => {
+        const dateRangeService = moduleRef.get(DateRangeService);
+
+        const userId = 157950;
+        const year = undefined;
+
+        const { start, end } = year
+          ? dateRangeService.getAbsoluteDateRangeByYear(year)
+          : dateRangeService.getRelativeDateRange();
+
+        const firstResult = await dailyActivityService.userDailyActivityByDate(
+          userId,
+          {
+            start,
+            end,
+          },
+        );
+
+        for (let i = 0; i < 100; i++) {
+          const currResult = await dailyActivityService.userDailyActivityByDate(
+            userId,
+            {
+              start,
+              end,
+            },
+          );
+
+          expect(currResult).toEqual(firstResult);
+        }
+      },
+      1000 * 60 * 10,
+    );
+  });
 
   describe('userDailyActivityDetailRecordsById', () => {
     const testUser = 1;

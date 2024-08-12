@@ -291,14 +291,14 @@ export class HomeUserService {
       keyBase: USER_WALLET_RANKING,
     });
 
-    const walletRanking = cachedRanking
-      ? cachedRanking.slice(0, limit)
-      : await this.cursusUserService.ranking(
-          { sort: { 'user.wallet': -1 }, limit },
-          (cursusUser: cursus_user) => cursusUser.user.wallet,
-        );
+    const ranking =
+      cachedRanking ??
+      (await this.cursusUserService.ranking(
+        { filter: aliveUserFilter, sort: { 'user.wallet': -1 } },
+        (cursusUser: cursus_user) => cursusUser.user.wallet,
+      ));
 
-    return walletRanking;
+    return ranking.slice(0, limit);
   }
 
   async correctionPointRanking(limit: number): Promise<UserRank[]> {
@@ -306,16 +306,17 @@ export class HomeUserService {
       keyBase: USER_CORRECTION_POINT_RANKING,
     });
 
-    return cachedRanking
-      ? cachedRanking.slice(0, limit)
-      : await this.cursusUserService.ranking(
-          {
-            filter: aliveUserFilter,
-            sort: { 'user.correctionPoint': -1 },
-            limit,
-          },
-          (cursusUser: cursus_user) => cursusUser.user.correctionPoint,
-        );
+    const ranking =
+      cachedRanking ??
+      (await this.cursusUserService.ranking(
+        {
+          filter: aliveUserFilter,
+          sort: { 'user.correctionPoint': -1 },
+        },
+        (cursusUser: cursus_user) => cursusUser.user.correctionPoint,
+      ));
+
+    return ranking.slice(0, limit);
   }
 
   @CacheOnReturn()
