@@ -2,6 +2,7 @@ import {
   GetSecretValueCommand,
   SecretsManagerClient,
 } from '@aws-sdk/client-secrets-manager';
+import { fromInstanceMetadata } from '@aws-sdk/credential-providers';
 import {
   Inject,
   Injectable,
@@ -22,6 +23,10 @@ export class RemoteConfigService {
   ) {
     this.secretsManager = new SecretsManagerClient({
       region: this.awsConfig.REGION,
+      credentials: fromInstanceMetadata({
+        timeout: this.awsConfig.CREDENTIAL_TIMEOUT,
+        maxRetries: this.awsConfig.CREDENTIAL_RETRY_COUNT,
+      }),
     });
   }
 

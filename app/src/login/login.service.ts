@@ -109,46 +109,50 @@ export class LoginService {
    * @throws {BadRequestException} ftCode가 유효하지 않은 경우
    */
   private async getFtUser(ftCode: string): Promise<number> {
+    const { clientId, clientSecret, redirectURI } = await this.getFtClient();
+
+    return await this.requestFtOAuth({
+      clientId,
+      clientSecret,
+      redirectURI,
+      ftCode,
+    });
+  }
+
+  private async getFtClient(): Promise<{
+    clientId: string;
+    clientSecret: string;
+    redirectURI: string;
+  }> {
     if (this.runtimeConfig.PROD) {
-      const clientSecret = await this.fetchFtClientSecret(
+      const secret = await this.fetchFtClientSecret(
         this.awsConfig.AWS_PROD_FT_CLIENT_SECRET_ID,
       );
 
-      return await this.requestFtOAuth({
+      return {
         clientId: this.ftClientConfig.ID,
-        clientSecret,
+        clientSecret: secret,
         redirectURI: this.ftClientConfig.REDIRECT_URI,
-        ftCode,
-      });
-    } else {
-      try {
-        const clientSecret = await this.fetchFtClientSecret(
-          this.awsConfig.AWS_LOCAL_FT_CLIENT_SECRET_ID,
-        );
-
-        return await this.requestFtOAuth({
-          clientId: this.ftClientConfig.LOCAL_ID,
-          clientSecret,
-          redirectURI: this.ftClientConfig.LOCAL_REDIRECT_URI,
-          ftCode,
-        });
-      } catch (e) {
-        if (e instanceof BadRequestException) {
-          const clientSecret = await this.fetchFtClientSecret(
-            this.awsConfig.AWS_DEV_FT_CLIENT_SECRET_ID,
-          );
-
-          return await this.requestFtOAuth({
-            clientId: this.ftClientConfig.DEV_ID,
-            clientSecret,
-            redirectURI: this.ftClientConfig.DEV_REDIRECT_URI,
-            ftCode,
-          });
-        }
-
-        throw e;
-      }
+      };
     }
+
+    if (this.runtimeConfig.DEV) {
+      const secret = await this.fetchFtClientSecret(
+        this.awsConfig.AWS_DEV_FT_CLIENT_SECRET_ID,
+      );
+
+      return {
+        clientId: this.ftClientConfig.DEV_ID,
+        clientSecret: secret,
+        redirectURI: this.ftClientConfig.DEV_REDIRECT_URI,
+      };
+    }
+
+    return {
+      clientId: this.ftClientConfig.LOCAL_ID,
+      clientSecret: this.ftClientConfig.LOCAL_SECRET,
+      redirectURI: this.ftClientConfig.LOCAL_REDIRECT_URI,
+    };
   }
 
   private async fetchFtClientSecret(secretId: string): Promise<string> {
