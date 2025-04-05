@@ -201,7 +201,7 @@ export class TeamService {
           }
         : undefined,
       evalLogs: teamInfoAggr.evalLogs
-        .filter((log) => (log.corrector as unknown) !== 'invisible')
+        .filter((log) => (log.corrector as unknown) !== 'invisible' && (log.corrector as unknown) !== 'unknown')
         .map((log) => ({
           id: log.id,
           header: {
