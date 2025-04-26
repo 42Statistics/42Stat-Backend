@@ -236,7 +236,10 @@ export class PersonalGeneralService {
   async promoMemberLevelRecords(beginAt: Date): Promise<LevelRecord[]> {
     return await this.experineceUserService.levelRecords(beginAt, {
       ...promoFilter(beginAt),
-      grade: 'Member',
+      $or: [
+        { grade: 'Transcender' },
+        { grade: 'Alumni' }
+      ]
     });
   }
 }

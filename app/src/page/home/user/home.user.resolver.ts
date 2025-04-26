@@ -185,6 +185,11 @@ export class HomeUserResolver {
   }
 
   @ResolveField((_returns) => Rate)
+  async userRate(): Promise<Rate> {
+    return await this.homeUserService.userRate();
+  }
+
+  @ResolveField((_returns) => Rate)
   async memberRate(): Promise<Rate> {
     return await this.homeUserService.memberRate();
   }

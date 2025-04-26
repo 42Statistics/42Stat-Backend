@@ -25,16 +25,20 @@ export const blackholedUserFilterByDateRange = (
         $gte: dateRange.start,
         $lt: dateRange.end < now ? dateRange.end : now,
       },
-      grade: 'Learner',
+      grade: 'Cadet',
     };
   }
 
   return {
     blackholedAt: { $lt: now },
-    grade: 'Learner',
+    grade: 'Cadet',
   };
 };
 
 export const aliveUserFilter: FilterQuery<cursus_user> = {
-  $or: [{ blackholedAt: { $gte: new Date() } }, { grade: 'Member' }],
+  $or: [
+    { blackholedAt: { $gte: new Date() } },
+    { grade: 'Transcender' },
+    { grade: 'Alumni' },
+  ],
 };

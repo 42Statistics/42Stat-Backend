@@ -36,35 +36,9 @@ import {
 import { lookupTitle } from '../title/db/title.database.aggregate';
 import { lookupTitlesUser } from '../titlesUser/db/titlesUser.database.aggregate';
 import type { UserFullProfileAggr } from './db/cursusUser.database.aggregate';
-import { aliveUserFilter } from './db/cursusUser.database.query';
+import { aliveUserFilter, blackholedUserFilterByDateRange } from './db/cursusUser.database.query';
 import { cursus_user } from './db/cursusUser.database.schema';
-
-const isLearner = (
-  cursusUser: cursus_user,
-): cursusUser is Omit<cursus_user, 'blackholedAt'> & { blackholedAt: Date } =>
-  cursusUser.grade === 'Learner';
-
-// todo: 적절한 위치 찾기
-export const isBlackholed = (
-  cursusUser: cursus_user,
-  dateRange?: DateRange,
-): boolean => {
-  if (!isLearner(cursusUser)) {
-    return false;
-  }
-
-  const blackholedAt = cursusUser.blackholedAt;
-  const now = new Date();
-
-  if (dateRange) {
-    return (
-      dateRange.start <= blackholedAt &&
-      blackholedAt < (dateRange.end < now ? dateRange.end : now)
-    );
-  }
-
-  return blackholedAt < now;
-};
+import { Pair, Rate } from 'src/common/models/common.rate.model';
 
 @Injectable()
 export class CursusUserService {
@@ -173,6 +147,58 @@ export class CursusUserService {
     }).then((result) => result.at(0));
 
     return userFullProfile ?? null;
+  }
+
+  async userRate(): Promise<Rate> {
+    const blackholedCount = await this.userCount(blackholedUserFilterByDateRange());
+
+    const countByGrade = await this.cursusUserModel
+      .aggregate<{ _id: string; count: number }>()
+      .group({
+        _id: '$grade',
+        count: { $count: {} },
+      });
+
+    const fields = countByGrade.flatMap(({ _id, count }): Pair[] => {
+      switch (_id) {
+        case 'Cadet': {
+          return [
+            {
+              key: 'cadet',
+              value: count - blackholedCount,
+            },
+            {
+              key: 'blackholed',
+              value: blackholedCount,
+            }
+          ];
+        }
+        case 'Transcender': {
+          return [
+            {
+              key: 'transcender',
+              value: count,
+            },
+          ];
+        }
+        case 'Alumni': {
+          return [
+            {
+              key: 'alumni',
+              value: count,
+            },
+          ];
+        }
+        default: {
+          return [];
+        }
+      }
+    });
+
+    return {
+      total: fields.reduce((acc, { value }) => acc + value, 0),
+      fields,
+    };
   }
 
   async userCount(filter?: FilterQuery<cursus_user>): Promise<number> {

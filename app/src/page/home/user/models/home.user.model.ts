@@ -45,6 +45,9 @@ export class HomeUser {
   userCountPerLevel: UserCountPerLevel[];
 
   @Field()
+  userRate: Rate;
+
+  @Field()
   memberRate: Rate;
 
   @Field()

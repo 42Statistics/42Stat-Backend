@@ -246,6 +246,7 @@ type HomeUser {
   monthlyActiveUserCountRecordsFromEnd(last: Int!): [IntRecord!]!
   aliveUserCountRecords: [IntRecord!]! @deprecated(reason: "v0.10.0")
   userCountPerLevel: [UserCountPerLevel!]!
+  userRate: Rate!
   memberRate: Rate!
   blackholedRate: Rate!
 

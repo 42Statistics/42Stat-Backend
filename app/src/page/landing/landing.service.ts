@@ -31,8 +31,9 @@ export class LandingService {
       blackholedUserFilterByDateRange(),
     );
 
+    // 본격적인 여행을 시작한 XX 명 으로 표기되고 있어서 TRanscender 만 집계
     const memberCount = await this.cursusUserService.userCount({
-      grade: 'Member',
+      grade: 'Transcender',
     });
 
     const evalCount = await this.scaleTeamService.evalCount();

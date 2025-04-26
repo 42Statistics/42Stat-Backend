@@ -203,6 +203,11 @@ export class HomeUserService {
   }
 
   @CacheOnReturn()
+  async userRate(): Promise<Rate> {
+    return await this.cursusUserService.userRate();
+  }
+
+  @CacheOnReturn()
   async memberRate(): Promise<Rate> {
     const total = await this.cursusUserService.userCount();
     const value = await this.cursusUserService.userCount({ grade: 'Member' });
