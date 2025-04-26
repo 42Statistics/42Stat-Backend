@@ -41,8 +41,7 @@ jobs:
 
       - name: Install AWS cli
         run: |
-          sudo apt-get update
-          sudo apt-get install awscli
+          sudo snap install aws-cli --classic
 
       - name: Deploy code to AWS S3
         run: |
